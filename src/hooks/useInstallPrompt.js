@@ -167,14 +167,20 @@ export function useInstallPrompt() {
   }, []);
 
   const promptInstall = async () => {
-    if (!deferredPrompt && window.kjbDeferredPrompt) deferredPrompt = window.kjbDeferredPrompt;
+    // Always check window.kjbDeferredPrompt first (set by index.html event listener)
+    if (!deferredPrompt && window.kjbDeferredPrompt) {
+      deferredPrompt = window.kjbDeferredPrompt;
+      console.log('[InstallPrompt] Synced deferredPrompt from window.kjbDeferredPrompt');
+    }
     
     // If we have a deferred prompt, use it (standard Chrome/Edge/Samsung flow)
     if (deferredPrompt) {
       try {
         promptEverOffered = true;
+        console.log('[InstallPrompt] Firing native prompt...');
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
+        console.log('[InstallPrompt] User choice:', outcome);
         deferredPrompt = null;
         window.kjbDeferredPrompt = null;
         setIsInstallable(false);

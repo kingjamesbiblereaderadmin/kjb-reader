@@ -113,6 +113,18 @@
     </script>
     <link rel="icon" type="image/png" href="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/35e329953_cfb4bf781_Untitled.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Capture beforeinstallprompt early (Chrome/Edge desktop) -->
+    <script>
+      (function() {
+        if (typeof window === 'undefined') return;
+        window.addEventListener('beforeinstallprompt', function(e) {
+          e.preventDefault();
+          window.kjbDeferredPrompt = e;
+          console.log('[index.html] beforeinstallprompt captured');
+          window.dispatchEvent(new Event('kjb-install-change'));
+        });
+      })();
+    </script>
     <!-- Allow caching for offline support -->
     <meta http-equiv="Cache-Control" content="public, max-age=3600, stale-while-revalidate=86400" />
     <title>KJB Reader</title>
@@ -137,7 +149,7 @@
       // Generate manifest link with cache-busting timestamp BEFORE browser fetches it
       (function() {
         try {
-          var base = '/manifest.json?v=20260626_729';
+          var base = '/manifest.json?v=20260627_2600';
           var ts = '&t=' + Date.now();
           var link = document.createElement('link');
           link.rel = 'manifest';
@@ -155,7 +167,9 @@
         e.preventDefault();
         window.kjbDeferredPrompt = e;
         window.kjbPromptedThisSession = true;
+        console.log('[PWA] beforeinstallprompt captured - native prompt ready');
         window.dispatchEvent(new Event('pwa-installable'));
+        window.dispatchEvent(new Event('kjb-install-change'));
       });
       (function() {
         try {
