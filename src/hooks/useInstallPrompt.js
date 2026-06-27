@@ -137,6 +137,9 @@ if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
   installChannel = new BroadcastChannel('kjb-install-status');
 }
 
+// Poll for install status changes every 2 seconds (works even when BroadcastChannel fails)
+let installPollInterval = null;
+
 export function useInstallPrompt() {
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt || isPwaInstallable());
   const [isInstalled, setIsInstalled] = useState(false);
@@ -197,6 +200,21 @@ export function useInstallPrompt() {
       };
     }
     
+    // Poll localStorage every 2 seconds for install status changes (fallback when BroadcastChannel fails)
+    const startPolling = () => {
+      if (installPollInterval) clearInterval(installPollInterval);
+      installPollInterval = setInterval(() => {
+        const stored = localStorage.getItem(INSTALLED_KEY);
+        const shouldBeInstalled = stored === 'true';
+        console.log('[useInstallPrompt] Poll | localStorage:', stored, '| current state:', isInstalled, '| should be:', shouldBeInstalled);
+        if (shouldBeInstalled !== isInstalled) {
+          console.log('[useInstallPrompt] Poll → detected change, updating state');
+          setIsInstalled(shouldBeInstalled);
+          window.dispatchEvent(new Event('kjb-install-change'));
+        }
+      }, 2000);
+    };
+    
     // Listen for events that might indicate install state change
     window.addEventListener('kjb-install-change', sync);
     window.addEventListener('focus', sync);
@@ -205,11 +223,13 @@ export function useInstallPrompt() {
     // Check on mount
     console.log('[useInstallPrompt] Initial sync on mount');
     sync();
+    startPolling();
     return () => {
       cancelled = true;
       window.removeEventListener('kjb-install-change', sync);
       window.removeEventListener('focus', sync);
       window.removeEventListener('storage', sync);
+      if (installPollInterval) clearInterval(installPollInterval);
     };
   }, []);
 

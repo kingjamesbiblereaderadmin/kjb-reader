@@ -103,9 +103,11 @@ export default function AppLayout() {
     // Only broadcast if we're actually in the PWA window
     if (isPWAInstalled) {
       console.log('[AppLayout] ✓ Broadcasting installed=true to browser tabs');
+      // Broadcast to other tabs
       channel.postMessage({ type: 'install-status', installed: true });
-      // Also set localStorage for sync
+      // Write to localStorage with timestamp (forces storage event in other tabs)
       localStorage.setItem('kjb-is-installed', 'true');
+      localStorage.setItem('kjb-install-timestamp', Date.now().toString());
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new Event('kjb-install-change'));
     }
