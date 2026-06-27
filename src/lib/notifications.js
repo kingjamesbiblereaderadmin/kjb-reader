@@ -152,17 +152,21 @@ export async function showLocalNotification(title, body, imageUrl = null, target
         console.log('[Notif] showNotification method exists:', typeof reg.showNotification);
         
         // Show notification using service worker with app logo.
+        // Android shows white silhouette in status bar (standard OS behavior for all apps).
+        // Full-color logo appears when notification is expanded/tapped.
         // requireInteraction keeps the notification on screen so the user can
         // expand it and read the full verse text (some OSes collapse the body
         // to one line until the notification is expanded/tapped).
         await reg.showNotification(title, {
           body: body,
           icon: APP_LOGO_URL,
+          badge: APP_LOGO_URL,
           tag: 'daily-verse',
           renotify: true,
           vibrate: [200, 100, 200],
           silent: false,
           requireInteraction: true,
+          color: '#8b5cf6',
           data: {
             body,
             url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
@@ -188,11 +192,13 @@ export async function showLocalNotification(title, body, imageUrl = null, target
       const notif = new Notification(title, { 
         body: body,
         icon: APP_LOGO_URL,
+        badge: APP_LOGO_URL,
         tag: 'daily-verse',
         renotify: true,
         vibrate: [200, 100, 200],
         silent: false,
         requireInteraction: true,
+        color: '#8b5cf6',
         data: {
           body,
           url: targetUrl ? (window.location.origin ? (window.location.origin + targetUrl) : targetUrl) : (window.location.origin ? (window.location.origin + '/') : '/')
