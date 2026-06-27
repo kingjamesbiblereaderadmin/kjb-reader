@@ -64,14 +64,17 @@ export default function InstallDebugPanel() {
       <p className="text-muted-foreground flex items-center gap-2">
         {dmStandalone ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> : <XCircle className="w-3.5 h-3.5 text-red-500" />}
         display-mode standalone: <span className={dmStandalone ? 'text-green-600 font-bold' : 'text-red-500'}>{dmStandalone ? '✓ true' : '✗ false'}</span>
+        <span className="text-[10px] text-muted-foreground">(PWA window only)</span>
       </p>
       <p className="text-muted-foreground flex items-center gap-2">
         {dmMinimal ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> : <XCircle className="w-3.5 h-3.5 text-red-500" />}
         display-mode minimal-ui: <span className={dmMinimal ? 'text-green-600 font-bold' : 'text-red-500'}>{dmMinimal ? '✓ true' : '✗ false'}</span>
+        <span className="text-[10px] text-muted-foreground">(PWA window only)</span>
       </p>
       <p className="text-muted-foreground flex items-center gap-2">
         {dmOverlay ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> : <XCircle className="w-3.5 h-3.5 text-red-500" />}
         display-mode overlay: <span className={dmOverlay ? 'text-green-600 font-bold' : 'text-red-500'}>{dmOverlay ? '✓ true' : '✗ false'}</span>
+        <span className="text-[10px] text-muted-foreground">(PWA window only)</span>
       </p>
       <p className="text-muted-foreground flex items-center gap-2">
         <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
@@ -95,14 +98,23 @@ export default function InstallDebugPanel() {
         </div>
       </div>
       
-      {!isIframe && (
+      <div className="mt-2 pt-2 border-t border-border">
+        <p className="text-muted-foreground font-medium mb-1">How detection works:</p>
+        <ul className="text-muted-foreground list-disc list-inside space-y-0.5 text-[10px]">
+          <li><strong>display-mode</strong> only works inside the PWA window itself</li>
+          <li><strong>getInstalledRelatedApps</strong> only works on Android Chrome/Samsung</li>
+          <li><strong>Desktop browsers</strong> cannot detect PWA install from browser tabs</li>
+          <li><strong>localStorage sync</strong> requires the PWA to write it (2-second polling)</li>
+        </ul>
+      </div>
+      
+      {!isIframe && hasGetInstalled && (
         <div className="mt-2 pt-2 border-t border-border">
-          <p className="text-muted-foreground font-medium mb-1">How to test sync:</p>
-          <ol className="text-muted-foreground list-decimal list-inside space-y-0.5 mt-1">
+          <p className="text-muted-foreground font-medium mb-1">To test sync (Android only):</p>
+          <ol className="text-muted-foreground list-decimal list-inside space-y-0.5 mt-1 text-[10px]">
             <li>Open the PWA (installed app)</li>
-            <li>Browser tab should detect within 2 seconds</li>
-            <li>localStorage will show "true"</li>
-            <li>Hook will report installed=true</li>
+            <li>Return to this browser tab within 2 seconds</li>
+            <li>localStorage should update to "true"</li>
           </ol>
         </div>
       )}
