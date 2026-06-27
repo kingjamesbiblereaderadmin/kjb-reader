@@ -16,9 +16,10 @@ Deno.serve(async () => {
     prefer_related_applications: false,
     // Lets navigator.getInstalledRelatedApps() recognise THIS installed PWA
     // from inside a normal browser tab (Android Chrome/Samsung Internet).
-    // Use full URL for better compatibility
+    // IMPORTANT: URL must match the origin exactly for detection to work
     related_applications: [
-      { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest.json" }
+      { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest.json" },
+      { platform: "webapp", url: "https://base44.app/api/apps/6a05d76723afe58d80c58d80c589e8/functions/manifest" }
     ],
     // Protocol handlers — register as handler for bible: and kjb: URIs
     protocol_handlers: [

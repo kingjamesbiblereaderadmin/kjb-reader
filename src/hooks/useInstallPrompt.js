@@ -129,6 +129,12 @@ if (typeof window !== 'undefined') {
   // the only authoritative signal we use.
 }
 
+// BroadcastChannel for cross-tab install status sync
+let installChannel = null;
+if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+  installChannel = new BroadcastChannel('kjb-install-status');
+}
+
 export function useInstallPrompt() {
   const [isInstallable, setIsInstallable] = useState(!!deferredPrompt || isPwaInstallable());
   const [isInstalled, setIsInstalled] = useState(false);
@@ -147,7 +153,7 @@ export function useInstallPrompt() {
     };
     check();
     
-    const sync = () => {
+    const sync = (fromBroadcast = false) => {
       // Always check window.kjbDeferredPrompt first (set by index.html event listener)
       if (!deferredPrompt && window.kjbDeferredPrompt) {
         deferredPrompt = window.kjbDeferredPrompt;
@@ -160,9 +166,25 @@ export function useInstallPrompt() {
       // Re-check installed state on focus (user may have just installed/uninstalled)
       checkInstalledAsync().then(installed => {
         console.log('[useInstallPrompt] sync → installed:', installed);
-        if (!cancelled) setIsInstalled(installed);
+        if (!cancelled) {
+          setIsInstalled(installed);
+          // Broadcast to other tabs
+          if (!fromBroadcast && installChannel) {
+            installChannel.postMessage({ type: 'install-status', installed });
+          }
+        }
       });
     };
+    
+    // Listen for broadcast messages from PWA window
+    if (installChannel) {
+      installChannel.onmessage = (event) => {
+        if (event.data?.type === 'install-status') {
+          console.log('[useInstallPrompt] Received broadcast:', event.data);
+          setIsInstalled(event.data.installed);
+        }
+      };
+    }
     
     // Listen for events that might indicate install state change
     window.addEventListener('kjb-install-change', sync);
