@@ -8,7 +8,8 @@ export function useSearchAndGospelResults(
   setGospelResultIndex, setGospelTotalResults, setSearchTerm, setSearchResultIndex, 
   setSearchTotalResults, resultViewRef, setFilterMode, setHighlightedVerses, 
   setSelectedVerses, setHighlightSection, setHighlightVerse, setPos, loadChapter, 
-  returnToChapter, clearSearchNavFn, setGospelNavFn, setGospelIndexFn, clearGospelNavFn
+  returnToChapter, clearSearchNavFn, setGospelNavFn, setGospelIndexFn, clearGospelNavFn,
+  setSelectMode, setShowFilterOverlay
 ) {
   const preSearchPosRef = useRef(null);
 

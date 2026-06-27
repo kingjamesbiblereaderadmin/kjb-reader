@@ -866,13 +866,12 @@ export default function BibleReader() {
 
   useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults);
 
-  const resultViewRef = useRef('filter');
-
   const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, resultViewRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
   const { stepToResult, clearSearchContext } = useSearchAndGospelResults(
     posRef, loading, verses, topRef, searchTerm, gospelMode, setGospelMode, setGospelResultIndex, setGospelTotalResults,
     setSearchTerm, setSearchResultIndex, setSearchTotalResults, resultViewRef, setFilterMode, setHighlightedVerses, setSelectedVerses,
-    setHighlightSection, setHighlightVerse, setPos, loadChapter, returnToChapter, clearSearchNav, setGospelNav, setGospelIndex, clearGospelNav
+    setHighlightSection, setHighlightVerse, setPos, loadChapter, returnToChapter, clearSearchNav, setGospelNav, setGospelIndex, clearGospelNav,
+    setSelectMode, setShowFilterOverlay
   );
   
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false) => {
