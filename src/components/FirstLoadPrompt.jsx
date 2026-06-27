@@ -100,7 +100,8 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     detectIncognito().then(setIsIncognito);
   }, []);
 
-  // Samsung Internet (older versions) doesn't fire beforeinstallprompt reliably.
+  // Samsung Internet (older versions) doesn't fire beforeinstallprompt, so the native
+  // install button is a no-op. Show the manual guide up front for Samsung users.
   useEffect(() => {
     if (isSamsung() && !window.kjbDeferredPrompt) setShowIOSHint(true);
   }, []);
@@ -192,7 +193,7 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     
     console.log('[FirstLoadPrompt] Install clicked | deferredPrompt:', !!window.kjbDeferredPrompt, '| isInstallable:', isInstallable);
     
-    // Try native prompt first (all platforms including Edge desktop/mobile)
+    // Always try native prompt first (Edge desktop/mobile, Chrome, Samsung)
     if (onInstall) {
       try {
         const accepted = await onInstall();
