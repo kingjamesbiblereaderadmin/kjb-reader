@@ -207,7 +207,7 @@ export default function SettingsPage() {
            (navigator.standalone === true);
   });
   
-  // Re-check on focus (user may have just installed the app)
+  // Re-check on focus and storage changes (user may have just installed the app)
   useEffect(() => {
     const checkInstalled = () => {
       // Exclude iframe contexts to prevent false positives
@@ -222,9 +222,11 @@ export default function SettingsPage() {
     checkInstalled();
     window.addEventListener('focus', checkInstalled);
     window.addEventListener('pwa-installed', checkInstalled);
+    window.addEventListener('storage', checkInstalled);
     return () => {
       window.removeEventListener('focus', checkInstalled);
       window.removeEventListener('pwa-installed', checkInstalled);
+      window.removeEventListener('storage', checkInstalled);
     };
   }, [hookIsInstalled]);
   const [cached, setCached] = useState(false);
