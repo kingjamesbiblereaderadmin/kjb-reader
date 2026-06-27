@@ -637,11 +637,16 @@ export default function BibleReader() {
     try {
       const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
       if (p && p.abbr && p.chapter) {
+        // Check if we're coming from daily/random - if so, skip search restoration
+        const urlParams = new URLSearchParams(window.location.search);
+        const isFromDaily = urlParams.get('from') === 'daily';
+        const isFromRandom = urlParams.get('from') === 'random';
+        
         // Restore toolbar state from localStorage (search/gospel context persists across app restarts)
         try {
           const savedState = localStorage.getItem('kjb-reader-toolbar-state');
           console.log('[BibleReader] Fallback restore - saved state:', savedState);
-          if (savedState) {
+          if (savedState && !isFromDaily && !isFromRandom) {
             const state = JSON.parse(savedState);
             console.log('[BibleReader] Fallback restore - parsed state:', state);
             if (state && state.abbr === p.abbr && state.chapter === p.chapter) {
