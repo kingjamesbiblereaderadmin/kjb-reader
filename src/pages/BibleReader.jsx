@@ -554,15 +554,12 @@ export default function BibleReader() {
           try {
             const state = JSON.parse(savedState);
             if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum && Date.now() - state.timestamp < 600000) {
-              // Restore search context
-              if (state.hasSearchContext) {
-                const { term, index, results } = getSearchNav();
-                if (term && results.length > 0) {
-                  searchClearedRef.current = false;
-                  setSearchTerm(term);
-                  setSearchResultIndex(index);
-                  setSearchTotalResults(results.length);
-                }
+              // Restore search context with persisted data
+              if (state.hasSearchContext && state.searchTerm) {
+                searchClearedRef.current = false;
+                setSearchTerm(state.searchTerm);
+                setSearchResultIndex(state.searchResultIndex || 0);
+                setSearchTotalResults(state.searchTotalResults || 0);
               }
               // Restore gospel context
               if (state.hasGospelContext) {
@@ -870,7 +867,7 @@ export default function BibleReader() {
     return () => { window.removeEventListener('focus', refreshContext); };
   }, []);
 
-  // Persist toolbar state with chapter + search context
+  // Persist toolbar state with chapter + search/gospel context
   useEffect(() => {
     if (loading) return;
     try {
@@ -880,13 +877,17 @@ export default function BibleReader() {
         filterMode,
         selectedVerses: [...selectedVerses],
         resultView: resultViewRef.current,
-        // Include search/gospel context so we restore the toolbar even if searchTerm state lags
-        hasSearchContext: !!(searchTerm || gospelMode || (lastReadingPos && !lastReadingPos.cleared)),
+        hasSearchContext: !!(searchTerm && !searchClearedRef.current),
+        hasGospelContext: gospelMode,
+        // Persist actual search data so we can restore it exactly
+        searchTerm: searchTerm && !searchClearedRef.current ? searchTerm : null,
+        searchResultIndex: searchResultIndex,
+        searchTotalResults: searchTotalResults,
         timestamp: Date.now()
       };
       localStorage.setItem('kjb-reader-toolbar-state', JSON.stringify(state));
     } catch {}
-  }, [filterMode, selectedVerses, searchTerm, gospelMode, lastReadingPos, pos.abbr, pos.chapter, loading]);
+  }, [filterMode, selectedVerses, searchTerm, gospelMode, searchResultIndex, searchTotalResults, pos.abbr, pos.chapter, loading]);
 
   // Restore toolbar state after chapter loads
   useEffect(() => {
@@ -906,6 +907,13 @@ export default function BibleReader() {
             setHighlightedVerses(newSet);
           }
           if (state.resultView) resultViewRef.current = state.resultView;
+          // Restore search context if present
+          if (state.hasSearchContext && state.searchTerm && !searchTerm) {
+            searchClearedRef.current = false;
+            setSearchTerm(state.searchTerm);
+            setSearchResultIndex(state.searchResultIndex || 0);
+            setSearchTotalResults(state.searchTotalResults || 0);
+          }
         }
       } catch {}
     };
