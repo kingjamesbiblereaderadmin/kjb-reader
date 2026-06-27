@@ -1383,12 +1383,17 @@ export default function BibleReader() {
             )}
           </div>
 
-          {selectMode && (
+          {(selectMode || (filterMode && selectedVerses.size > 0) || (searchTerm && highlightVerse) || (gospelMode && highlightVerse)) && (
             <SelectActionBar
-              selectedCount={selectedVerses.size} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
-              onSelectAll={selectAllVerses} onCancel={toggleSelectMode} onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink}
+              selectedCount={selectedVerses.size || (highlightVerse ? 1 : 0)} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
+              onSelectAll={selectAllVerses} onCancel={() => {
+                if (searchTerm) { clearSearchContext(); return; }
+                if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
+                setFilterMode(false); setSelectedVerses(new Set()); setHighlightVerse(null);
+              }}
+              onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink}
               onReadSelected={handleReadSelected} onShowFull={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
-              onPrintPage={() => window.print()} onPrintContents={() => printChapterContents(verses, book, pos, true, selectedVerses, colophon, columnMode, paragraphMode)}
+              onPrintPage={() => window.print()} onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
             />
           )}
 
