@@ -115,9 +115,15 @@ export default function BibleReader() {
     }
   }, []);
   
-  const [searchTerm, setSearchTerm] = useState(() => getSearchNav().term || null);
-  const [searchResultIndex, setSearchResultIndex] = useState(() => getSearchNav().index);
-  const [searchTotalResults, setSearchTotalResults] = useState(() => getSearchNav().results.length);
+  const [searchTerm, setSearchTerm] = useState(() => {
+    try { return localStorage.getItem('kjb-search-term') || getSearchNav().term || null; } catch { return getSearchNav().term || null; }
+  });
+  const [searchResultIndex, setSearchResultIndex] = useState(() => {
+    try { return parseInt(localStorage.getItem('kjb-search-index') || String(getSearchNav().index), 10); } catch { return getSearchNav().index; }
+  });
+  const [searchTotalResults, setSearchTotalResults] = useState(() => {
+    try { const r = JSON.parse(localStorage.getItem('kjb-search-results') || '[]'); return r.length || getSearchNav().results.length; } catch { return getSearchNav().results.length; }
+  });
   const searchClearedRef = useRef(false);
   const lastReadingClearedRef = useRef(false);
   // The reading position saved BEFORE a search jump, so closing the search
@@ -160,7 +166,14 @@ export default function BibleReader() {
   const [lastReadingPos, setLastReadingPos] = useState(() => {
     try {
       const saved = localStorage.getItem('kjb-last-reading');
-      return saved ? JSON.parse(saved) : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ensure the indicator shows when returning from daily verse or random chapter
+        if (parsed && (parsed.fromDailyVerse || parsed.fromRandom || parsed.prevAbbr)) {
+          return parsed;
+        }
+      }
+      return null;
     } catch { return null; }
   });
 
@@ -748,6 +761,26 @@ export default function BibleReader() {
       try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
       try { const f = localStorage.getItem('kjb-reader-font-family') || 'serif'; setFontFamily(f); applyReaderFont(f); } catch {}
       try { setA11yFont(getAccessibilityFont()); } catch {}
+      // Re-read search context and last reading position so the indicator reappears on focus/storage change
+      try {
+        const term = localStorage.getItem('kjb-search-term');
+        const results = JSON.parse(localStorage.getItem('kjb-search-results') || '[]');
+        const index = parseInt(localStorage.getItem('kjb-search-index') || '0', 10);
+        if (term && results.length > 0) {
+          setSearchTerm(term);
+          setSearchResultIndex(index);
+          setSearchTotalResults(results.length);
+        }
+      } catch {}
+      try {
+        const saved = localStorage.getItem('kjb-last-reading');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && (parsed.fromDailyVerse || parsed.fromRandom || parsed.prevAbbr)) {
+            setLastReadingPos(parsed);
+          }
+        }
+      } catch {}
     };
     sync();
     window.addEventListener('storage', sync); window.addEventListener('focus', sync); window.addEventListener('kjb-fonts-changed', sync);
