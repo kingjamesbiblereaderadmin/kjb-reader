@@ -550,7 +550,7 @@ export default function BibleReader() {
         if (savedState) {
           try {
             const state = JSON.parse(savedState);
-            if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum && Date.now() - state.timestamp < 600000) {
+            if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum) {
               // Restore search context with persisted data
               if (state.hasSearchContext && state.searchTerm) {
                 searchClearedRef.current = false;

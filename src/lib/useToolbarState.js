@@ -20,7 +20,6 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
         timestamp: Date.now()
       };
       localStorage.setItem('kjb-reader-toolbar-state', JSON.stringify(state));
-      console.log('[ToolbarState] Saved:', state);
     } catch (err) {
       console.error('[ToolbarState] Save error:', err);
     }
@@ -35,7 +34,7 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
         if (!saved) return;
         const state = JSON.parse(saved);
         // Restore search/gospel context if we're on the SAME chapter where it was saved
-        if (state && state.abbr === pos.abbr && state.chapter === pos.chapter && Date.now() - state.timestamp < 600000) {
+        if (state && state.abbr === pos.abbr && state.chapter === pos.chapter) {
           if (state.filterMode !== undefined) setFilterMode(state.filterMode);
           if (state.selectedVerses && state.selectedVerses.length > 0) {
             const newSet = new Set(state.selectedVerses);
