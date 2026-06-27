@@ -118,10 +118,17 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
     return () => window.removeEventListener('focus', checkStandalone);
   }, []);
 
-  // Sync install state from parent hook
+  // Sync install state from parent hook - but don't auto-close prompt
   useEffect(() => {
     if (parentIsInstalled) setInstallDone(true);
   }, [parentIsInstalled]);
+
+  // Keep prompt open even after installation - only close on explicit dismiss
+  useEffect(() => {
+    if (installDone && !dismissed) {
+      // Prompt stays open after install until user taps out
+    }
+  }, [installDone, dismissed]);
 
   // Sync notif state on mount and focus - show enabled if localStorage flag is set AND browser permission is granted
   useEffect(() => {

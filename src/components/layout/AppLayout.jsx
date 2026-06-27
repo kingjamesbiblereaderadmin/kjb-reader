@@ -139,6 +139,15 @@ export default function AppLayout() {
     };
   }, []);
 
+  // Keep prompt open across PWA install - only close on explicit dismiss
+  useEffect(() => {
+    const handleInstallChange = () => {
+      // Don't auto-close prompt when installation completes
+    };
+    window.addEventListener('kjb-install-change', handleInstallChange);
+    return () => window.removeEventListener('kjb-install-change', handleInstallChange);
+  }, []);
+
 
 
   // Close hamburger menu whenever the route changes
