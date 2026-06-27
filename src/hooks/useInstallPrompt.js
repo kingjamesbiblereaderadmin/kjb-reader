@@ -3,11 +3,16 @@ import { useState, useEffect } from 'react';
 const DISMISSED_KEY = 'kjb-install-dismissed';
 const INSTALLED_KEY = 'kjb-is-installed';
 
+// Cross-tab PWA install detection:
+// - Inside PWA: display-mode: standalone detects it immediately
+// - Browser tab: getInstalledRelatedApps() detects installed PWA (Android Chrome/Samsung)
+// - localStorage syncs state across tabs for instant UI updates
+
 // Authoritative install detection.
-// PRIMARY: display-mode media queries - the ONLY reliable signal.
-// When you uninstall a PWA, the display-mode immediately changes from
-// 'standalone' back to 'browser' - this is instant and 100% accurate.
-// localStorage is used ONLY for cross-tab sync (not as a fallback).
+// 1. display-mode: works inside PWA window (standalone mode)
+// 2. getInstalledRelatedApps(): works in browser tabs (Android Chrome/Samsung only)
+// 3. navigator.standalone: iOS Safari
+// This combination gives the best possible cross-tab install detection.
 const checkInstalledAsync = async () => {
   if (typeof window === 'undefined') return false;
   
@@ -18,35 +23,47 @@ const checkInstalledAsync = async () => {
     return false;
   }
   
-  // PRIMARY & AUTHORITATIVE: display-mode media queries
+  // 1. PRIMARY: display-mode media queries (works inside PWA)
   const dmStandalone = window.matchMedia('(display-mode: standalone)').matches;
   const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
   const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
   
-  const isInstalled = dmStandalone || dmMinimal || dmOverlay;
-  console.log('[InstallCheck] display-mode:', { standalone: dmStandalone, minimal: dmMinimal, overlay: dmOverlay, result: isInstalled });
+  if (dmStandalone || dmMinimal || dmOverlay) {
+    console.log('[InstallCheck] display-mode → installed');
+    localStorage.setItem(INSTALLED_KEY, 'true');
+    return true;
+  }
   
-  // iOS fallback: navigator.standalone (older iOS versions)
-  if (!isInstalled && /iphone|ipad|ipod/i.test(navigator.userAgent)) {
+  // 2. getInstalledRelatedApps() - detects PWA from browser tab (Android Chrome/Samsung)
+  if (navigator.getInstalledRelatedApps) {
+    try {
+      const apps = await navigator.getInstalledRelatedApps();
+      if (apps && apps.length > 0) {
+        console.log('[InstallCheck] getInstalledRelatedApps → installed', apps);
+        localStorage.setItem(INSTALLED_KEY, 'true');
+        return true;
+      }
+    } catch (err) {
+      console.error('[InstallCheck] getInstalledRelatedApps failed:', err);
+    }
+  }
+  
+  // 3. iOS fallback: navigator.standalone
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
     try {
       const iOSStandalone = window.navigator.standalone === true;
       if (iOSStandalone) {
         console.log('[InstallCheck] iOS navigator.standalone → installed');
+        localStorage.setItem(INSTALLED_KEY, 'true');
         return true;
       }
     } catch {}
   }
   
-  // Sync to localStorage for cross-tab communication
-  try {
-    if (isInstalled) {
-      localStorage.setItem(INSTALLED_KEY, 'true');
-    } else {
-      localStorage.removeItem(INSTALLED_KEY);
-    }
-  } catch {}
-  
-  return isInstalled;
+  // Not installed - clear flag
+  localStorage.removeItem(INSTALLED_KEY);
+  console.log('[InstallCheck] ✗ Not installed');
+  return false;
 };
 
 let deferredPrompt = (typeof window !== 'undefined' && window.kjbDeferredPrompt) || null;
