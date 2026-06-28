@@ -114,7 +114,7 @@ export default function BibleReader() {
   useEffect(() => {
     if (a11yFont !== 'default' && fontFamily === 'cursive') {
       setFontFamily('serif');
-      try { localStorage.setItem('kjb-reader-font-family', 'serif'); } catch {}
+      try { localStorage.setItem('kjb-reader-font-family', 'serif'); } catch (err) { console.debug('[BibleReader] localStorage set kjb-reader-font-family failed', err); }
     }
   }, []);
   
@@ -135,7 +135,7 @@ export default function BibleReader() {
       window.dispatchEvent(new Event('storage'));
       return;
     }
-    try { localStorage.setItem('kjb-reader-font-family', font); } catch {}
+    try { localStorage.setItem('kjb-reader-font-family', font); } catch (err) { console.debug('[BibleReader] localStorage set kjb-reader-font-family failed', err); }
     setFontFamily(font);
     applyReaderFont(font);
     if (a11yFont !== 'default') {
@@ -215,13 +215,13 @@ export default function BibleReader() {
   const toggleFlow = () => {
     const next = flowMode === 'line' ? 'paragraph' : 'line';
     setFlowMode(next);
-    try { localStorage.setItem('kjb-flow', next); } catch {}
+    try { localStorage.setItem('kjb-flow', next); } catch (err) { console.debug('[BibleReader] localStorage set kjb-flow failed', err); }
   };
 
   const toggleColumn = () => {
     setColumnOn(prev => {
       const next = !prev;
-      try { localStorage.setItem('kjb-column', String(next)); } catch {}
+      try { localStorage.setItem('kjb-column', String(next)); } catch (err) { console.debug('[BibleReader] localStorage set kjb-column failed', err); }
       return next;
     });
   };
@@ -229,13 +229,13 @@ export default function BibleReader() {
   const adjustZoom = (delta) => {
     const newZoom = Math.max(75, Math.min(250, zoomLevel + delta));
     setZoomLevel(newZoom);
-    try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+    try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch (err) { console.debug('[BibleReader] localStorage set kjb-zoom failed', err); }
   };
 
   const handleZoomChange = (e) => {
     const newZoom = parseInt(e.target.value);
     setZoomLevel(newZoom);
-    try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+    try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch (err) { console.debug('[BibleReader] localStorage set kjb-zoom failed', err); }
   };
 
   const toggleSelectMode = () => {
@@ -708,11 +708,11 @@ export default function BibleReader() {
         const parsed = JSON.parse(saved);
         setLastReadingPos(parsed);
       }
-    } catch {}
+    } catch (err) { console.debug('[BibleReader] restore kjb-last-reading failed', err); }
 
     const applyRequestedPosition = () => {
       let p;
-      try { p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return; }
+      try { p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (err) { console.debug('[BibleReader] parse STORAGE_KEY failed', err); return; }
       if (!p || !resolveBook(p.abbr)) return;
       const fromSearch = new URLSearchParams(window.location.search).get('from') === 'search';
       const nav = getSearchNav();
@@ -732,7 +732,7 @@ export default function BibleReader() {
             setHighlightedVerses(new Set([parsed.verse]));
             setFilterMode(false); // Daily verse is NOT filter mode
           }
-        } catch {}
+        } catch (err) { console.debug('[BibleReader] parse lastReading failed', err); }
       }
       if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
         const range = new Set();
@@ -789,7 +789,7 @@ export default function BibleReader() {
           setHighlightedVerses(new Set([parsed.verse]));
           setTimeout(() => scrollToVerseEl(parsed.verse), 100);
         }
-      } catch {}
+        } catch (err) { console.debug('[BibleReader] parse kjb-last-reading failed', err); }
     }
     if (freshNavRef.current) {
       freshNavRef.current = false;
@@ -802,7 +802,7 @@ export default function BibleReader() {
     // across several frames AND observe the content for layout changes — this
     // prevents the scroll from collapsing to the top before the page is laid out.
     let saved = 0;
-    try { saved = parseInt(localStorage.getItem(`kjb-scroll-${pos.abbr}-${pos.chapter}`) || '0', 10); } catch {}
+    try { saved = parseInt(localStorage.getItem(`kjb-scroll-${pos.abbr}-${pos.chapter}`) || '0', 10); } catch (err) { console.debug('[BibleReader] read kjb-scroll failed', err); }
     if (!saved || saved <= 0) return;
     const restore = () => {
       const scroller = document.getElementById('kjb-scroll');
@@ -867,26 +867,26 @@ export default function BibleReader() {
       try {
         const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
         localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
-      } catch {}
+      } catch (err) { console.debug('[BibleReader] saving kjb-prev-reading-session failed', err); }
     }
 
     const flush = () => {
       if (raf) { cancelAnimationFrame(raf); raf = null; }
-      try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}
+      try { localStorage.setItem(key, String(Math.round(getY()))); } catch (err) { console.debug('[BibleReader] saving kjb-scroll failed', err); }
       // ONLY save prev-reading-session for normal reading (not search/gospel/daily/random)
       const isSpecialMode = searchTerm || gospelMode || lastReadingPos;
       if (!isSpecialMode && pos.abbr && pos.chapter) {
         try {
           const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
           localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
-        } catch {}
+        } catch (err) { console.debug('[BibleReader] saving kjb-prev-reading-session failed', err); }
       }
     };
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = null;
-        try { localStorage.setItem(key, String(Math.round(getY()))); } catch {}
+        try { localStorage.setItem(key, String(Math.round(getY()))); } catch (err) { console.debug('[BibleReader] saving kjb-scroll failed', err); }
         // Save prev-reading-session only for NORMAL reading. Use URL params
         // (reliable/synchronous) plus highlightVerse, so a daily/search/random
         // chapter never overwrites the real previous session.
@@ -896,7 +896,7 @@ export default function BibleReader() {
           try {
             const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(getY()) };
             localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
-          } catch {}
+          } catch (err) { console.debug('[BibleReader] saving kjb-prev-reading-session failed', err); }
         }
       });
     };
@@ -917,7 +917,7 @@ export default function BibleReader() {
           const scrollY = scroller ? scroller.scrollTop : window.scrollY;
           const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY: Math.round(scrollY) };
           localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession));
-        } catch {}
+        } catch (err) { console.debug('[BibleReader] saving kjb-prev-reading-session on hide failed', err); }
       }
     };
     target.addEventListener('scroll', onScroll, { passive: true });
@@ -937,9 +937,9 @@ export default function BibleReader() {
 
   useEffect(() => {
     const sync = () => {
-      try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
-      try { const f = localStorage.getItem('kjb-reader-font-family') || 'serif'; setFontFamily(f); applyReaderFont(f); } catch {}
-      try { setA11yFont(getAccessibilityFont()); } catch {}
+      try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch (err) { console.debug('[BibleReader] read kjb-zoom failed', err); }
+      try { const f = localStorage.getItem('kjb-reader-font-family') || 'serif'; setFontFamily(f); applyReaderFont(f); } catch (err) { console.debug('[BibleReader] read kjb-reader-font-family failed', err); }
+      try { setA11yFont(getAccessibilityFont()); } catch (err) { console.debug('[BibleReader] getAccessibilityFont failed', err); }
       // Re-read search context and last reading position so the indicator reappears on focus/storage change
       try {
         const term = localStorage.getItem('kjb-search-term');
@@ -968,7 +968,7 @@ export default function BibleReader() {
             }
           }
         }
-      } catch {}
+      } catch (err) { console.debug('[BibleReader] restore sync search/last-reading failed', err); }
       // Sync previous reading session
       try {
         const prevSaved = localStorage.getItem('kjb-prev-reading-session');
@@ -976,7 +976,7 @@ export default function BibleReader() {
           const prevParsed = JSON.parse(prevSaved);
           if (prevParsed) setPrevReadingSession(prevParsed);
         }
-      } catch {}
+      } catch (err) { console.debug('[BibleReader] restore kjb-prev-reading-session failed', err); }
     };
     sync();
     window.addEventListener('storage', sync); window.addEventListener('focus', sync); window.addEventListener('kjb-fonts-changed', sync);
@@ -1013,16 +1013,16 @@ export default function BibleReader() {
     
     // Save scroll position for restoration
     if (typeof exactY === 'number' && exactY > 0) {
-      try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
+      try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch (err) { console.debug('[BibleReader] saving kjb-scroll in returnToChapter failed', err); }
     }
     
     // CRITICAL: update pos to the target chapter. Without this, pos stays on the
     // daily/search chapter, the URL-sync effect rewrites the URL back to it, and
     // the chapter reloads — so Clear appears to "do nothing but hide the indicator".
     setPos({ abbr, chapter, verse: null });
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null, verseEnd: null })); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse: null, verseEnd: null })); } catch (err) { console.debug('[BibleReader] saving STORAGE_KEY in returnToChapter failed', err); }
     
-    try { window.history.replaceState({}, '', '/read'); } catch {}
+    try { window.history.replaceState({}, '', '/read'); } catch (err) { console.debug('[BibleReader] history.replaceState failed', err); }
     freshNavRef.current = false;
     
     // Force reload by calling loadChapter directly
@@ -1062,7 +1062,7 @@ export default function BibleReader() {
     // This is the key fix - we save BEFORE overwriting with special mode positions
     if (pos.abbr && pos.chapter && !fromDailyVerse && !fromRandom) {
       const prevSession = { abbr: pos.abbr, chapter: pos.chapter, scrollY };
-      try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch {}
+      try { localStorage.setItem('kjb-prev-reading-session', JSON.stringify(prevSession)); } catch (err) { console.debug('[BibleReader] saving kjb-prev-reading-session in navigate failed', err); }
       setPrevReadingSession(prevSession);
     }
     
@@ -1076,7 +1076,7 @@ export default function BibleReader() {
     if ((fromDailyVerse || fromRandom) && pos.abbr && pos.chapter) {
       lastReadingClearedRef.current = false;
       const lastPos = { abbr: newAbbr, chapter: newChapter, fromDailyVerse, fromRandom, prevAbbr: pos.abbr, prevChapter: pos.chapter, prevScrollY: scrollY };
-      try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch {}
+      try { localStorage.setItem('kjb-last-reading', JSON.stringify(lastPos)); } catch (err) { console.debug('[BibleReader] saving kjb-last-reading in navigate failed', err); }
       setLastReadingPos(lastPos);
     }
     if (!jumpVerse) {
@@ -1437,7 +1437,7 @@ export default function BibleReader() {
                           prevScrollY = prev.scrollY;
                         }
                       }
-                    } catch {}
+                    } catch (err) { console.debug('[BibleReader] parse kjb-prev-reading-session failed', err); }
                     
                     // Fall back to the prevAbbr/prevChapter baked into kjb-last-reading
                     if (!prevAbbr || !prevChapter) {
@@ -1451,7 +1451,7 @@ export default function BibleReader() {
                             prevScrollY = typeof last.prevScrollY === 'number' ? last.prevScrollY : last.scrollY;
                           }
                         }
-                      } catch {}
+                      } catch (err) { console.debug('[BibleReader] parse kjb-last-reading failed', err); }
                     }
 
                     if (searchTerm) {
@@ -1468,7 +1468,7 @@ export default function BibleReader() {
                       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                       setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
                       setShowFilterOverlay(false);
-                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
+                      try { localStorage.removeItem('kjb-last-reading'); } catch (err) { console.debug('[BibleReader] remove kjb-last-reading failed', err); }
                       if (prevAbbr && prevChapter) {
                         const restoreY = (typeof prevScrollY === 'number' && prevScrollY > 0) ? prevScrollY : undefined;
                         returnToChapter(prevAbbr, prevChapter, restoreY);
@@ -1480,12 +1480,12 @@ export default function BibleReader() {
                     setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
                     setShowFilterOverlay(false);
-                    try { localStorage.removeItem('kjb-last-reading'); } catch {}
+                    try { localStorage.removeItem('kjb-last-reading'); } catch (err) { console.debug('[BibleReader] remove kjb-last-reading failed', err); }
                     if (prevAbbr && prevChapter) {
                       const restoreY = (typeof prevScrollY === 'number' && prevScrollY > 0) ? prevScrollY : undefined;
                       returnToChapter(prevAbbr, prevChapter, restoreY);
                     } else {
-                      try { window.history.replaceState({}, '', '/read'); } catch {}
+                      try { window.history.replaceState({}, '', '/read'); } catch (err) { console.debug('[BibleReader] history.replaceState failed', err); }
                     }
                   }}
                 />
