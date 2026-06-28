@@ -52,7 +52,34 @@ async function _runDetection() {
       return true;
     }
 
-    // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest.
+    // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest — PRIMARY.
+    // Proven method from the detectIncognito library: in private mode the
+    // temporary-storage quota is capped far below a normal window's budget.
+    // Compare the reported quota against ~2x the JS heap limit (≈ device size).
+    // This catches modern Chromium private modes the storage.estimate()
+    // heuristic below can miss.
+    if (navigator.webkitTemporaryStorage &&
+        typeof navigator.webkitTemporaryStorage.queryUsageAndQuota === 'function') {
+      const privateViaQuota = await new Promise((resolve) => {
+        try {
+          navigator.webkitTemporaryStorage.queryUsageAndQuota(
+            (_usage, quota) => {
+              const heapLimit = (window.performance && window.performance.memory &&
+                window.performance.memory.jsHeapSizeLimit) || 1073741824; // 1 GB
+              const quotaMiB = Math.round(quota / (1024 * 1024));
+              const limitMiB = Math.round(heapLimit / (1024 * 1024)) * 2;
+              resolve(quotaMiB < limitMiB);
+            },
+            () => resolve(false)
+          );
+        } catch {
+          resolve(false);
+        }
+      });
+      if (privateViaQuota) return true;
+    }
+
+    // Chromium (Chrome/Edge/Brave) Incognito / InPrivate / Guest — SECONDARY.
     // Modern, reliable method (used by the detectIncognito library): in private
     // mode the temporary-storage quota is capped near the device-memory-derived
     // ceiling, whereas a normal window's quota is a large fraction of free disk.

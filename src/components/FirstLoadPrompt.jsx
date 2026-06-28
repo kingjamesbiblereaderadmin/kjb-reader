@@ -93,11 +93,15 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   });
   const [notifFailed, setNotifFailed] = useState(false);
   const [isIncognito, setIsIncognito] = useState(false);
+  const [incognitoChecked, setIncognitoChecked] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const promptedRef = useRef(false);
 
   useEffect(() => {
-    detectIncognito().then(setIsIncognito);
+    detectIncognito().then((v) => {
+      setIsIncognito(v);
+      setIncognitoChecked(true);
+    });
   }, []);
 
   // Samsung Internet (older versions) doesn't fire beforeinstallprompt, so the native
@@ -172,8 +176,10 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   // Hide install section if already in standalone PWA mode or parent says installed
   const actuallyInstalled = isStandalone || parentIsInstalled || installDone;
   
-  // Show install button if NOT installed AND (native prompt available OR was cancelled/manual guide needed)
-  const showInstall = !isIncognito && !actuallyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile() || promptCancelled);
+  // Show install button if NOT installed AND (native prompt available OR was cancelled/manual guide needed).
+  // Wait until the incognito check has resolved so the button never flashes in (or
+  // stays) during the async detection in a private window.
+  const showInstall = incognitoChecked && !isIncognito && !actuallyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile() || promptCancelled);
 
   // Show prompt for configuration even when installed — only hide install section
   const shouldShow = !dismissed;
