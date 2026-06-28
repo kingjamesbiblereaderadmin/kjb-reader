@@ -732,6 +732,12 @@ export default function SearchPage() {
         } catch {}
         if (!cur) cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
         if (cur && cur.abbr && cur.chapter) {
+          if (typeof cur.scrollY !== 'number') {
+            try {
+              const savedScroll = parseInt(localStorage.getItem(`kjb-scroll-${cur.abbr}-${cur.chapter}`) || '0', 10);
+              if (!Number.isNaN(savedScroll)) cur.scrollY = savedScroll;
+            } catch {}
+          }
           const stash = { abbr: cur.abbr, chapter: cur.chapter, scrollY: typeof cur.scrollY === 'number' ? cur.scrollY : 0 };
           localStorage.setItem('kjb-pre-search', JSON.stringify(stash));
           // Also write the canonical key the reader's Clear handler reads first.

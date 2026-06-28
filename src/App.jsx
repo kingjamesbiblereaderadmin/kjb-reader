@@ -77,7 +77,7 @@ function preloadAllRoutes() {
     // load fine on demand via the SW.
     if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
 
-    const imports = Object.values(loaders).map(fn => fn().catch(() => {}));
+    const imports = Object.values(loaders).map(fn => fn().catch((err) => { console.debug('[App] preload route failed', err); }));
 
     // After all chunks load, ask the SW to cache the newly-injected <script>
     // tags so every route works fully offline next time.
@@ -86,10 +86,10 @@ function preloadAllRoutes() {
         if (navigator.serviceWorker?.controller) {
           const urls = [];
           document.querySelectorAll('script[src]').forEach(s => {
-            try { urls.push(new URL(s.src, location.href).href); } catch {}
+          try { urls.push(new URL(s.src, location.href).href); } catch (err) { console.debug('[App] failed parsing script[src] URL', err); }
           });
           document.querySelectorAll('link[rel="modulepreload"], link[rel="preload"]').forEach(l => {
-            try { if (l.href) urls.push(new URL(l.href, location.href).href); } catch {}
+           try { if (l.href) urls.push(new URL(l.href, location.href).href); } catch (err) { console.debug('[App] failed parsing preload link href', err); }
           });
           if (urls.length) {
             navigator.serviceWorker.controller.postMessage({ type: 'PREWARM_ASSETS', urls });
