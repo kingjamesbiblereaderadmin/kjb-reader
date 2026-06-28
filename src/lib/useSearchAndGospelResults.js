@@ -29,13 +29,17 @@ export function useSearchAndGospelResults(
         const cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
         if (cur && cur.abbr && cur.chapter) {
           // Save to kjb-prev-reading-session for clear handler
-          localStorage.setItem('kjb-prev-reading-session', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
-          // Also save to kjb-pre-search for preSearchPosRef fallback
-          localStorage.setItem('kjb-pre-search', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
+          try {
+            localStorage.setItem('kjb-prev-reading-session', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
+            // Also save to kjb-pre-search for preSearchPosRef fallback
+            localStorage.setItem('kjb-pre-search', JSON.stringify({ abbr: cur.abbr, chapter: cur.chapter, scrollY }));
+          } catch (err) {
+            console.debug('[useSearchAndGospelResults] failed to persist pre-search/session:', err);
+          }
           preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter, scrollY };
         }
       }
-    } catch {}
+    } catch (err) { console.debug('[useSearchAndGospelResults] stepToResult pre-anchor error:', err); }
     
     if (!preSearchPosRef.current) {
       try {
@@ -50,7 +54,7 @@ export function useSearchAndGospelResults(
             preSearchPosRef.current = { abbr: cur.abbr, chapter: cur.chapter, scrollY: exactY };
           }
         }
-      } catch {}
+      } catch (err) { console.debug('[useSearchAndGospelResults] stepToResult fallback stash error:', err); }
     }
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
@@ -63,20 +67,20 @@ export function useSearchAndGospelResults(
       try {
         const cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
         localStorage.setItem('kjb-position', JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: start, verseEnd: end }));
-      } catch {}
+      } catch (err) { console.debug('[useSearchAndGospelResults] persist range position error:', err); }
     } else if (!section && targetVerse) {
       const parsedTarget = parseInt(targetVerse, 10); const single = new Set([parsedTarget]);
       setHighlightedVerses(single); setSelectedVerses(single); setFilterMode(useFilter);
       try {
         const cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
         localStorage.setItem('kjb-position', JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: parsedTarget, verseEnd: null }));
-      } catch {}
+      } catch (err) { console.debug('[useSearchAndGospelResults] persist single position error:', err); }
     } else {
       if (!searchTerm && !gospelMode) setFilterMode(false);
       try {
         const cur = JSON.parse(localStorage.getItem('kjb-position') || '{}');
         localStorage.setItem('kjb-position', JSON.stringify({ ...cur, abbr: r.abbr, chapter: r.chapter, verse: r.verse || null, verseEnd: null }));
-      } catch {}
+      } catch (err) { console.debug('[useSearchAndGospelResults] persist default position error:', err); }
     }
     const sameChapter = !loading && verses.length > 0 && posRef.current.abbr === r.abbr && posRef.current.chapter === r.chapter;
     const sameVerse = sameChapter && posRef.current.verse === targetVerse;
@@ -102,13 +106,14 @@ export function useSearchAndGospelResults(
         const prev = JSON.parse(prevRaw);
         if (prev && prev.abbr && prev.chapter) back = { abbr: prev.abbr, chapter: prev.chapter, scrollY: prev.scrollY };
       }
-    } catch {}
+    } catch (err) { console.debug('[useSearchAndGospelResults] clearSearchContext read prev-session error:', err); }
     if (!back && preSearchPosRef.current && preSearchPosRef.current.abbr) back = preSearchPosRef.current;
 
     preSearchPosRef.current = null;
-    try { localStorage.removeItem('kjb-pre-search'); } catch {}
+    try { localStorage.removeItem('kjb-pre-search'); } catch (err) { console.debug('[useSearchAndGospelResults] clearSearchContext remove pre-search error:', err); }
     if (back && back.abbr && back.chapter) {
-      returnToChapter(back.abbr, back.chapter, back.scrollY);
+      const restoreY = (typeof back.scrollY === 'number' && back.scrollY > 0) ? back.scrollY : undefined;
+      returnToChapter(back.abbr, back.chapter, restoreY);
     } else {
       setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
       setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);

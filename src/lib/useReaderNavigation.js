@@ -14,9 +14,9 @@ export function useReaderNavigation(pos, loadChapter, routerNavigate, routerLoca
         if (prev.abbr === abbr && prev.chapter === chapter && prev.verse === verse && prev.verseEnd) {
           verseEnd = prev.verseEnd;
         }
-      } catch {}
-      localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse, verseEnd }));
-    } catch {}
+      } catch (err) { console.debug('[useReaderNavigation] read previous position failed:', err); }
+      try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse, verseEnd })); } catch (err) { console.debug('[useReaderNavigation] persist kjb-position failed:', err); }
+    } catch (err) { console.debug('[useReaderNavigation] savePosition outer error:', err); }
   };
 
   const navigate = (newAbbr, newChapter, jumpVerse = null, fromDailyVerse = false, fromRandom = false, isAutoAdvance = false, section = null, preserveSearchContext = false, clearSearchNav, setGospelMode, clearGospelNav) => {
@@ -38,8 +38,7 @@ export function useReaderNavigation(pos, loadChapter, routerNavigate, routerLoca
       let url;
       if (newChapter === 0) url = `/read?titlePage=${newAbbr === 'MAT' ? 'new' : 'old'}`;
       else { url = `/read?book=${newAbbr}&chapter=${newChapter}`; if (jumpVerse) url += `&verse=${jumpVerse}`; if (section) url += `&highlight=${section}`; }
-      routerNavigate(url, { replace: isAutoAdvance || false });
-    } catch {}
+      try { routerNavigate(url, { replace: isAutoAdvance || false }); } catch (err) { console.debug('[useReaderNavigation] routerNavigate failed:', err); }
   };
 
   const returnToChapter = (abbr, chapter, exactY, setFilterMode, setSelectMode, setSelectedVerses, setHighlightedVerses, setHighlightVerse, setHighlightSection, setShowFilterOverlay, loadChapter) => {
@@ -48,7 +47,7 @@ export function useReaderNavigation(pos, loadChapter, routerNavigate, routerLoca
     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
     setShowFilterOverlay(false);
     if (typeof exactY === 'number' && exactY > 0) {
-      try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
+      try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch (err) { console.debug('[useReaderNavigation] persist kjb-scroll failed:', err); }
     }
     try { window.history.replaceState({}, '', '/read'); } catch {}
     freshNavRef.current = false;
