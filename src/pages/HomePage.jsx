@@ -305,7 +305,20 @@ export default function HomePage() {
     } catch {}
     // Save the DAILY VERSE location (so indicator shows correctly) plus where we came FROM (so Clear returns there)
     try {
-      const currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      let currentPos = null;
+      try {
+        const prevSession = localStorage.getItem('kjb-prev-reading-session');
+        if (prevSession) currentPos = JSON.parse(prevSession);
+      } catch {}
+      if (!currentPos || !currentPos.abbr || !currentPos.chapter) {
+        try { currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}'); } catch {}
+      }
+      if (currentPos && currentPos.abbr && currentPos.chapter && typeof currentPos.scrollY !== 'number') {
+        try {
+          const savedScroll = parseInt(localStorage.getItem(`kjb-scroll-${currentPos.abbr}-${currentPos.chapter}`) || '0', 10);
+          if (!Number.isNaN(savedScroll)) currentPos.scrollY = savedScroll;
+        } catch {}
+      }
       localStorage.setItem('kjb-last-reading', JSON.stringify({
         abbr: abbr,
         chapter: verse.chapter,
@@ -313,7 +326,7 @@ export default function HomePage() {
         fromDailyVerse: true,
         prevAbbr: currentPos?.abbr || null,
         prevChapter: currentPos?.chapter || null,
-        prevScrollY: currentPos?.scrollY || 0,
+        prevScrollY: typeof currentPos?.scrollY === 'number' ? currentPos.scrollY : 0,
       }));
     } catch {}
     // Update current position to the daily verse
@@ -347,8 +360,12 @@ export default function HomePage() {
         if (prevSession) currentPos = JSON.parse(prevSession);
       } catch {}
       if (!currentPos || !currentPos.abbr || !currentPos.chapter) {
+        try { currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}'); } catch {}
+      }
+      if (currentPos && currentPos.abbr && currentPos.chapter && typeof currentPos.scrollY !== 'number') {
         try {
-          currentPos = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+          const savedScroll = parseInt(localStorage.getItem(`kjb-scroll-${currentPos.abbr}-${currentPos.chapter}`) || '0', 10);
+          if (!Number.isNaN(savedScroll)) currentPos.scrollY = savedScroll;
         } catch {}
       }
       localStorage.setItem('kjb-last-reading', JSON.stringify({
@@ -357,7 +374,7 @@ export default function HomePage() {
         fromRandom: true,
         prevAbbr: currentPos?.abbr || null,
         prevChapter: currentPos?.chapter || null,
-        prevScrollY: currentPos?.scrollY || 0,
+        prevScrollY: typeof currentPos?.scrollY === 'number' ? currentPos.scrollY : 0,
       }));
     } catch {}
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr: randomBook.abbr, chapter: randomChapter, verse: null })); } catch {}

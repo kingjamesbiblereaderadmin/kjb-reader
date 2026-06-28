@@ -1453,18 +1453,37 @@ export default function BibleReader() {
                         }
                       } catch {}
                     }
-                    
-                    // Clear ALL state first (search, gospel, daily, random, filter, highlight)
-                    if (searchTerm) { clearSearchContext(); }
-                    if (gospelMode) { clearGospelNav(); setGospelMode(false); }
-                    setLastReadingPos(null); setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+
+                    if (searchTerm) {
+                      clearSearchContext();
+                      return;
+                    }
+                    if (gospelMode) {
+                      clearGospelNav(); setGospelMode(false);
+                      return;
+                    }
+
+                    if (lastReadingActive) {
+                      setLastReadingPos(null);
+                      setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+                      setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
+                      setShowFilterOverlay(false);
+                      try { localStorage.removeItem('kjb-last-reading'); } catch {}
+                      if (prevAbbr && prevChapter) {
+                        const restoreY = (typeof prevScrollY === 'number' && prevScrollY > 0) ? prevScrollY : undefined;
+                        returnToChapter(prevAbbr, prevChapter, restoreY);
+                        return;
+                      }
+                      return;
+                    }
+
+                    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
                     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
                     setShowFilterOverlay(false);
                     try { localStorage.removeItem('kjb-last-reading'); } catch {}
-                    
-                    // Navigate back if we have a saved position
                     if (prevAbbr && prevChapter) {
-                      returnToChapter(prevAbbr, prevChapter, prevScrollY);
+                      const restoreY = (typeof prevScrollY === 'number' && prevScrollY > 0) ? prevScrollY : undefined;
+                      returnToChapter(prevAbbr, prevChapter, restoreY);
                     } else {
                       try { window.history.replaceState({}, '', '/read'); } catch {}
                     }
