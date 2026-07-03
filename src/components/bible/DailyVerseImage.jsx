@@ -948,8 +948,12 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         />
       )}
 
-      {showVersePanel ? (
-        <div className="px-1 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full">
+      {/* The "verse panel" toggle controls only the translucent backdrop box
+          behind the content (for readability against a custom photo
+          background) — the verse text, reference, and date always stay
+          visible either way. */}
+      <div className="px-1 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full">
+        <div className={`flex-1 flex flex-col justify-center min-h-0 ${showVersePanel && hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] mx-1 xs:mx-3 px-2 xs:px-4 py-3' : ''}`}>
           <div className="flex self-stretch items-center justify-center gap-3 xs:gap-6 mt-4 mb-4 w-full px-2 xs:px-4 py-1.5">
             <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
             <p 
@@ -960,7 +964,6 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             </p>
             <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
           </div>
-          <div className="flex-1 flex flex-col justify-center min-h-0">
           <div className="mx-auto w-full max-w-none px-4 sm:px-6 py-4">
           <blockquote 
             className={`text-center [&_em]:italic break-words ${fontFamily === 'cursive' && a11yFont === 'default' ? 'kjb-verse-card cursive-em-style' : ''}`}
@@ -1026,47 +1029,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             )}
           </div>
           </div>
-          </div>
         </div>
-      ) : (
-        <div className="px-6 py-4 text-center flex-1 flex flex-col justify-center">
-          <div className={`inline-flex self-center items-center justify-center gap-2 xs:gap-4 max-w-full ${hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] px-3 xs:px-5 py-2' : ''}`}>
-            <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
-            <p 
-              className={`font-sans text-sm xs:text-lg md:text-xl font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase ${accentClass}`}
-              style={{ opacity: 1, color: textColor, fontFamily: uiFont, textShadow: '0 2px 10px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.45)' }}
-            >
-              {isOffline ? 'Offline Verse of the Day' : 'Verse of the Day'}
-            </p>
-            <span className="h-px w-6 xs:w-12 bg-current opacity-50 flex-shrink-0" style={{ color: textColor }} />
-          </div>
-        </div>
-      )}
-
-      {/* Date display — only when the verse panel is hidden (custom bg mode).
-          When the panel is shown, the date is merged into the verse block above. */}
-      {!showVersePanel && (
-        <div className="mt-auto pt-6 flex flex-col items-center justify-center w-full relative z-10">
-          <span
-            className="whitespace-nowrap"
-            style={{
-              backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : `rgba(${defaultBg.pill}, 0.65)`,
-              border: '1px solid rgba(255,255,255,0.18)',
-              borderRadius: '11px',
-              color: 'rgba(255,255,255,0.98)',
-              fontFamily: uiFont,
-              fontSize: '13px',
-              fontWeight: 700,
-              letterSpacing: '0.03em',
-              lineHeight: '13px',
-              padding: '8px 18px',
-              boxShadow: '0 3px 9px rgba(0,0,0,0.3)',
-            }}
-          >
-            {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-          </span>
-        </div>
-      )}
+      </div>
 
       {/* Crop Modal — rendered via a portal to document.body so the full-screen
           overlay isn't trapped inside the verse card's transform/stacking
