@@ -44,8 +44,14 @@ export default function CurrentlyReadingIndicator({
   
   // Use lastReadingPos if available, but also check the URL for 'from=daily' 
   // to handle cases where the user clicked a notification or opened a shared link.
-  const isDaily = isFromDaily || (lastReadingPos && (lastReadingPos.fromDailyVerse || lastReadingPos.fromDaily));
-  const isRandom = isFromRandom || (lastReadingPos && (lastReadingPos.fromRandom || lastReadingPos.fromRandomChapter));
+  // An active search or gospel context always wins over a stale lastReadingPos
+  // daily/random flag — otherwise typing a search reference while viewing the
+  // Daily Verse (or a previous search result) leaves the indicator stuck
+  // showing "Daily Verse" against the new reference instead of updating to
+  // reflect the search.
+  const hasActiveSearchOrGospel = !!searchTerm || isFromSearch || gospelMode;
+  const isDaily = !hasActiveSearchOrGospel && (isFromDaily || (lastReadingPos && (lastReadingPos.fromDailyVerse || lastReadingPos.fromDaily)));
+  const isRandom = !hasActiveSearchOrGospel && (isFromRandom || (lastReadingPos && (lastReadingPos.fromRandom || lastReadingPos.fromRandomChapter)));
   
   // Only use search term if we're actually in search mode (not daily/random)
   let effectiveSearchTerm = searchTerm;
