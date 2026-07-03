@@ -576,6 +576,17 @@ export default function BibleReader() {
         }
         if (results[index]) { stepToResult(results[index]); return; }
       } else if (!isFromDaily && !isFromRandom) {
+        // Keep the "Daily Verse" / "Random Chapter" indicator state in sync with
+        // what's actually persisted. goTo()/keyword search clear kjb-last-reading
+        // when the user deliberately jumps to a reference, so if it's gone here
+        // the stale lastReadingPos must be cleared too — otherwise the indicator
+        // stays stuck on "Daily Verse" (showing the newly-typed reference) when
+        // the new verse happens to fall in the same chapter as the daily verse.
+        try {
+          const lastReadingRaw = localStorage.getItem('kjb-last-reading');
+          setLastReadingPos(lastReadingRaw ? JSON.parse(lastReadingRaw) : null);
+        } catch { setLastReadingPos(null); }
+
         // Try to restore search/gospel context from localStorage when returning to the same chapter
         // Skip restoration for daily/random - they should NOT show search toolbar
         const savedState = localStorage.getItem('kjb-reader-toolbar-state');
@@ -599,8 +610,27 @@ export default function BibleReader() {
                   setGospelTotalResults(g.results.length);
                 }
               }
+              // Restore the "verse only" vs "full chapter" view and any
+              // selected verses so the share/copy toolbar reappears too.
+              if (state.filterMode !== undefined) setFilterMode(state.filterMode);
+              if (state.selectedVerses && state.selectedVerses.length > 0) {
+                const newSet = new Set(state.selectedVerses);
+                setSelectedVerses(newSet);
+                setHighlightedVerses(newSet);
+              }
+            } else if (searchTerm || gospelMode) {
+              // Landed on a chapter with no saved toolbar state for it (e.g. a
+              // freshly typed reference) — don't drag along the previous
+              // search/gospel indicator.
+              searchClearedRef.current = true;
+              setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
+              setGospelMode(false); clearGospelNav();
             }
           } catch {}
+        } else if (searchTerm || gospelMode) {
+          searchClearedRef.current = true;
+          setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
+          setGospelMode(false); clearGospelNav();
         }
       }
       
@@ -651,6 +681,7 @@ export default function BibleReader() {
         const isFromRandom = urlParams.get('from') === 'random';
         
         // Restore toolbar state from localStorage (search/gospel context persists across app restarts)
+        let restoredSelection = false;
         try {
           const savedState = localStorage.getItem('kjb-reader-toolbar-state');
           console.log('[BibleReader] Fallback restore - saved state:', savedState);
@@ -680,6 +711,7 @@ export default function BibleReader() {
                 const newSet = new Set(state.selectedVerses);
                 setSelectedVerses(newSet);
                 setHighlightedVerses(newSet);
+                restoredSelection = true;
               }
             }
           }
@@ -687,12 +719,16 @@ export default function BibleReader() {
           console.error('[BibleReader] Fallback restore error:', err);
         }
         // Restore a previously highlighted verse or multi-verse range so coming
-        // back to the Reader keeps the highlight, not just the chapter.
+        // back to the Reader keeps the highlight, not just the chapter. Skip the
+        // "clear" branch if we just restored a search/select toolbar state above —
+        // otherwise this immediately wipes out the filterMode/selectedVerses we
+        // just restored (the bug that made the search & selection toolbars vanish
+        // whenever you navigated away and back without an explicit verse range).
         if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
           const range = new Set();
           for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
           setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
-        } else {
+        } else if (!restoredSelection) {
           setFilterMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set());
         }
         setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });
