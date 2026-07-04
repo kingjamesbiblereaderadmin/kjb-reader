@@ -89,6 +89,21 @@ export default function SearchPage() {
   // Tracks the last query text we searched, so we only reset the book selection
   // on a genuinely new query (not when re-running to apply the book filter).
   const lastQueryRef = useRef(getQueryFromUrl());
+  // Measures the sticky header block's rendered height so the OT/NT section
+  // headers inside SearchResultsList can stick right below it (via the
+  // --kjb-search-sticky-offset CSS var) instead of overlapping it.
+  const stickyHeaderRef = useRef(null);
+  useEffect(() => {
+    const el = stickyHeaderRef.current;
+    if (!el) return;
+    const update = () => {
+      try { el.style.setProperty('--kjb-search-sticky-offset', `${el.offsetHeight}px`); } catch {}
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
