@@ -1541,7 +1541,7 @@ export default function BibleReader() {
           
           {!selectMode && selectedVerses.size > 0 && (
             <ReadingRangeBar
-              label={searchTerm ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : lastReadingActive ? `Daily Verse` : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
+              label={searchTerm ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : lastReadingActive ? (lastReadingPos?.fromRandom ? 'Random Chapter' : 'Daily Verse') : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
               filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink} onPrintPage={() => window.print()}
               onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
