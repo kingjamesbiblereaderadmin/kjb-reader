@@ -31,7 +31,7 @@ function renderWithItalics(text, searchTerm, caseSensitive, wholeWord) {
       // Whole-word: capture the term in a group with non-word boundaries around it,
       // so only the term itself (not the surrounding char) gets highlighted.
       const regex = wholeWord
-        ? new RegExp(`(?:^|[^A-Za-z'])(${escaped})(?=$|[^A-Za-z'])`, caseSensitive ? 'g' : 'gi')
+        ? new RegExp(`(?:^|[^A-Za-z'-])(${escaped})(?=$|[^A-Za-z'-])`, caseSensitive ? 'g' : 'gi')
         : new RegExp(`(${escaped})`, caseSensitive ? 'g' : 'gi');
       let mm;
       while ((mm = regex.exec(clean)) !== null) {
