@@ -642,6 +642,10 @@ export default function BibleReader() {
         // Clear any existing search context when coming from daily/random
         searchClearedRef.current = true; setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
         setGospelMode(false); clearGospelNav();
+        // Also drop any leftover verse selection/filter mode from a previous
+        // search — otherwise the selection toolbar keeps showing (with the
+        // wrong label) because selectedVerses.size is still > 0 from before.
+        setFilterMode(false); setSelectedVerses(new Set());
         lastReadingClearedRef.current = false;
         // DO NOT overwrite kjb-last-reading - HomePage already saved it with the correct prevAbbr/prevChapter
         // Just read what HomePage saved and use it
