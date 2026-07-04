@@ -379,7 +379,7 @@ export default function BibleReader() {
   useEffect(() => { posRef.current = pos; }, [pos]);
   const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
 
-  useReaderUrlSync(pos, loading);
+  useReaderUrlSync(pos, loading, a11yFont);
   const isViewingTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
 
   const loadChapter = useCallback(async (bookAbbr, chapter, jumpVerse) => {
