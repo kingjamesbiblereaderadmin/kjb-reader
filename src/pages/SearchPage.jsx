@@ -1533,6 +1533,7 @@ export default function SearchPage() {
               ↑ ↓ or J / K to navigate verses & book headers · Enter to open a verse or collapse / expand a book
             </p>
           )}
+          </div>
           {/* Verse list */}
           <SearchResultsList
             results={results}
