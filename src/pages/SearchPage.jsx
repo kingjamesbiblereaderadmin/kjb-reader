@@ -1006,11 +1006,6 @@ export default function SearchPage() {
           scrolling through a long results list (stacks with the results-bar
           sticky section below it). */}
       <div className="sticky top-0 z-20 bg-background pt-6 -mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pb-2 print:static print:p-0 print:m-0">
-      {/* Everything above the verse list — title, search box, filters, results
-          count/actions, and the keyboard hint — stays stuck to the top while
-          scrolling through a long results list, so search/filter/copy/select
-          controls are always reachable without scrolling back up. */}
-      <div className="sticky top-0 z-10 bg-gradient-to-br from-background via-accent/5 to-background -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pt-6 -mt-6 print:static print:mx-0 print:px-0 print:pt-0 print:mt-0">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-4 print:hidden">Search Bible</h1>
 
       {/* Print-only title */}
@@ -1143,8 +1138,6 @@ export default function SearchPage() {
           <label htmlFor="case-sensitive" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Match case</label>
         </div>
       </div>
-      </div>
-      {/* /sticky header */}
       </div>
 
       {/* Book filter panel — click/tap outside to dismiss */}
