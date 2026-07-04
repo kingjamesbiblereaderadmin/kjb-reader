@@ -1501,6 +1501,7 @@ export default function BibleReader() {
                     setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
                     setShowFilterOverlay(false);
                     try { localStorage.removeItem('kjb-last-reading'); } catch {}
+                    try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
                     
                     // Navigate back if we have a saved position
                     if (prevAbbr && prevChapter) {
@@ -1532,6 +1533,7 @@ export default function BibleReader() {
                 if (searchTerm) { clearSearchContext(); return; }
                 if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
                 setFilterMode(false); setSelectedVerses(new Set()); setHighlightVerse(null);
+                try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
               }}
               onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink}
               onReadSelected={handleReadSelected} onShowFull={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
@@ -1558,8 +1560,9 @@ export default function BibleReader() {
               onClear={() => {
                 if (searchTerm) { clearSearchContext(); return; }
                 if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
-                if (lastReadingActive) { setLastReadingPos(null); try { localStorage.removeItem('kjb-last-reading'); } catch {} return; }
+                if (lastReadingActive) { setLastReadingPos(null); try { localStorage.removeItem('kjb-last-reading'); localStorage.removeItem('kjb-reader-toolbar-state'); } catch {} return; }
                 rangeHighlightRef.current = false; setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set()); setShowFilterOverlay(false);
+                try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
               }}
             />
           )}
