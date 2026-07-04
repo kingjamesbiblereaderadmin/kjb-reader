@@ -120,20 +120,31 @@
         // Set up global deferred prompt storage immediately
         window.kjbDeferredPrompt = null;
         window.kjbPromptFired = false;
-        
-        // Capture beforeinstallprompt as early as possible (mobile + desktop)
+        window.kjbPromptedThisSession = false;
+
+        // Capture beforeinstallprompt as early as possible (mobile + desktop).
+        // Chromium browsers (Chrome/Edge/Samsung Internet) only fire this event
+        // for an app that is NOT currently installed — so seeing it fire is the
+        // most reliable signal we have that any previously-remembered
+        // "installed" flag is now stale (e.g. the user uninstalled the PWA from
+        // their home screen/app list). Clearing it here is what makes the app
+        // automatically fall back to showing the Install button again, without
+        // the user having to manually reset anything.
         window.addEventListener('beforeinstallprompt', function(e) {
           e.preventDefault();
           window.kjbDeferredPrompt = e;
           window.kjbPromptFired = true;
-          console.log('[index.html] beforeinstallprompt captured -', navigator.userAgent.substring(0, 80));
+          window.kjbPromptedThisSession = true;
+          try { localStorage.removeItem('kjb-is-installed'); } catch (err) {}
+          console.log('[PWA] beforeinstallprompt captured - not currently installed, native prompt ready');
           window.dispatchEvent(new Event('kjb-install-change'));
           window.dispatchEvent(new Event('pwa-installable'));
         });
-        
-        // Also listen for appinstalled to clear state and persist installed status
+
+        // Fires the moment the user accepts the native install prompt (or
+        // installs via the browser's own address-bar/menu affordance).
         window.addEventListener('appinstalled', function() {
-          console.log('[index.html] appinstalled event fired');
+          console.log('[PWA] appinstalled event fired');
           window.kjbDeferredPrompt = null;
           window.kjbPromptFired = false;
           try {
@@ -185,16 +196,6 @@
     </script>
     <!-- Prevent flash of wrong theme: apply saved theme BEFORE React mounts -->
     <script>
-      window.kjbDeferredPrompt = null;
-      window.kjbPromptedThisSession = false;
-      window.addEventListener('beforeinstallprompt', function(e) {
-        e.preventDefault();
-        window.kjbDeferredPrompt = e;
-        window.kjbPromptedThisSession = true;
-        console.log('[PWA] beforeinstallprompt captured - native prompt ready');
-        window.dispatchEvent(new Event('pwa-installable'));
-        window.dispatchEvent(new Event('kjb-install-change'));
-      });
       (function() {
         try {
           var mode = localStorage.getItem('kjb-theme-mode') || 'system';
