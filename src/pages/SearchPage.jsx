@@ -1138,6 +1138,7 @@ export default function SearchPage() {
           <label htmlFor="case-sensitive" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Match case</label>
         </div>
       </div>
+      </div>
 
       {/* Book filter panel — click/tap outside to dismiss */}
       {showBookFilter && (
