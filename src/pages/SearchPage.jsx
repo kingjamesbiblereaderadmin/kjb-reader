@@ -1408,7 +1408,10 @@ export default function SearchPage() {
             </div>
           )}
 
-          {/* Results header + action bar */}
+          {/* Results header + action bar + keyboard hint — sticky so Copy/Select/
+              Share/Print stay reachable without scrolling back up while paging
+              through a long results list. */}
+          <div className="sticky top-0 z-10 bg-background pt-0 -mx-3 px-3 sm:-mx-4 sm:px-4">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3 print:hidden">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
@@ -1529,6 +1532,7 @@ export default function SearchPage() {
               ↑ ↓ or J / K to navigate verses & book headers · Enter to open a verse or collapse / expand a book
             </p>
           )}
+          </div>
           {/* Verse list */}
           <SearchResultsList
             results={results}
