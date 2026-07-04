@@ -350,6 +350,7 @@ export default function BibleSearchBar({ onClose }) {
     // Clear search term and last reading position so CurrentlyReadingIndicator doesn't show stale context
     try { localStorage.removeItem('kjb-search-term'); } catch {}
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
+    try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
     setQuery('');
     setSuggestions([]);
     setOpen(false);
