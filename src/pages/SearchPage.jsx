@@ -499,7 +499,7 @@ export default function SearchPage() {
             if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                const wordRegex = new RegExp(`(^|[^A-Za-z'-])${escapedTerm}($|[^A-Za-z'-])`);
                 colophonFound = wordRegex.test(colophonText);
               } else {
                 colophonFound = colophonText.includes(searchTerm);
@@ -507,7 +507,7 @@ export default function SearchPage() {
             } else {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`\\b${escapedTerm}\\b`);
+                const wordRegex = new RegExp(`(^|[^a-z'-])${escapedTerm}($|[^a-z'-])`);
                 colophonFound = wordRegex.test(colophonLower);
               } else {
                 colophonFound = colophonLower.includes(searchTermLower);
