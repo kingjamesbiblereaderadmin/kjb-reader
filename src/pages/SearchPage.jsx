@@ -592,7 +592,7 @@ export default function SearchPage() {
       const occRes = occTerms.map(t => {
         const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         return effectiveWholeWord
-          ? new RegExp(`(?<![A-Za-z'])${esc}(?![A-Za-z'])`, effectiveCaseSensitive ? 'g' : 'gi')
+          ? new RegExp(`(?<![A-Za-z'-])${esc}(?![A-Za-z'-])`, effectiveCaseSensitive ? 'g' : 'gi')
           : new RegExp(esc, effectiveCaseSensitive ? 'g' : 'gi');
       });
       let totalOcc = 0;
