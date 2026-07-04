@@ -1002,10 +1002,10 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background print:bg-none">
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6 print:p-0 print:pt-4">
-      {/* Title through the results action bar + keyboard hint — all sticky so
-          the search box, filters, and Copy/Select/Share/Print stay reachable
-          without scrolling back up while paging through a long results list. */}
-      <div className="sticky top-0 z-10 bg-background pt-6 -mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 print:static print:p-0 print:m-0">
+      {/* Title + search box + filters — sticky so they stay reachable while
+          scrolling through a long results list (stacks with the results-bar
+          sticky section below it). */}
+      <div className="sticky top-0 z-20 bg-background pt-6 -mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pb-2 print:static print:p-0 print:m-0">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-4 print:hidden">Search Bible</h1>
 
       {/* Print-only title */}
