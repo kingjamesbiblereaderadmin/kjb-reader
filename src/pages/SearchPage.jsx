@@ -1413,7 +1413,11 @@ export default function SearchPage() {
             </div>
           )}
 
-          {/* Results header + action bar + keyboard hint */}
+          {/* Results header + action bar + keyboard hint — sticky so Copy/Select/
+              Share/Print stay reachable without scrolling back up while paging
+              through a long results list. Stacks below the title/search/filters
+              sticky block above. */}
+          <div className="sticky top-[0px] z-10 bg-background -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pt-2 pb-1 print:static print:p-0 print:m-0" style={{ top: 'var(--kjb-search-header-h, 0px)' }}>
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3 print:hidden">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
