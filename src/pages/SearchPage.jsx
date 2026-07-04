@@ -97,12 +97,15 @@ export default function SearchPage() {
     const el = stickyHeaderRef.current;
     if (!el) return;
     const update = () => {
-      try { el.style.setProperty('--kjb-search-sticky-offset', `${el.offsetHeight}px`); } catch {}
+      // Set on the root element (not `el` itself) — SearchResultsList's OT/NT
+      // headers are siblings of this block, not descendants, so the CSS var
+      // needs a common ancestor to be visible to them.
+      try { document.documentElement.style.setProperty('--kjb-search-sticky-offset', `${el.offsetHeight}px`); } catch {}
     };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => { ro.disconnect(); try { document.documentElement.style.removeProperty('--kjb-search-sticky-offset'); } catch {} };
   }, []);
 
   // Multi-select state
