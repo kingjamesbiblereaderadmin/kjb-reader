@@ -866,8 +866,12 @@ export default function SearchPage() {
   // Brackets are converted to nothing (plain text) for clean copy/export.
   const formatVerses = (indices) => {
     const sorted = [...indices].sort((a, b) => a - b);
-    const lines = sorted.map(i => {
+    const lines = sorted.map((i, idx) => {
       const r = results[i];
+      // A pilcrow marks a new paragraph — keep that visual gap above it in the
+      // copied text (instead of silently stripping it with no break) so
+      // paragraph breaks stay legible outside the app.
+      const hasPilcrow = /^\s*¶/.test(r.text || '');
       const text = r.text
         .replace(/¶\s*/g, '')
         .replace(/^<<[^>]*>>\s*/, '')
@@ -885,7 +889,8 @@ export default function SearchPage() {
       const q = getQueryFromUrl() || query;
       const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: (isColophon || r.isSubscript) ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
       // Wrap the link in <> so chat apps don't render a link embed/preview.
-      return `• "${text}"\n  — ${ref} (KJB)\n  Read: <${url}>`;
+      const bullet = `• "${text}"\n  — ${ref} (KJB)\n  Read: <${url}>`;
+      return (hasPilcrow && idx > 0) ? `\n${bullet}` : bullet;
     });
     return lines.join('\n\n');
   };
