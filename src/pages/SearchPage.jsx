@@ -395,7 +395,7 @@ export default function SearchPage() {
                 const tl = term.toLowerCase();
                 if (effectiveWholeWord) {
                   const esc = tl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                  return new RegExp(`(^|[^a-z'])${esc}($|[^a-z'])`, 'i').test(searchText);
+                  return new RegExp(`(^|[^a-z'-])${esc}($|[^a-z'-])`, 'i').test(searchText);
                 }
                 return searchTextLower.includes(tl);
               });
@@ -418,7 +418,7 @@ export default function SearchPage() {
             if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`);
+                const wordRegex = new RegExp(`(^|[^A-Za-z'-])${escapedTerm}($|[^A-Za-z'-])`);
                 found = wordRegex.test(searchText);
               } else {
                 found = searchText.includes(searchTerm);
@@ -426,7 +426,7 @@ export default function SearchPage() {
             } else {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`(^|[^a-z'])${escapedTerm}($|[^a-z'])`, 'i');
+                const wordRegex = new RegExp(`(^|[^a-z'-])${escapedTerm}($|[^a-z'-])`, 'i');
                 found = wordRegex.test(searchText);
               } else {
                 found = searchTextLower.includes(searchTermLower);
@@ -458,14 +458,14 @@ export default function SearchPage() {
             if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                headingFound = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`).test(headingClean);
+                headingFound = new RegExp(`(^|[^A-Za-z'-])${escapedTerm}($|[^A-Za-z'-])`).test(headingClean);
               } else {
                 headingFound = headingClean.includes(searchTerm);
               }
             } else {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                headingFound = new RegExp(`(^|[^a-z'])${escapedTerm}($|[^a-z'])`, 'i').test(headingClean);
+                headingFound = new RegExp(`(^|[^a-z'-])${escapedTerm}($|[^a-z'-])`, 'i').test(headingClean);
               } else {
                 headingFound = headingLower.includes(searchTermLower);
               }
@@ -542,7 +542,7 @@ export default function SearchPage() {
             if (effectiveCaseSensitive) {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`(^|[^A-Za-z'])${escapedTerm}($|[^A-Za-z'])`);
+                const wordRegex = new RegExp(`(^|[^A-Za-z'-])${escapedTerm}($|[^A-Za-z'-])`);
                 subscriptFound = wordRegex.test(subscriptClean);
               } else {
                 subscriptFound = subscriptClean.includes(searchTerm);
@@ -550,7 +550,7 @@ export default function SearchPage() {
             } else {
               if (effectiveWholeWord) {
                 const escapedTerm = searchTermLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const wordRegex = new RegExp(`(^|[^a-z'])${escapedTerm}($|[^a-z'])`, 'i');
+                const wordRegex = new RegExp(`(^|[^a-z'-])${escapedTerm}($|[^a-z'-])`, 'i');
                 subscriptFound = wordRegex.test(subscriptClean);
               } else {
                 subscriptFound = subscriptLower.includes(searchTermLower);
