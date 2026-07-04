@@ -381,7 +381,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   return (
     <div
       className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${
-        isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        isFadingOut ? 'opacity-0' : 'opacity-100'
       }`}
       style={{ background: splashBg }}
     >
