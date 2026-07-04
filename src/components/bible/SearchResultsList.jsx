@@ -26,7 +26,7 @@ function countOccurrences(text, term, caseSensitive, wholeWord) {
   for (const t of terms) {
     const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const re = wholeWord
-      ? new RegExp(`(?:^|[^A-Za-z'])${escaped}(?=$|[^A-Za-z'])`, caseSensitive ? 'g' : 'gi')
+      ? new RegExp(`(?:^|[^A-Za-z'-])${escaped}(?=$|[^A-Za-z'-])`, caseSensitive ? 'g' : 'gi')
       : new RegExp(escaped, caseSensitive ? 'g' : 'gi');
     total += (clean.match(re) || []).length;
   }
