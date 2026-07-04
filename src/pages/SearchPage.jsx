@@ -1138,7 +1138,6 @@ export default function SearchPage() {
           <label htmlFor="case-sensitive" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Match case</label>
         </div>
       </div>
-      </div>
 
       {/* Book filter panel — click/tap outside to dismiss */}
       {showBookFilter && (
@@ -1413,11 +1412,11 @@ export default function SearchPage() {
             </div>
           )}
 
-          {/* Results header + action bar + keyboard hint — sticky so Copy/Select/
-              Share/Print stay reachable without scrolling back up while paging
-              through a long results list. Stacks below the title/search/filters
-              sticky block above. */}
-          <div className="sticky top-0 z-10 bg-background -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pt-2 pb-1 print:static print:p-0 print:m-0">
+          {/* Results header + action bar + keyboard hint — part of the same
+              sticky block as the title/search/filters above it (kept as one
+              wrapper so the two regions don't independently stick at top-0
+              and overlap each other). */}
+          <div className="bg-background -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pt-2 pb-1 print:static print:p-0 print:m-0">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3 print:hidden">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
@@ -1539,6 +1538,8 @@ export default function SearchPage() {
             </p>
           )}
           </div>
+      </div>
+      {/* /sticky header — closes the wrapper opened above the "Search Bible" title */}
           {/* Verse list */}
           <SearchResultsList
             results={results}
