@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 // steppers, the kjb-navigate event from Home's daily/random buttons), not just
 // the ones that call navigate(). Preserves any ?from=…&q=… context flags
 // already in the URL so the "currently reading" indicators still restore.
-export function useReaderUrlSync(pos, loading) {
+export function useReaderUrlSync(pos, loading, a11yFont) {
   useEffect(() => {
     if (loading) return;
     try {
@@ -21,9 +21,10 @@ export function useReaderUrlSync(pos, loading) {
         if (from) url += `&from=${from}`;
         if (q) url += `&q=${encodeURIComponent(q)}`;
       }
+      if (a11yFont && a11yFont !== 'default') url += `${url.includes('?') ? '&' : '?'}font=${a11yFont}`;
       if (url !== window.location.pathname + window.location.search) {
         window.history.replaceState({}, '', url);
       }
     } catch {}
-  }, [pos.abbr, pos.chapter, pos.verse, loading]);
+  }, [pos.abbr, pos.chapter, pos.verse, loading, a11yFont]);
 }
