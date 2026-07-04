@@ -27,7 +27,10 @@ export function setSearchNav(results, index, term) {
   _index = index;
   _term = term;
   try {
-    localStorage.setItem('kjb-search-results', JSON.stringify(results.slice(0, 500)));
+    // Store up to 5000 results for reload-persistence (500 was truncating the
+    // stepper's total count for common words like "Jesus" that have hundreds
+    // of occurrences — the persisted total then disagreed with the true count).
+    localStorage.setItem('kjb-search-results', JSON.stringify(results.slice(0, 5000)));
     localStorage.setItem('kjb-search-index', String(index));
     localStorage.setItem('kjb-search-total', String(results.length));
     localStorage.setItem('kjb-search-term', term);
@@ -36,6 +39,22 @@ export function setSearchNav(results, index, term) {
 
 export function getSearchNav() {
   return { results: _results, index: _index, term: _term };
+}
+
+// True result count. The in-memory `_results` array is always the exact list
+// actually used for stepping prev/next, so it's the source of truth whenever
+// it's populated. We only fall back to the cached localStorage total for the
+// brief window right after a page reload before `_results` has been restored.
+export function getSearchTotal() {
+  if (_results.length > 0) return _results.length;
+  try {
+    const stored = localStorage.getItem('kjb-search-total');
+    if (stored) {
+      const n = parseInt(stored, 10);
+      if (!Number.isNaN(n)) return n;
+    }
+  } catch {}
+  return 0;
 }
 
 export function setSearchIndex(index) {
