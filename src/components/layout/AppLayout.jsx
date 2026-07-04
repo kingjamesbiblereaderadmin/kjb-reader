@@ -289,12 +289,15 @@ export default function AppLayout() {
     const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
 
     const triggerPrompt = () => {
+      // Show immediately once the splash is gone — no extra delay. A gap here
+      // (even briefly) lets the user tap the page, only for the prompt to
+      // suddenly appear and take over, which feels like a bait-and-switch.
       if (isPWAInstalled && !notifGranted) {
         // Already installed: show prompt for notification setup
-        setTimeout(() => setShowPrompt(true), 1500);
+        setShowPrompt(true);
       } else if (!isPWAInstalled && !dismissed) {
         // Not installed + not dismissed: show full prompt (install + config)
-        setTimeout(() => setShowPrompt(true), 1500);
+        setShowPrompt(true);
       }
     };
 
