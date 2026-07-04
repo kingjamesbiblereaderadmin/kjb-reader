@@ -1534,6 +1534,7 @@ export default function SearchPage() {
             </p>
           )}
           </div>
+          </div>
           {/* Verse list */}
           <SearchResultsList
             results={results}
