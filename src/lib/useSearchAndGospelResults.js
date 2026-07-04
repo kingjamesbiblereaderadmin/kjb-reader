@@ -91,6 +91,10 @@ export function useSearchAndGospelResults(
 
   const clearSearchContext = () => {
     clearSearchNavFn(); setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
+    // Drop the saved toolbar-state snapshot too — otherwise navigating back to
+    // whatever chapter it remembers (e.g. Home -> Read) silently restores the
+    // very search context the user just explicitly cleared.
+    try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
 
     // Find the previous reading chapter the same way the daily-verse Clear does:
     // prefer kjb-prev-reading-session (the accurate last normal-reading chapter),
@@ -107,12 +111,14 @@ export function useSearchAndGospelResults(
 
     preSearchPosRef.current = null;
     try { localStorage.removeItem('kjb-pre-search'); } catch {}
+    // Always reset filter/selection state, whether or not we're navigating
+    // back — otherwise a stale selected verse/filterMode from the search
+    // lingers on the chapter we land on.
+    setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
+    setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
+    setShowFilterOverlay(false);
     if (back && back.abbr && back.chapter) {
       returnToChapter(back.abbr, back.chapter, back.scrollY);
-    } else {
-      setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
-      setHighlightedVerses(new Set()); setHighlightVerse(null); setHighlightSection(null);
-      setShowFilterOverlay(false);
     }
   };
 
