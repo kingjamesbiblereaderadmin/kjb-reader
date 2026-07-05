@@ -26,7 +26,7 @@ import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  getNotificationsEnabled, getNotificationTime, setNotificationTime,
+  getNotificationsEnabled, isNotifReallyOn, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification, cleanForNotification
 } from '@/lib/notifications';
 
@@ -195,7 +195,7 @@ export default function SettingsPage() {
   // The toggle is only truly "on" when BOTH the app flag is set AND the OS
   // permission is actually granted. Otherwise notifications silently fail
   // (the old behaviour that showed "Enabled" but never fired anything).
-  const isNotifReallyOn = () => getNotificationsEnabled() && ('Notification' in window) && Notification.permission === 'granted';
+  const isNotifReallyOnLocal = isNotifReallyOn;
   const [notifEnabled, setNotifEnabled] = useState(isNotifReallyOn);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [cached, setCached] = useState(false);
