@@ -93,38 +93,20 @@ export default function SearchPage() {
   // headers inside SearchResultsList can stick right below it (via the
   // --kjb-search-sticky-offset CSS var) instead of overlapping it.
   const stickyHeaderRef = useRef(null);
-  // Second sticky block: results count / action toolbar / keyboard hint.
-  // It stacks directly below stickyHeaderRef (also position:sticky, offset by
-  // the first block's height) so the whole header area - title through the
-  // "J/K to navigate" hint - stays pinned together while scrolling. The OT/NT
-  // section headers need to sit below BOTH of these, hence the combined var.
-  const resultsHeaderRef = useRef(null);
   useEffect(() => {
     const el = stickyHeaderRef.current;
     if (!el) return;
     const update = () => {
       // Set on the root element (not `el` itself) - SearchResultsList's OT/NT
-      // headers are siblings of this block, not descendants, so the CSS vars
-      // need a common ancestor to be visible to them.
-      const h1 = el.offsetHeight;
-      const h2 = resultsHeaderRef.current?.offsetHeight || 0;
-      try {
-        document.documentElement.style.setProperty('--kjb-search-sticky-offset', `${h1}px`);
-        document.documentElement.style.setProperty('--kjb-search-sticky-offset-2', `${h1 + h2}px`);
-      } catch {}
+      // headers are siblings of this block, not descendants, so the CSS var
+      // needs a common ancestor to be visible to them.
+      try { document.documentElement.style.setProperty('--kjb-search-sticky-offset', `${el.offsetHeight}px`); } catch {}
     };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
-    if (resultsHeaderRef.current) ro.observe(resultsHeaderRef.current);
-    return () => {
-      ro.disconnect();
-      try {
-        document.documentElement.style.removeProperty('--kjb-search-sticky-offset');
-        document.documentElement.style.removeProperty('--kjb-search-sticky-offset-2');
-      } catch {}
-    };
-  }, [searched, loading, results.length]);
+    return () => { ro.disconnect(); try { document.documentElement.style.removeProperty('--kjb-search-sticky-offset'); } catch {} };
+  }, []);
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
