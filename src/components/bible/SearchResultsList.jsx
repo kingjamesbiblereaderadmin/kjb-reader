@@ -223,7 +223,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, hig
         return (
           <React.Fragment key={`grp-${group.book}`}>
             {showOTHeader && (
-              <div ref={otRef} className="sticky z-[5] bg-background flex items-center gap-2 pt-2 pb-1 border-b border-border mb-1 print:static print:border-black/20" style={{ top: 'var(--kjb-search-sticky-offset, 0px)' }}>
+              <div ref={otRef} className="sticky z-[5] bg-background flex items-center gap-2 pt-2 pb-1 border-b border-border mb-1 print:static print:border-black/20" style={{ top: 'var(--kjb-search-sticky-offset-2, var(--kjb-search-sticky-offset, 0px))' }}>
                 {ntCount > 0 ? (
                   <button
                     onClick={() => setOtExpanded(!otExpanded)}
@@ -248,7 +248,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, hig
               </div>
             )}
             {showNTHeader && (
-              <div ref={ntRef} className="sticky z-[5] bg-background flex items-center gap-2 pt-3 pb-1 border-b border-border mb-1 print:static print:border-black/20 print:pt-4" style={{ top: 'var(--kjb-search-sticky-offset, 0px)' }}>
+              <div ref={ntRef} className="sticky z-[5] bg-background flex items-center gap-2 pt-3 pb-1 border-b border-border mb-1 print:static print:border-black/20 print:pt-4" style={{ top: 'var(--kjb-search-sticky-offset-2, var(--kjb-search-sticky-offset, 0px))' }}>
                 {otCount > 0 ? (
                   <button
                     onClick={() => setNtExpanded(!ntExpanded)}
