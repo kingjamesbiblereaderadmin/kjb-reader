@@ -94,30 +94,27 @@ export default function SearchPage() {
   // filters + results count/toolbar/keyboard hint — all one physical sticky
   // container) so the OT/NT section headers inside SearchResultsList can
   // stick right below it via the --kjb-search-sticky-offset CSS var, instead
-  // of overlapping it.
-  // Height is capped as a safety net: on a short results page, an unclamped
-  // offset can exceed the page's own scrollable height, which makes
-  // position:sticky clamp the element to the bottom of its containing block
-  // instead of the top. Real header content (even with filters wrapping to
-  // an extra line, the results toolbar wrapping, etc.) comfortably fits
-  // under this cap, so it only ever protects against a bad measurement.
+  // of overlapping it. Uses the live measured height directly (via
+  // ResizeObserver) rather than a fixed guess, so it stays correct even when
+  // the block's height changes dynamically — e.g. selecting verses opens an
+  // extra panel inside it, filters wrap to another line on a narrow screen,
+  // etc. The observer re-fires automatically whenever that height changes.
   const stickyHeaderRef = useRef(null);
   useEffect(() => {
     const el = stickyHeaderRef.current;
     if (!el) return;
-    const MAX_H = 420;
     const update = () => {
       // Set on the root element (not `el` itself) - SearchResultsList's OT/NT
       // headers are siblings of this block, not descendants, so the CSS var
       // needs a common ancestor to be visible to them.
-      const h = Math.min(el.getBoundingClientRect().height, MAX_H);
+      const h = el.getBoundingClientRect().height;
       try { document.documentElement.style.setProperty('--kjb-search-sticky-offset', `${h}px`); } catch {}
     };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => { ro.disconnect(); try { document.documentElement.style.removeProperty('--kjb-search-sticky-offset'); } catch {} };
-  }, [searched, loading, results.length]);
+  }, []);
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
