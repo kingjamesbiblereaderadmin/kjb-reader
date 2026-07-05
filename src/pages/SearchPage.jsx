@@ -1296,6 +1296,7 @@ export default function SearchPage() {
           </div>
         </div>
       )}
+      </div>
 
       {loading && (
         <div className="flex justify-center py-24">
