@@ -1298,7 +1298,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
 
       {/* Off-screen fixed-size card used for the shared/downloaded image */}
       <Suspense fallback={null}>
-        <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} uiFont={uiFont} textColor={textColor} textOpacity={textOpacity} gradient={hasCustomBg ? null : defaultBg.hex} backgroundImageUrl={hasCustomBg ? (pendingBg || customBg) : null} isOffline={isOffline} />
+        <ShareCard ref={shareCardRef} verse={verse} logoSrc={logoDataUrl} fontFamily={resolvedFont} uiFont={uiFont} textColor={textColor} textOpacity={textOpacity} gradient={hasCustomBg ? null : defaultBg.hex} isOffline={isOffline} />
       </Suspense>
     </div>
   );

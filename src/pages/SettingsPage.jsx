@@ -26,7 +26,7 @@ import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  getNotificationsEnabled, isNotifReallyOn, getNotificationTime, setNotificationTime,
+  getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification, cleanForNotification
 } from '@/lib/notifications';
 
@@ -64,8 +64,8 @@ const isBookmarkBrowser = () => {
   return !isMobile && (isFirefox || (isMac && isSafari));
 };
 
-const LAST_REVISED = 'July 5th, 2026';
-const WORKER_VERSION = 'v20260705_1500';
+const LAST_REVISED = 'June 27th, 2026';
+const WORKER_VERSION = 'v20260627_5200';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -193,9 +193,9 @@ export default function SettingsPage() {
 
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
   // The toggle is only truly "on" when BOTH the app flag is set AND the OS
-  // permission is actually granted (see isNotifReallyOn in lib/notifications).
-  // Otherwise notifications silently fail (the old behaviour that showed
-  // "Enabled" but never fired anything).
+  // permission is actually granted. Otherwise notifications silently fail
+  // (the old behaviour that showed "Enabled" but never fired anything).
+  const isNotifReallyOn = () => getNotificationsEnabled() && ('Notification' in window) && Notification.permission === 'granted';
   const [notifEnabled, setNotifEnabled] = useState(isNotifReallyOn);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [cached, setCached] = useState(false);

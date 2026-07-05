@@ -14,19 +14,6 @@ export function getNotificationsEnabled() {
   return localStorage.getItem(NOTIF_KEY) === 'true';
 }
 
-// True only when BOTH the app's own "enabled" flag is set AND the browser
-// still actually has permission granted. Relying on the flag alone can get
-// stuck out of sync with reality — e.g. if permission is later revoked or
-// auto-blocked at the browser/OS level, the flag can be left at 'true' while
-// notifications are, in fact, off. Toggle UIs should use this (not
-// getNotificationsEnabled alone) so a stale flag doesn't make the button
-// silently do nothing instead of re-prompting for permission.
-export function isNotifReallyOn() {
-  if (!getNotificationsEnabled()) return false;
-  if (!('Notification' in window)) return false;
-  return Notification.permission === 'granted';
-}
-
 export function getNotificationTime() {
   return localStorage.getItem(NOTIF_TIME_KEY) || '08:00';
 }
@@ -81,32 +68,7 @@ export async function requestNotificationPermission() {
   
   let hasPermission = false;
   
-  // IMPORTANT: Request the Notification permission FIRST, before any other
-  // await. Mobile Chromium browsers (Edge, Chrome, Samsung Internet) only
-  // treat requestPermission() as tied to the user's tap for a very short
-  // "transient activation" window (a few seconds). If we await service
-  // worker registration first, that window can expire — especially on a
-  // fresh install where registering the SW takes a moment — and the browser
-  // then silently auto-denies the request instead of showing the prompt at
-  // all (looks like notifications got "automatically blocked"). Requesting
-  // permission immediately, synchronously-adjacent to the click, avoids that.
-  if ('Notification' in window) {
-    try {
-      console.log('[Notif] Current Notification permission:', Notification.permission);
-      console.log('[Notif] Requesting Notification permission...');
-      const result = await Notification.requestPermission();
-      console.log('[Notif] Notification permission result:', result);
-      if (result === 'granted') {
-        hasPermission = true;
-      }
-    } catch (err) {
-      console.warn('[Notif] Notification.requestPermission failed:', err.message);
-    }
-  }
-  
-  // Step 2: Register service worker (required for Android/Samsung to actually
-  // display notifications) AFTER permission has already been decided, so it
-  // can never eat into the user-gesture window the permission prompt needs.
+  // Step 1: Register service worker FIRST (required for Android/Samsung)
   if ('serviceWorker' in navigator) {
     try {
       console.log('[Notif] Registering service worker...');
@@ -117,6 +79,22 @@ export async function requestNotificationPermission() {
       console.log('[Notif] Service worker registered:', reg.scope);
     } catch (err) {
       console.error('[Notif] Service worker registration failed:', err.message);
+    }
+  }
+  
+  // Step 2: Request Notification API permission - ALWAYS trigger browser prompt
+  if ('Notification' in window) {
+    try {
+      console.log('[Notif] Current Notification permission:', Notification.permission);
+      // Always request permission to ensure the browser prompt shows (Chrome fix)
+      console.log('[Notif] Requesting Notification permission...');
+      const result = await Notification.requestPermission();
+      console.log('[Notif] Notification permission result:', result);
+      if (result === 'granted') {
+        hasPermission = true;
+      }
+    } catch (err) {
+      console.warn('[Notif] Notification.requestPermission failed:', err.message);
     }
   }
   

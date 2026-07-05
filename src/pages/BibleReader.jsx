@@ -123,12 +123,6 @@ export default function BibleReader() {
   const [searchTotalResults, setSearchTotalResults] = useState(0);
   const searchClearedRef = useRef(false);
   const lastReadingClearedRef = useRef(false);
-  // Tracks whether this is the very first time the URL-driven navigation
-  // effect has run for this mount (e.g. a hard page load / refresh, where
-  // restoring a persisted search/gospel context makes sense). After that,
-  // it's a live in-app navigation to a new reference, and a same-chapter
-  // match with old toolbar state should NOT drag along a stale search term.
-  const initialNavMountRef = useRef(true);
 
   const [gospelMode, setGospelMode] = useState(false);
   const [gospelResultIndex, setGospelResultIndex] = useState(() => getGospelNav().index);
@@ -536,11 +530,6 @@ export default function BibleReader() {
     const isFromGospel = urlParams.get('from') === 'gospel';
     const urlHighlightSection = urlParams.get('highlight');
     setHighlightSection(urlHighlightSection === 'colophon' || urlHighlightSection === 'subscript' ? urlHighlightSection : null);
-    // Capture whether this is the first time this effect runs for this mount
-    // (hard page load / refresh) BEFORE flipping the ref, so every subsequent
-    // in-app navigation is correctly treated as non-initial.
-    const wasInitialNavMount = initialNavMountRef.current;
-    initialNavMountRef.current = false;
     
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
@@ -598,16 +587,13 @@ export default function BibleReader() {
           setLastReadingPos(lastReadingRaw ? JSON.parse(lastReadingRaw) : null);
         } catch { setLastReadingPos(null); }
 
-        // Try to restore search/gospel context from localStorage when returning to the same chapter.
-        // Only do this on the initial mount (hard page load / refresh) — a live
-        // in-app navigation to another reference that merely happens to land on
-        // the same chapter should NOT drag along a stale search term.
+        // Try to restore search/gospel context from localStorage when returning to the same chapter
         // Skip restoration for daily/random - they should NOT show search toolbar
         const savedState = localStorage.getItem('kjb-reader-toolbar-state');
         if (savedState) {
           try {
             const state = JSON.parse(savedState);
-            if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum && wasInitialNavMount) {
+            if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum) {
               // Restore search context with persisted data
               if (state.hasSearchContext && state.searchTerm) {
                 searchClearedRef.current = false;
@@ -648,23 +634,18 @@ export default function BibleReader() {
         }
       }
       
-      if (isFromDaily || isFromRandom) {
-        // Clear any existing search/gospel/selection context BEFORE the
-        // position-match early-return below. Home pre-writes kjb-position to
-        // already match the destination chapter/verse before navigating here,
-        // so on a fresh mount that early-return was firing and skipping this
-        // clearing entirely — leaving a stale search term showing next to the
-        // new Daily/Random reference.
-        searchClearedRef.current = true; setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
-        setGospelMode(false); clearGospelNav();
-        setFilterMode(false); setSelectedVerses(new Set());
-      }
-
       if (posRef.current.abbr === urlBookObj.abbr && posRef.current.chapter === chapterNum && posRef.current.verse === verseNum && !isFromGospel) {
         return;
       }
       
       if (isFromDaily || isFromRandom) {
+        // Clear any existing search context when coming from daily/random
+        searchClearedRef.current = true; setSearchTerm(null); setSearchResultIndex(0); setSearchTotalResults(0);
+        setGospelMode(false); clearGospelNav();
+        // Also drop any leftover verse selection/filter mode from a previous
+        // search — otherwise the selection toolbar keeps showing (with the
+        // wrong label) because selectedVerses.size is still > 0 from before.
+        setFilterMode(false); setSelectedVerses(new Set());
         lastReadingClearedRef.current = false;
         // DO NOT overwrite kjb-last-reading - HomePage already saved it with the correct prevAbbr/prevChapter
         // Just read what HomePage saved and use it

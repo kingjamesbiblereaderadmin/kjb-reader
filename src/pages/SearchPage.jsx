@@ -89,33 +89,6 @@ export default function SearchPage() {
   // Tracks the last query text we searched, so we only reset the book selection
   // on a genuinely new query (not when re-running to apply the book filter).
   const lastQueryRef = useRef(getQueryFromUrl());
-  // Measures the sticky header block's rendered height (title + search box +
-  // filters + results count/toolbar/keyboard hint, all now inside ONE
-  // physical sticky container) so the OT/NT section headers inside
-  // SearchResultsList can stick right below it via the
-  // --kjb-search-sticky-offset CSS var, instead of overlapping it.
-  // Height is capped as a safety net: on a short results page, an
-  // unclamped offset can exceed the page's own scrollable height, which
-  // makes position:sticky clamp the element to the bottom of its
-  // containing block instead of the top. Real header content never comes
-  // close to this cap, so it only ever protects against a bad measurement.
-  const stickyHeaderRef = useRef(null);
-  useEffect(() => {
-    const el = stickyHeaderRef.current;
-    if (!el) return;
-    const MAX_H = 320;
-    const update = () => {
-      // Set on the root element (not `el` itself) - SearchResultsList's OT/NT
-      // headers are siblings of this block, not descendants, so the CSS var
-      // needs a common ancestor to be visible to them.
-      const h = Math.min(el.getBoundingClientRect().height, MAX_H);
-      try { document.documentElement.style.setProperty('--kjb-search-sticky-offset', `${h}px`); } catch {}
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => { ro.disconnect(); try { document.documentElement.style.removeProperty('--kjb-search-sticky-offset'); } catch {} };
-  }, [searched, loading, results.length]);
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -734,14 +707,6 @@ export default function SearchPage() {
       // New query typed → start fresh with all books.
       setSelectedBooks(new Set());
       lastQueryRef.current = kw;
-      // If we're already viewing a scrolled-down results list, jump back to
-      // the top so the new results (and the sticky header) are visible right
-      // away instead of leaving the view wherever the old list happened to be.
-      try {
-        const container = document.getElementById('kjb-scroll');
-        if (container) container.scrollTo({ top: 0, behavior: 'auto' });
-        else window.scrollTo({ top: 0 });
-      } catch {}
       runSearch(kw);
     }
   };
@@ -1040,7 +1005,7 @@ export default function SearchPage() {
       {/* Title + search box + filters — sticky so they stay reachable while
           scrolling through a long results list (stacks with the results-bar
           sticky section below it). */}
-      <div ref={stickyHeaderRef} className="sticky top-0 z-20 bg-background pt-6 -mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pb-2 print:static print:p-0 print:m-0">
+      <div className="sticky top-0 z-20 bg-background pt-6 -mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pb-2 print:static print:p-0 print:m-0">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-4 print:hidden">Search Bible</h1>
 
       {/* Print-only title */}
@@ -1332,13 +1297,126 @@ export default function SearchPage() {
         </div>
       )}
 
-      {/* Results header + action bar + keyboard hint — physically inside the
-          SAME sticky container as the title/search/filters above (not a
-          second separate sticky element), so the whole header area from the
-          search box down through the keyboard hint sticks together as one
-          unit while scrolling, with no offset math needed. */}
+      {loading && (
+        <div className="flex justify-center py-24">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
+            <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">
+              Searching the KJB...
+            </span>
+          </div>
+        </div>
+      )}
+
+
+
+      {!loading && searched && results.length === 0 && (
+        <div className="space-y-4">
+          <p className="font-sans text-sm text-muted-foreground text-center py-12 print:text-black">No results found for "{stripQuotes(query)}".</p>
+          {showBookResult && (
+            <div className="max-w-md mx-auto p-4 rounded-xl bg-primary/5 border border-primary/20 print:hidden">
+              <p className="font-sans text-xs text-muted-foreground mb-3 text-center">
+                Did you mean the book of <span className="font-semibold text-foreground">{showBookResult.bookName}</span>?
+              </p>
+              <button
+                onClick={() => {
+                  setShowBookResult(null);
+                  goToVerse(showBookResult.abbr, 1, null);
+                }}
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+              >
+                <BookOpen className="w-4 h-4" />
+                Go to {showBookResult.bookName}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {!loading && results.length > 0 && (
-        <div className="bg-background -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pt-2 pb-1 print:static print:p-0 print:m-0">
+        <div>
+          {/* Book match suggestion - shown when search term also matches a book name */}
+          {showBookResult && (
+            <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20 print:hidden">
+              <p className="font-sans text-xs text-muted-foreground mb-3">
+                {showBookResult.allMatches && showBookResult.allMatches.length > 1
+                  ? `Found multiple books. Which one did you mean?`
+                  : `Found the book of ${showBookResult.bookName}. How would you like to search?`
+                }
+              </p>
+              {/* Show multiple book options when there are multiple matches (e.g. 1&2 Kings, Samuel, Chronicles, or alternate names) */}
+              {showBookResult.allMatches && showBookResult.allMatches.length > 1 && (
+                <div className="grid sm:grid-cols-2 gap-2 mb-3">
+                  {showBookResult.allMatches.map(book => (
+                    <button
+                      key={book.abbr}
+                      onClick={() => {
+                        setShowBookResult(null);
+                        goToVerse(book.abbr, 1, null);
+                      }}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
+                    >
+                      <BookOpen className="w-5 h-5 flex-shrink-0" />
+                      <div className="text-left">
+                        <p className="font-serif text-sm font-bold">{book.shortName}</p>
+                        <p className="text-xs opacity-75">{book.chapters} {book.chapters === 1 ? 'chapter' : 'chapters'} • {book.testament === 'old' ? 'Old' : 'New'} Testament</p>
+                      </div>
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => {
+                      setShowBookResult(null);
+                      // Search is already running, just let it complete
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                  >
+                    <Search className="w-5 h-5 flex-shrink-0" />
+                    <div className="text-left">
+                      <p className="font-serif text-sm font-bold">Search "{stripQuotes(getQueryFromUrl() || query)}"</p>
+                      <p className="text-xs opacity-75">Find all mentions in verses</p>
+                    </div>
+                  </button>
+                </div>
+              )}
+              {/* Single book option or search button */}
+              {(!showBookResult.allMatches || showBookResult.allMatches.length <= 1) && (
+                <div className="grid sm:grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      setShowBookResult(null);
+                      goToVerse(showBookResult.abbr, 1, null);
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                  >
+                    <BookOpen className="w-5 h-5 flex-shrink-0" />
+                    <div className="text-left">
+                      <p className="font-serif text-sm font-bold">Go to {showBookResult.bookName}</p>
+                      <p className="text-xs opacity-75">{showBookResult.chapters} {showBookResult.chapters === 1 ? 'chapter' : 'chapters'} • {showBookResult.testament === 'old' ? 'Old' : 'New'} Testament</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowBookResult(null);
+                      // Search is already running, just let it complete
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
+                  >
+                    <Search className="w-5 h-5 flex-shrink-0" />
+                    <div className="text-left">
+                      <p className="font-serif text-sm font-bold">Search "{stripQuotes(getQueryFromUrl() || query)}"</p>
+                      <p className="text-xs opacity-75">Find all mentions in verses</p>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Results header + action bar + keyboard hint — part of the same
+              sticky block as the title/search/filters above it (kept as one
+              wrapper so the two regions don't independently stick at top-0
+              and overlap each other). */}
+          <div className="bg-background -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pt-2 pb-1 print:static print:p-0 print:m-0">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3 print:hidden">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
@@ -1459,125 +1537,7 @@ export default function SearchPage() {
               ↑ ↓ or J / K to navigate verses & book headers · Enter to open a verse or collapse / expand a book
             </p>
           )}
-        </div>
-      )}
-      </div>
-
-      {loading && (
-        <div className="flex justify-center py-24">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <Loader2 className="w-6 h-6 animate-spin text-primary/70" style={{ animationDuration: '2s' }} />
-            <span className="font-sans text-xs text-foreground/70 font-medium tracking-[0.2em] uppercase">
-              Searching the KJB...
-            </span>
           </div>
-        </div>
-      )}
-
-
-
-      {!loading && searched && results.length === 0 && (
-        <div className="space-y-4">
-          <p className="font-sans text-sm text-muted-foreground text-center py-12 print:text-black">No results found for "{stripQuotes(query)}".</p>
-          {showBookResult && (
-            <div className="max-w-md mx-auto p-4 rounded-xl bg-primary/5 border border-primary/20 print:hidden">
-              <p className="font-sans text-xs text-muted-foreground mb-3 text-center">
-                Did you mean the book of <span className="font-semibold text-foreground">{showBookResult.bookName}</span>?
-              </p>
-              <button
-                onClick={() => {
-                  setShowBookResult(null);
-                  goToVerse(showBookResult.abbr, 1, null);
-                }}
-                className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-              >
-                <BookOpen className="w-4 h-4" />
-                Go to {showBookResult.bookName}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {!loading && results.length > 0 && (
-        <div>
-          {/* Book match suggestion - shown when search term also matches a book name */}
-          {showBookResult && (
-            <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20 print:hidden">
-              <p className="font-sans text-xs text-muted-foreground mb-3">
-                {showBookResult.allMatches && showBookResult.allMatches.length > 1
-                  ? `Found multiple books. Which one did you mean?`
-                  : `Found the book of ${showBookResult.bookName}. How would you like to search?`
-                }
-              </p>
-              {/* Show multiple book options when there are multiple matches (e.g. 1&2 Kings, Samuel, Chronicles, or alternate names) */}
-              {showBookResult.allMatches && showBookResult.allMatches.length > 1 && (
-                <div className="grid sm:grid-cols-2 gap-2 mb-3">
-                  {showBookResult.allMatches.map(book => (
-                    <button
-                      key={book.abbr}
-                      onClick={() => {
-                        setShowBookResult(null);
-                        goToVerse(book.abbr, 1, null);
-                      }}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
-                    >
-                      <BookOpen className="w-5 h-5 flex-shrink-0" />
-                      <div className="text-left">
-                        <p className="font-serif text-sm font-bold">{book.shortName}</p>
-                        <p className="text-xs opacity-75">{book.chapters} {book.chapters === 1 ? 'chapter' : 'chapters'} • {book.testament === 'old' ? 'Old' : 'New'} Testament</p>
-                      </div>
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => {
-                      setShowBookResult(null);
-                      // Search is already running, just let it complete
-                    }}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-                  >
-                    <Search className="w-5 h-5 flex-shrink-0" />
-                    <div className="text-left">
-                      <p className="font-serif text-sm font-bold">Search "{stripQuotes(getQueryFromUrl() || query)}"</p>
-                      <p className="text-xs opacity-75">Find all mentions in verses</p>
-                    </div>
-                  </button>
-                </div>
-              )}
-              {/* Single book option or search button */}
-              {(!showBookResult.allMatches || showBookResult.allMatches.length <= 1) && (
-                <div className="grid sm:grid-cols-2 gap-2">
-                  <button
-                    onClick={() => {
-                      setShowBookResult(null);
-                      goToVerse(showBookResult.abbr, 1, null);
-                    }}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-                  >
-                    <BookOpen className="w-5 h-5 flex-shrink-0" />
-                    <div className="text-left">
-                      <p className="font-serif text-sm font-bold">Go to {showBookResult.bookName}</p>
-                      <p className="text-xs opacity-75">{showBookResult.chapters} {showBookResult.chapters === 1 ? 'chapter' : 'chapters'} • {showBookResult.testament === 'old' ? 'Old' : 'New'} Testament</p>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowBookResult(null);
-                      // Search is already running, just let it complete
-                    }}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent/20 transition-colors"
-                  >
-                    <Search className="w-5 h-5 flex-shrink-0" />
-                    <div className="text-left">
-                      <p className="font-serif text-sm font-bold">Search "{stripQuotes(getQueryFromUrl() || query)}"</p>
-                      <p className="text-xs opacity-75">Find all mentions in verses</p>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Verse list */}
           <SearchResultsList
             results={results}

@@ -8,7 +8,7 @@ import IncognitoWarning from '@/components/IncognitoWarning';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { getTodayVerseBackground } from '@/lib/dailyVerseTheme';
 import { useTheme } from '@/lib/themeContext';
-import { registerSW, scheduleDailyNotification, isNotifReallyOn, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
+import { registerSW, scheduleDailyNotification, getNotificationsEnabled, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
@@ -219,7 +219,7 @@ export default function HomePage() {
     handleVerseClick();
   };
 
-  const [notifEnabled, setNotifEnabled] = useState(isNotifReallyOn);
+  const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
   const [notifPermission, setNotifPermission] = useState(() => {
     if (!('serviceWorker' in navigator)) return 'unsupported';
     if (!('Notification' in window)) return 'supported';
@@ -228,14 +228,14 @@ export default function HomePage() {
 
   useEffect(() => {
     // Sync notification state on mount and whenever verse changes
-    setNotifEnabled(isNotifReallyOn());
+    setNotifEnabled(getNotificationsEnabled());
     
     registerSW();
     // Notification init now runs app-wide in AppLayout, so we don't re-init here
     // (avoids clearing/re-arming the poll timer on every HomePage mount).
 
     const handleStorageChange = () => {
-      const enabled = isNotifReallyOn();
+      const enabled = getNotificationsEnabled();
       setNotifEnabled(enabled);
       if (!('serviceWorker' in navigator)) {
         setNotifPermission('unsupported');
@@ -251,7 +251,7 @@ export default function HomePage() {
     
     // Also check on focus and online (when user returns to the app or internet is restored)
     const handleFocus = () => {
-      setNotifEnabled(isNotifReallyOn());
+      setNotifEnabled(getNotificationsEnabled());
       // Check if it's a new day and update the verse if needed
       const lastCached = getLastCachedDailyVerse();
       // Only fetch if we don't have today's verse cached
@@ -296,15 +296,12 @@ export default function HomePage() {
       console.warn('Invalid verse data:', verse, { resolvedAbbr: abbr });
       return;
     }
-    // Clear search term / stale toolbar (search+gospel) context so the
-    // reader's "Currently Reading" indicator doesn't keep showing the old
-    // search term next to the new Daily Verse reference.
+    // Clear search term
     try {
       localStorage.removeItem('kjb-search-term');
       localStorage.removeItem('kjb-search-index');
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
-      localStorage.removeItem('kjb-reader-toolbar-state');
     } catch {}
     // Save the DAILY VERSE location (so indicator shows correctly) plus where we came FROM (so Clear returns there)
     try {
@@ -332,15 +329,12 @@ export default function HomePage() {
   const handleRandomChapter = () => {
     const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
     const randomChapter = Math.floor(Math.random() * randomBook.chapters) + 1;
-    // Clear search term / stale toolbar (search+gospel) context when navigating
-    // to a random chapter, so the reader's "Currently Reading" indicator
-    // doesn't keep showing the old search term next to the new reference.
+    // Clear search term when navigating to random chapter
     try {
       localStorage.removeItem('kjb-search-term');
       localStorage.removeItem('kjb-search-index');
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
-      localStorage.removeItem('kjb-reader-toolbar-state');
     } catch {}
     // Save the DESTINATION random chapter (so the reader shows the "Random Chapter"
     // indicator) plus the PREVIOUS chapter (so Clear can return to it).

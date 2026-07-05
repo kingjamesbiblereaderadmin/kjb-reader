@@ -40,13 +40,6 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
     if (loading || verses.length === 0) return;
     const restoreToolbarState = () => {
       try {
-        // Never rehydrate a stale search/gospel context when we've just
-        // navigated here via Daily Verse or Random Chapter - those flows
-        // explicitly clear search/gospel state, and this restore (also
-        // triggered on window focus) shouldn't undo that.
-        const navUrlParams = new URLSearchParams(window.location.search);
-        const navFrom = navUrlParams.get('from');
-        if (navFrom === 'daily' || navFrom === 'random') return;
         const saved = localStorage.getItem('kjb-reader-toolbar-state');
         console.log('[ToolbarState] Restore attempt - saved:', saved);
         if (!saved) return;

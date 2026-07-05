@@ -350,7 +350,6 @@ export default function BibleSearchBar({ onClose }) {
     // Clear search term and last reading position so CurrentlyReadingIndicator doesn't show stale context
     try { localStorage.removeItem('kjb-search-term'); } catch {}
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
-    try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
     setQuery('');
     setSuggestions([]);
     setOpen(false);
@@ -378,7 +377,6 @@ export default function BibleSearchBar({ onClose }) {
     try {
       localStorage.setItem('kjb-position', JSON.stringify({ abbr: first.abbr, chapter: first.chapter, verse: first.vStart, verseEnd: first.vEnd }));
       localStorage.removeItem('kjb-last-reading');
-      localStorage.removeItem('kjb-reader-toolbar-state');
     } catch {}
     navigate(`/read?book=${first.abbr}&chapter=${first.chapter}&verse=${first.vStart}&from=search`);
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
@@ -397,7 +395,6 @@ export default function BibleSearchBar({ onClose }) {
     try {
       localStorage.setItem('kjb-position', JSON.stringify({ abbr: first.abbr, chapter: first.chapter, verse: first.verse, verseEnd: first.verseEnd || null }));
       localStorage.removeItem('kjb-last-reading');
-      localStorage.removeItem('kjb-reader-toolbar-state');
     } catch {}
     const vParam = first.verse ? `&verse=${first.verse}` : '';
     navigate(`/read?book=${first.abbr}&chapter=${first.chapter}${vParam}&from=search`);
