@@ -14,6 +14,19 @@ export function getNotificationsEnabled() {
   return localStorage.getItem(NOTIF_KEY) === 'true';
 }
 
+// True only when BOTH the app's own "enabled" flag is set AND the browser
+// still actually has permission granted. Relying on the flag alone can get
+// stuck out of sync with reality — e.g. if permission is later revoked or
+// auto-blocked at the browser/OS level, the flag can be left at 'true' while
+// notifications are, in fact, off. Toggle UIs should use this (not
+// getNotificationsEnabled alone) so a stale flag doesn't make the button
+// silently do nothing instead of re-prompting for permission.
+export function isNotifReallyOn() {
+  if (!getNotificationsEnabled()) return false;
+  if (!('Notification' in window)) return false;
+  return Notification.permission === 'granted';
+}
+
 export function getNotificationTime() {
   return localStorage.getItem(NOTIF_TIME_KEY) || '08:00';
 }
