@@ -598,13 +598,16 @@ export default function BibleReader() {
           setLastReadingPos(lastReadingRaw ? JSON.parse(lastReadingRaw) : null);
         } catch { setLastReadingPos(null); }
 
-        // Try to restore search/gospel context from localStorage when returning to the same chapter
+        // Try to restore search/gospel context from localStorage when returning to the same chapter.
+        // Only do this on the initial mount (hard page load / refresh) — a live
+        // in-app navigation to another reference that merely happens to land on
+        // the same chapter should NOT drag along a stale search term.
         // Skip restoration for daily/random - they should NOT show search toolbar
         const savedState = localStorage.getItem('kjb-reader-toolbar-state');
         if (savedState) {
           try {
             const state = JSON.parse(savedState);
-            if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum) {
+            if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum && wasInitialNavMount) {
               // Restore search context with persisted data
               if (state.hasSearchContext && state.searchTerm) {
                 searchClearedRef.current = false;
