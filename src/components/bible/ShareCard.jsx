@@ -9,7 +9,7 @@ import { cleanVerseText } from '@/lib/formatDailyVerse';
 // Rendered off-screen and captured by html2canvas.
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 
-const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline }, ref) {
+const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, backgroundImageUrl, isOffline }, ref) {
   const headerFont = uiFont || "'Inter', system-ui, sans-serif";
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   // Today's two-stop gradient (matches the on-site card). Falls back to blue→purple.
@@ -105,14 +105,28 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         height: '1024px',
       }}
     >
-      {/* Vertical blue→purple gradient base */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: bgGradient,
-        }}
-      />
+      {/* Custom background image (if the user picked one) — otherwise the
+          vertical blue→purple gradient base. A dark overlay sits on top so
+          the white verse text stays legible over any photo, matching the
+          on-screen daily verse card's look. */}
+      {backgroundImageUrl ? (
+        <>
+          <img
+            src={backgroundImageUrl}
+            alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} />
+        </>
+      ) : (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: bgGradient,
+          }}
+        />
+      )}
       {/* Subtle diagonal light streaks */}
       <div
         style={{
