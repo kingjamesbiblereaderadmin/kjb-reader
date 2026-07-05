@@ -1448,11 +1448,12 @@ export default function SearchPage() {
             </div>
           )}
 
-          {/* Results header + action bar + keyboard hint — part of the same
-              sticky block as the title/search/filters above it (kept as one
-              wrapper so the two regions don't independently stick at top-0
-              and overlap each other). */}
-          <div className="bg-background -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pt-2 pb-1 print:static print:p-0 print:m-0">
+          {/* Results header + action bar + keyboard hint — a second sticky
+              block stacked directly below the title/search/filters block
+              above (offset by its measured height via the CSS var), so the
+              whole header area from the search box down through the
+              keyboard hint stays pinned together while scrolling. */}
+          <div ref={resultsHeaderRef} className="sticky z-[15] bg-background -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pt-2 pb-1 print:static print:p-0 print:m-0" style={{ top: 'var(--kjb-search-sticky-offset, 0px)' }}>
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3 print:hidden">
             <div>
               <p className="font-sans text-xs text-muted-foreground">
