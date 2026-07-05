@@ -193,9 +193,9 @@ export default function SettingsPage() {
 
   const [notifPermission, setNotifPermission] = useState(() => 'Notification' in window ? Notification.permission : 'unsupported');
   // The toggle is only truly "on" when BOTH the app flag is set AND the OS
-  // permission is actually granted. Otherwise notifications silently fail
-  // (the old behaviour that showed "Enabled" but never fired anything).
-  const isNotifReallyOnLocal = isNotifReallyOn;
+  // permission is actually granted (see isNotifReallyOn in lib/notifications).
+  // Otherwise notifications silently fail (the old behaviour that showed
+  // "Enabled" but never fired anything).
   const [notifEnabled, setNotifEnabled] = useState(isNotifReallyOn);
   const [notifTime, setNotifTimeState] = useState(getNotificationTime);
   const [cached, setCached] = useState(false);
