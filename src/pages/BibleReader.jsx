@@ -607,7 +607,7 @@ export default function BibleReader() {
         if (savedState) {
           try {
             const state = JSON.parse(savedState);
-            if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum && initialNavMountRef.current) {
+            if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum && wasInitialNavMount) {
               // Restore search context with persisted data
               if (state.hasSearchContext && state.searchTerm) {
                 searchClearedRef.current = false;
