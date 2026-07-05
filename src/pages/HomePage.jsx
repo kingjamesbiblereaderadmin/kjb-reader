@@ -332,12 +332,15 @@ export default function HomePage() {
   const handleRandomChapter = () => {
     const randomBook = BIBLE_BOOKS[Math.floor(Math.random() * BIBLE_BOOKS.length)];
     const randomChapter = Math.floor(Math.random() * randomBook.chapters) + 1;
-    // Clear search term when navigating to random chapter
+    // Clear search term / stale toolbar (search+gospel) context when navigating
+    // to a random chapter, so the reader's "Currently Reading" indicator
+    // doesn't keep showing the old search term next to the new reference.
     try {
       localStorage.removeItem('kjb-search-term');
       localStorage.removeItem('kjb-search-index');
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
+      localStorage.removeItem('kjb-reader-toolbar-state');
     } catch {}
     // Save the DESTINATION random chapter (so the reader shows the "Random Chapter"
     // indicator) plus the PREVIOUS chapter (so Clear can return to it).
