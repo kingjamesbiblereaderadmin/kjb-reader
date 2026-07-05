@@ -536,6 +536,11 @@ export default function BibleReader() {
     const isFromGospel = urlParams.get('from') === 'gospel';
     const urlHighlightSection = urlParams.get('highlight');
     setHighlightSection(urlHighlightSection === 'colophon' || urlHighlightSection === 'subscript' ? urlHighlightSection : null);
+    // Capture whether this is the first time this effect runs for this mount
+    // (hard page load / refresh) BEFORE flipping the ref, so every subsequent
+    // in-app navigation is correctly treated as non-initial.
+    const wasInitialNavMount = initialNavMountRef.current;
+    initialNavMountRef.current = false;
     
     if (urlBookObj && urlChapter) {
       const chapterNum = parseInt(urlChapter, 10);
