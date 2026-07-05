@@ -1002,10 +1002,13 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background print:bg-none">
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6 print:p-0 print:pt-4">
-      {/* Title + search box + filters — sticky so they stay reachable while
-          scrolling through a long results list (stacks with the results-bar
-          sticky section below it). */}
-      <div className="sticky top-0 z-20 bg-background pt-6 -mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pb-2 print:static print:p-0 print:m-0">
+      {/* Title + search box + filters + results count/toolbar/keyboard hint
+          all live inside this ONE sticky container, so they stay reachable
+          and scroll together as a single unit while scrolling through a
+          long results list. ref is used to measure its rendered height so
+          the OT/NT section headers in SearchResultsList can stick right
+          below it via the --kjb-search-sticky-offset CSS var. */}
+      <div ref={stickyHeaderRef} className="sticky top-0 z-20 bg-background pt-6 -mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 pb-2 print:static print:p-0 print:m-0">
       <h1 className="font-serif text-2xl font-bold text-foreground mb-4 print:hidden">Search Bible</h1>
 
       {/* Print-only title */}
