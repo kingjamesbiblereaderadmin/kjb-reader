@@ -8,7 +8,7 @@ import IncognitoWarning from '@/components/IncognitoWarning';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
 import { getTodayVerseBackground } from '@/lib/dailyVerseTheme';
 import { useTheme } from '@/lib/themeContext';
-import { registerSW, scheduleDailyNotification, getNotificationsEnabled, isNotifReallyOn, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
+import { registerSW, scheduleDailyNotification, isNotifReallyOn, requestNotificationPermission, disableNotifications, showLocalNotification } from '@/lib/notifications';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
