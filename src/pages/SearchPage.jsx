@@ -743,6 +743,14 @@ export default function SearchPage() {
       // New query typed → start fresh with all books.
       setSelectedBooks(new Set());
       lastQueryRef.current = kw;
+      // If we're already viewing a scrolled-down results list, jump back to
+      // the top so the new results (and the sticky header) are visible right
+      // away instead of leaving the view wherever the old list happened to be.
+      try {
+        const container = document.getElementById('kjb-scroll');
+        if (container) container.scrollTo({ top: 0, behavior: 'auto' });
+        else window.scrollTo({ top: 0 });
+      } catch {}
       runSearch(kw);
     }
   };
