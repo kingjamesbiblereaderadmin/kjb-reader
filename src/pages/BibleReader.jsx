@@ -123,6 +123,12 @@ export default function BibleReader() {
   const [searchTotalResults, setSearchTotalResults] = useState(0);
   const searchClearedRef = useRef(false);
   const lastReadingClearedRef = useRef(false);
+  // Tracks whether this is the very first time the URL-driven navigation
+  // effect has run for this mount (e.g. a hard page load / refresh, where
+  // restoring a persisted search/gospel context makes sense). After that,
+  // it's a live in-app navigation to a new reference, and a same-chapter
+  // match with old toolbar state should NOT drag along a stale search term.
+  const initialNavMountRef = useRef(true);
 
   const [gospelMode, setGospelMode] = useState(false);
   const [gospelResultIndex, setGospelResultIndex] = useState(() => getGospelNav().index);
