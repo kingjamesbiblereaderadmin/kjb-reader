@@ -90,6 +90,35 @@ export default function SearchPage() {
   // on a genuinely new query (not when re-running to apply the book filter).
   const lastQueryRef = useRef(getQueryFromUrl());
 
+  // Measures the sticky header block's rendered height (title + search box +
+  // filters + results count/toolbar/keyboard hint — all one physical sticky
+  // container) so the OT/NT section headers inside SearchResultsList can
+  // stick right below it via the --kjb-search-sticky-offset CSS var, instead
+  // of overlapping it.
+  // Height is capped as a safety net: on a short results page, an unclamped
+  // offset can exceed the page's own scrollable height, which makes
+  // position:sticky clamp the element to the bottom of its containing block
+  // instead of the top. Real header content (even with filters wrapping to
+  // an extra line, the results toolbar wrapping, etc.) comfortably fits
+  // under this cap, so it only ever protects against a bad measurement.
+  const stickyHeaderRef = useRef(null);
+  useEffect(() => {
+    const el = stickyHeaderRef.current;
+    if (!el) return;
+    const MAX_H = 420;
+    const update = () => {
+      // Set on the root element (not `el` itself) - SearchResultsList's OT/NT
+      // headers are siblings of this block, not descendants, so the CSS var
+      // needs a common ancestor to be visible to them.
+      const h = Math.min(el.getBoundingClientRect().height, MAX_H);
+      try { document.documentElement.style.setProperty('--kjb-search-sticky-offset', `${h}px`); } catch {}
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => { ro.disconnect(); try { document.documentElement.style.removeProperty('--kjb-search-sticky-offset'); } catch {} };
+  }, [searched, loading, results.length]);
+
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState(new Set());
