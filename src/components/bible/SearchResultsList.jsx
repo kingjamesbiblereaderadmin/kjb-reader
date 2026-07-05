@@ -248,7 +248,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, hig
               </div>
             )}
             {showNTHeader && (
-              <div ref={ntRef} className="flex items-center gap-2 pt-3 pb-1 border-b border-border mb-1 print:border-black/20 print:pt-4">
+              <div ref={ntRef} className="sticky z-[5] bg-background flex items-center gap-2 pt-3 pb-1 border-b border-border mb-1 print:static print:border-black/20 print:pt-4" style={{ top: 'var(--kjb-search-sticky-offset, 0px)' }}>
                 {otCount > 0 ? (
                   <button
                     onClick={() => setNtExpanded(!ntExpanded)}
