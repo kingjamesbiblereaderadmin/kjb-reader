@@ -89,47 +89,32 @@ export default function SearchPage() {
   // Tracks the last query text we searched, so we only reset the book selection
   // on a genuinely new query (not when re-running to apply the book filter).
   const lastQueryRef = useRef(getQueryFromUrl());
-  // Measures the two stacked sticky header blocks' rendered heights so:
-  // (1) block 2 (results count/toolbar/keyboard hint) can stick directly
-  //     below block 1 (title/search/filters), and
-  // (2) the OT/NT section headers inside SearchResultsList can stick right
-  //     below BOTH of them.
-  // Heights are clamped to a sane maximum as a safety net — on a short
-  // results page, an unclamped offset can exceed the page's own scrollable
-  // height, which makes position:sticky clamp the element to the bottom of
-  // its containing block instead of the top (looks like the header vanished
-  // or is pinned near the bottom of the screen). Real header content is
-  // never anywhere near these caps, so this only ever protects against a
-  // bad measurement, never against legitimate layout.
+  // Measures the sticky header block's rendered height (title + search box +
+  // filters + results count/toolbar/keyboard hint, all now inside ONE
+  // physical sticky container) so the OT/NT section headers inside
+  // SearchResultsList can stick right below it via the
+  // --kjb-search-sticky-offset CSS var, instead of overlapping it.
+  // Height is capped as a safety net: on a short results page, an
+  // unclamped offset can exceed the page's own scrollable height, which
+  // makes position:sticky clamp the element to the bottom of its
+  // containing block instead of the top. Real header content never comes
+  // close to this cap, so it only ever protects against a bad measurement.
   const stickyHeaderRef = useRef(null);
-  const resultsHeaderRef = useRef(null);
   useEffect(() => {
     const el = stickyHeaderRef.current;
     if (!el) return;
-    const MAX_H1 = 220; // title + search box + filters row, generously
-    const MAX_H2 = 140; // results count + action toolbar + keyboard hint
+    const MAX_H = 320;
     const update = () => {
       // Set on the root element (not `el` itself) - SearchResultsList's OT/NT
-      // headers are siblings of this block, not descendants, so the CSS vars
-      // need a common ancestor to be visible to them.
-      const h1 = Math.min(el.getBoundingClientRect().height, MAX_H1);
-      const h2 = Math.min(resultsHeaderRef.current?.getBoundingClientRect().height || 0, MAX_H2);
-      try {
-        document.documentElement.style.setProperty('--kjb-search-sticky-offset', `${h1}px`);
-        document.documentElement.style.setProperty('--kjb-search-sticky-offset-2', `${h1 + h2}px`);
-      } catch {}
+      // headers are siblings of this block, not descendants, so the CSS var
+      // needs a common ancestor to be visible to them.
+      const h = Math.min(el.getBoundingClientRect().height, MAX_H);
+      try { document.documentElement.style.setProperty('--kjb-search-sticky-offset', `${h}px`); } catch {}
     };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
-    if (resultsHeaderRef.current) ro.observe(resultsHeaderRef.current);
-    return () => {
-      ro.disconnect();
-      try {
-        document.documentElement.style.removeProperty('--kjb-search-sticky-offset');
-        document.documentElement.style.removeProperty('--kjb-search-sticky-offset-2');
-      } catch {}
-    };
+    return () => { ro.disconnect(); try { document.documentElement.style.removeProperty('--kjb-search-sticky-offset'); } catch {} };
   }, [searched, loading, results.length]);
 
   // Multi-select state
