@@ -296,12 +296,15 @@ export default function HomePage() {
       console.warn('Invalid verse data:', verse, { resolvedAbbr: abbr });
       return;
     }
-    // Clear search term
+    // Clear search term / stale toolbar (search+gospel) context so the
+    // reader's "Currently Reading" indicator doesn't keep showing the old
+    // search term next to the new Daily Verse reference.
     try {
       localStorage.removeItem('kjb-search-term');
       localStorage.removeItem('kjb-search-index');
       localStorage.removeItem('kjb-search-total');
       localStorage.removeItem('kjb-search-results');
+      localStorage.removeItem('kjb-reader-toolbar-state');
     } catch {}
     // Save the DAILY VERSE location (so indicator shows correctly) plus where we came FROM (so Clear returns there)
     try {
