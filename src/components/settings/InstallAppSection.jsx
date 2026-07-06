@@ -41,9 +41,21 @@ export default function InstallAppSection({ expanded, isIncognito }) {
   // own engagement heuristics, sometimes never fires at all). Show the manual fallback
   // guide up front for both, so it's visible even before the user tries the button —
   // the button itself still always attempts the native prompt first via handleInstall.
+  // NOTE: check the actual captured deferred prompt, not `isInstallable` — that flag
+  // is also true from manifest detection alone (isPwaInstallable), so it stays true on
+  // Edge desktop even when no real beforeinstallprompt has fired, which masked this.
   useEffect(() => {
-    if ((isSamsung || isEdgeDesktop()) && !isInstallable) setShowInstallHint(true);
-  }, [isSamsung, isInstallable]);
+    const check = () => {
+      if ((isSamsung || isEdgeDesktop()) && !window.kjbDeferredPrompt) setShowInstallHint(true);
+    };
+    check();
+    window.addEventListener('kjb-install-change', check);
+    window.addEventListener('pwa-installable', check);
+    return () => {
+      window.removeEventListener('kjb-install-change', check);
+      window.removeEventListener('pwa-installable', check);
+    };
+  }, [isSamsung]);
 
   useEffect(() => {
     try { 
