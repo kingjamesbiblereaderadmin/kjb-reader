@@ -251,7 +251,7 @@ export default function HomePage() {
     
     // Also check on focus and online (when user returns to the app or internet is restored)
     const handleFocus = () => {
-      setNotifEnabled(getNotificationsEnabled());
+      setNotifEnabled(isNotifReallyOn());
       // Check if it's a new day and update the verse if needed
       const lastCached = getLastCachedDailyVerse();
       // Only fetch if we don't have today's verse cached
