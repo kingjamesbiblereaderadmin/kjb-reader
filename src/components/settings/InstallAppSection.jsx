@@ -17,6 +17,14 @@ const isBookmarkBrowser = () => {
   return !isMobile && (isFirefox || (isMac && isSafari));
 };
 
+const isEdgeDesktop = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  const isEdge = /edg/i.test(ua);
+  const isMobile = /iphone|ipad|ipod|android/i.test(ua);
+  return isEdge && !isMobile;
+};
+
 export default function InstallAppSection({ expanded, isIncognito }) {
   const { isInstallable, isInstalled: hookIsInstalled, isSamsung, promptInstall } = useInstallPrompt();
   const [isInstalled, setIsInstalled] = useState(false);
@@ -29,9 +37,12 @@ export default function InstallAppSection({ expanded, isIncognito }) {
   }, []);
 
   // Samsung Internet (older versions) doesn't fire beforeinstallprompt, so the native
-  // button is a no-op. Show the manual "Add page to → Home screen" guide up front.
+  // button is a no-op. Desktop Edge is unreliable about firing it too (gated by Edge's
+  // own engagement heuristics, sometimes never fires at all). Show the manual fallback
+  // guide up front for both, so it's visible even before the user tries the button —
+  // the button itself still always attempts the native prompt first via handleInstall.
   useEffect(() => {
-    if (isSamsung && !isInstallable) setShowInstallHint(true);
+    if ((isSamsung || isEdgeDesktop()) && !isInstallable) setShowInstallHint(true);
   }, [isSamsung, isInstallable]);
 
   useEffect(() => {
