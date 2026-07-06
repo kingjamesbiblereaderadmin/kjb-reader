@@ -219,7 +219,7 @@ export default function HomePage() {
     handleVerseClick();
   };
 
-  const [notifEnabled, setNotifEnabled] = useState(getNotificationsEnabled);
+  const [notifEnabled, setNotifEnabled] = useState(isNotifReallyOn);
   const [notifPermission, setNotifPermission] = useState(() => {
     if (!('serviceWorker' in navigator)) return 'unsupported';
     if (!('Notification' in window)) return 'supported';
@@ -228,14 +228,14 @@ export default function HomePage() {
 
   useEffect(() => {
     // Sync notification state on mount and whenever verse changes
-    setNotifEnabled(getNotificationsEnabled());
+    setNotifEnabled(isNotifReallyOn());
     
     registerSW();
     // Notification init now runs app-wide in AppLayout, so we don't re-init here
     // (avoids clearing/re-arming the poll timer on every HomePage mount).
 
     const handleStorageChange = () => {
-      const enabled = getNotificationsEnabled();
+      const enabled = isNotifReallyOn();
       setNotifEnabled(enabled);
       if (!('serviceWorker' in navigator)) {
         setNotifPermission('unsupported');
