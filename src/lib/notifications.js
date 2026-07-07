@@ -2,6 +2,7 @@
 // Strategy: store next-fire timestamp, check on page load/focus + SW periodic sync
 
 import { getDailyVerse, getDailyVerseFromBible } from './dailyVerse';
+import { subscribeToPush } from './pushSubscribe';
 
 const NOTIF_KEY = 'kjb-notifications-enabled';
 const NOTIF_TIME_KEY = 'kjb-notification-time'; // HH:MM
@@ -115,6 +116,13 @@ export async function requestNotificationPermission() {
         reg = await navigator.serviceWorker.register('/sw.js');
       }
       console.log('[Notif] Service worker registered:', reg.scope);
+
+      // Only bother with a real push subscription if permission was actually
+      // granted above — subscribing without permission is pointless and some
+      // browsers will reject it anyway.
+      if (hasPermission) {
+        await subscribeToPush(reg);
+      }
     } catch (err) {
       console.error('[Notif] Service worker registration failed:', err.message);
     }
