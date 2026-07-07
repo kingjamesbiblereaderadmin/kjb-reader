@@ -59,3 +59,19 @@ export async function unsubscribeFromPush() {
     console.warn('[Push] unsubscribeFromPush failed:', err.message);
   }
 }
+
+// True if this device already has a live push subscription — meaning the
+// server (sendDailyPush) will deliver today's verse on its own, even with
+// the app closed. Callers use this to skip the old open-app-only trigger so
+// the same device doesn't get the same verse twice.
+export async function hasActivePushSubscription() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+  try {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) return false;
+    const subscription = await registration.pushManager.getSubscription();
+    return !!subscription;
+  } catch {
+    return false;
+  }
+}
