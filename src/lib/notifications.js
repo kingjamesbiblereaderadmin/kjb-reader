@@ -2,7 +2,7 @@
 // Strategy: store next-fire timestamp, check on page load/focus + SW periodic sync
 
 import { getDailyVerse, getDailyVerseFromBible } from './dailyVerse';
-import { subscribeToPush, hasActivePushSubscription } from './pushSubscribe';
+import { subscribeToPush, pushDeliveredToday } from './pushSubscribe';
 
 const NOTIF_KEY = 'kjb-notifications-enabled';
 const NOTIF_TIME_KEY = 'kjb-notification-time'; // HH:MM
@@ -278,15 +278,14 @@ async function fireNotificationNow() {
 // Fire once per day: when the app is opened on a new day (and we haven't
 // shown today's verse yet). No time scheduling — just a new-day check.
 //
-// Skipped entirely if this device has a live push subscription, since in
-// that case sendDailyPush already delivers the verse server-side — even
-// while the app is closed — and firing here too would show it twice.
+// Skipped only if real push already delivered today (confirmed via the SW's
+// cache marker, not just subscription existence) — so a device that was
+// offline when the daily push went out still gets the verse locally here,
+// fully offline-capable, exactly like before push existed.
 async function checkNewDayNotification() {
   if (!getNotificationsEnabled()) return;
   if (localStorage.getItem(NOTIF_LAST_KEY) === todayString()) return;
-  if (await hasActivePushSubscription()) {
-    // Real push is handling delivery for this device. Just mark today as
-    // "seen" so we don't keep re-checking, without showing a local duplicate.
+  if (await pushDeliveredToday()) {
     localStorage.setItem(NOTIF_LAST_KEY, todayString());
     return;
   }
