@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Layers, X } from 'lucide-react';
+import { Check, Layers, X, CheckSquare } from 'lucide-react';
 
 export default function VerseSelector({ totalVerses, currentVerse, onSelect, onClose, multiSelect = false, onGoToChapter = null, hasSubscript = false, hasColophon = false }) {
   const [selected, setSelected] = useState(() => new Set(currentVerse ? (Array.isArray(currentVerse) ? currentVerse : [currentVerse]) : []));
@@ -25,6 +25,9 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
     onClose();
   };
 
+  const selectAll = () => setSelected(new Set(Array.from({ length: totalVerses }, (_, i) => i + 1)));
+  const clearAll = () => setSelected(new Set());
+
   return (
     <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col">
       <div className="px-4 py-3 border-b border-border flex items-center justify-between">
@@ -48,6 +51,22 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
         </div>
       </div>
       <div className="overflow-y-auto flex-1 p-3">
+        {multiMode && (
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={selectAll}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-sans font-medium bg-secondary border border-border hover:bg-accent/20 text-foreground transition-colors"
+            >
+              <CheckSquare className="w-3.5 h-3.5" /> Select All
+            </button>
+            <button
+              onClick={clearAll}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-sans font-medium bg-secondary border border-border hover:bg-accent/20 text-foreground transition-colors"
+            >
+              <X className="w-3.5 h-3.5" /> Clear
+            </button>
+          </div>
+        )}
         {(hasSubscript || hasColophon) && (
           <div className="flex flex-wrap gap-2 mb-3">
             {hasSubscript && (
