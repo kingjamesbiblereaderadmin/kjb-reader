@@ -60,17 +60,19 @@ export async function unsubscribeFromPush() {
   }
 }
 
-// True if this device already has a live push subscription — meaning the
-// server (sendDailyPush) will deliver today's verse on its own, even with
-// the app closed. Callers use this to skip the old open-app-only trigger so
-// the same device doesn't get the same verse twice.
-export async function hasActivePushSubscription() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+// True only if a real push notification actually fired today (not just
+// that a subscription exists — a subscribed device that was offline when
+// the daily cron ran still needs the offline on-open fallback below).
+export async function pushDeliveredToday() {
+  if (!('caches' in window)) return false;
   try {
-    const registration = await navigator.serviceWorker.getRegistration();
-    if (!registration) return false;
-    const subscription = await registration.pushManager.getSubscription();
-    return !!subscription;
+    const cache = await caches.open('kjb-push-log');
+    const res = await cache.match('/__push-last-fired');
+    if (!res) return false;
+    const dateStr = await res.text();
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    return dateStr === todayStr;
   } catch {
     return false;
   }
