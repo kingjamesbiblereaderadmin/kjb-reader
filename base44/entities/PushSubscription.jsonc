@@ -1,0 +1,50 @@
+{
+  "name": "PushSubscription",
+  "properties": {
+    "active": {
+      "default": true,
+      "description": "False once the endpoint is confirmed dead (410/404 on send)",
+      "type": "boolean"
+    },
+    "auth": {
+      "description": "Subscription auth secret (base64url)",
+      "type": "string"
+    },
+    "endpoint": {
+      "description": "Push service endpoint URL (unique per device/browser)",
+      "type": "string"
+    },
+    "p256dh": {
+      "description": "Subscription public key (base64url)",
+      "type": "string"
+    },
+    "user_agent": {
+      "description": "Browser/device user agent at subscribe time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "endpoint",
+    "p256dh",
+    "auth"
+  ],
+  "rls": {
+    "create": {},
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "type": "object"
+}

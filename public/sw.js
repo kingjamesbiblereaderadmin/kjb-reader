@@ -200,6 +200,51 @@ self.addEventListener('message', (event) => {
   }
 });
 
+// Handle a real Push message from the server (VAPID web push). This fires the
+// SW even when the app/tab is fully closed, unlike showLocalNotification()
+// (which only ran while a page was open). Payload is JSON: {title, body, url}.
+self.addEventListener('push', (event) => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch (err) {
+    payload = { title: 'KJB Reader', body: event.data ? event.data.text() : 'You have a new notification.' };
+  }
+
+  const title = payload.title || 'King James Bible — Daily Verse';
+  const options = {
+    body: payload.body || '',
+    icon: payload.icon || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png',
+    badge: payload.badge || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png',
+    tag: payload.tag || 'daily-verse',
+    renotify: true,
+    vibrate: [200, 100, 200],
+    requireInteraction: false,
+    data: { url: payload.url || '/' },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// The push service can invalidate/rotate a subscription at any time (token
+// expiry, browser-side rotation). When that happens this event fires with a
+// chance to resubscribe silently — otherwise the device silently stops
+// receiving pushes with no error surfaced anywhere in the app UI.
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil(
+    self.registration.pushManager
+      .subscribe(event.oldSubscription ? event.oldSubscription.options : { userVisibleOnly: true })
+      .then((subscription) => {
+        return fetch('/api/apps/6a05d76723afe58d80c589e8/functions/subscribePush', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(subscription.toJSON()),
+        }).catch(() => {});
+      })
+      .catch((err) => console.warn('[SW] pushsubscriptionchange resubscribe failed:', err))
+  );
+});
+
 // Handle notification taps - focus an existing window (and navigate it) or open a
 // new one. Required on Android/Samsung where notifications are shown via the SW.
 self.addEventListener('notificationclick', (event) => {
