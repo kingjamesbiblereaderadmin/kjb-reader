@@ -33,16 +33,30 @@ export async function subscribeToPush(reg) {
       });
     }
 
+    // Ride along with the app's existing notification-time preference so
+    // server-side push fires at the same local time the user already chose
+    // (Settings > Notification time), not some fixed UTC hour.
+    let timezone = '';
+    try {
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    } catch {}
+    let notify_time = '08:00';
+    try {
+      notify_time = localStorage.getItem('kjb-notification-time') || '08:00';
+    } catch {}
+
+    const payload = { ...subscription.toJSON(), timezone, notify_time };
+
     const res = await fetch(`/api/apps/6a05d76723afe58d80c589e8/functions/subscribePush`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(subscription.toJSON()),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
       console.warn('[Push] Server rejected subscription:', res.status);
       return null;
     }
-    console.log('[Push] Subscribed for real (works while app closed)');
+    console.log('[Push] Subscribed for real (works while app closed), tz:', timezone, 'time:', notify_time);
     return subscription;
   } catch (err) {
     console.warn('[Push] subscribeToPush failed:', err.message);
