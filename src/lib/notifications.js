@@ -137,6 +137,7 @@ export async function requestNotificationPermission() {
 export function disableNotifications() {
   localStorage.setItem(NOTIF_KEY, 'false');
   localStorage.removeItem(NOTIF_NEXT_KEY);
+  import('./pushSubscribe').then(({ unsubscribeFromPush }) => unsubscribeFromPush()).catch(() => {});
 }
 
 
