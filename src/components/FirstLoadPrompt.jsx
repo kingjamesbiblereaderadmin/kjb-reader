@@ -105,9 +105,12 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   }, []);
 
   // Samsung Internet (older versions) doesn't fire beforeinstallprompt, so the native
-  // install button is a no-op. Show the manual guide up front for Samsung users.
+  // install button is a no-op. Desktop Edge is unreliable about firing it too (it's
+  // gated by Edge's own engagement heuristics and sometimes never fires). Show the
+  // manual fallback guide up front for both, so it's visible even before the user
+  // tries the button. The button itself still always attempts the native prompt first.
   useEffect(() => {
-    if (isSamsung() && !window.kjbDeferredPrompt) setShowIOSHint(true);
+    if ((isSamsung() || isEdgeDesktop()) && !window.kjbDeferredPrompt) setShowIOSHint(true);
   }, []);
 
   // Detect standalone PWA mode on mount and when focus changes
