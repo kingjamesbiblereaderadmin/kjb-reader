@@ -112,7 +112,8 @@ export default function SavedVersesPage() {
       `<blockquote style="margin:0;font-family:Georgia,serif;font-size:12pt;line-height:1.6;">&ldquo;${esc(entry.text)}&rdquo;</blockquote>` +
       `</div>`
     ).join('');
-    const footer = `<div style="margin-top:30pt;padding-top:10pt;border-top:1px solid #eee;font-size:10pt;color:#777;page-break-inside:avoid;">${visibleVerses.length} verse${visibleVerses.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</div>`;
+    const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const footer = `<div style="margin-top:30pt;padding-top:10pt;border-top:1px solid #eee;font-size:10pt;color:#777;page-break-inside:avoid;">${visibleVerses.length} verse${visibleVerses.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}${pageUrl ? `<br/>${esc(pageUrl)}` : ''}</div>`;
     printHtml(header + body + footer);
   };
 
