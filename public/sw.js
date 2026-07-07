@@ -223,7 +223,18 @@ self.addEventListener('push', (event) => {
     data: { url: payload.url || '/' },
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  // Record that push actually delivered today, in a cache separate from the
+  // versioned app-shell cache (so it survives SW updates). The page checks
+  // this before deciding whether it still needs to fire the old offline
+  // on-open fallback — so a device that was offline when this push was sent
+  // still gets the verse locally next time it's opened, same as before.
+  event.waitUntil(
+    self.registration.showNotification(title, options).then(() =>
+      caches.open('kjb-push-log').then((cache) =>
+        cache.put('/__push-last-fired', new Response(new Date().toISOString().slice(0, 10)))
+      )
+    )
+  );
 });
 
 // The push service can invalidate/rotate a subscription at any time (token
