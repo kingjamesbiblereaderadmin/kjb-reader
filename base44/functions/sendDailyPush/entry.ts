@@ -1,16 +1,17 @@
-// Sends today's verse as a real Web Push notification to every stored
-// subscription — reaches devices even when the app/tab is fully closed.
+// Sends today's verse as a real Web Push notification to every subscription
+// whose LOCAL time currently matches their preferred notify_time -- reaches
+// devices even when the app/tab is fully closed.
+//
+// This function is meant to be triggered roughly once per hour (see
+// .github/workflows/daily-push.yml), not once a day. Each run only sends to
+// subscribers whose local clock is currently within the send window, so
+// everyone gets their verse at their own local time instead of everyone
+// getting it at once in UTC.
 //
 // Requires two secrets set in the Base44 dashboard (Settings > Environment
-// Variables / Secrets) before this will work:
+// Variables / Secrets):
 //   VAPID_PUBLIC_KEY
 //   VAPID_PRIVATE_KEY
-// (Values were generated once, locally, with the `web-push` library — see
-// setup notes. They are NOT tied to any account or third-party service.)
-//
-// Trigger this function once a day from an external scheduler (e.g. a
-// GitHub Actions cron job, since this repo already has Actions enabled, or
-// a free service like cron-job.org hitting this function's URL with a POST).
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import webpush from 'npm:web-push@3.6.7';
 
@@ -20,6 +21,38 @@ const cleanForNotification = (text) =>
     .replace(/\uFFFD/g, '¶')
     .replace(/\s{2,}/g, ' ')
     .trim();
+
+// Returns "HH:MM" for `date` as rendered in the given IANA timezone.
+function localTimeInZone(date, timeZone) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone, hour: '2-digit', minute: '2-digit', hour12: false,
+    }).formatToParts(date);
+    const h = parts.find((p) => p.type === 'hour')?.value ?? '00';
+    const m = parts.find((p) => p.type === 'minute')?.value ?? '00';
+    // Intl can render midnight as "24:00" in some environments -- normalize.
+    const hh = h === '24' ? '00' : h;
+    return `${hh}:${m}`;
+  } catch {
+    return null;
+  }
+}
+
+// True if `localHHMM` falls within `windowMinutes` of `targetHHMM` (handles
+// wraparound at midnight). This function is expected to run ~hourly, so a
+// generous window (default 30 min) makes sure nobody gets skipped due to
+// slight drift between the cron schedule and their exact preferred minute.
+function withinWindow(localHHMM, targetHHMM, windowMinutes = 30) {
+  const toMinutes = (hhmm) => {
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+  };
+  const local = toMinutes(localHHMM);
+  const target = toMinutes(targetHHMM);
+  let diff = Math.abs(local - target);
+  diff = Math.min(diff, 1440 - diff); // wraparound
+  return diff <= windowMinutes;
+}
 
 Deno.serve(async (req) => {
   try {
@@ -34,11 +67,12 @@ Deno.serve(async (req) => {
     webpush.setVapidDetails('mailto:admin@kingjamesbiblereader.com', publicKey, privateKey);
 
     const base44 = createClientFromRequest(req);
+    const now = new Date();
 
     // Reuse the app's existing daily-verse logic so the push always matches
-    // whatever verse the in-app "Daily Verse" screen shows for today (UTC).
-    const today = new Date();
-    const clientDate = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`;
+    // whatever verse the in-app "Daily Verse" screen shows for today (UTC
+    // calendar day -- matches how the app already computes "today").
+    const clientDate = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
     const verseRes = await base44.asServiceRole.functions.invoke('bibleApi', { action: 'daily_verse', clientDate });
     const verse = verseRes?.data?.verse || verseRes?.verse;
     if (!verse) {
@@ -52,10 +86,19 @@ Deno.serve(async (req) => {
       tag: 'daily-verse',
     });
 
-    const subs = await base44.asServiceRole.entities.PushSubscription.filter({ active: true });
+    const allSubs = await base44.asServiceRole.entities.PushSubscription.filter({ active: true });
+
+    // Only send to subscribers whose local time is currently near their
+    // preferred notify_time -- everyone else gets checked again next hour.
+    const dueSubs = allSubs.filter((sub) => {
+      const tz = sub.timezone || 'UTC';
+      const target = sub.notify_time || '08:00';
+      const local = localTimeInZone(now, tz);
+      return local && withinWindow(local, target);
+    });
 
     let sent = 0, failed = 0, deactivated = 0;
-    await Promise.all(subs.map(async (sub) => {
+    await Promise.all(dueSubs.map(async (sub) => {
       try {
         await webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
@@ -72,7 +115,13 @@ Deno.serve(async (req) => {
       }
     }));
 
-    return Response.json({ status: 'done', totalSubscriptions: subs.length, sent, failed, deactivated, verseRef: verse.ref });
+    return Response.json({
+      status: 'done',
+      totalActiveSubscriptions: allSubs.length,
+      dueThisRun: dueSubs.length,
+      sent, failed, deactivated,
+      verseRef: verse.ref,
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
