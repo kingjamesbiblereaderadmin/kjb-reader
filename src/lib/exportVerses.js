@@ -540,6 +540,21 @@ export function exportPdf(items, query, filters, options = {}) {
       const rightText = `Printed on ${dateStr}`;
       const rightWidth = doc.getTextWidth(rightText);
       doc.text(rightText, pageW - marginX - rightWidth, pageH - 25);
+
+      // Source URL on its own line below, small and centered, truncated if
+      // it would overflow the page width.
+      const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
+      if (pageUrl) {
+        doc.setFontSize(8);
+        let urlText = pageUrl;
+        const maxUrlWidth = pageW - marginX * 2;
+        while (doc.getTextWidth(urlText) > maxUrlWidth && urlText.length > 10) {
+          urlText = urlText.slice(0, -1);
+        }
+        if (urlText !== pageUrl) urlText = urlText.slice(0, -1) + '…';
+        const urlWidth = doc.getTextWidth(urlText);
+        doc.text(urlText, (pageW - urlWidth) / 2, pageH - 18);
+      }
     }
   }
 
