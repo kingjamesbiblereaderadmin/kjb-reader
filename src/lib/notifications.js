@@ -321,6 +321,17 @@ export function initNotifications() {
   }
   _notificationsInitialized = true;
 
+  // Backfill: someone who enabled notifications before real push existed
+  // has permission already granted but never went through subscribeToPush.
+  // subscribeToPush() itself no-ops if a subscription already exists, so
+  // this is safe to call on every load — it only does real work once per
+  // device.
+  if ('Notification' in window && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistration('/').then((reg) => {
+      if (reg) subscribeToPush(reg);
+    }).catch(() => {});
+  }
+
   console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
 
   // Fire today's verse if the app is opened on a new day
