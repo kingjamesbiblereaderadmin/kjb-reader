@@ -183,11 +183,12 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         {/* Verse text — centered flex column; verse, ref and date all flow
             together and stay vertically centered, so long verses never overlap
             the footer divider below. */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden', paddingBottom: blockPadBottom }}>
+        <div ref={fitContainerRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden', paddingBottom: blockPadBottom }}>
           {/* Verse, reference and date are all one inline-flowing block, wrapped
               in a translucent box like the daily card. The box stays vertically
               centered, so long verses never overlap the footer divider. */}
           <blockquote
+            ref={blockRef}
             className="kjb-sharecard-verse"
             style={{
               margin: 0,
