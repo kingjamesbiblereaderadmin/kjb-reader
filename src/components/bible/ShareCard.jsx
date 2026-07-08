@@ -73,20 +73,22 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   // Real fit check, runs after every render (verse text, font, size bucket
   // above are just a starting guess to minimize how far this has to shrink).
   // Measures the ACTUAL rendered content height against the ACTUAL available
-  // space and shrinks font-size in a tight loop until it truly fits, with a
-  // safety margin. This is what guarantees no overlap/clipping regardless of
-  // verse length, font, or how word-wrap happens to fall.
+  // space and grows/shrinks font-size in a tight loop until it truly fills
+  // the box as much as possible without overflowing. Starts from a large
+  // ceiling every time (not a character-count guess) so short verses use the
+  // available space instead of sitting small with dead space around them —
+  // it only shrinks as far as the actual measured content forces it to.
   useLayoutEffect(() => {
     const containerEl = fitContainerRef.current;
     const blockEl = blockRef.current;
     if (!containerEl || !blockEl) return;
 
-    const startSize = parseFloat(dynamicFontSize) || 40;
+    const maxSize = 108;
     const minSize = 15;
     const step = 1;
     const safetyMargin = 6; // px of breathing room so text never touches the edge
 
-    let size = startSize;
+    let size = maxSize;
     blockEl.style.fontSize = `${size}px`;
 
     // Force layout + shrink until content fits, or we hit the floor.
@@ -94,13 +96,13 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
     while (
       containerEl.scrollHeight > containerEl.clientHeight - safetyMargin &&
       size > minSize &&
-      guard < 60
+      guard < 100
     ) {
       size -= step;
       blockEl.style.fontSize = `${size}px`;
       guard++;
     }
-  }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, dynamicFontSize, verseFont, dynamicLineHeight, isOffline]);
+  }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline]);
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
