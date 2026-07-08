@@ -204,8 +204,11 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
               textAlign: 'center',
               fontFamily: verseFont,
               fontWeight: 700,
-              fontSize: dynamicFontSize,
-              lineHeight: dynamicLineHeight,
+              // fontSize/lineHeight are intentionally NOT set here — the
+              // useLayoutEffect above owns them exclusively via direct DOM
+              // mutation, so there's no ambiguity between what React renders
+              // and what the fit measurement decides. An initial fontSize is
+              // applied imperatively before paint, so there's no visible flash.
               color: verseColor,
               opacity: verseOpacity,
               textShadow: '0 3px 10px rgba(0,0,0,0.4)',
