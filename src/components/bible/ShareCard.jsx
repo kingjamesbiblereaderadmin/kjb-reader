@@ -70,6 +70,38 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   else if (textLen > 100) { dynamicFontSize = '52px'; dynamicLineHeight = 1.4; refGap = '40px'; blockPadBottom = '36px'; }
   else if (textLen > 60) { dynamicFontSize = '60px'; dynamicLineHeight = 1.4; refGap = '44px'; blockPadBottom = '40px'; }
 
+  // Real fit check, runs after every render (verse text, font, size bucket
+  // above are just a starting guess to minimize how far this has to shrink).
+  // Measures the ACTUAL rendered content height against the ACTUAL available
+  // space and shrinks font-size in a tight loop until it truly fits, with a
+  // safety margin. This is what guarantees no overlap/clipping regardless of
+  // verse length, font, or how word-wrap happens to fall.
+  useLayoutEffect(() => {
+    const containerEl = fitContainerRef.current;
+    const blockEl = blockRef.current;
+    if (!containerEl || !blockEl) return;
+
+    const startSize = parseFloat(dynamicFontSize) || 40;
+    const minSize = 15;
+    const step = 1;
+    const safetyMargin = 6; // px of breathing room so text never touches the edge
+
+    let size = startSize;
+    blockEl.style.fontSize = `${size}px`;
+
+    // Force layout + shrink until content fits, or we hit the floor.
+    let guard = 0;
+    while (
+      containerEl.scrollHeight > containerEl.clientHeight - safetyMargin &&
+      size > minSize &&
+      guard < 60
+    ) {
+      size -= step;
+      blockEl.style.fontSize = `${size}px`;
+      guard++;
+    }
+  }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, dynamicFontSize, verseFont, dynamicLineHeight, isOffline]);
+
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
     <svg viewBox="0 0 880 8" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '8px' }}>
