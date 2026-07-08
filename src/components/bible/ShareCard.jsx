@@ -257,7 +257,7 @@ const ShareCard = React.forwardRef(function ShareCard(
             }}
           >
             <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit; vertical-align: baseline; line-height: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
+            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)).replace(/<span class="pilcrow">¶<\/span>/g, `<span class="pilcrow" style="color: ${verseColor}; opacity: ${verseOpacity};">¶</span>`) }} />"
             <span
               style={{
                 display: 'block',
