@@ -122,7 +122,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         }}
       />
 
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '56px 72px' }}>
         {/* Logo — top-left corner, clean with no backing or border. */}
         <img
           src={logoSrc || LOGO_URL}
@@ -133,9 +133,9 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
 
         {/* VERSE OF THE DAY header with gradient side rules — matches the
             on-screen card: no translucent box, just dashes around the title. */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', marginTop: '40px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', marginTop: '36px', marginBottom: '12px' }}>
           <HeaderRule />
-          <span style={{ flexShrink: 0, fontFamily: headerFont, fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: verseColor, textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap', textAlign: 'center' }}>
+          <span style={{ flexShrink: 0, fontFamily: headerFont, fontSize: '30px', fontWeight: 800, letterSpacing: '0.16em', color: verseColor, textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap', textAlign: 'center' }}>
             {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
           </span>
           <HeaderRule flip />
@@ -188,14 +188,14 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             <span
               style={{
                 display: 'inline-block',
-                marginTop: '36px',
+                marginTop: '26px',
                 background: dateBadgeBg,
                 borderRadius: '999px',
-                padding: '10px 28px 16px',
+                padding: '8px 24px 10px',
                 fontFamily: headerFont,
-                fontSize: '26px',
+                fontSize: '24px',
                 fontWeight: 700,
-                lineHeight: 1,
+                lineHeight: 1.2,
                 letterSpacing: '0.04em',
                 color: '#ffffff',
                 textShadow: 'none',
@@ -208,7 +208,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
 
         {/* Footer URL with curved gradient divider above */}
         <div style={{ width: '100%', textAlign: 'center', marginTop: '8px', flexShrink: 0 }}>
-          <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '40px', marginBottom: '32px' }}>
+          <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '32px', marginBottom: '20px' }}>
             <defs>
               <linearGradient id="kjbCurveGrad" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={accentA} stopOpacity="0.25" />
