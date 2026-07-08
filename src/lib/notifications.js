@@ -320,6 +320,21 @@ export function initNotifications() {
   }
   _notificationsInitialized = true;
 
+  // Backfill: someone who enabled notifications before real push existed
+  // has permission already granted but never went through subscribeToPush.
+  // Uses serviceWorker.ready (waits for an active worker) rather than
+  // getRegistration() (checks current state only) — this function can be
+  // called from more than one place at app startup, sometimes before the
+  // service worker registration in main.jsx has finished, and .ready
+  // resolves correctly regardless of call order. subscribeToPush() itself
+  // has its own in-flight lock and no-ops if a subscription already exists,
+  // so this is safe to call on every load.
+  if ('Notification' in window && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then((reg) => {
+      subscribeToPush(reg);
+    }).catch(() => {});
+  }
+
   console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
 
   // Fire today's verse if the app is opened on a new day
