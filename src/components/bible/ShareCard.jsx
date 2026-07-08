@@ -55,13 +55,13 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   if (textLen > 650) { dynamicFontSize = '22px'; dynamicLineHeight = 1.4; refGap = '24px'; blockPadBottom = '0px'; }
   else if (textLen > 550) { dynamicFontSize = '25px'; dynamicLineHeight = 1.45; refGap = '28px'; blockPadBottom = '8px'; }
   else if (textLen > 450) { dynamicFontSize = '28px'; dynamicLineHeight = 1.5; refGap = '32px'; blockPadBottom = '16px'; }
-  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.5; refGap = '36px'; blockPadBottom = '24px'; }
-  else if (textLen > 300) { dynamicFontSize = '36px'; dynamicLineHeight = 1.5; refGap = '40px'; blockPadBottom = '32px'; }
-  else if (textLen > 250) { dynamicFontSize = '40px'; dynamicLineHeight = 1.5; refGap = '44px'; blockPadBottom = '40px'; }
-  else if (textLen > 200) { dynamicFontSize = '46px'; dynamicLineHeight = 1.5; refGap = '48px'; blockPadBottom = '48px'; }
-  else if (textLen > 150) { dynamicFontSize = '52px'; dynamicLineHeight = 1.5; refGap = '52px'; blockPadBottom = '52px'; }
-  else if (textLen > 100) { dynamicFontSize = '60px'; dynamicLineHeight = 1.5; refGap = '56px'; blockPadBottom = '56px'; }
-  else if (textLen > 60) { dynamicFontSize = '66px'; dynamicLineHeight = 1.45; refGap = '60px'; blockPadBottom = '60px'; }
+  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.45; refGap = '32px'; blockPadBottom = '20px'; }
+  else if (textLen > 300) { dynamicFontSize = '34px'; dynamicLineHeight = 1.45; refGap = '34px'; blockPadBottom = '24px'; }
+  else if (textLen > 250) { dynamicFontSize = '36px'; dynamicLineHeight = 1.45; refGap = '36px'; blockPadBottom = '28px'; }
+  else if (textLen > 200) { dynamicFontSize = '40px'; dynamicLineHeight = 1.4; refGap = '36px'; blockPadBottom = '32px'; }
+  else if (textLen > 150) { dynamicFontSize = '44px'; dynamicLineHeight = 1.4; refGap = '36px'; blockPadBottom = '32px'; }
+  else if (textLen > 100) { dynamicFontSize = '52px'; dynamicLineHeight = 1.4; refGap = '40px'; blockPadBottom = '36px'; }
+  else if (textLen > 60) { dynamicFontSize = '60px'; dynamicLineHeight = 1.4; refGap = '44px'; blockPadBottom = '40px'; }
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
