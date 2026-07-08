@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect } from 'react';
+import React from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
 import { cleanVerseText } from '@/lib/formatDailyVerse';
 
@@ -10,13 +10,6 @@ import { cleanVerseText } from '@/lib/formatDailyVerse';
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 
 const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline }, ref) {
-  // Invisible bounding box the verse text must fit inside. fitContainerRef is
-  // the true available space (fixed by the flex layout below); blockRef is
-  // the actual verse+reference+date content. After every render we measure
-  // the real rendered height and shrink the font until it truly fits — no
-  // more guessing from character count, no more clipped/overlapping text.
-  const fitContainerRef = useRef(null);
-  const blockRef = useRef(null);
   const headerFont = uiFont || "'Inter', system-ui, sans-serif";
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   // Today's two-stop gradient (matches the on-site card). Falls back to blue→purple.
@@ -62,64 +55,13 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
   if (textLen > 650) { dynamicFontSize = '22px'; dynamicLineHeight = 1.4; refGap = '24px'; blockPadBottom = '0px'; }
   else if (textLen > 550) { dynamicFontSize = '25px'; dynamicLineHeight = 1.45; refGap = '28px'; blockPadBottom = '8px'; }
   else if (textLen > 450) { dynamicFontSize = '28px'; dynamicLineHeight = 1.5; refGap = '32px'; blockPadBottom = '16px'; }
-  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.45; refGap = '32px'; blockPadBottom = '20px'; }
-  else if (textLen > 300) { dynamicFontSize = '34px'; dynamicLineHeight = 1.45; refGap = '34px'; blockPadBottom = '24px'; }
-  else if (textLen > 250) { dynamicFontSize = '36px'; dynamicLineHeight = 1.45; refGap = '36px'; blockPadBottom = '28px'; }
-  else if (textLen > 200) { dynamicFontSize = '40px'; dynamicLineHeight = 1.4; refGap = '36px'; blockPadBottom = '32px'; }
-  else if (textLen > 150) { dynamicFontSize = '44px'; dynamicLineHeight = 1.4; refGap = '36px'; blockPadBottom = '32px'; }
-  else if (textLen > 100) { dynamicFontSize = '52px'; dynamicLineHeight = 1.4; refGap = '40px'; blockPadBottom = '36px'; }
-  else if (textLen > 60) { dynamicFontSize = '60px'; dynamicLineHeight = 1.4; refGap = '44px'; blockPadBottom = '40px'; }
-
-  // Real fit check, runs after every render (verse text, font, size bucket
-  // above are just a starting guess to minimize how far this has to shrink).
-  // Measures the ACTUAL rendered content height against the ACTUAL available
-  // space and grows/shrinks font-size in a tight loop until it truly fills
-  // the box as much as possible without overflowing. Starts from a large
-  // ceiling every time (not a character-count guess) so short verses use the
-  // available space instead of sitting small with dead space around them —
-  // it only shrinks as far as the actual measured content forces it to.
-  useLayoutEffect(() => {
-    const containerEl = fitContainerRef.current;
-    const blockEl = blockRef.current;
-    if (!containerEl || !blockEl) return;
-
-    const maxSize = 108;
-    const minSize = 15;
-    const step = 1;
-    const safetyMargin = 6; // px of breathing room so text never touches the edge
-
-    const runFit = () => {
-      let size = maxSize;
-      blockEl.style.lineHeight = '1.4';
-      blockEl.style.fontSize = `${size}px`;
-      let guard = 0;
-      while (
-        containerEl.scrollHeight > containerEl.clientHeight - safetyMargin &&
-        size > minSize &&
-        guard < 100
-      ) {
-        size -= step;
-        blockEl.style.fontSize = `${size}px`;
-        guard++;
-      }
-    };
-
-    // Run immediately with whatever's available (avoids a big flash), then
-    // run again once the real webfont has actually finished loading. If the
-    // fit ran only once at mount against a fallback system font's metrics,
-    // the chosen size would be locked in even after the real (usually wider)
-    // serif font swaps in later — which would make the size look "stuck"
-    // at roughly the same value no matter how the sizing algorithm itself is
-    // rewritten, since it's the font swap, not the algorithm, driving it.
-    runFit();
-    let cancelled = false;
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        if (!cancelled) runFit();
-      });
-    }
-    return () => { cancelled = true; };
-  }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline]);
+  else if (textLen > 380) { dynamicFontSize = '32px'; dynamicLineHeight = 1.5; refGap = '36px'; blockPadBottom = '24px'; }
+  else if (textLen > 300) { dynamicFontSize = '36px'; dynamicLineHeight = 1.5; refGap = '40px'; blockPadBottom = '32px'; }
+  else if (textLen > 250) { dynamicFontSize = '40px'; dynamicLineHeight = 1.5; refGap = '44px'; blockPadBottom = '40px'; }
+  else if (textLen > 200) { dynamicFontSize = '46px'; dynamicLineHeight = 1.5; refGap = '48px'; blockPadBottom = '48px'; }
+  else if (textLen > 150) { dynamicFontSize = '52px'; dynamicLineHeight = 1.5; refGap = '52px'; blockPadBottom = '52px'; }
+  else if (textLen > 100) { dynamicFontSize = '60px'; dynamicLineHeight = 1.5; refGap = '56px'; blockPadBottom = '56px'; }
+  else if (textLen > 60) { dynamicFontSize = '66px'; dynamicLineHeight = 1.45; refGap = '60px'; blockPadBottom = '60px'; }
 
   // Thin full-width gradient line (blue → purple) with soft glow
   const SeparatorLine = () => (
@@ -180,7 +122,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
         }}
       />
 
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '56px 72px' }}>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 72px' }}>
         {/* Logo — top-left corner, clean with no backing or border. */}
         <img
           src={logoSrc || LOGO_URL}
@@ -191,53 +133,30 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
 
         {/* VERSE OF THE DAY header with gradient side rules — matches the
             on-screen card: no translucent box, just dashes around the title. */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', marginTop: '36px', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', marginTop: '40px', marginBottom: '16px' }}>
           <HeaderRule />
-          <span style={{ flexShrink: 0, fontFamily: headerFont, fontSize: '30px', fontWeight: 800, letterSpacing: '0.16em', color: verseColor, textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap', textAlign: 'center' }}>
+          <span style={{ flexShrink: 0, fontFamily: headerFont, fontSize: '34px', fontWeight: 800, letterSpacing: '0.16em', color: verseColor, textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap', textAlign: 'center' }}>
             {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
           </span>
           <HeaderRule flip />
         </div>
 
-        {/* Divider directly under the header, so the header block always
-            reads as its own row instead of floating with a huge gap before
-            the verse text below it. Uses today's actual accent colors at
-            full opacity (not the generic blue/purple SeparatorLine) so it's
-            clearly visible against every daily gradient, not just blue/purple
-            themed days. */}
-        <div style={{ width: '100%', maxWidth: '820px', marginBottom: '28px', flexShrink: 0 }}>
-          <svg viewBox="0 0 820 6" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '6px' }}>
-            <defs>
-              <linearGradient id="kjbHeaderDividerGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={accentA} stopOpacity="0.15" />
-                <stop offset="50%" stopColor={accentB} stopOpacity="1" />
-                <stop offset="100%" stopColor={accentA} stopOpacity="0.15" />
-              </linearGradient>
-            </defs>
-            <line x1="0" y1="3" x2="820" y2="3" stroke="url(#kjbHeaderDividerGrad)" strokeWidth="5" strokeLinecap="round" />
-          </svg>
-        </div>
-
         {/* Verse text — centered flex column; verse, ref and date all flow
             together and stay vertically centered, so long verses never overlap
             the footer divider below. */}
-        <div ref={fitContainerRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', overflow: 'hidden', paddingBottom: blockPadBottom }}>
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden', paddingBottom: blockPadBottom }}>
           {/* Verse, reference and date are all one inline-flowing block, wrapped
               in a translucent box like the daily card. The box stays vertically
               centered, so long verses never overlap the footer divider. */}
           <blockquote
-            ref={blockRef}
             className="kjb-sharecard-verse"
             style={{
               margin: 0,
               textAlign: 'center',
               fontFamily: verseFont,
               fontWeight: 700,
-              // fontSize/lineHeight are intentionally NOT set here — the
-              // useLayoutEffect above owns them exclusively via direct DOM
-              // mutation, so there's no ambiguity between what React renders
-              // and what the fit measurement decides. An initial fontSize is
-              // applied imperatively before paint, so there's no visible flash.
+              fontSize: dynamicFontSize,
+              lineHeight: dynamicLineHeight,
               color: verseColor,
               opacity: verseOpacity,
               textShadow: '0 3px 10px rgba(0,0,0,0.4)',
@@ -254,10 +173,10 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             <span
               style={{
                 display: 'block',
-                marginTop: 'clamp(16px, 0.5em, 48px)',
+                marginTop: refGap,
                 fontFamily: verseFont,
                 fontWeight: 700,
-                fontSize: 'clamp(15px, 0.52em, 40px)',
+                fontSize: '26px',
                 lineHeight: 1.2,
                 opacity: Math.min(1, verseOpacity + 0.05),
                 textShadow: '0 2px 6px rgba(0,0,0,0.35)',
@@ -269,14 +188,14 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
             <span
               style={{
                 display: 'inline-block',
-                marginTop: 'clamp(14px, 0.42em, 40px)',
+                marginTop: '36px',
                 background: dateBadgeBg,
                 borderRadius: '999px',
-                padding: '8px 24px 10px',
+                padding: '10px 28px 16px',
                 fontFamily: headerFont,
-                fontSize: 'clamp(13px, 0.46em, 34px)',
+                fontSize: '26px',
                 fontWeight: 700,
-                lineHeight: 1.2,
+                lineHeight: 1,
                 letterSpacing: '0.04em',
                 color: '#ffffff',
                 textShadow: 'none',
@@ -289,7 +208,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
 
         {/* Footer URL with curved gradient divider above */}
         <div style={{ width: '100%', textAlign: 'center', marginTop: '8px', flexShrink: 0 }}>
-          <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '32px', marginBottom: '20px' }}>
+          <svg viewBox="0 0 880 40" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '40px', marginBottom: '32px' }}>
             <defs>
               <linearGradient id="kjbCurveGrad" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={accentA} stopOpacity="0.25" />

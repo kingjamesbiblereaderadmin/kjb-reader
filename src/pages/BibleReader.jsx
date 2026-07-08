@@ -1667,7 +1667,7 @@ export default function BibleReader() {
       )}
 
       {!loading && !error && (
-        <div className="hidden print:block mt-8 pt-4 border-t border-border text-sm text-muted-foreground text-center">Printed on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()} &mdash; {typeof window !== 'undefined' ? window.location.href : ''}</div>
+        <div className="hidden print:block mt-8 pt-4 border-t border-border text-sm text-muted-foreground text-center">Printed on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}</div>
       )}
 
       {!loading && !error && (

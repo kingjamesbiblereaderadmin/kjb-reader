@@ -2,7 +2,6 @@
 // Strategy: store next-fire timestamp, check on page load/focus + SW periodic sync
 
 import { getDailyVerse, getDailyVerseFromBible } from './dailyVerse';
-import { subscribeToPush, pushDeliveredToday } from './pushSubscribe';
 
 const NOTIF_KEY = 'kjb-notifications-enabled';
 const NOTIF_TIME_KEY = 'kjb-notification-time'; // HH:MM
@@ -116,13 +115,6 @@ export async function requestNotificationPermission() {
         reg = await navigator.serviceWorker.register('/sw.js');
       }
       console.log('[Notif] Service worker registered:', reg.scope);
-
-      // Only bother with a real push subscription if permission was actually
-      // granted above — subscribing without permission is pointless and some
-      // browsers will reject it anyway.
-      if (hasPermission) {
-        await subscribeToPush(reg);
-      }
     } catch (err) {
       console.error('[Notif] Service worker registration failed:', err.message);
     }
@@ -137,7 +129,6 @@ export async function requestNotificationPermission() {
 export function disableNotifications() {
   localStorage.setItem(NOTIF_KEY, 'false');
   localStorage.removeItem(NOTIF_NEXT_KEY);
-  import('./pushSubscribe').then(({ unsubscribeFromPush }) => unsubscribeFromPush()).catch(() => {});
 }
 
 
@@ -277,18 +268,9 @@ async function fireNotificationNow() {
 
 // Fire once per day: when the app is opened on a new day (and we haven't
 // shown today's verse yet). No time scheduling — just a new-day check.
-//
-// Skipped only if real push already delivered today (confirmed via the SW's
-// cache marker, not just subscription existence) — so a device that was
-// offline when the daily push went out still gets the verse locally here,
-// fully offline-capable, exactly like before push existed.
 async function checkNewDayNotification() {
   if (!getNotificationsEnabled()) return;
   if (localStorage.getItem(NOTIF_LAST_KEY) === todayString()) return;
-  if (await pushDeliveredToday()) {
-    localStorage.setItem(NOTIF_LAST_KEY, todayString());
-    return;
-  }
   await fireNotificationNow();
 }
 
@@ -319,21 +301,6 @@ export function initNotifications() {
     return;
   }
   _notificationsInitialized = true;
-
-  // Backfill: someone who enabled notifications before real push existed
-  // has permission already granted but never went through subscribeToPush.
-  // Uses serviceWorker.ready (waits for an active worker) rather than
-  // getRegistration() (checks current state only) — this function can be
-  // called from more than one place at app startup, sometimes before the
-  // service worker registration in main.jsx has finished, and .ready
-  // resolves correctly regardless of call order. subscribeToPush() itself
-  // has its own in-flight lock and no-ops if a subscription already exists,
-  // so this is safe to call on every load.
-  if ('Notification' in window && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then((reg) => {
-      subscribeToPush(reg);
-    }).catch(() => {});
-  }
 
   console.log('[Notif] Last notified:', localStorage.getItem(NOTIF_LAST_KEY));
 

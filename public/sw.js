@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260709_1500
-// Cache-first loading for offline support + web push
+// KJB Reader Service Worker v20260706_1600
+// Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260709_1500';
+const CACHE_NAME = 'kjb-reader-v20260706_1600';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -198,62 +198,6 @@ self.addEventListener('message', (event) => {
       );
     }
   }
-});
-
-// Handle a real Push message from the server (VAPID web push). This fires the
-// SW even when the app/tab is fully closed, unlike showLocalNotification()
-// (which only ran while a page was open). Payload is JSON: {title, body, url}.
-self.addEventListener('push', (event) => {
-  let payload = {};
-  try {
-    payload = event.data ? event.data.json() : {};
-  } catch (err) {
-    payload = { title: 'KJB Reader', body: event.data ? event.data.text() : 'You have a new notification.' };
-  }
-
-  const title = payload.title || 'King James Bible — Daily Verse';
-  const options = {
-    body: payload.body || '',
-    icon: payload.icon || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png',
-    badge: payload.badge || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png',
-    tag: payload.tag || 'daily-verse',
-    renotify: true,
-    vibrate: [200, 100, 200],
-    requireInteraction: false,
-    data: { url: payload.url || '/' },
-  };
-
-  // Record that push actually delivered today, in a cache separate from the
-  // versioned app-shell cache (so it survives SW updates). The page checks
-  // this before deciding whether it still needs to fire the old offline
-  // on-open fallback — so a device that was offline when this push was sent
-  // still gets the verse locally next time it's opened, same as before.
-  event.waitUntil(
-    self.registration.showNotification(title, options).then(() =>
-      caches.open('kjb-push-log').then((cache) =>
-        cache.put('/__push-last-fired', new Response(new Date().toISOString().slice(0, 10)))
-      )
-    )
-  );
-});
-
-// The push service can invalidate/rotate a subscription at any time (token
-// expiry, browser-side rotation). When that happens this event fires with a
-// chance to resubscribe silently — otherwise the device silently stops
-// receiving pushes with no error surfaced anywhere in the app UI.
-self.addEventListener('pushsubscriptionchange', (event) => {
-  event.waitUntil(
-    self.registration.pushManager
-      .subscribe(event.oldSubscription ? event.oldSubscription.options : { userVisibleOnly: true })
-      .then((subscription) => {
-        return fetch('/api/apps/6a05d76723afe58d80c589e8/functions/subscribePush', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(subscription.toJSON()),
-        }).catch(() => {});
-      })
-      .catch((err) => console.warn('[SW] pushsubscriptionchange resubscribe failed:', err))
-  );
 });
 
 // Handle notification taps - focus an existing window (and navigate it) or open a

@@ -540,21 +540,6 @@ export function exportPdf(items, query, filters, options = {}) {
       const rightText = `Printed on ${dateStr}`;
       const rightWidth = doc.getTextWidth(rightText);
       doc.text(rightText, pageW - marginX - rightWidth, pageH - 25);
-
-      // Source URL on its own line below, small and centered, truncated if
-      // it would overflow the page width.
-      const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
-      if (pageUrl) {
-        doc.setFontSize(8);
-        let urlText = pageUrl;
-        const maxUrlWidth = pageW - marginX * 2;
-        while (doc.getTextWidth(urlText) > maxUrlWidth && urlText.length > 10) {
-          urlText = urlText.slice(0, -1);
-        }
-        if (urlText !== pageUrl) urlText = urlText.slice(0, -1) + '…';
-        const urlWidth = doc.getTextWidth(urlText);
-        doc.text(urlText, (pageW - urlWidth) / 2, pageH - 18);
-      }
     }
   }
 
@@ -627,8 +612,7 @@ export function exportPrint(items, query, filters, options = {}) {
 
     const now = new Date();
     const dateStr = now.toLocaleDateString() + ' at ' + now.toLocaleTimeString();
-    const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
-    currentParagraphs.push(`<div style="margin-top: 30pt; padding-top: 10pt; border-top: 1px solid #eee; font-size: 10pt; color: #777; text-align: center; page-break-inside: avoid; break-inside: avoid; column-span: all;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}${pageUrl ? `<br/>${escapeHtml(pageUrl)}` : ''}</div>`);
+    currentParagraphs.push(`<div style="margin-top: 30pt; padding-top: 10pt; border-top: 1px solid #eee; font-size: 10pt; color: #777; text-align: center; page-break-inside: avoid; break-inside: avoid; column-span: all;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</div>`);
 
     const content = currentParagraphs.join('');
     rows = `<div style="text-align:justify;margin-top:20px;${options.columnMode ? 'column-count:2;column-gap:1.5cm;column-rule:1px solid #ccc;' : 'display:block;'}">${content}</div>`;
@@ -680,10 +664,9 @@ export function exportPrint(items, query, filters, options = {}) {
   // showing hyphenated file names or "about:blank".
   const printTitle = '\u200B';
 
-  const pageUrlForFooter = typeof window !== 'undefined' ? window.location.href : '';
   const footerHtml = isReading 
     ? '' 
-    : `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}${pageUrlForFooter ? `<br/>${escapeHtml(pageUrlForFooter)}` : ''}</p></div>`;
+    : `<div style="margin-top: 40pt; page-break-inside: avoid;"><p style="font-size:10pt;color:#777;border-top:1px solid #eee;padding-top:10pt;margin:0;">${items.length} verse${items.length !== 1 ? 's' : ''} &mdash; King James Bible<br/>Printed on ${dateStr}</p></div>`;
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(printTitle)}</title><style>@page { margin: 1.5cm; } body { margin: 0 !important; display: block !important; height: auto !important; position: static !important; overflow: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }</style></head><body style="padding:20px;max-width:800px;margin:0 auto;color:#000;">` +
     `${headerHtml}${rows}${footerHtml}</body></html>`;
