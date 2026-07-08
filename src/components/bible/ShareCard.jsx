@@ -89,6 +89,7 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
     const safetyMargin = 6; // px of breathing room so text never touches the edge
 
     let size = maxSize;
+    blockEl.style.lineHeight = '1.4';
     blockEl.style.fontSize = `${size}px`;
 
     // Force layout + shrink until content fits, or we hit the floor.
