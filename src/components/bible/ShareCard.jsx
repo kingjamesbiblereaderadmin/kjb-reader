@@ -114,7 +114,7 @@ const ShareCard = React.forwardRef(function ShareCard(
       const verseBlockHeight = lines * size * 1.4;
       const refBlockHeight = size * 0.5 + size * 0.52 * 1.2; // margin-top + line height
       const dateBlockHeight = size * 0.42 + size * 0.46 * 1.2 + 18; // margin-top + line height + badge padding
-      const total = verseBlockHeight + refBlockHeight + dateBlockHeight;
+      const total = (verseBlockHeight + refBlockHeight + dateBlockHeight) * HEIGHT_SAFETY_FACTOR;
 
       if (total <= availableHeight - safetyMargin) {
         return size;
@@ -125,13 +125,27 @@ const ShareCard = React.forwardRef(function ShareCard(
 
   useLayoutEffect(() => {
     setFitSize(computeFit());
-    // Re-check once the real webfont has actually finished loading — canvas
-    // measureText() also falls back to a default font until then, so a fit
-    // computed too early could be wrong in exactly the same way DOM
-    // measurement would be.
+    // Re-check once the real webfont has actually finished loading. Two
+    // things matter here, not just one: (1) explicitly REQUEST the font via
+    // document.fonts.load() rather than only passively waiting on
+    // fonts.ready — .ready only waits for fonts already in flight, it
+    // doesn't guarantee this specific font was ever requested in the first
+    // place if this component measures before anything has visibly needed
+    // to paint with it yet; and (2) canvas measureText() needs the font to
+    // be genuinely loaded to report accurate glyph widths, same as DOM text
+    // does — measuring too early silently falls back to a system font and
+    // undercounts how many lines the real font will wrap to.
     let cancelled = false;
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
+    const primaryFontName = (verseFont.split(',')[0] || '').replace(/['"]/g, '').trim();
+    const loadPromises = [];
+    if (document.fonts) {
+      if (primaryFontName) {
+        try { loadPromises.push(document.fonts.load(`700 60px "${primaryFontName}"`)); } catch {}
+      }
+      if (document.fonts.ready) loadPromises.push(document.fonts.ready);
+    }
+    if (loadPromises.length) {
+      Promise.all(loadPromises).then(() => {
         if (!cancelled) setFitSize(computeFit());
       });
     }
