@@ -14,13 +14,19 @@ const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e
 // about exactly how much vertical space is actually available, rather than
 // inferring it from live DOM measurement.
 const CARD_SIZE = 1024;
-const OUTER_PAD_V = 56;
-const HEADER_BLOCK_H = 84;   // title row + its margins
+const OUTER_PAD_V = 40;
+const HEADER_BLOCK_H = 66;   // title row + its margins (tightened, moves content up)
 const DIVIDER_BLOCK_H = 34;  // header divider + margin
 const FOOTER_DIVIDER_H = 34; // bottom divider + margin, mirrors the header one
 const FOOTER_TEXT_H = 46;    // "KingJamesBibleReader.com" line
 const BLOCKQUOTE_MAX_W = 880; // 1024 - 2*72 outer padding
 const BLOCKQUOTE_PAD_H = 48;  // 24px each side
+// Deliberate slack: canvas measureText() line-wrap simulation is an
+// approximation (kerning, actual glyph widths, quote-mark width aren't
+// modeled exactly), so the height estimate is inflated by this factor before
+// comparing against available space. Better to land slightly smaller than to
+// risk the real render overflowing and getting clipped at the bottom.
+const HEIGHT_SAFETY_FACTOR = 1.14;
 
 const ShareCard = React.forwardRef(function ShareCard(
   { verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline, backgroundImageUrl },
