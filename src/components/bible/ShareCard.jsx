@@ -180,10 +180,17 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
           <HeaderRule flip />
         </div>
 
+        {/* Divider directly under the header, so the header block always
+            reads as its own row instead of floating with a huge gap before
+            the verse text below it. */}
+        <div style={{ width: '100%', maxWidth: '820px', marginBottom: '28px', flexShrink: 0 }}>
+          <SeparatorLine />
+        </div>
+
         {/* Verse text — centered flex column; verse, ref and date all flow
             together and stay vertically centered, so long verses never overlap
             the footer divider below. */}
-        <div ref={fitContainerRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden', paddingBottom: blockPadBottom }}>
+        <div ref={fitContainerRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', overflow: 'hidden', paddingBottom: blockPadBottom }}>
           {/* Verse, reference and date are all one inline-flowing block, wrapped
               in a translucent box like the daily card. The box stays vertically
               centered, so long verses never overlap the footer divider. */}
