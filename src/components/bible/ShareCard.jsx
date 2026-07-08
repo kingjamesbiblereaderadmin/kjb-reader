@@ -16,7 +16,7 @@ const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e
 const CARD_SIZE = 1024;
 const OUTER_PAD_TOP = 24;
 const OUTER_PAD_BOTTOM = 40;
-const HEADER_BLOCK_H = 50;   // title row + its margins (tightened further, moves content up)
+const HEADER_BLOCK_H = 76;   // title row + its margins (was undercounting real rendered height, causing top overlap)
 const DIVIDER_BLOCK_H = 34;  // header divider + margin
 const FOOTER_DIVIDER_H = 34; // bottom divider + margin, mirrors the header one
 const FOOTER_TEXT_H = 46;    // "KingJamesBibleReader.com" line
@@ -27,7 +27,7 @@ const BLOCKQUOTE_PAD_H = 48;  // 24px each side
 // modeled exactly), so the height estimate is inflated by this factor before
 // comparing against available space. Better to land slightly smaller than to
 // risk the real render overflowing and getting clipped at the bottom.
-const HEIGHT_SAFETY_FACTOR = 1.14;
+const HEIGHT_SAFETY_FACTOR = 1.22;
 
 const ShareCard = React.forwardRef(function ShareCard(
   { verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline, backgroundImageUrl },
@@ -93,7 +93,7 @@ const ShareCard = React.forwardRef(function ShareCard(
     const availableWidth = BLOCKQUOTE_MAX_W - BLOCKQUOTE_PAD_H;
     const availableHeight =
       CARD_SIZE - OUTER_PAD_TOP - OUTER_PAD_BOTTOM - HEADER_BLOCK_H - DIVIDER_BLOCK_H - FOOTER_DIVIDER_H - FOOTER_TEXT_H;
-    const safetyMargin = 6;
+    const safetyMargin = 30;
 
     const maxSize = 108;
     const minSize = 15;
