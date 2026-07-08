@@ -60,8 +60,14 @@ const ShareCard = React.forwardRef(function ShareCard(
     const mix = (c) => Math.round(c + (255 - c) * amt);
     return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
   };
-  const accentA = hasCustomBg ? 'rgba(255,255,255,0.9)' : lighten(gradient ? gradient[0] : '#4f7bff');
-  const accentB = hasCustomBg ? 'rgba(255,255,255,0.9)' : lighten(gradient ? gradient[1] : '#a85aff');
+  // Accent color for the decorative header rules, dividers, and footer
+  // curve. Deliberately a fixed near-white rather than a lightened version
+  // of today's own gradient hue — lightening a warm color (e.g. today's
+  // orange/red) still produces a same-hue pastel that blends into a
+  // same-colored background, making these elements nearly invisible on some
+  // days' themes. A fixed white reliably contrasts against every gradient.
+  const accentA = 'rgba(255,255,255,0.85)';
+  const accentB = 'rgba(255,255,255,0.85)';
 
   const verseFont = fontFamily || "'Merriweather', 'Cormorant Garamond', Georgia, serif";
   const isCursive = /dancing script/i.test(verseFont);
