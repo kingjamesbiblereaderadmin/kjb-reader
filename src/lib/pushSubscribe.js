@@ -17,51 +17,68 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray;
 }
 
+// Module-level in-flight lock. Without this, two call sites firing close
+// together (e.g. the app-load backfill path and an explicit permission-grant
+// path) can each independently see "no subscription yet" and call
+// pushManager.subscribe() in parallel, which some browsers/OSes will happily
+// honor multiple times — producing several distinct real subscriptions for
+// the same device instead of reusing one. Every caller now shares the same
+// promise, so only one subscribe attempt is ever actually in flight.
+let _subscribePromise = null;
+
 export async function subscribeToPush(reg) {
   if (!('PushManager' in window)) {
     console.log('[Push] PushManager not supported on this browser');
     return null;
   }
-  try {
-    const registration = reg || (await navigator.serviceWorker.ready);
+  if (_subscribePromise) return _subscribePromise;
+  _subscribePromise = (async () => {
+    try {
+      const registration = reg || (await navigator.serviceWorker.ready);
 
-    let subscription = await registration.pushManager.getSubscription();
-    if (!subscription) {
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+      }
+
+      // Ride along with the app's existing notification-time preference so
+      // server-side push fires at the same local time the user already chose
+      // (Settings > Notification time), not some fixed UTC hour.
+      let timezone = '';
+      try {
+        timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      } catch {}
+      let notify_time = '08:00';
+      try {
+        notify_time = localStorage.getItem('kjb-notification-time') || '08:00';
+      } catch {}
+
+      const payload = { ...subscription.toJSON(), timezone, notify_time };
+
+      const res = await fetch(`/api/apps/6a05d76723afe58d80c589e8/functions/subscribePush`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
-    }
-
-    // Ride along with the app's existing notification-time preference so
-    // server-side push fires at the same local time the user already chose
-    // (Settings > Notification time), not some fixed UTC hour.
-    let timezone = '';
-    try {
-      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-    } catch {}
-    let notify_time = '08:00';
-    try {
-      notify_time = localStorage.getItem('kjb-notification-time') || '08:00';
-    } catch {}
-
-    const payload = { ...subscription.toJSON(), timezone, notify_time };
-
-    const res = await fetch(`/api/apps/6a05d76723afe58d80c589e8/functions/subscribePush`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      console.warn('[Push] Server rejected subscription:', res.status);
+      if (!res.ok) {
+        console.warn('[Push] Server rejected subscription:', res.status);
+        return null;
+      }
+      console.log('[Push] Subscribed for real (works while app closed), tz:', timezone, 'time:', notify_time);
+      return subscription;
+    } catch (err) {
+      console.warn('[Push] subscribeToPush failed:', err.message);
       return null;
+    } finally {
+      // Release the lock once this attempt settles so a genuinely later
+      // call (e.g. after re-enabling notifications) can subscribe again.
+      _subscribePromise = null;
     }
-    console.log('[Push] Subscribed for real (works while app closed), tz:', timezone, 'time:', notify_time);
-    return subscription;
-  } catch (err) {
-    console.warn('[Push] subscribeToPush failed:', err.message);
-    return null;
-  }
+  })();
+  return _subscribePromise;
 }
 
 export async function unsubscribeFromPush() {
