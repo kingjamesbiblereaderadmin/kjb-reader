@@ -201,9 +201,21 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
 
         {/* Divider directly under the header, so the header block always
             reads as its own row instead of floating with a huge gap before
-            the verse text below it. */}
+            the verse text below it. Uses today's actual accent colors at
+            full opacity (not the generic blue/purple SeparatorLine) so it's
+            clearly visible against every daily gradient, not just blue/purple
+            themed days. */}
         <div style={{ width: '100%', maxWidth: '820px', marginBottom: '28px', flexShrink: 0 }}>
-          <SeparatorLine />
+          <svg viewBox="0 0 820 6" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '6px' }}>
+            <defs>
+              <linearGradient id="kjbHeaderDividerGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor={accentA} stopOpacity="0.15" />
+                <stop offset="50%" stopColor={accentB} stopOpacity="1" />
+                <stop offset="100%" stopColor={accentA} stopOpacity="0.15" />
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="3" x2="820" y2="3" stroke="url(#kjbHeaderDividerGrad)" strokeWidth="5" strokeLinecap="round" />
+          </svg>
         </div>
 
         {/* Verse text — centered flex column; verse, ref and date all flow
