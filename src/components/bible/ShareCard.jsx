@@ -14,8 +14,9 @@ const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e
 // about exactly how much vertical space is actually available, rather than
 // inferring it from live DOM measurement.
 const CARD_SIZE = 1024;
-const OUTER_PAD_V = 40;
-const HEADER_BLOCK_H = 66;   // title row + its margins (tightened, moves content up)
+const OUTER_PAD_TOP = 24;
+const OUTER_PAD_BOTTOM = 40;
+const HEADER_BLOCK_H = 50;   // title row + its margins (tightened further, moves content up)
 const DIVIDER_BLOCK_H = 34;  // header divider + margin
 const FOOTER_DIVIDER_H = 34; // bottom divider + margin, mirrors the header one
 const FOOTER_TEXT_H = 46;    // "KingJamesBibleReader.com" line
@@ -91,7 +92,7 @@ const ShareCard = React.forwardRef(function ShareCard(
 
     const availableWidth = BLOCKQUOTE_MAX_W - BLOCKQUOTE_PAD_H;
     const availableHeight =
-      CARD_SIZE - OUTER_PAD_V * 2 - HEADER_BLOCK_H - DIVIDER_BLOCK_H - FOOTER_DIVIDER_H - FOOTER_TEXT_H;
+      CARD_SIZE - OUTER_PAD_TOP - OUTER_PAD_BOTTOM - HEADER_BLOCK_H - DIVIDER_BLOCK_H - FOOTER_DIVIDER_H - FOOTER_TEXT_H;
     const safetyMargin = 6;
 
     const maxSize = 108;
@@ -211,7 +212,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         }}
       />
 
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: `${OUTER_PAD_V}px 72px` }}>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: `${OUTER_PAD_TOP}px 72px ${OUTER_PAD_BOTTOM}px` }}>
         <img
           src={logoSrc || LOGO_URL}
           alt="KJB Reader"
@@ -220,7 +221,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         />
 
         {/* Header row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', marginTop: '36px', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', marginTop: '20px', marginBottom: '12px' }}>
           <HeaderRule />
           <span style={{ flexShrink: 0, fontFamily: headerFont, fontSize: '30px', fontWeight: 800, letterSpacing: '0.16em', color: verseColor, textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap', textAlign: 'center' }}>
             {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
