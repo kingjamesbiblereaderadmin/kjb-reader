@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useLayoutEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
 import { cleanVerseText } from '@/lib/formatDailyVerse';
 
@@ -10,6 +10,13 @@ import { cleanVerseText } from '@/lib/formatDailyVerse';
 const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
 
 const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline }, ref) {
+  // Invisible bounding box the verse text must fit inside. fitContainerRef is
+  // the true available space (fixed by the flex layout below); blockRef is
+  // the actual verse+reference+date content. After every render we measure
+  // the real rendered height and shrink the font until it truly fits — no
+  // more guessing from character count, no more clipped/overlapping text.
+  const fitContainerRef = useRef(null);
+  const blockRef = useRef(null);
   const headerFont = uiFont || "'Inter', system-ui, sans-serif";
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   // Today's two-stop gradient (matches the on-site card). Falls back to blue→purple.
