@@ -88,21 +88,37 @@ const ShareCard = React.forwardRef(function ShareCard({ verse, logoSrc, fontFami
     const step = 1;
     const safetyMargin = 6; // px of breathing room so text never touches the edge
 
-    let size = maxSize;
-    blockEl.style.lineHeight = '1.4';
-    blockEl.style.fontSize = `${size}px`;
-
-    // Force layout + shrink until content fits, or we hit the floor.
-    let guard = 0;
-    while (
-      containerEl.scrollHeight > containerEl.clientHeight - safetyMargin &&
-      size > minSize &&
-      guard < 100
-    ) {
-      size -= step;
+    const runFit = () => {
+      let size = maxSize;
+      blockEl.style.lineHeight = '1.4';
       blockEl.style.fontSize = `${size}px`;
-      guard++;
+      let guard = 0;
+      while (
+        containerEl.scrollHeight > containerEl.clientHeight - safetyMargin &&
+        size > minSize &&
+        guard < 100
+      ) {
+        size -= step;
+        blockEl.style.fontSize = `${size}px`;
+        guard++;
+      }
+    };
+
+    // Run immediately with whatever's available (avoids a big flash), then
+    // run again once the real webfont has actually finished loading. If the
+    // fit ran only once at mount against a fallback system font's metrics,
+    // the chosen size would be locked in even after the real (usually wider)
+    // serif font swaps in later — which would make the size look "stuck"
+    // at roughly the same value no matter how the sizing algorithm itself is
+    // rewritten, since it's the font swap, not the algorithm, driving it.
+    runFit();
+    let cancelled = false;
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        if (!cancelled) runFit();
+      });
     }
+    return () => { cancelled = true; };
   }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline]);
 
   // Thin full-width gradient line (blue → purple) with soft glow
