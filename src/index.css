@@ -101,30 +101,8 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html {
-    /* #kjb-scroll (in AppLayout) is the ONLY element that should ever
-       scroll. Without this, mobile browsers' dynamic address-bar
-       show/hide can push content past 100vh, letting the native
-       document scroll independently of #kjb-scroll — two competing
-       scroll contexts at once, which breaks position:sticky elements
-       inside #kjb-scroll (they stay stuck to IT, but the outer page
-       scroll carries the whole thing along, so they visually scroll
-       away instead of staying anchored).
-       Uses 100svh (SMALL viewport height), not 100dvh. Locking html/body
-       from scrolling at all (below) also removes the usual scroll-based
-       trigger that lets mobile browsers auto-hide their own address bar,
-       so it now stays visible permanently. dvh would still track that
-       correctly, but svh assumes the address bar is showing up front
-       (the worst-case / smallest size) rather than reacting to it —
-       exactly matching a browser chrome that no longer collapses, so
-       nothing at the bottom of the page ends up hidden behind it. */
-    height: 100svh;
-    overflow: hidden;
-  }
   body {
     @apply bg-background text-foreground;
-    height: 100svh;
-    overflow: hidden;
     overscroll-behavior-y: none;
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
