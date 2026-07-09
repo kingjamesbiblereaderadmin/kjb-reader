@@ -272,7 +272,7 @@ const ShareCard = React.forwardRef(function ShareCard(
               fontFamily: verseFont,
               fontWeight: 700,
               fontSize: `${fitSize}px`,
-              lineHeight: 1.4,
+              lineHeight: isCursive ? 1.65 : 1.4,
               color: verseColor,
               opacity: verseOpacity,
               textShadow: '0 3px 10px rgba(0,0,0,0.4)',
