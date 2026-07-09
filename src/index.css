@@ -109,13 +109,19 @@
        scroll contexts at once, which breaks position:sticky elements
        inside #kjb-scroll (they stay stuck to IT, but the outer page
        scroll carries the whole thing along, so they visually scroll
-       away instead of staying anchored). */
-    height: 100%;
+       away instead of staying anchored).
+       Uses 100dvh (dynamic viewport height), NOT 100% — percentage
+       height on mobile can lock to a SMALLER value than the real
+       visible viewport, which clips the bottom of the scrollable
+       content (e.g. the prev/next chapter buttons become unreachable).
+       dvh tracks the actual visible viewport as browser chrome
+       shows/hides, so nothing gets cut off. */
+    height: 100dvh;
     overflow: hidden;
   }
   body {
     @apply bg-background text-foreground;
-    height: 100%;
+    height: 100dvh;
     overflow: hidden;
     overscroll-behavior-y: none;
     padding-top: env(safe-area-inset-top);
