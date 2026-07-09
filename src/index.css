@@ -110,18 +110,20 @@
        inside #kjb-scroll (they stay stuck to IT, but the outer page
        scroll carries the whole thing along, so they visually scroll
        away instead of staying anchored).
-       Uses 100dvh (dynamic viewport height), NOT 100% — percentage
-       height on mobile can lock to a SMALLER value than the real
-       visible viewport, which clips the bottom of the scrollable
-       content (e.g. the prev/next chapter buttons become unreachable).
-       dvh tracks the actual visible viewport as browser chrome
-       shows/hides, so nothing gets cut off. */
-    height: 100dvh;
+       Uses 100svh (SMALL viewport height), not 100dvh. Locking html/body
+       from scrolling at all (below) also removes the usual scroll-based
+       trigger that lets mobile browsers auto-hide their own address bar,
+       so it now stays visible permanently. dvh would still track that
+       correctly, but svh assumes the address bar is showing up front
+       (the worst-case / smallest size) rather than reacting to it —
+       exactly matching a browser chrome that no longer collapses, so
+       nothing at the bottom of the page ends up hidden behind it. */
+    height: 100svh;
     overflow: hidden;
   }
   body {
     @apply bg-background text-foreground;
-    height: 100dvh;
+    height: 100svh;
     overflow: hidden;
     overscroll-behavior-y: none;
     padding-top: env(safe-area-inset-top);
