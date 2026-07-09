@@ -118,7 +118,13 @@ const ShareCard = React.forwardRef(function ShareCard(
       // Account for the leading/trailing quote marks visually adding a touch
       // of width — negligible at word-wrap granularity, ignored.
 
-      const verseBlockHeight = lines * size * 1.4;
+      // Cursive script (Dancing Script) has connecting flourishes that need
+      // noticeably more vertical room per line than serif/sans at the same
+      // nominal font-size, or ascenders/descenders get clipped between
+      // lines. Applied identically here and in the actual rendered style
+      // below so the estimate never disagrees with the real layout.
+      const lineHeightMult = isCursive ? 1.65 : 1.4;
+      const verseBlockHeight = lines * size * lineHeightMult;
       const refBlockHeight = size * 0.5 + size * 0.52 * 1.2; // margin-top + line height
       const dateBlockHeight = size * 1.05 + size * 0.46 * 1.2 + 18; // margin-top + line height + badge padding
       const total = (verseBlockHeight + refBlockHeight + dateBlockHeight) * HEIGHT_SAFETY_FACTOR;
