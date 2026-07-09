@@ -14,11 +14,11 @@ const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e
 // about exactly how much vertical space is actually available, rather than
 // inferring it from live DOM measurement.
 const CARD_SIZE = 1024;
-const OUTER_PAD_TOP = 24;
+const OUTER_PAD_TOP = 32;
 const OUTER_PAD_BOTTOM = 40;
-const HEADER_BLOCK_H = 76;   // title row + its margins (was undercounting real rendered height, causing top overlap)
-const DIVIDER_BLOCK_H = 34;  // header divider + margin
-const FOOTER_DIVIDER_H = 34; // bottom divider + margin, mirrors the header one
+const HEADER_BLOCK_H = 76;   // title row + its margins
+const DIVIDER_BLOCK_H = 42;  // header divider (6px) + increased margin below it (36px)
+const FOOTER_DIVIDER_H = 74; // curved footer arc (32px) + margins above/below (16 + 26)
 const FOOTER_TEXT_H = 46;    // "KingJamesBibleReader.com" line
 const BLOCKQUOTE_MAX_W = 880; // 1024 - 2*72 outer padding
 const BLOCKQUOTE_PAD_H = 48;  // 24px each side
@@ -175,7 +175,7 @@ const ShareCard = React.forwardRef(function ShareCard(
     />
   );
 
-  // Shared divider element (used both under the header and above the footer).
+  // Shared straight divider (used under the header only).
   const Divider = ({ gradId }) => (
     <svg viewBox="0 0 820 6" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '6px' }}>
       <defs>
@@ -186,6 +186,25 @@ const ShareCard = React.forwardRef(function ShareCard(
         </linearGradient>
       </defs>
       <line x1="0" y1="3" x2="820" y2="3" stroke={`url(#${gradId})`} strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  );
+
+  // Curved footer arc, colored from TODAY'S actual gradient (lightened for
+  // contrast) rather than the fixed white used for the header divider —
+  // this is the original distinctive touch that got flattened into a plain
+  // line when the two dividers were briefly consolidated into one shape.
+  const curveColorA = gradient ? lighten(gradient[0], 0.55) : 'rgba(255,255,255,0.7)';
+  const curveColorB = gradient ? lighten(gradient[1], 0.55) : 'rgba(255,255,255,0.4)';
+  const FooterCurve = () => (
+    <svg viewBox="0 0 880 32" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '32px' }}>
+      <defs>
+        <linearGradient id="kjbFooterCurveGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor={curveColorA} stopOpacity="0" />
+          <stop offset="50%" stopColor={curveColorB} stopOpacity="0.9" />
+          <stop offset="100%" stopColor={curveColorA} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d="M0,28 Q440,0 880,28" stroke="url(#kjbFooterCurveGrad)" strokeWidth="4" fill="none" strokeLinecap="round" />
     </svg>
   );
 
@@ -230,7 +249,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         </div>
 
         {/* Divider under the header — top boundary of the growable text area */}
-        <div style={{ width: '100%', maxWidth: '820px', marginBottom: '28px', flexShrink: 0 }}>
+        <div style={{ width: '100%', maxWidth: '820px', marginBottom: '36px', flexShrink: 0 }}>
           <Divider gradId="kjbHeaderDividerGrad" />
         </div>
 
@@ -294,9 +313,9 @@ const ShareCard = React.forwardRef(function ShareCard(
           </blockquote>
         </div>
 
-        {/* Divider above the footer — bottom boundary of the growable text area */}
-        <div style={{ width: '100%', maxWidth: '820px', marginTop: '8px', marginBottom: '20px', flexShrink: 0 }}>
-          <Divider gradId="kjbFooterDividerGrad" />
+        {/* Curved footer arc — bottom boundary of the growable text area */}
+        <div style={{ width: '100%', maxWidth: '820px', marginTop: '16px', marginBottom: '26px', flexShrink: 0 }}>
+          <FooterCurve />
         </div>
 
         <div style={{ width: '100%', textAlign: 'center', flexShrink: 0 }}>
