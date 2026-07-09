@@ -295,7 +295,7 @@ const ShareCard = React.forwardRef(function ShareCard(
             <span
               style={{
                 display: 'inline-block',
-                marginTop: `${fitSize * 0.42}px`,
+                marginTop: `${fitSize * 0.75}px`,
                 background: dateBadgeBg,
                 borderRadius: '999px',
                 padding: '8px 24px 10px',
