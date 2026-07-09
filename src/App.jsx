@@ -46,6 +46,7 @@ const SavedVersesPage = lazy(loaders.Saved);
 const RefreshCache = lazy(loaders.RefreshCache);
 const ManifestIcons = lazy(loaders.ManifestIcons);
 const ManifestScreenshots = lazy(loaders.ManifestScreenshots);
+const ShareCardPreview = lazy(loaders.ShareCardPreview);
 const PrivacyPolicyPage = lazy(loaders.Privacy);
 const LegacyReader = lazy(loaders.LegacyReader);
 const DailyVerseTxt = lazy(loaders.DailyVerseTxt);
