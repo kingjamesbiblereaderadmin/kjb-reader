@@ -101,8 +101,22 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    /* #kjb-scroll (in AppLayout) is the ONLY element that should ever
+       scroll. Without this, mobile browsers' dynamic address-bar
+       show/hide can push content past 100vh, letting the native
+       document scroll independently of #kjb-scroll — two competing
+       scroll contexts at once, which breaks position:sticky elements
+       inside #kjb-scroll (they stay stuck to IT, but the outer page
+       scroll carries the whole thing along, so they visually scroll
+       away instead of staying anchored). */
+    height: 100%;
+    overflow: hidden;
+  }
   body {
     @apply bg-background text-foreground;
+    height: 100%;
+    overflow: hidden;
     overscroll-behavior-y: none;
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
