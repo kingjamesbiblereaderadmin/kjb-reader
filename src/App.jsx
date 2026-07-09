@@ -27,6 +27,7 @@ const loaders = {
   RefreshCache: () => import('@/pages/RefreshCache.jsx').catch((err) => { console.error('Failed to load RefreshCache:', err); throw err; }),
   ManifestIcons: () => import('@/pages/ManifestIcons.jsx').catch((err) => { console.error('Failed to load ManifestIcons:', err); throw err; }),
   ManifestScreenshots: () => import('@/pages/ManifestScreenshots.jsx').catch((err) => { console.error('Failed to load ManifestScreenshots:', err); throw err; }),
+  ShareCardPreview: () => import('@/pages/ShareCardPreview.jsx').catch((err) => { console.error('Failed to load ShareCardPreview:', err); throw err; }),
   Privacy: () => import('@/pages/PrivacyPolicyPage.jsx').catch((err) => { console.error('Failed to load PrivacyPolicyPage:', err); throw err; }),
   LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
   DailyVerseTxt: () => import('@/pages/DailyVerseTxt.jsx').catch((err) => { console.error('Failed to load DailyVerseTxt:', err); throw err; }),
