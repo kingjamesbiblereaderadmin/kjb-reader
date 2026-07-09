@@ -256,7 +256,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         {/* Growable text area — fills the space between the two dividers.
             fitSize is computed above via canvas measurement, not live DOM
             layout, so it's exact rather than an approximation. */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', overflow: 'hidden' }}>
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', overflow: 'hidden' }}>
           <blockquote
             ref={blockRef}
             className="kjb-sharecard-verse"
