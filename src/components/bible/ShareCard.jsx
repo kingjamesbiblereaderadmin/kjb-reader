@@ -120,7 +120,7 @@ const ShareCard = React.forwardRef(function ShareCard(
 
       const verseBlockHeight = lines * size * 1.4;
       const refBlockHeight = size * 0.5 + size * 0.52 * 1.2; // margin-top + line height
-      const dateBlockHeight = size * 0.75 + size * 0.46 * 1.2 + 18; // margin-top + line height + badge padding
+      const dateBlockHeight = size * 1.05 + size * 0.46 * 1.2 + 18; // margin-top + line height + badge padding
       const total = (verseBlockHeight + refBlockHeight + dateBlockHeight) * HEIGHT_SAFETY_FACTOR;
 
       if (total <= availableHeight - safetyMargin) {
