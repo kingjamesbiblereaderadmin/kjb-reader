@@ -55,6 +55,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   const [cropImage, setCropImage] = useState(null);
   const [cropImageForNotif, setCropImageForNotif] = useState(false);
   const [pendingBg, setPendingBg] = useState(null);
+  // Remembers the last crop/zoom/aspect used, so re-opening the cropper on
+  // an already-cropped image starts from where the user left it instead of
+  // resetting to centered/100%/square every time.
+  const [lastCropSettings, setLastCropSettings] = useState(() => {
+    try {
+      const raw = localStorage.getItem('kjb-daily-verse-crop-settings');
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  });
   const fileInputRef = useRef(null);
   const [notifImage, setNotifImage] = useState(() => {
     try { return localStorage.getItem('kjb-notif-image') || ''; } catch { return ''; }
