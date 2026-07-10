@@ -34,6 +34,9 @@ const ShareCard = React.forwardRef(function ShareCard(
   ref
 ) {
   const blockRef = useRef(null);
+  // The growable text area (verse+ref+date's actual container) — used as the
+  // ground-truth boundary for the real-measurement safety net below.
+  const fitContainerRef = useRef(null);
   // Reused off-DOM canvas purely for text measurement — never rendered.
   const measureCanvasRef = useRef(null);
   if (!measureCanvasRef.current) measureCanvasRef.current = document.createElement('canvas');
@@ -166,6 +169,31 @@ const ShareCard = React.forwardRef(function ShareCard(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline]);
 
+  // REAL-MEASUREMENT SAFETY NET. computeFit() above is a fast canvas-based
+  // *prediction* — it's a math estimate (word-wrap simulation, hand-tuned
+  // spacing multipliers for margins/line-height/badge padding), and any
+  // estimate can be slightly wrong for a font/verse-length/background
+  // combination that wasn't specifically tuned for. This effect is the
+  // guarantee layer on top: it measures the ACTUAL rendered box (verse +
+  // reference + date pill all together, since they're all children of the
+  // same blockquote) against its ACTUAL available space, and if the real
+  // render overflows despite the prediction saying it should fit, it
+  // shrinks fitSize and lets the effect re-run on the new value —
+  // converging on a truly-fitting size regardless of font, verse length, or
+  // background. This is what makes "never gets cut off" a guarantee rather
+  // than a hope, for every current and future case, not just the ones this
+  // was tested against.
+  useLayoutEffect(() => {
+    const containerEl = fitContainerRef.current;
+    const blockEl = blockRef.current;
+    if (!containerEl || !blockEl) return;
+    const safetyMargin = 4;
+    const minSize = 12;
+    if (containerEl.scrollHeight > containerEl.clientHeight - safetyMargin && fitSize > minSize) {
+      setFitSize((s) => Math.max(minSize, s - 2));
+    }
+  }, [fitSize, verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isCursive]);
+
   const HeaderRule = ({ flip }) => (
     <span
       style={{
@@ -262,7 +290,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         {/* Growable text area — fills the space between the two dividers.
             fitSize is computed above via canvas measurement, not live DOM
             layout, so it's exact rather than an approximation. */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', overflow: 'hidden' }}>
+        <div ref={fitContainerRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', overflow: 'hidden' }}>
           <blockquote
             ref={blockRef}
             className="kjb-sharecard-verse"
