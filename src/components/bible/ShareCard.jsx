@@ -30,7 +30,7 @@ const BLOCKQUOTE_PAD_H = 48;  // 24px each side
 const HEIGHT_SAFETY_FACTOR = 1.1;
 
 const ShareCard = React.forwardRef(function ShareCard(
-  { verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline, backgroundImageUrl },
+  { verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline, backgroundImageUrl, showTextPanel },
   ref
 ) {
   const blockRef = useRef(null);
