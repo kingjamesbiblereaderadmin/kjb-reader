@@ -93,9 +93,14 @@ const ShareCard = React.forwardRef(function ShareCard(
     const canvas = measureCanvasRef.current;
     const ctx = canvas.getContext('2d');
 
-    const availableWidth = BLOCKQUOTE_MAX_W - BLOCKQUOTE_PAD_H;
+    // Readability panel (matches the on-screen "Show Panel" toggle) adds its
+    // own padding around the text block, so it needs to be subtracted from
+    // the available space too, or the fit prediction would run too large
+    // and the safety-net-free layout could overflow the panel's own edges.
+    const panelPad = showTextPanel ? 40 : 0;
+    const availableWidth = BLOCKQUOTE_MAX_W - BLOCKQUOTE_PAD_H - panelPad * 2;
     const availableHeight =
-      CARD_SIZE - OUTER_PAD_TOP - OUTER_PAD_BOTTOM - HEADER_BLOCK_H - DIVIDER_BLOCK_H - FOOTER_DIVIDER_H - FOOTER_TEXT_H;
+      CARD_SIZE - OUTER_PAD_TOP - OUTER_PAD_BOTTOM - HEADER_BLOCK_H - DIVIDER_BLOCK_H - FOOTER_DIVIDER_H - FOOTER_TEXT_H - panelPad * 2;
     const safetyMargin = 12;
 
     const maxSize = 108;
