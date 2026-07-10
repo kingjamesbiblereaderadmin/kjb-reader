@@ -1047,8 +1047,15 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
         <Suspense fallback={null}>
           <ImageCropper
           image={cropImage}
-          onCrop={(cropped) => {
+          initialCrop={lastCropSettings?.crop}
+          initialZoom={lastCropSettings?.zoom}
+          initialAspect={lastCropSettings?.aspect}
+          onCrop={(cropped, settings) => {
             setCropImage(null);
+            if (settings) {
+              setLastCropSettings(settings);
+              try { localStorage.setItem('kjb-daily-verse-crop-settings', JSON.stringify(settings)); } catch {}
+            }
             if (cropImageForNotif) {
               handleCropComplete(cropped, true);
             } else {
