@@ -172,7 +172,7 @@ const ShareCard = React.forwardRef(function ShareCard(
     }
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline]);
+  }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline, showTextPanel]);
 
   // NOTE: a real-DOM-measurement "safety net" effect used to live here,
   // shrinking fitSize further if the rendered box appeared to overflow its
