@@ -750,27 +750,18 @@ export default function SettingsPage() {
                 ref={bgFileInputRef}
                 type="file"
                 accept="image/*"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
-                  if (file.size > 2 * 1024 * 1024) {
-                    alert('Image must be less than 2MB for storage');
+                  try {
+                    const base64 = await shrinkImageUnderLimit(file);
+                    setCropImage(base64);
+                  } catch (err) {
+                    alert(err.message || 'Failed to process image');
+                  } finally {
+                    // Reset so picking the same file again still fires onChange
                     e.target.value = '';
-                    return;
                   }
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    const base64 = event.target?.result;
-                    if (typeof base64 === 'string') {
-                      setCropImage(base64);
-                    }
-                  };
-                  reader.onerror = () => {
-                    alert('Failed to read image');
-                  };
-                  reader.readAsDataURL(file);
-                  // Reset so picking the same file again still fires onChange
-                  e.target.value = '';
                 }}
                 disabled={uploading}
                 className="hidden"
