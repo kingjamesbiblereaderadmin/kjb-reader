@@ -34,7 +34,7 @@ export default function ImageCropper({ image, onCrop, onCancel, positionMode = '
       ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
       
       const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-      onCrop(croppedDataUrl);
+      onCrop(croppedDataUrl, { crop, zoom, aspect });
     } catch (err) {
       console.error('Crop failed:', err);
       alert('Failed to crop image');
