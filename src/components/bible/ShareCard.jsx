@@ -169,30 +169,17 @@ const ShareCard = React.forwardRef(function ShareCard(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline]);
 
-  // REAL-MEASUREMENT SAFETY NET. computeFit() above is a fast canvas-based
-  // *prediction* — it's a math estimate (word-wrap simulation, hand-tuned
-  // spacing multipliers for margins/line-height/badge padding), and any
-  // estimate can be slightly wrong for a font/verse-length/background
-  // combination that wasn't specifically tuned for. This effect is the
-  // guarantee layer on top: it measures the ACTUAL rendered box (verse +
-  // reference + date pill all together, since they're all children of the
-  // same blockquote) against its ACTUAL available space, and if the real
-  // render overflows despite the prediction saying it should fit, it
-  // shrinks fitSize and lets the effect re-run on the new value —
-  // converging on a truly-fitting size regardless of font, verse length, or
-  // background. This is what makes "never gets cut off" a guarantee rather
-  // than a hope, for every current and future case, not just the ones this
-  // was tested against.
-  useLayoutEffect(() => {
-    const containerEl = fitContainerRef.current;
-    const blockEl = blockRef.current;
-    if (!containerEl || !blockEl) return;
-    const safetyMargin = 4;
-    const minSize = 12;
-    if (containerEl.scrollHeight > containerEl.clientHeight - safetyMargin && fitSize > minSize) {
-      setFitSize((s) => Math.max(minSize, s - 2));
-    }
-  }, [fitSize, verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isCursive]);
+  // NOTE: a real-DOM-measurement "safety net" effect used to live here,
+  // shrinking fitSize further if the rendered box appeared to overflow its
+  // container. It was removed — it was converging to the minimum floor
+  // size on every verse (producing tiny text with huge empty space, a much
+  // worse regression than the rare clipping edge case it was meant to
+  // catch). The likely cause: this component renders off-screen via
+  // position:fixed + left:-9999px, and fitContainerRef.clientHeight can read
+  // as 0/unreliable in that context depending on exactly when layout
+  // settles, which made the "is it overflowing" check itself untrustworthy.
+  // computeFit()'s canvas-based prediction above is the sole source of
+  // truth for fitSize again, same as before this was added.
 
   const HeaderRule = ({ flip }) => (
     <span
