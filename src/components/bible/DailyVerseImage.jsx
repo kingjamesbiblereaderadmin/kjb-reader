@@ -10,6 +10,7 @@ const ShareCard = React.lazy(() => import('./ShareCard.jsx'));
 import { formatDailyVerseForCopy, cleanVerseText } from '@/lib/formatDailyVerse';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { VERSE_BACKGROUNDS } from '@/lib/dailyVerseTheme';
+import { shrinkImageUnderLimit } from '@/lib/imageCompress';
 
 // Map a font choice to an actual CSS font-family. When an app-wide
 // accessibility font is active, it always takes priority.
