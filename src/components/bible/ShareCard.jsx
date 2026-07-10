@@ -332,7 +332,7 @@ const ShareCard = React.forwardRef(function ShareCard(
                 marginTop: `${fitSize * 1.05}px`,
                 background: dateBadgeBg,
                 borderRadius: '999px',
-                padding: '8px 24px 10px',
+                padding: `${fitSize * 0.12}px ${fitSize * 0.26}px ${fitSize * 0.14}px`,
                 fontFamily: headerFont,
                 fontSize: `${fitSize * 0.46}px`,
                 fontWeight: 700,
