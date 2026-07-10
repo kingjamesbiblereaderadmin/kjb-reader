@@ -2,10 +2,12 @@ import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import { X, Check, Square, Crop } from 'lucide-react';
 
-export default function ImageCropper({ image, onCrop, onCancel, positionMode = 'center' }) {
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [aspect, setAspect] = useState(positionMode === 'portrait' ? 9/16 : positionMode === 'landscape' ? 16/9 : 1);
+export default function ImageCropper({ image, onCrop, onCancel, positionMode = 'center', initialCrop, initialZoom, initialAspect }) {
+  const [crop, setCrop] = useState(initialCrop || { x: 0, y: 0 });
+  const [zoom, setZoom] = useState(initialZoom || 1);
+  const [aspect, setAspect] = useState(
+    initialAspect !== undefined ? initialAspect : (positionMode === 'portrait' ? 9/16 : positionMode === 'landscape' ? 16/9 : 1)
+  );
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
