@@ -328,15 +328,17 @@ const ShareCard = React.forwardRef(function ShareCard(
             </span>
             <span
               style={{
-                display: 'inline-block',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 marginTop: `${fitSize * 1.05}px`,
                 background: dateBadgeBg,
                 borderRadius: '999px',
-                padding: `${fitSize * 0.12}px ${fitSize * 0.26}px ${fitSize * 0.14}px`,
+                padding: `${fitSize * 0.13}px ${fitSize * 0.26}px`,
                 fontFamily: headerFont,
                 fontSize: `${fitSize * 0.46}px`,
                 fontWeight: 700,
-                lineHeight: 1.2,
+                lineHeight: 1,
                 letterSpacing: '0.04em',
                 color: '#ffffff',
                 textShadow: 'none',
