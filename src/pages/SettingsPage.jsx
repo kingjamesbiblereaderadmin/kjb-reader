@@ -29,6 +29,7 @@ import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification, cleanForNotification
 } from '@/lib/notifications';
+import { shrinkImageUnderLimit } from '@/lib/imageCompress';
 
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, downloadBibleForOfflineWithRetry, clearBibleCache, isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
