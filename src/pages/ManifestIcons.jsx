@@ -9,10 +9,12 @@ import { Download } from 'lucide-react';
 // real static files directly sidesteps all of that: no canvas, no CORS, no
 // upload step needed — the files already live in the deployed app.)
 const ICONS = [
-  { size: 192, src: '/icons/icon-192.png' },
-  { size: 256, src: '/icons/icon-256.png' },
-  { size: 384, src: '/icons/icon-384.png' },
-  { size: 512, src: '/icons/icon-512.png' },
+  { size: 192, src: '/icons/icon-192.png', purpose: 'any' },
+  { size: 256, src: '/icons/icon-256.png', purpose: 'any' },
+  { size: 384, src: '/icons/icon-384.png', purpose: 'any' },
+  { size: 512, src: '/icons/icon-512.png', purpose: 'any' },
+  { size: 192, src: '/icons/icon-192-maskable.png', purpose: 'maskable' },
+  { size: 512, src: '/icons/icon-512-maskable.png', purpose: 'maskable' },
 ];
 
 export default function ManifestIcons() {
