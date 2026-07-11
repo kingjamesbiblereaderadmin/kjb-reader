@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260711_1000
+// KJB Reader Service Worker v20260711_1400
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260711_1001';
+const CACHE_NAME = 'kjb-reader-v20260711_1400';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v1 09';
 
 // Core app shell resources to cache immediately
@@ -10,6 +10,10 @@ const APP_SHELL_FILES = [
   '/index.html',
   '/offline.html',
   '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-256.png',
+  '/icons/icon-384.png',
+  '/icons/icon-512.png',
 ];
 
 // Install event - cache app shell
