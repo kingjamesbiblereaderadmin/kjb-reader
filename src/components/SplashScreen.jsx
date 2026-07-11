@@ -392,9 +392,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        if (false) setStep('NO UPDATES FOUND.');
-        await pause(STEP_PAUSE_MS);
-
         // 5. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
         window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME BACK TO KJB READER.', status: 'success' } }));
