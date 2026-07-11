@@ -43,12 +43,16 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   };
 
   // Download Bible data while live-updating the banner with real % progress.
+  // Returns true on success, false on failure (e.g. WiFi drops mid-download) so
+  // callers can stop pretending the update finished and fall back to whatever
+  // is already cached, instead of silently marching on to "WELCOME".
   const downloadWithProgress = async (label) => {
     const { downloadBibleForOffline } = await import('@/lib/bibleCache');
     const start = Date.now();
     stepsLog.current.push(label);
     setCurrentMessage(label);
     setProgress(0);
+    let ok = true;
     try {
       await downloadBibleForOffline((pct, msg) => {
         setProgress(pct);
@@ -58,9 +62,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       setProgress(100);
     } catch (err) {
       console.error('[Splash] Download failed:', err.message);
+      ok = false;
     }
     const elapsed = Date.now() - start;
     if (elapsed < MIN_VISIBLE_MS) await pause(MIN_VISIBLE_MS - elapsed);
+    return ok;
   };
 
   // Tracks when we last applied an update in this flow. Re-checks within a short
