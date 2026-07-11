@@ -53,6 +53,18 @@ function isPsalm9Correct(data) {
 }
 
 async function fetchWithRetry(url, retries = 5, expectPilcrows = false, onProgress = null) {
+  // Fail fast if the device is offline instead of burning through several
+  // 20s-timeout attempts with backoff between them. On mobile in particular,
+  // fetch() can take much longer to surface a network failure than on desktop
+  // (captive-portal checks, radio wake-up, DNS retry behavior), so without this
+  // guard a first-load or home-update flow can appear "stuck" on the splash
+  // screen for a minute or more before it finally gives up and falls back to
+  // cached data. navigator.onLine isn't 100% reliable (it can be true on a
+  // Wi-Fi network with no real internet), but it correctly catches the common
+  // case this bug report is about: airplane mode / no radio at all.
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    throw new Error('Offline — skipping network fetch');
+  }
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       // Add timestamp to bypass browser/CDN cache
