@@ -359,8 +359,12 @@ export async function forceReloadBibleData() {
 }
 
 export async function downloadBibleForOffline(onProgress) {
-  // Clear IndexedDB only (don't reload page)
-  await clearIndexedDB();
+  // NOTE: we deliberately do NOT clear IndexedDB here before fetching. If the
+  // network drops mid-download (e.g. WiFi disconnects), the old cache must
+  // stay intact so the app still has offline data to fall back on. The old
+  // record is only replaced once the new data is fully fetched, parsed, and
+  // validated below — saveToCache() does the clear+write as one atomic step
+  // right before writing the new data, never before.
   onProgress && onProgress(0, 'Downloading Bible text...');
 
   // Real byte-level download progress (0–90%) streamed from the network, then
