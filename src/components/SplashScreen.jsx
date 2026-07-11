@@ -312,53 +312,29 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
         // 2. Installing updates
         setStep('INSTALLING UPDATES...');
+        let homeDownloadOk = true;
         try {
           const { downloadBibleForOffline } = await import('@/lib/bibleCache');
           await downloadBibleForOffline();
         } catch (err) {
           console.error('[Splash] Data install failed:', err.message);
+          homeDownloadOk = false;
         }
         await pause(STEP_PAUSE_MS);
 
-        // 3. Applying updates
-        setStep('APPLYING UPDATES...');
-        await pause(STEP_PAUSE_MS);
-
-        // Activate service worker (flag so main.jsx skips its reload)
-        if ('serviceWorker' in navigator) {
-          try {
-            window._kjbSplashApplyingUpdate = true;
-            const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-            if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          } catch {}
-        }
-
-        // 4. Checking for updates (repeat if found)
-        setStep('CHECKING FOR UPDATES...');
-        await pause(STEP_PAUSE_MS);
-
-        let hasMoreUpdates = false;
-        if (navigator.onLine) {
-          try {
-            const { checkForUpdates } = await import('@/lib/bibleCache');
-            hasMoreUpdates = await checkForUpdates().catch(() => false);
-          } catch {}
-        }
-
-        if (hasMoreUpdates) {
-          // Loop: Found → Installing → Applying → Checking
-          setStep('FOUND UPDATES.');
+        if (!homeDownloadOk) {
+          // Connection dropped mid-update. downloadBibleForOffline() no longer
+          // wipes the old cache before fetching, so whatever was already on the
+          // device is still there — say so plainly and skip straight to Welcome
+          // instead of pretending the update applied and re-checking online.
+          setStep('CONNECTION LOST — USING SAVED DATA.');
           await pause(STEP_PAUSE_MS);
-          setStep('INSTALLING UPDATES...');
-          try {
-            const { downloadBibleForOffline } = await import('@/lib/bibleCache');
-            await downloadBibleForOffline();
-          } catch (err) {
-            console.error('[Splash] Data install failed:', err.message);
-          }
-          await pause(STEP_PAUSE_MS);
+        } else {
+          // 3. Applying updates
           setStep('APPLYING UPDATES...');
           await pause(STEP_PAUSE_MS);
+
+          // Activate service worker (flag so main.jsx skips its reload)
           if ('serviceWorker' in navigator) {
             try {
               window._kjbSplashApplyingUpdate = true;
@@ -366,12 +342,57 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             } catch {}
           }
+
+          // 4. Checking for updates (repeat if found)
           setStep('CHECKING FOR UPDATES...');
+          await pause(STEP_PAUSE_MS);
+
+          let hasMoreUpdates = false;
+          if (navigator.onLine) {
+            try {
+              const { checkForUpdates } = await import('@/lib/bibleCache');
+              hasMoreUpdates = await checkForUpdates().catch(() => false);
+            } catch {}
+          }
+
+          if (hasMoreUpdates) {
+            // Loop: Found → Installing → Applying → Checking
+            setStep('FOUND UPDATES.');
+            await pause(STEP_PAUSE_MS);
+            setStep('INSTALLING UPDATES...');
+            let ok2 = true;
+            try {
+              const { downloadBibleForOffline } = await import('@/lib/bibleCache');
+              await downloadBibleForOffline();
+            } catch (err) {
+              console.error('[Splash] Data install failed:', err.message);
+              ok2 = false;
+            }
+            await pause(STEP_PAUSE_MS);
+            if (!ok2) {
+              setStep('CONNECTION LOST — USING SAVED DATA.');
+              await pause(STEP_PAUSE_MS);
+            } else {
+              setStep('APPLYING UPDATES...');
+              await pause(STEP_PAUSE_MS);
+              if ('serviceWorker' in navigator) {
+                try {
+                  window._kjbSplashApplyingUpdate = true;
+                  const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+                  if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                } catch {}
+              }
+              setStep('CHECKING FOR UPDATES...');
+              await pause(STEP_PAUSE_MS);
+            }
+          }
+
+          // Confirm nothing more to apply before welcoming back.
+          setStep('NO UPDATES FOUND.');
           await pause(STEP_PAUSE_MS);
         }
 
-        // Confirm nothing more to apply before welcoming back.
-        setStep('NO UPDATES FOUND.');
+        if (false) setStep('NO UPDATES FOUND.');
         await pause(STEP_PAUSE_MS);
 
         // 5. Welcome back
