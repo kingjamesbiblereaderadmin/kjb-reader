@@ -170,10 +170,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         // 2. Skip offline download in incognito (cache won't persist)
         if (!detectedIncognito) {
           // 2. Downloading offline data (real-time % progress)
-          await downloadWithProgress('DOWNLOADING OFFLINE DATA...');
+          const gotOfflineData = await downloadWithProgress('DOWNLOADING OFFLINE DATA...');
 
-          // 2b. Offline data complete
-          setStep('OFFLINE BIBLE DATA COMPLETE.');
+          // 2b. Offline data complete (or, if the connection dropped, say so
+          // plainly instead of implying it finished)
+          setStep(gotOfflineData ? 'OFFLINE BIBLE DATA COMPLETE.' : 'CONNECTION LOST — CONTINUING ONLINE-ONLY.');
           await pause(STEP_PAUSE_MS);
         } else {
           console.log('[Splash] Incognito mode detected — skipping offline download');
@@ -186,16 +187,29 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           // Loop: Found → Installing → Applying → Checking, until no more updates.
           let more = true;
           let guard = 0;
+          let downloadFailed = false;
           while (more && guard < 5) {
             guard++;
             setStep('FOUND UPDATES.');
             await pause(STEP_PAUSE_MS);
-            await downloadWithProgress('INSTALLING UPDATES...');
+            const downloaded = await downloadWithProgress('INSTALLING UPDATES...');
+            if (!downloaded) {
+              // Connection dropped mid-update. The old cached data is untouched
+              // (downloadBibleForOffline no longer wipes it before fetching), so
+              // say so plainly and fall back to what's already on the device
+              // rather than pretending the update succeeded.
+              downloadFailed = true;
+              setStep('CONNECTION LOST — USING SAVED DATA.');
+              await pause(STEP_PAUSE_MS);
+              break;
+            }
             await runStep('APPLYING UPDATES...', applyServiceWorker);
             more = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
           }
-          setStep('NO UPDATES FOUND.');
-          await pause(STEP_PAUSE_MS);
+          if (!downloadFailed) {
+            setStep('NO UPDATES FOUND.');
+            await pause(STEP_PAUSE_MS);
+          }
         } else {
           // No updates
           setStep('NO UPDATES FOUND.');
