@@ -76,6 +76,44 @@ export default function SettingsPage() {
   const [a11yFont, setA11yFont] = useState(getAccessibilityFont);
   const [bookmarkBrowser] = useState(isBookmarkBrowser);
   const [isIncognito, setIsIncognito] = useState(false);
+  // Diagnostic for the Edge-mobile "manual install prompt only" investigation:
+  // navigator.getInstalledRelatedApps() lets the page ask the browser directly
+  // whether it already considers a matching app "installed" for this origin
+  // (e.g. a stray/orphaned WebAPK from earlier testing). If the browser thinks
+  // an install already exists, per the documented Chrome/Edge criteria it will
+  // never fire the automatic beforeinstallprompt banner again for this origin
+  // — only the manual "Add to phone" path stays available. This surfaces that
+  // state in Settings > Advanced instead of requiring someone to dig through
+  // OS app-list settings by hand.
+  //   'unsupported' — API not available in this browser (e.g. desktop Firefox,
+  //                    iOS Safari, or a browser that hasn't shipped it)
+  //   'checking'    — request in flight
+  //   'none'        — supported, and no related app is currently registered
+  //   'installed'   — supported, and the browser reports at least one match
+  //   'error'       — the call itself threw
+  const [relatedAppsStatus, setRelatedAppsStatus] = useState('checking');
+  const [relatedAppsList, setRelatedAppsList] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (typeof navigator === 'undefined' || typeof navigator.getInstalledRelatedApps !== 'function') {
+        if (!cancelled) setRelatedAppsStatus('unsupported');
+        return;
+      }
+      try {
+        const apps = await navigator.getInstalledRelatedApps();
+        if (cancelled) return;
+        setRelatedAppsList(Array.isArray(apps) ? apps : []);
+        setRelatedAppsStatus(apps && apps.length > 0 ? 'installed' : 'none');
+      } catch (err) {
+        console.warn('[Settings] getInstalledRelatedApps failed:', err?.message);
+        if (!cancelled) setRelatedAppsStatus('error');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const [expandedSections, setExpandedSections] = useState({
     text: true,
     accessibility: true,
