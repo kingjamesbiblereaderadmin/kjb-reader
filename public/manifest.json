@@ -30,13 +30,13 @@
       "purpose": "any"
     },
     {
-      "src": "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/b4d6bd971_kjb-maskable-512-nopad.png",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/d201176a5_f1ca33755_kjb-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/b4d6bd971_kjb-maskable-512-nopad.png",
+      "src": "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/d201176a5_f1ca33755_kjb-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
