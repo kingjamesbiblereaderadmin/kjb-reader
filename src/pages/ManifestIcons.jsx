@@ -31,20 +31,27 @@ export default function ManifestIcons() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {ICONS.map((icon) => (
-          <div key={icon.size} className="bg-card border border-border rounded-2xl p-6 flex flex-col items-center gap-4 shadow-sm">
+          <div key={`${icon.purpose}-${icon.size}`} className="bg-card border border-border rounded-2xl p-6 flex flex-col items-center gap-4 shadow-sm">
             <div
-              className="bg-secondary/40 border border-border flex items-center justify-center overflow-hidden rounded-2xl"
-              style={{ width: icon.size > 256 ? 256 : icon.size, height: icon.size > 256 ? 256 : icon.size }}
+              className="bg-secondary/40 border border-border flex items-center justify-center overflow-hidden"
+              style={{
+                width: icon.size > 256 ? 256 : icon.size,
+                height: icon.size > 256 ? 256 : icon.size,
+                // Preview maskable icons the way Android actually crops them
+                // (a circle inscribed in the square) so it's obvious at a
+                // glance whether the safe-zone padding is enough.
+                borderRadius: icon.purpose === 'maskable' ? '9999px' : '1rem',
+              }}
             >
-              <img src={icon.src} alt={`${icon.size}x${icon.size} icon`} className="w-full h-full object-contain" />
+              <img src={icon.src} alt={`${icon.size}x${icon.size} ${icon.purpose} icon`} className="w-full h-full object-contain" />
             </div>
             <div className="text-center">
               <p className="font-sans text-sm font-semibold text-foreground">{icon.size}×{icon.size}</p>
-              <p className="font-sans text-xs text-muted-foreground">Purpose: any</p>
+              <p className="font-sans text-xs text-muted-foreground">Purpose: {icon.purpose}</p>
             </div>
             <a
               href={icon.src}
-              download={`kjb-icon-${icon.size}.png`}
+              download={`kjb-icon-${icon.size}-${icon.purpose}.png`}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Download className="w-4 h-4" />
