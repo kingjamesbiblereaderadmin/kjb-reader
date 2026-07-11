@@ -1480,6 +1480,25 @@ export default function SettingsPage() {
                 <span className="text-muted-foreground shrink-0">Data Cache</span>
                 <span className="text-foreground font-medium text-right">{CACHE_VERSION}</span>
               </div>
+              <div className="flex justify-between items-center font-sans text-sm gap-4">
+                <span className="text-muted-foreground shrink-0">Browser Sees As Installed</span>
+                <span className={`font-medium text-right ${relatedAppsStatus === 'installed' ? 'text-amber-500' : 'text-foreground'}`}>
+                  {relatedAppsStatus === 'checking' && 'Checking…'}
+                  {relatedAppsStatus === 'unsupported' && 'Not supported here'}
+                  {relatedAppsStatus === 'error' && 'Check failed'}
+                  {relatedAppsStatus === 'none' && 'No'}
+                  {relatedAppsStatus === 'installed' && `Yes (${relatedAppsList.length})`}
+                </span>
+              </div>
+              {relatedAppsStatus === 'installed' && (
+                <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
+                  The browser already considers an app matching this site installed. That's why the
+                  automatic install banner won't appear — only the manual "Add to phone" option will.
+                  If this doesn't match a real install on your device, uninstall any stray KJB Reader
+                  entry from your phone's app list, then clear site data for this domain in the browser
+                  and revisit.
+                </p>
+              )}
             </div>
             <div className="flex gap-3 pt-2">
               <button
