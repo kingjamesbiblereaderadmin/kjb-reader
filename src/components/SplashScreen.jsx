@@ -262,16 +262,27 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           // Loop: Found → Installing → Applying → Checking, until no more updates.
           let more = true;
           let guard = 0;
+          let downloadFailed = false;
           while (more && guard < 5) {
             guard++;
             setStep('FOUND UPDATES.');
             await pause(STEP_PAUSE_MS);
-            await downloadWithProgress('INSTALLING UPDATES...');
+            const downloaded = await downloadWithProgress('INSTALLING UPDATES...');
+            if (!downloaded) {
+              // Connection dropped mid-update — old cached data is untouched, so
+              // say so plainly and fall back to it instead of claiming success.
+              downloadFailed = true;
+              setStep('CONNECTION LOST — USING SAVED DATA.');
+              await pause(STEP_PAUSE_MS);
+              break;
+            }
             await runStep('APPLYING UPDATES...', applyServiceWorker);
             more = await runStep('CHECKING FOR UPDATES...', () => checkRealUpdates(false));
           }
-          setStep('NO UPDATES FOUND.');
-          await pause(STEP_PAUSE_MS);
+          if (!downloadFailed) {
+            setStep('NO UPDATES FOUND.');
+            await pause(STEP_PAUSE_MS);
+          }
         } else {
           // No updates
           setStep('NO UPDATES FOUND.');
