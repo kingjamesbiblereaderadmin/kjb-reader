@@ -39,11 +39,5 @@
       "form_factor": "wide",
       "label": "The Gospel of Salvation"
     }
-  ],
-  "related_applications": [
-    {
-      "platform": "webapp",
-      "url": "https://kingjamesbiblereader.com/manifest.json"
-    }
   ]
 }
