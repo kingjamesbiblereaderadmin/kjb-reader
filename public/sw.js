@@ -145,7 +145,15 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(request).then((response) => {
-        if (!response.ok) {
+        // Cross-origin <img> fetches (e.g. the logo from media.base44.com) come
+        // back as "opaque" responses when there's no CORS grant: status 0,
+        // ok === false, but the body is still valid and cacheable. Previously
+        // this handler skipped caching anything with !response.ok, so the logo
+        // (and any other cross-origin asset) never got cached and disappeared
+        // once the device went offline.
+        const isCacheable = response.ok || response.type === 'opaque';
+
+        if (!isCacheable) {
           console.log('[SW] Network response not ok:', response.status);
           return response;
         }
