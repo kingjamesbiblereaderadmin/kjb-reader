@@ -347,9 +347,13 @@ export default function BibleSearchBar({ onClose }) {
   const goTo = (abbr, chapter, verse, verseEnd) => {
     // Keep verseEnd in localStorage so the reader can enter range/filter mode.
     try { localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter, verse: verse || null, verseEnd: verseEnd || null })); } catch {}
-    // Clear search term and last reading position so CurrentlyReadingIndicator doesn't show stale context
+    // Clear search term and last reading position so CurrentlyReadingIndicator doesn't show stale context.
+    // Also clear the toolbar-state cache — otherwise useToolbarState's pending
+    // restore timeout (100ms) reads the stale saved search context back in
+    // when the reference lands on the same chapter it was saved for.
     try { localStorage.removeItem('kjb-search-term'); } catch {}
     try { localStorage.removeItem('kjb-last-reading'); } catch {}
+    try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
     setQuery('');
     setSuggestions([]);
     setOpen(false);
