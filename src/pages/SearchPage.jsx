@@ -833,6 +833,10 @@ export default function SearchPage() {
     try {
       localStorage.setItem('kjb-position', JSON.stringify({ abbr: ref.abbr, chapter: ref.chapter, verse: ref.verse || null, verseEnd: ref.verseEnd || null }));
       localStorage.removeItem('kjb-last-reading');
+      // Also clear the toolbar-state cache — otherwise useToolbarState's pending
+      // restore timeout (100ms) reads the stale saved search context back in
+      // when the reference lands on the same chapter it was saved for.
+      localStorage.removeItem('kjb-reader-toolbar-state');
     } catch {}
     clearSearchNav();
     const vParam = ref.verse ? `&verse=${ref.verse}` : '';
