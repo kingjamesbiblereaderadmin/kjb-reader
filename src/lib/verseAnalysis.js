@@ -230,10 +230,15 @@ export function parseSearchTerms(text) {
   return (text || '').trim().split(/[\s,]+/).filter(Boolean);
 }
 
+// Max number of unrelated words allowed between consecutive terms in "In order"
+// mode, so it means "in sequence, close together" (e.g. "Lamb of God" won't
+// match a stray "Lamb …(20 words)… of …(10 words)… God"). Adjacent = 0 gaps.
+export const IN_ORDER_MAX_GAP = 2;
+
 // Does the verse's plain text contain the given terms, honouring the flags?
 //  - caseSensitive: compare exact letter case
 //  - wholeWord:     match whole words only (not substrings)
-//  - inOrder:       terms must appear in the same order they were typed
+//  - inOrder:       terms must appear in sequence, close together (<= IN_ORDER_MAX_GAP words apart)
 //  - adjacent:      terms must be directly adjacent (a phrase, in order)
 export function matchesTerms(plainText, terms, caseSensitive, wholeWord, inOrder = false, adjacent = false) {
   if (!terms.length) return true;
@@ -259,20 +264,12 @@ export function matchesTerms(plainText, terms, caseSensitive, wholeWord, inOrder
     return new RegExp(pattern, flags).test(plainText);
   }
 
-  // In order (but not necessarily adjacent) → walk left-to-right, requiring
-  // each term to appear after the previous term's match.
+  // In order → terms in sequence, at most IN_ORDER_MAX_GAP unrelated words
+  // between each. A single bounded-gap regex enforces the closeness.
   if (inOrder) {
-    let from = 0;
-    for (const term of terms) {
-      const esc = frag(term);
-      const pattern = `${before}${esc}${after}`;
-      const re = new RegExp(pattern, flags + 'g');
-      re.lastIndex = from;
-      const m = re.exec(plainText);
-      if (!m) return false;
-      from = m.index + m[0].length;
-    }
-    return true;
+    const gap = `[^A-Za-z]*(?:[A-Za-z'-]+[^A-Za-z]+){0,${IN_ORDER_MAX_GAP}}`;
+    const pattern = before + terms.map(frag).join(`${after}${gap}${before}`) + after;
+    return new RegExp(pattern, flags).test(plainText);
   }
 
   // Default → every term appears somewhere, any order (AND matching).

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Pilcrow } from 'lucide-react';
-import { parseSearchTerms } from '@/lib/verseAnalysis';
+import { parseSearchTerms, IN_ORDER_MAX_GAP } from '@/lib/verseAnalysis';
 
 const escapeRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -28,7 +28,7 @@ function highlightInOrder(text, terms, keyPrefix, adjacent, caseSensitive, whole
   const flags = (caseSensitive ? '' : 'i');
   const before = wholeWord ? `(?<![A-Za-z'-])` : '';
   const after = wholeWord ? `(?![A-Za-z'-])` : '';
-  const gap = adjacent ? '\\s+' : `[^A-Za-z]*(?:[A-Za-z'-]+[^A-Za-z]+)*?`;
+  const gap = adjacent ? '\\s+' : `[^A-Za-z]*(?:[A-Za-z'-]+[^A-Za-z]+){0,${IN_ORDER_MAX_GAP}}`;
   const pattern = before + terms.map(escapeRe).join(`${after}${gap}${before}`) + after;
   let re;
   try { re = new RegExp(pattern, flags); } catch { return highlightAny(text, terms, keyPrefix); }
