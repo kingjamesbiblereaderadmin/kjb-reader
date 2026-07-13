@@ -21,6 +21,13 @@ export default function DailyVerseControls({ onChange }) {
   const [pinDate, setPinDate] = useState('');
   const [pinNote, setPinNote] = useState('');
 
+  // Local "today" key (YYYY-MM-DD) — the earliest date a verse may be changed.
+  // Changing a past date's verse has no effect, so only today/future is allowed.
+  const todayKey = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
+
   // Which existing pin is being edited, and the draft ref for it.
   const [editingPinId, setEditingPinId] = useState(null);
   const [editPinRef, setEditPinRef] = useState('');
@@ -65,7 +72,7 @@ export default function DailyVerseControls({ onChange }) {
 
   const addPin = async () => {
     const ref = pinRef.trim();
-    if (!ref || !pinDate) return;
+    if (!ref || !pinDate || pinDate < todayKey) return;
     setSaving(true);
     await base44.functions.invoke('saveDailyVerseControl', { op: 'create', kind: 'pin', ref, date: pinDate, note: pinNote.trim() || undefined, key: DEV_KEY });
     setPinRef(''); setPinDate(''); setPinNote('');
@@ -155,11 +162,11 @@ export default function DailyVerseControls({ onChange }) {
           <span className="font-sans text-sm font-semibold text-foreground">Changed verses ({pins.length})</span>
         </div>
         <div className="px-4 py-3 space-y-3">
-          <p className="font-sans text-xs text-muted-foreground">Change the daily verse to a different one on a specific date, overriding the formula.</p>
+          <p className="font-sans text-xs text-muted-foreground">Change the daily verse to a different one on today or a future date, overriding the formula.</p>
           <div className="flex flex-wrap gap-2 items-end">
             <div className="min-w-[150px]">
-              <label className="block font-sans text-xs text-muted-foreground mb-1">Date</label>
-              <input type="date" value={pinDate} onChange={(e) => setPinDate(e.target.value)}
+              <label className="block font-sans text-xs text-muted-foreground mb-1">Date (today or later)</label>
+              <input type="date" value={pinDate} min={todayKey} onChange={(e) => setPinDate(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground" />
             </div>
             <div className="flex-1 min-w-[150px]">
@@ -172,7 +179,7 @@ export default function DailyVerseControls({ onChange }) {
               <input value={pinNote} onChange={(e) => setPinNote(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground" />
             </div>
-            <button onClick={addPin} disabled={saving || !pinRef.trim() || !pinDate}
+            <button onClick={addPin} disabled={saving || !pinRef.trim() || !pinDate || pinDate < todayKey}
               className="flex items-center gap-1 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50">
               <Plus className="w-4 h-4" /> Add
             </button>
