@@ -1,6 +1,17 @@
 import { getBibleData, isBibleCached } from '@/lib/bibleCache';
 import { COLOPHONS, SUBSCRIPTS } from '@/lib/bibleSubscripts';
-import { loadOverrides, applyOverrides, getSubscriptOverride, getColophonOverride } from '@/lib/bibleTextOverrides';
+import { loadOverrides, applyOverrides, getSubscriptOverride, getColophonOverride, getEndMarkerOverride } from '@/lib/bibleTextOverrides';
+
+// Default closing end-marker labels shown after the final chapter of the OT
+// (Malachi 4) and the whole Bible (Revelation 22).
+export const END_MARKERS = {
+  'Malachi:4': 'The End of the Prophets',
+  'Revelation:22': 'The End',
+};
+// Resolve the end marker for a chapter, honouring any admin override.
+export function resolveEndMarker(bookApiName, chapter) {
+  return getEndMarkerOverride(bookApiName, chapter) ?? END_MARKERS[`${bookApiName}:${chapter}`] ?? null;
+}
 
 // Resolve the subscript (Psalm superscription) for a chapter, honouring any
 // admin override saved via the editor.

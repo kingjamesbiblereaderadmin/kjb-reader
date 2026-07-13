@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { fetchChapter, resolveSubscript, resolveColophon } from '@/lib/bibleApi';
-import { invalidateOverrides, loadOverrides, SUBSCRIPT_VERSE, COLOPHON_VERSE } from '@/lib/bibleTextOverrides';
+import { fetchChapter, resolveSubscript, resolveColophon, resolveEndMarker } from '@/lib/bibleApi';
+import { invalidateOverrides, loadOverrides, SUBSCRIPT_VERSE, COLOPHON_VERSE, END_MARKER_VERSE } from '@/lib/bibleTextOverrides';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import { Loader2, Save, Trash2, RotateCcw } from 'lucide-react';
 import BibleEditsLog from '@/components/dev/BibleEditsLog';
@@ -42,10 +42,12 @@ export default function BibleTextEditor() {
       // any override so the editor shows the live text.
       const sub = resolveSubscript(book, Number(chapter));
       const col = resolveColophon(book, Number(chapter));
+      const end = resolveEndMarker(book, Number(chapter));
       const combined = [
         ...(sub != null ? [{ verse: SUBSCRIPT_VERSE, text: sub, kind: 'subscript' }] : []),
         ...vs,
         ...(col != null ? [{ verse: COLOPHON_VERSE, text: col, kind: 'colophon' }] : []),
+        ...(end != null ? [{ verse: END_MARKER_VERSE, text: end, kind: 'endmarker' }] : []),
       ];
       setVerses(combined);
       setEdited({});
@@ -145,7 +147,9 @@ export default function BibleTextEditor() {
                       ? `${bookEntry?.shortName} ${chapter} — Superscription/Subscript`
                       : v.kind === 'colophon'
                         ? `${bookEntry?.shortName} ${chapter} — Colophon`
-                        : `${bookEntry?.shortName} ${chapter}:${v.verse}`}
+                        : v.kind === 'endmarker'
+                          ? `${bookEntry?.shortName} ${chapter} — End Marker`
+                          : `${bookEntry?.shortName} ${chapter}:${v.verse}`}
                     {' '}{isOverridden && <span className="text-primary">(overridden)</span>}
                   </span>
                   <div className="flex gap-1.5">

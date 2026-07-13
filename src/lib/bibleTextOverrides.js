@@ -19,6 +19,8 @@ function keyFor(book, chapter, verse) {
 //   -1 → the epistle colophon line for that chapter
 export const SUBSCRIPT_VERSE = 0;
 export const COLOPHON_VERSE = -1;
+//   -2 → the closing end marker ("The End" / "The End of the Prophets")
+export const END_MARKER_VERSE = -2;
 
 // Read an overridden subscript/colophon (returns null if none loaded/saved).
 export function getSubscriptOverride(book, chapter) {
@@ -28,6 +30,10 @@ export function getSubscriptOverride(book, chapter) {
 export function getColophonOverride(book, chapter) {
   if (!_cache) return null;
   return _cache.get(keyFor(book, chapter, COLOPHON_VERSE)) ?? null;
+}
+export function getEndMarkerOverride(book, chapter) {
+  if (!_cache) return null;
+  return _cache.get(keyFor(book, chapter, END_MARKER_VERSE)) ?? null;
 }
 
 // Load all overrides from the database (once). Safe to call repeatedly.
