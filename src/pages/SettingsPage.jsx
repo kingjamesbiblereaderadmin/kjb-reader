@@ -35,6 +35,7 @@ import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, downloadBibleForOfflineWithRetry, clearBibleCache, isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { detectIncognito } from '@/lib/incognito';
+import { getLiveWorkerVersion } from '@/lib/liveWorkerVersion';
 
 const A11Y_FONTS = [
   { value: 'dyslexic', label: 'OpenDyslexic', desc: 'Designed for readers with dyslexia', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
@@ -93,6 +94,16 @@ export default function SettingsPage() {
   //   'error'       — the call itself threw
   const [relatedAppsStatus, setRelatedAppsStatus] = useState('checking');
   const [relatedAppsList, setRelatedAppsList] = useState([]);
+  // The ACTUAL running service worker's version, read live from the SW itself.
+  // Falls back to the hardcoded WORKER_VERSION constant only if the SW can't be
+  // reached (dev, unsupported browser, or not yet controlling the page).
+  const [liveWorkerVersion, setLiveWorkerVersion] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getLiveWorkerVersion().then(v => { if (!cancelled) setLiveWorkerVersion(v); });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -1470,7 +1481,16 @@ export default function SettingsPage() {
             <div className="space-y-2 mb-4 pt-1 border-b border-border pb-4">
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Worker Version</span>
-                <span className="text-foreground font-medium text-right">{WORKER_VERSION}</span>
+                <span className="text-foreground font-medium text-right flex items-center gap-1.5">
+                  {liveWorkerVersion ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                      {liveWorkerVersion}
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">{WORKER_VERSION} (expected)</span>
+                  )}
+                </span>
               </div>
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Data Cache</span>

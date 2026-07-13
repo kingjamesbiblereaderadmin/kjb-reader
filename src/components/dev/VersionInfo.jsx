@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Copy, Check, RefreshCw, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { getLiveWorkerVersion } from '@/lib/liveWorkerVersion';
 
 // The DEV key that unlocks this page — also used to authorize the bumpVersion
 // backend function so it works in a public/preview session (no admin login).
@@ -27,6 +28,7 @@ export default function VersionInfo() {
   const [copied, setCopied] = useState(false);
   const [next, setNext] = useState(suggestNext());
   const [liveVersion, setLiveVersion] = useState(null);
+  const [swVersion, setSwVersion] = useState(null); // actual running service worker
   const [bumping, setBumping] = useState(false);
   const [msg, setMsg] = useState(null); // { ok: bool, text: string }
 
@@ -41,7 +43,12 @@ export default function VersionInfo() {
     }
   };
 
-  useEffect(() => { loadLive(); }, []);
+  useEffect(() => {
+    loadLive();
+    let cancelled = false;
+    getLiveWorkerVersion().then(v => { if (!cancelled) setSwVersion(v); });
+    return () => { cancelled = true; };
+  }, []);
 
   const copy = async () => {
     try { await navigator.clipboard.writeText(next); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch {}
@@ -82,9 +89,13 @@ export default function VersionInfo() {
         <p className="font-sans text-xs text-muted-foreground">
           Bumps the runtime version and refreshes the manifest instantly — every client will detect an update and refresh. No code deploy needed.
         </p>
+        <div className="text-xs mb-1">
+          <span className="text-muted-foreground">Live service worker: </span>
+          <code className="px-2 py-1 rounded bg-secondary text-foreground">{swVersion || 'not running'}</code>
+        </div>
         <div className="flex items-center justify-between gap-3">
           <div className="text-xs">
-            <span className="text-muted-foreground">Current live version: </span>
+            <span className="text-muted-foreground">Runtime version: </span>
             <code className="px-2 py-1 rounded bg-secondary text-foreground">{liveVersion || 'none set'}</code>
           </div>
           <button onClick={bumpAndRefresh} disabled={bumping}

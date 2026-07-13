@@ -214,6 +214,18 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 
+  // Report the ACTUAL running service worker version (its live CACHE_NAME) back
+  // to whoever asked, via the provided MessagePort. This lets the UI show the
+  // real live worker version instead of a hardcoded constant that can drift.
+  if (event.data && event.data.type === 'GET_VERSION') {
+    const reply = { type: 'VERSION', version: CACHE_NAME.replace('kjb-reader-', '') };
+    if (event.ports && event.ports[0]) {
+      event.ports[0].postMessage(reply);
+    } else if (event.source && event.source.postMessage) {
+      event.source.postMessage(reply);
+    }
+  }
+
   if (event.data && event.data.type === 'PREWARM_ASSETS') {
     const urls = event.data.urls || [];
     if (urls.length > 0) {
