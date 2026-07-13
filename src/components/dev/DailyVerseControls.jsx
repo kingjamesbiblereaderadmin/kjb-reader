@@ -4,6 +4,23 @@ import { Loader2, Trash2, Plus, Ban, Pin } from 'lucide-react';
 
 const DEV_KEY = 'KJB-DEV-2026';
 
+// Canonical book order so excluded verses list in Bible order (OT then NT),
+// making the New Testament exclusions easy to find instead of buried by
+// creation date.
+const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
+
+const refSortKey = (ref) => {
+  const m = String(ref || '').match(/^(.*?)\s+(\d+):(\d+)$/);
+  if (!m) return [999, 0, 0];
+  const bookIdx = BOOK_ORDER.indexOf(m[1]);
+  return [bookIdx === -1 ? 998 : bookIdx, parseInt(m[2]), parseInt(m[3])];
+};
+
+const compareRefs = (a, b) => {
+  const ka = refSortKey(a), kb = refSortKey(b);
+  return ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
+};
+
 // Admin UI to manage persistent DailyVerseControl records:
 //  - exclusions: a verse ref that's never picked
 //  - pins: force a specific verse ref on a specific date
@@ -100,8 +117,27 @@ export default function DailyVerseControls({ onChange }) {
     notifyChange();
   };
 
-  const exclusions = rows.filter(r => r.kind === 'exclusion');
+  const NT_START = BOOK_ORDER.indexOf('Matthew');
+  const exclusions = rows.filter(r => r.kind === 'exclusion').sort((a, b) => compareRefs(a.ref, b.ref));
+  const otExclusions = exclusions.filter(r => refSortKey(r.ref)[0] < NT_START);
+  const ntExclusions = exclusions.filter(r => refSortKey(r.ref)[0] >= NT_START);
   const pins = rows.filter(r => r.kind === 'pin');
+
+  const renderExclusionRow = (r) => (
+    <div key={r.id} className="flex items-start gap-3 px-3 py-2.5 border-b border-border last:border-0">
+      <div className="flex-1 min-w-0">
+        <p className="font-sans text-sm font-semibold text-accent">
+          {r.ref}{r.note ? <span className="text-muted-foreground text-xs font-normal"> — {r.note}</span> : null}
+        </p>
+        {verseTexts[r.ref] && (
+          <p className="font-serif text-sm text-foreground leading-snug mt-0.5">{verseTexts[r.ref].replace(/^<<[^>]*>>\s*/, '').replace(/[[\]]/g, '').replace(/¶/g, '').trim()}</p>
+        )}
+      </div>
+      <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 shrink-0 mt-0.5">
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
 
   return (
     <div className="space-y-5">
@@ -134,22 +170,27 @@ export default function DailyVerseControls({ onChange }) {
           ) : exclusions.length === 0 ? (
             <p className="font-sans text-xs text-muted-foreground py-2">None yet.</p>
           ) : (
-            <div className="rounded-lg border border-border overflow-hidden">
-              {exclusions.map(r => (
-                <div key={r.id} className="flex items-start gap-3 px-3 py-2.5 border-b border-border last:border-0">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-sans text-sm font-semibold text-accent">
-                      {r.ref}{r.note ? <span className="text-muted-foreground text-xs font-normal"> — {r.note}</span> : null}
-                    </p>
-                    {verseTexts[r.ref] && (
-                      <p className="font-serif text-sm text-foreground leading-snug mt-0.5">{verseTexts[r.ref].replace(/^<<[^>]*>>\s*/, '').replace(/[[\]]/g, '').replace(/¶/g, '').trim()}</p>
-                    )}
+            <div className="space-y-3">
+              <div>
+                <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Old Testament ({otExclusions.length})</p>
+                {otExclusions.length === 0 ? (
+                  <p className="font-sans text-xs text-muted-foreground py-1">None.</p>
+                ) : (
+                  <div className="rounded-lg border border-border overflow-hidden">
+                    {otExclusions.map(renderExclusionRow)}
                   </div>
-                  <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 shrink-0 mt-0.5">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
+                )}
+              </div>
+              <div>
+                <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">New Testament ({ntExclusions.length})</p>
+                {ntExclusions.length === 0 ? (
+                  <p className="font-sans text-xs text-muted-foreground py-1">None.</p>
+                ) : (
+                  <div className="rounded-lg border border-border overflow-hidden">
+                    {ntExclusions.map(renderExclusionRow)}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
