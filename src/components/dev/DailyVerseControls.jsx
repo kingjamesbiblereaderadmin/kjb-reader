@@ -135,7 +135,7 @@ export default function DailyVerseControls({ onChange }) {
                       {r.ref}{r.note ? <span className="text-muted-foreground text-xs font-normal"> — {r.note}</span> : null}
                     </p>
                     {verseTexts[r.ref] && (
-                      <p className="font-serif text-sm text-foreground leading-snug mt-0.5">{verseTexts[r.ref].replace(/[[\]]/g, '')}</p>
+                      <p className="font-serif text-sm text-foreground leading-snug mt-0.5">{verseTexts[r.ref].replace(/^<<[^>]*>>\s*/, '').replace(/[[\]]/g, '').replace(/¶/g, '').trim()}</p>
                     )}
                   </div>
                   <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 shrink-0 mt-0.5">
@@ -152,10 +152,10 @@ export default function DailyVerseControls({ onChange }) {
       <div className="rounded-xl bg-card border border-border overflow-hidden">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
           <Pin className="w-4 h-4 text-accent" />
-          <span className="font-sans text-sm font-semibold text-foreground">Pinned verses ({pins.length})</span>
+          <span className="font-sans text-sm font-semibold text-foreground">Changed verses ({pins.length})</span>
         </div>
         <div className="px-4 py-3 space-y-3">
-          <p className="font-sans text-xs text-muted-foreground">Force a specific verse on a specific date, overriding the formula.</p>
+          <p className="font-sans text-xs text-muted-foreground">Change the daily verse to a different one on a specific date, overriding the formula.</p>
           <div className="flex flex-wrap gap-2 items-end">
             <div className="min-w-[150px]">
               <label className="block font-sans text-xs text-muted-foreground mb-1">Date</label>
