@@ -102,8 +102,8 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
               </>
             ) : filters.textInOrder ? (
               <>
-                <li>Terms must appear <strong>in the order typed and close together</strong> (at most one word apart).</li>
-                <li>Example: <span className="italic">Lamb of God</span> matches the phrase, not a stray “Lamb … God” sentences apart.</li>
+                <li>Each term is matched <strong>in the order typed</strong>, but any number of words may sit between them.</li>
+                <li>Example: <span className="italic">love God</span> matches when “love” appears before “God”.</li>
               </>
             ) : (
               <>

@@ -264,12 +264,20 @@ export function matchesTerms(plainText, terms, caseSensitive, wholeWord, inOrder
     return new RegExp(pattern, flags).test(plainText);
   }
 
-  // In order → terms in sequence, at most IN_ORDER_MAX_GAP unrelated words
-  // between each. A single bounded-gap regex enforces the closeness.
+  // In order (but not necessarily adjacent) → walk left-to-right, requiring
+  // each term to appear after the previous term's match. Any number of words
+  // may sit between them.
   if (inOrder) {
-    const gap = `[^A-Za-z]*(?:[A-Za-z'-]+[^A-Za-z]+){0,${IN_ORDER_MAX_GAP}}`;
-    const pattern = before + terms.map(frag).join(`${after}${gap}${before}`) + after;
-    return new RegExp(pattern, flags).test(plainText);
+    let from = 0;
+    for (const term of terms) {
+      const esc = frag(term);
+      const re = new RegExp(`${before}${esc}${after}`, flags + 'g');
+      re.lastIndex = from;
+      const m = re.exec(plainText);
+      if (!m) return false;
+      from = m.index + m[0].length;
+    }
+    return true;
   }
 
   // Default → every term appears somewhere, any order (AND matching).
