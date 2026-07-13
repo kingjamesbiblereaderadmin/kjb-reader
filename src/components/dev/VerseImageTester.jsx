@@ -4,6 +4,7 @@ import { fetchChapter } from '@/lib/bibleApi';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import { Loader2, Shuffle } from 'lucide-react';
 import { getDailyVerseForDate } from '@/lib/dailyVerseSchedule';
+import VerseLengthFinder from './VerseLengthFinder';
 
 // Lets the admin load ANY verse into the real daily-verse card so they can
 // check crop / sizing / text-overlap. Toggles the custom background and the
@@ -58,6 +59,31 @@ export default function VerseImageTester() {
 
   useEffect(() => { loadVerse(); /* eslint-disable-next-line */ }, []);
 
+  // Load a verse chosen from the length finder into the card.
+  const loadFromRef = async (r) => {
+    const be = BIBLE_BOOKS.find(b => b.shortName === r.book || b.apiName === r.book);
+    setBook(be?.apiName || r.book);
+    setChapter(r.chapter);
+    setVerseNum(r.verse);
+    setLoading(true);
+    setError('');
+    try {
+      const { verses } = await fetchChapter(be?.apiName || r.book, r.chapter);
+      const found = verses.find(v => v.verse === Number(r.verse)) || verses[0];
+      setVerse({
+        abbr: be?.abbr || r.book.slice(0, 3).toUpperCase(),
+        book: be?.shortName || r.book,
+        chapter: Number(r.chapter),
+        verse: found.verse,
+        text: found.text.replace(/^<<[^>]*>>\s*/, ''),
+        ref: `${be?.shortName || r.book} ${r.chapter}:${found.verse}`,
+      });
+    } catch (err) {
+      setError(err.message || 'Failed to load verse');
+    }
+    setLoading(false);
+  };
+
   const toggleBg = (on) => {
     setUseBg(on);
     // The card reads kjb-daily-verse-bg. We temporarily point it at the stored
@@ -82,6 +108,7 @@ export default function VerseImageTester() {
 
   return (
     <div className="space-y-5">
+      <VerseLengthFinder onSelect={loadFromRef} />
       <div className="rounded-xl bg-card border border-border p-4 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
@@ -129,7 +156,11 @@ export default function VerseImageTester() {
           </label>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
-        {verse && <p className="text-xs text-muted-foreground">Length: {verse.text.length} chars</p>}
+        {verse && (() => {
+          const clean = verse.text.replace(/[[\]]/g, '').replace(/¶/g, '').trim();
+          const words = clean.split(/\s+/).filter(Boolean).length;
+          return <p className="text-xs text-muted-foreground">{words} words · {clean.length} chars (verse text only)</p>;
+        })()}
       </div>
 
       {verse && (

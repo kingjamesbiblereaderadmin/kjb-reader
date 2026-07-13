@@ -340,6 +340,52 @@ Deno.serve(async (req) => {
       return Response.json({ schedule: out, totalVerses: flat.length });
     }
 
+    // Find eligible verses filtered by character count and/or word count of the
+    // verse text ONLY (brackets/pilcrows stripped, superscription markers removed).
+    if (action === 'find_by_length') {
+      const controls = await loadControls(b44);
+      const flat = buildFlatList(bible, controls.extraExcluded);
+
+      const minChars = Number.isFinite(body.minChars) ? body.minChars : 0;
+      const maxChars = Number.isFinite(body.maxChars) ? body.maxChars : Infinity;
+      const minWords = Number.isFinite(body.minWords) ? body.minWords : 0;
+      const maxWords = Number.isFinite(body.maxWords) ? body.maxWords : Infinity;
+      const sortBy = body.sortBy === 'words' ? 'words' : 'chars';
+      const order = body.order === 'desc' ? 'desc' : 'asc';
+      const limit = Number.isFinite(body.limit) ? Math.min(body.limit, 500) : 100;
+
+      const cleanOf = (t) => t
+        .replace(/^<<[^>]*>>\s*/, '')   // strip superscription markers
+        .replace(/[[\]]/g, '')          // strip italics brackets
+        .replace(/¶/g, '')              // strip pilcrows
+        .trim();
+
+      const matches = [];
+      for (const item of flat) {
+        const text = cleanOf(item.verseObj.text);
+        const chars = text.length;
+        const words = text.split(/\s+/).filter(Boolean).length;
+        if (chars < minChars || chars > maxChars) continue;
+        if (words < minWords || words > maxWords) continue;
+        matches.push({
+          ref: `${item.bookName} ${item.chapterNum}:${item.verseObj.verse}`,
+          book: item.bookName,
+          chapter: parseInt(item.chapterNum),
+          verse: item.verseObj.verse,
+          chars,
+          words,
+        });
+      }
+
+      matches.sort((a, b) => {
+        const av = sortBy === 'words' ? a.words : a.chars;
+        const bv = sortBy === 'words' ? b.words : b.chars;
+        return order === 'desc' ? bv - av : av - bv;
+      });
+
+      return Response.json({ total: matches.length, results: matches.slice(0, limit) });
+    }
+
     return Response.json({ error: 'Unknown action' }, { status: 400 });
 
   } catch (error) {
