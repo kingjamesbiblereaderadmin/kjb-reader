@@ -39,7 +39,7 @@ export async function loadOverrides(force = false) {
       const rows = await base44.entities.BibleTextOverride.list('-updated_date', 1000);
       const map = new Map();
       for (const r of rows) {
-        if (r.book && r.chapter && r.verse && typeof r.text === 'string') {
+        if (r.book && r.chapter && r.verse != null && typeof r.text === 'string') {
           map.set(keyFor(r.book, r.chapter, r.verse), r.text);
         }
       }
