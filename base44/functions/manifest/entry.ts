@@ -71,7 +71,6 @@ Deno.serve(async (req) => {
   // Read admin-editable icon/screenshot overrides (falls back to defaults).
   let icons = DEFAULT_ICONS;
   let screenshots = DEFAULT_SCREENSHOTS;
-  let dynamicVersion = null;
 
   // Prefer the request-scoped client (carries caller auth). Reading these
   // entities is public per their RLS, so this succeeds without a service token
@@ -86,15 +85,6 @@ Deno.serve(async (req) => {
     if (cfg?.screenshots?.length) screenshots = cfg.screenshots;
   } catch (err) {
     console.warn('[manifest] icon/screenshot override load failed, using defaults:', err?.message);
-  }
-
-  try {
-    // Runtime version (bumped from DevTools) — surfaced so clients can detect
-    // an update without a code deploy.
-    const vRows = await base44.entities.DevVersion.list('-updated_date', 1);
-    if (vRows && vRows[0]?.version) dynamicVersion = vRows[0].version;
-  } catch (err) {
-    console.warn('[manifest] version load failed:', err?.message);
   }
 
   const manifest = {
@@ -132,8 +122,7 @@ Deno.serve(async (req) => {
       }
     ],
     icons,
-    screenshots,
-    version: dynamicVersion || undefined
+    screenshots
   };
 
   // Add timestamp to force fresh loading on mobile browsers

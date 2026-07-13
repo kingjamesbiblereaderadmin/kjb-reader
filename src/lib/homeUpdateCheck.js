@@ -85,25 +85,7 @@ export async function checkHomeForUpdates() {
   const { checkForUpdates, CACHE_VERSION } = await import('@/lib/bibleCache');
   const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
 
-  // 3. Runtime (bump) version — a manual "Push a new version" from DevTools.
-  // The manifest function serves the latest bumped version; if it changed since
-  // we last applied it, treat it as an update so every open app refreshes.
-  let runtimeUpdated = false;
-  try {
-    const { base44 } = await import('@/api/base44Client');
-    const res = await base44.functions.invoke('manifest', {});
-    const runtimeVersion = res?.data?.version || null;
-    if (runtimeVersion) {
-      const applied = localStorage.getItem('kjb-applied-runtime-version');
-      if (applied && applied !== runtimeVersion) {
-        runtimeUpdated = true;
-      }
-      sessionStorage.setItem('kjb-pending-runtime-version', runtimeVersion);
-      if (!applied) localStorage.setItem('kjb-applied-runtime-version', runtimeVersion);
-    }
-  } catch {}
-
-  if (!swUpdated && !bibleNeedsUpdate && !runtimeUpdated) {
+  if (!swUpdated && !bibleNeedsUpdate) {
     // No real update — clear the pre-emptive flag so the next normal load
     // doesn't wrongly start in the home-update flow.
     sessionStorage.removeItem('kjb-splash-home-update');
@@ -119,8 +101,7 @@ export async function checkHomeForUpdates() {
   // fires at most once for a given SW + Bible version pair.
   try {
     const deployedSw = await fetchDeployedSwVersion();
-    const pendingRuntime = sessionStorage.getItem('kjb-pending-runtime-version') || 'nort';
-    const lastReloadKey = `${deployedSw || 'nosw'}|${CACHE_VERSION}|${pendingRuntime}`;
+    const lastReloadKey = `${deployedSw || 'nosw'}|${CACHE_VERSION}`;
     if (sessionStorage.getItem('kjb-home-reload-key') === lastReloadKey) {
       // Already reloaded once for this exact version pair this session —
       // don't loop. Clear the pending flag and carry on normally.
@@ -135,14 +116,6 @@ export async function checkHomeForUpdates() {
   let updateType = 'app';
   if (swUpdated && bibleNeedsUpdate) updateType = 'both';
   else if (bibleNeedsUpdate) updateType = 'bible';
-  else if (runtimeUpdated && !swUpdated) updateType = 'app';
-
-  // Mark the runtime (bump) version applied now, so this same bump doesn't get
-  // re-detected and reload again after the refresh completes.
-  try {
-    const pendingRuntime = sessionStorage.getItem('kjb-pending-runtime-version');
-    if (pendingRuntime) localStorage.setItem('kjb-applied-runtime-version', pendingRuntime);
-  } catch {}
 
   sessionStorage.setItem('kjb_sw_updated', updateType);
   // kjb-splash-home-update already set at the top of this function.

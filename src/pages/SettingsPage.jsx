@@ -98,16 +98,9 @@ export default function SettingsPage() {
   // Falls back to the hardcoded WORKER_VERSION constant only if the SW can't be
   // reached (dev, unsupported browser, or not yet controlling the page).
   const [liveWorkerVersion, setLiveWorkerVersion] = useState(null);
-  // Runtime version pushed via the DevTools "Bump & Refresh" (stored in an
-  // entity, served by the manifest function). This is what changes on a bump
-  // without a code deploy, so we surface it here and keep it synced.
-  const [runtimeVersion, setRuntimeVersion] = useState(null);
 
   const refreshVersions = React.useCallback(() => {
     getDeployedWorkerVersion().then(v => v ? setLiveWorkerVersion(v) : getLiveWorkerVersion().then(setLiveWorkerVersion));
-    base44.functions.invoke('manifest', {})
-      .then(res => setRuntimeVersion(res?.data?.version || null))
-      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -1509,19 +1502,6 @@ export default function SettingsPage() {
                     </>
                   ) : (
                     <span className="text-muted-foreground">{WORKER_VERSION} (expected)</span>
-                  )}
-                </span>
-              </div>
-              <div className="flex justify-between items-center font-sans text-sm gap-4">
-                <span className="text-muted-foreground shrink-0">Runtime Version</span>
-                <span className="text-foreground font-medium text-right flex items-center gap-1.5">
-                  {runtimeVersion ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                      {runtimeVersion}
-                    </>
-                  ) : (
-                    <span className="text-muted-foreground">none set</span>
                   )}
                 </span>
               </div>
