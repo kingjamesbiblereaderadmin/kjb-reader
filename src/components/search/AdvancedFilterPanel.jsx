@@ -95,12 +95,18 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
           />
           <p className="font-sans text-[11px] text-muted-foreground mt-1 leading-relaxed">
             Separate terms with a <strong>space</strong> or a <strong>comma</strong> — both work the same way.
-            Each term is matched <strong>independently, anywhere in the verse and in any order</strong> (not as an adjacent phrase).
-            A verse only matches when it contains <strong>every</strong> term.
-            <br />
-            Example: <span className="italic">love, God</span> (or <span className="italic">love God</span>) finds verses containing both “love” and “God”, even if they’re far apart.
+            {filters.textAdjacent ? (
+              <> Terms must appear <strong>adjacent, as an exact phrase, in the order typed</strong>.<br />
+              Example: <span className="italic">love God</span> matches only where the words sit side by side.</>
+            ) : filters.textInOrder ? (
+              <> Each term is matched <strong>in the order typed</strong>, but words may sit between them.<br />
+              Example: <span className="italic">love God</span> matches when “love” appears before “God”.</>
+            ) : (
+              <> Each term is matched <strong>independently, anywhere in the verse and in any order</strong>. A verse matches only when it contains <strong>every</strong> term.<br />
+              Example: <span className="italic">love, God</span> finds verses containing both, even if far apart.</>
+            )}
           </p>
-          <div className="flex flex-wrap items-center gap-4 mt-2.5">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 mt-2.5">
             <label className="flex items-center gap-1.5 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -118,6 +124,25 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
                 className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
               />
               <span className="font-sans text-xs text-foreground">Whole word</span>
+            </label>
+            <label className={`flex items-center gap-1.5 select-none ${filters.textAdjacent ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
+              <input
+                type="checkbox"
+                disabled={filters.textAdjacent}
+                checked={filters.textInOrder || filters.textAdjacent}
+                onChange={(e) => set({ textInOrder: e.target.checked })}
+                className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer disabled:cursor-not-allowed"
+              />
+              <span className="font-sans text-xs text-foreground">In order</span>
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={filters.textAdjacent}
+                onChange={(e) => set({ textAdjacent: e.target.checked })}
+                className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
+              />
+              <span className="font-sans text-xs text-foreground">Adjacent (phrase)</span>
             </label>
           </div>
         </div>

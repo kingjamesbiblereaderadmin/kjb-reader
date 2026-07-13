@@ -195,6 +195,8 @@ export function defaultFilters() {
     textContains: '',          // substring in plain text (matching honours the flags below)
     textCaseSensitive: false,  // match the exact letter case
     textWholeWord: false,      // match whole words only (not substrings)
+    textInOrder: false,        // terms must appear in the same order they're typed
+    textAdjacent: false,       // terms must be adjacent (a phrase, no words between)
     ranges,
     bools,
     sortKey: 'wordCount',
@@ -228,16 +230,52 @@ export function parseSearchTerms(text) {
   return (text || '').trim().split(/[\s,]+/).filter(Boolean);
 }
 
-// Does the verse's plain text contain ALL of the given terms, honouring the
-// case-sensitive and whole-word flags?
-export function matchesTerms(plainText, terms, caseSensitive, wholeWord) {
+// Does the verse's plain text contain the given terms, honouring the flags?
+//  - caseSensitive: compare exact letter case
+//  - wholeWord:     match whole words only (not substrings)
+//  - inOrder:       terms must appear in the same order they were typed
+//  - adjacent:      terms must be directly adjacent (a phrase, in order)
+export function matchesTerms(plainText, terms, caseSensitive, wholeWord, inOrder = false, adjacent = false) {
   if (!terms.length) return true;
   const haystack = caseSensitive ? plainText : plainText.toLowerCase();
+
+  // Build a regex fragment for a single term, respecting whole-word.
+  const frag = (term) => {
+    const t = caseSensitive ? term : term.toLowerCase();
+    return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+  const flags = caseSensitive ? '' : 'i';
+  const bnd = "[^A-Za-z'-]";
+
+  // Adjacent → single phrase: term1 <space(s)> term2 <space(s)> … in order.
+  if (adjacent) {
+    const phrase = terms.map(frag).join('\\s+');
+    const pattern = wholeWord ? `(^|${bnd})${phrase}($|${bnd})` : phrase;
+    return new RegExp(pattern, flags).test(plainText);
+  }
+
+  // In order (but not necessarily adjacent) → walk left-to-right, requiring
+  // each term to appear after the previous term's match.
+  if (inOrder) {
+    let from = 0;
+    for (const term of terms) {
+      const esc = frag(term);
+      const pattern = wholeWord ? `(^|${bnd})${esc}($|${bnd})` : esc;
+      const re = new RegExp(pattern, flags + 'g');
+      re.lastIndex = from;
+      const m = re.exec(plainText);
+      if (!m) return false;
+      from = m.index + m[0].length;
+    }
+    return true;
+  }
+
+  // Default → every term appears somewhere, any order (AND matching).
   return terms.every(term => {
     const t = caseSensitive ? term : term.toLowerCase();
     if (wholeWord) {
-      const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const re = new RegExp(`(^|[^A-Za-z'-])${esc}($|[^A-Za-z'-])`, caseSensitive ? '' : 'i');
+      const esc = frag(term);
+      const re = new RegExp(`(^|${bnd})${esc}($|${bnd})`, flags);
       return re.test(plainText);
     }
     return haystack.includes(t);
@@ -291,7 +329,7 @@ function matchesNonRange(r, f, skipKey) {
   const terms = parseSearchTerms(f.textContains);
   if (f.testament !== 'all' && r.testament !== f.testament) return false;
   if (f.book !== 'all' && r.book !== f.book) return false;
-  if (terms.length && !matchesTerms(r.plainText, terms, f.textCaseSensitive, f.textWholeWord)) return false;
+  if (terms.length && !matchesTerms(r.plainText, terms, f.textCaseSensitive, f.textWholeWord, f.textInOrder, f.textAdjacent)) return false;
   for (const m of NUMERIC_METRICS) {
     if (m.key === skipKey) continue;
     const { min, max } = f.ranges[m.key];
@@ -316,7 +354,7 @@ function countMatches(records, f) {
   for (const r of records) {
     if (f.testament !== 'all' && r.testament !== f.testament) continue;
     if (f.book !== 'all' && r.book !== f.book) continue;
-    if (terms.length && !matchesTerms(r.plainText, terms, f.textCaseSensitive, f.textWholeWord)) continue;
+    if (terms.length && !matchesTerms(r.plainText, terms, f.textCaseSensitive, f.textWholeWord, f.textInOrder, f.textAdjacent)) continue;
     let ok = true;
     for (const m of NUMERIC_METRICS) {
       const { min, max } = f.ranges[m.key];
@@ -376,7 +414,7 @@ export function applyFilters(records, f) {
   let out = records.filter(r => {
     if (f.testament !== 'all' && r.testament !== f.testament) return false;
     if (f.book !== 'all' && r.book !== f.book) return false;
-    if (terms.length && !matchesTerms(r.plainText, terms, f.textCaseSensitive, f.textWholeWord)) return false;
+    if (terms.length && !matchesTerms(r.plainText, terms, f.textCaseSensitive, f.textWholeWord, f.textInOrder, f.textAdjacent)) return false;
 
     for (const m of NUMERIC_METRICS) {
       const { min, max } = f.ranges[m.key];
