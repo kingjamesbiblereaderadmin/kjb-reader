@@ -27,7 +27,7 @@ export default function SelectorSheet({ open, onClose, title, children }) {
   // inside the reader toolbar's stacking context (z-index + transforms), so
   // the sheet renders behind/within the toolbar instead of full-screen.
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex flex-col justify-end">
+    <div className="kjb-selector-sheet fixed inset-0 z-[200] flex flex-col justify-end">
       {/* Backdrop — closes only when the press starts on the backdrop itself. */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"

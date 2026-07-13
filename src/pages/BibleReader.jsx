@@ -1181,7 +1181,7 @@ export default function BibleReader() {
       // which would otherwise close the open selector sheet the instant you
       // tap the Book/Chapter/Verse dropdown.
       if (e.target.closest('select')) return;
-      if (!e.target.closest('.kjb-reader-toolbar, .kjb-popover-panel, [role="menu"], [data-radix-popper-content-wrapper], [vaul-drawer], [data-vaul-drawer], [vaul-overlay], [data-vaul-overlay]')) {
+      if (!e.target.closest('.kjb-reader-toolbar, .kjb-popover-panel, .kjb-selector-sheet, [role="menu"], [data-radix-popper-content-wrapper], [vaul-drawer], [data-vaul-drawer], [vaul-overlay], [data-vaul-overlay]')) {
         closeAllMenus();
       }
     };
