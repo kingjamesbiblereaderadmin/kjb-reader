@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Download, Printer, Copy, Check, ChevronDown, FileText, FileType, Table, FileDown } from 'lucide-react';
 import { exportVerses } from '@/lib/exportVerses';
 import { mergeAdjacentBrackets } from '@/lib/bibleApi';
+import { describeFilters } from '@/lib/describeFilters';
 
 // Build the public reader URL for a record so exports can link back to it.
 function recordUrl(r) {
@@ -46,7 +47,7 @@ const FORMATS = [
 // Toolbar for Advanced Search results: export (PDF/Word/CSV/TXT), print, and
 // copy. When `selectedRecords` is provided (select mode), it acts on those;
 // otherwise it acts on all `records`.
-export default function AdvancedResultsToolbar({ records, selectedRecords }) {
+export default function AdvancedResultsToolbar({ records, selectedRecords, filters }) {
   const active = (selectedRecords && selectedRecords.length > 0) ? selectedRecords : records;
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -58,18 +59,23 @@ export default function AdvancedResultsToolbar({ records, selectedRecords }) {
     return () => document.removeEventListener('mousedown', onClick);
   }, [menuOpen]);
 
-  const query = 'Advanced-Search';
+  // Use the actual search text as the export "query" (so it's shown and
+  // highlighted); fall back to a generic label when no text was entered.
+  const searchText = (filters?.textContains || '').trim();
+  const query = searchText || 'Advanced-Search';
   const items = active.map(toExportItem);
+  const filterSummary = describeFilters(filters);
+  const exportOptions = { titlePrefix: 'KJB Advanced Search', filterSummary, showQuery: !!searchText };
 
   const doExport = (format) => {
     setMenuOpen(false);
     if (!items.length) return;
-    exportVerses(format, items, query, null, { titlePrefix: 'KJB Advanced Search' });
+    exportVerses(format, items, query, filters, exportOptions);
   };
 
   const doPrint = () => {
     if (!items.length) return;
-    exportVerses('print', items, query, null, { titlePrefix: 'KJB Advanced Search' });
+    exportVerses('print', items, query, filters, exportOptions);
   };
 
   const doCopy = async () => {

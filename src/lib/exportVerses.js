@@ -68,6 +68,26 @@ function plainWithBrackets(text, isColophonOrSubscript = false, keepPilcrow = fa
 
 const sanitizeFilename = (q) => (q || 'verses').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'verses';
 
+// ── Applied-filters summary (from options.filterSummary: [{label, value}]) ──
+// Rendered near the top of every export so the reader knows exactly which
+// filters produced these results.
+function summaryHtml(filterSummary) {
+  if (!filterSummary || !filterSummary.length) return '';
+  const rows = filterSummary.map(f =>
+    `<tr><td style="padding:2pt 12pt 2pt 0;color:#555;white-space:nowrap;vertical-align:top;">${escapeHtml(f.label)}</td>` +
+    `<td style="padding:2pt 0;color:#000;">${escapeHtml(f.value)}</td></tr>`
+  ).join('');
+  return `<div style="margin:0 0 18pt 0;padding:10pt 14pt;background:#f5f5f7;border:1px solid #e2e2e6;border-radius:6pt;page-break-inside:avoid;">` +
+    `<div style="font-family:system-ui,-apple-system,sans-serif;font-size:9pt;letter-spacing:0.08em;text-transform:uppercase;color:#666;margin-bottom:6pt;">Applied filters</div>` +
+    `<table style="font-family:Georgia,serif;font-size:10.5pt;border-collapse:collapse;">${rows}</table></div>`;
+}
+
+function summaryText(filterSummary) {
+  if (!filterSummary || !filterSummary.length) return '';
+  const lines = filterSummary.map(f => `  • ${f.label}: ${f.value}`).join('\n');
+  return `APPLIED FILTERS\n${'-'.repeat(15)}\n${lines}\n\n`;
+}
+
 // Build the URL for the print footer. On the real public domain this is simply
 // the current reader URL as-is (e.g. /read?book=2PE&chapter=1&verse=19&from=daily).
 // We only normalise the preview/sandbox host so previews print a tidy link;
@@ -136,9 +156,10 @@ function splitBySections(items) {
 export function exportTxt(items, query, filters, options = {}) {
   const titlePrefix = options.titlePrefix || 'KJB Search Results';
   const isReading = titlePrefix === 'KJB Reading';
-  const header = isReading 
-    ? `${options.bookName || query}\n${options.chapterText ? options.chapterText.toUpperCase() + '\n' : ''}${'='.repeat(50)}\n\n`
-    : `${titlePrefix} — "${query}"\n${'='.repeat(50)}\n\n`;
+  const titleLine = isReading
+    ? `${options.bookName || query}\n${options.chapterText ? options.chapterText.toUpperCase() + '\n' : ''}`
+    : `${titlePrefix}${options.showQuery ? ` — "${query}"` : ''}\n`;
+  const header = `${titleLine}${'='.repeat(50)}\n\n${!isReading ? summaryText(options.filterSummary) : ''}`;
   const sections = splitBySections(items);
   const body = sections.map(sec => {
     if (sec.isTestament) return `${sec.title.toUpperCase()}\n${'='.repeat(sec.title.length)}`;
@@ -306,10 +327,10 @@ export function exportDocx(items, query, filters, options = {}) {
   const headerHtml = isReading
     ? `<h1 style="font-family:Georgia,serif;font-size:24pt;font-weight:bold;text-align:center;margin-bottom:4pt;">${escapeHtml(options.bookName || query)}</h1>` +
       (options.chapterText ? `<p style="font-family:sans-serif;font-size:10pt;color:#555;text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:20pt;">${escapeHtml(options.chapterText)}</p>` : '')
-    : `<h2 style="font-family:Georgia,serif;">${escapeHtml(titlePrefix)} — &ldquo;${escapeHtml(query)}&rdquo;</h2>`;
+    : `<h2 style="font-family:Georgia,serif;">${escapeHtml(titlePrefix)}${options.showQuery ? ` — &ldquo;${escapeHtml(query)}&rdquo;` : ''}</h2>`;
 
   const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB Search</title></head><body>` +
-    `${headerHtml}${rows}` +
+    `${headerHtml}${!isReading ? summaryHtml(options.filterSummary) : ''}${rows}` +
     `<p style="font-size:10pt;color:#777;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible</p></body></html>`;
   const blob = new Blob(['\uFEFF', html], { type: 'application/msword' });
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.doc`);
@@ -342,7 +363,13 @@ export function exportXls(items, query, filters, options = {}) {
     rows.push(`${csvCell('New Testament')},${csvCell(it.bookName || it.book || '')},${csvCell(it.ref)},${csvCell(formattedText)}`);
   });
   
-  const csv = [header, ...rows].join('\r\n');
+  // Prepend an "Applied filters" block (label,value rows) above the table.
+  const summaryRows = (options.filterSummary && options.filterSummary.length)
+    ? [`${csvCell('Applied filters')},${csvCell('')}`,
+       ...options.filterSummary.map(f => `${csvCell(f.label)},${csvCell(f.value)}`),
+       ''] // blank spacer line
+    : [];
+  const csv = [...summaryRows, header, ...rows].join('\r\n');
   // Leading BOM so Excel detects UTF-8.
   const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
   downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.csv`);
@@ -382,7 +409,7 @@ export function exportPdf(items, query, filters, options = {}) {
     }
   } else {
     doc.setFontSize(16);
-    doc.text(`${titlePrefix} — "${query}"`, marginX, y);
+    doc.text(`${titlePrefix}${options.showQuery ? ` — "${query}"` : ''}`, marginX, y);
   }
   y += 26;
 
@@ -392,6 +419,34 @@ export function exportPdf(items, query, filters, options = {}) {
   const ensureSpace = (needed) => {
     if (y + needed > pageH - 48) { doc.addPage(); y = marginTop; }
   };
+
+  // Applied-filters summary block (non-reading exports only).
+  if (!isReading && options.filterSummary && options.filterSummary.length) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(110);
+    doc.text('APPLIED FILTERS', marginX, y);
+    y += 6;
+    doc.setDrawColor(210);
+    doc.line(marginX, y, marginX + maxW, y);
+    y += 12;
+    const labelW = 130;
+    options.filterSummary.forEach(f => {
+      const valueLines = doc.splitTextToSize(f.value, maxW - labelW - 8);
+      ensureSpace(lineH * valueLines.length);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(90);
+      doc.text(f.label, marginX, y);
+      doc.setTextColor(0);
+      valueLines.forEach((ln, li) => {
+        doc.text(ln, marginX + labelW, y + li * (lineH - 2));
+      });
+      y += Math.max(lineH, valueLines.length * (lineH - 2)) + 2;
+    });
+    y += 12;
+    doc.setTextColor(0);
+  }
   // Render a verse, switching between roman and italic for [bracketed] runs,
   // wrapping words within the page width.
   const renderVerse = (text, ref, url, isSpecial = false, keepPilcrow = false) => {
@@ -658,7 +713,8 @@ export function exportPrint(items, query, filters, options = {}) {
   const headerHtml = isReading 
     ? `<h1 style="font-family:Georgia,serif;font-size:24pt;font-weight:900;margin-bottom:5pt;text-align:center;">${escapeHtml(options.bookName || query)}</h1>` +
       (options.chapterText ? `<p style="font-family:system-ui,-apple-system,sans-serif;font-size:10pt;letter-spacing:0.1em;text-transform:uppercase;color:#666;margin-top:0;margin-bottom:25pt;text-align:center;">${escapeHtml(options.chapterText)}</p>` : '')
-    : `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:20pt;">${escapeHtml(titlePrefix)} &mdash; &ldquo;${escapeHtml(query)}&rdquo;</h1>`;
+    : `<h1 style="font-family:Georgia,serif;font-size:20pt;margin-bottom:16pt;">${escapeHtml(titlePrefix)}${options.showQuery ? ` &mdash; &ldquo;${escapeHtml(query)}&rdquo;` : ''}</h1>` +
+      summaryHtml(options.filterSummary);
 
   // Use a clean, generic title for the browser's print header so we avoid
   // showing hyphenated file names or "about:blank".

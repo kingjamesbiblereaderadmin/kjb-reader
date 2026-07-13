@@ -252,7 +252,7 @@ export default function AdvancedSearchPage() {
             {/* Export / copy / print + select toggle */}
             {!isEmpty && results.length > 0 && (
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <AdvancedResultsToolbar records={results} selectedRecords={selectMode ? selectedRecords : null} />
+                <AdvancedResultsToolbar records={results} selectedRecords={selectMode ? selectedRecords : null} filters={filters} />
                 <button
                   onClick={() => { setSelectMode(m => !m); setSelectedKeys(new Set()); }}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-medium transition-colors ${
