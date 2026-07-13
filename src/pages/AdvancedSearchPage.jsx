@@ -41,29 +41,16 @@ export default function AdvancedSearchPage() {
   useEffect(() => { setVisible(PAGE_SIZE); setSelectedKeys(new Set()); }, [filters]);
 
   // Lock the page behind the mobile filter drawer so scrolling inside the
-  // drawer doesn't scroll the underlying page. We pin the body to its current
-  // scroll position (position: fixed) and restore it on close, so toggling a
-  // filter inside the drawer never makes the page jump to the top.
+  // drawer doesn't scroll the underlying page. We only set overflow:hidden on
+  // the body — NOT position:fixed — so toggling a filter (which shrinks/grows
+  // the results list behind the drawer) never forces a scroll-restore jump.
   useEffect(() => {
     if (!showFilters) return;
-    const scrollY = window.scrollY;
     const body = document.body;
-    const prev = {
-      overflow: body.style.overflow,
-      position: body.style.position,
-      top: body.style.top,
-      width: body.style.width,
-    };
+    const prevOverflow = body.style.overflow;
     body.style.overflow = 'hidden';
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollY}px`;
-    body.style.width = '100%';
     return () => {
-      body.style.overflow = prev.overflow;
-      body.style.position = prev.position;
-      body.style.top = prev.top;
-      body.style.width = prev.width;
-      window.scrollTo(0, scrollY);
+      body.style.overflow = prevOverflow;
     };
   }, [showFilters]);
 
@@ -242,13 +229,13 @@ export default function AdvancedSearchPage() {
                                     : <Square className="w-5 h-5 text-muted-foreground" />}
                                 </span>
                                 <span className="flex-1 pointer-events-none">
-                                  <AdvancedResultRow record={r} sortKey={filters.sortKey} sortLabel={sortLabel} />
+                                  <AdvancedResultRow record={r} sortKey={filters.sortKey} sortLabel={sortLabel} filters={filters} />
                                 </span>
                               </button>
                             );
                           }
                           return (
-                            <AdvancedResultRow key={k} record={r} sortKey={filters.sortKey} sortLabel={sortLabel} />
+                            <AdvancedResultRow key={k} record={r} sortKey={filters.sortKey} sortLabel={sortLabel} filters={filters} />
                           );
                         })}
                       </div>

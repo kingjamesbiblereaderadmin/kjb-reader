@@ -37,6 +37,7 @@ function words(t) {
 // Compute all metrics for one verse's raw text.
 function computeMetrics(rawText) {
   const hasPilcrow = /¶/.test(rawText);
+  const pilcrowCount = (rawText.match(/¶/g) || []).length;
   const noPilcrow = stripPilcrow(rawText);
 
   // Italics = [bracketed] supplied words. Count bracket groups + the words in them.
@@ -96,6 +97,7 @@ function computeMetrics(rawText) {
     allCapsWordCount,
     italicWordCount,
     digitCount,
+    pilcrowCount,
     hasPilcrow,
     hasItalics,
     hasNumbers,

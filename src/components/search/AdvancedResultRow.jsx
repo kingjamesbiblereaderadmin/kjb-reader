@@ -21,19 +21,75 @@ function renderText(rawText) {
   );
 }
 
+// Short labels for the metric chips.
+const CHIP_LABELS = {
+  wordCount: 'words', charCount: 'chars', letterCount: 'letters', uniqueWordCount: 'unique words',
+  longestWordLen: 'longest word', avgWordLen: 'avg word len', sentenceCount: 'sentences',
+  commaCount: 'commas', colonCount: 'colons', questionCount: 'question marks',
+  exclamationCount: 'exclamations', capitalWordCount: 'capitalised', allCapsWordCount: 'ALL-CAPS',
+  italicWordCount: 'italics', digitCount: 'digits',
+};
+
+// Maps each boolean property filter to the numeric count that describes it,
+// so filtering on a property shows the matching count chip.
+const BOOL_TO_COUNT = {
+  hasPilcrow: 'pilcrowCount',
+  hasItalics: 'italicWordCount',
+  hasNumbers: 'digitCount',
+  hasQuestion: 'questionCount',
+  hasExclamation: 'exclamationCount',
+  hasColon: 'colonCount',
+  hasAllCaps: 'allCapsWordCount',
+};
+const BOOL_CHIP_LABELS = {
+  pilcrowCount: 'pilcrows', italicWordCount: 'italics', digitCount: 'digits',
+  questionCount: 'question marks', exclamationCount: 'exclamations',
+  colonCount: 'colons', allCapsWordCount: 'ALL-CAPS',
+};
+
 // One Advanced Search result. Shows the reference, the verse, and the metric
 // chips relevant to the current sort/filters. Tapping opens it in the reader.
-export default function AdvancedResultRow({ record, sortKey, sortLabel }) {
+export default function AdvancedResultRow({ record, sortKey, sortLabel, filters }) {
   const m = record.metrics;
   const to = `/read?book=${record.abbr}&chapter=${record.chapter}&verse=${record.verse}`;
 
-  // Always show the active sort metric first, then a few common ones.
+  // Build the chip list ONLY from what the user is actually filtering/sorting on,
+  // so e.g. filtering on pilcrows only shows the pilcrow count.
   const chips = [];
-  const push = (label, value) => chips.push({ label, value });
-  if (sortKey && m[sortKey] !== undefined) push(sortLabel, m[sortKey]);
-  if (sortKey !== 'wordCount') push('words', m.wordCount);
-  if (sortKey !== 'charCount') push('chars', m.charCount);
-  if (m.italicWordCount > 0 && sortKey !== 'italicWordCount') push('italics', m.italicWordCount);
+  const seen = new Set();
+  const push = (label, value) => { chips.push({ label, value }); };
+
+  // 1) Active sort metric first (a real numeric metric, not none/canonical).
+  if (sortKey && sortKey !== 'none' && sortKey !== 'canonical' && m[sortKey] !== undefined) {
+    push(sortLabel || CHIP_LABELS[sortKey] || sortKey, m[sortKey]);
+    seen.add(sortKey);
+  }
+
+  if (filters) {
+    // 2) Every numeric range the user set a min/max on.
+    Object.entries(filters.ranges || {}).forEach(([key, { min, max }]) => {
+      if ((min !== '' || max !== '') && !seen.has(key) && m[key] !== undefined) {
+        push(CHIP_LABELS[key] || key, m[key]);
+        seen.add(key);
+      }
+    });
+    // 3) Every boolean property set to yes/no → its matching count.
+    Object.entries(filters.bools || {}).forEach(([key, val]) => {
+      if (val === 'any') return;
+      const countKey = BOOL_TO_COUNT[key];
+      if (countKey && !seen.has(countKey) && m[countKey] !== undefined) {
+        push(BOOL_CHIP_LABELS[countKey] || CHIP_LABELS[countKey] || countKey, m[countKey]);
+        seen.add(countKey);
+      }
+    });
+  }
+
+  // Fallback: if nothing specific is active, show the sensible defaults.
+  if (chips.length === 0) {
+    push('words', m.wordCount);
+    push('chars', m.charCount);
+    if (m.italicWordCount > 0) push('italics', m.italicWordCount);
+  }
 
   return (
     <Link
