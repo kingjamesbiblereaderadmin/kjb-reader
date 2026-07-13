@@ -1528,22 +1528,7 @@ export default function SettingsPage() {
                   and revisit.
                 </p>
               )}
-              <div className="pt-3 mt-1 border-t border-border">
-                <p className="font-sans text-xs font-medium text-foreground mb-1">Icon not updating after an app update?</p>
-                <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">
-                  App icons only refresh automatically when the app was installed as a proper app
-                  (a WebAPK). If it was added as a simple home-screen shortcut — on an older browser,
-                  an unsupported platform, or when the install criteria weren't met — the icon is a
-                  static OS bookmark the browser can never change.
-                </p>
-                <p className="font-sans text-[11px] text-muted-foreground leading-relaxed mt-1.5">
-                  To check: open your Android <span className="text-foreground font-medium">Settings → Apps</span>
-                  {' '}(not the app drawer). If "KJB Reader" is listed there, it's a real app and its icon
-                  will update on the next launch. If it's <span className="text-foreground font-medium">not</span> listed,
-                  it's only a shortcut — remove it from your home screen and reinstall from the browser
-                  to get the new icon.
-                </p>
-              </div>
+
             </div>
             <div className="flex gap-3 pt-2">
               <button
