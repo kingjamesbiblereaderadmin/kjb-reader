@@ -230,9 +230,11 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
       {/* Boolean toggles */}
       <Section title="Property filters" open={openSections.property} onToggle={() => toggleSection('property')}>
         <div className="space-y-2.5">
-          {BOOLEAN_METRICS.map(m => (
-            <div key={m.key} className="flex items-center justify-between gap-3">
-              <span className="font-sans text-xs text-foreground flex-1">{m.label}</span>
+          {BOOLEAN_METRICS.map(m => {
+            const isActive = filters.bools[m.key] !== 'any';
+            return (
+            <div key={m.key} className={`flex items-center justify-between gap-3 rounded-lg px-2 -mx-2 py-1 transition-colors ${isActive ? 'bg-primary/10 ring-1 ring-primary/30' : ''}`}>
+              <span className={`font-sans text-xs flex-1 ${isActive ? 'text-foreground font-semibold' : 'text-foreground'}`}>{m.label}</span>
               <div className="flex rounded-lg overflow-hidden border border-border shrink-0">
                 {['any', 'yes', 'no'].map(opt => {
                   const active = filters.bools[m.key] === opt;
@@ -254,7 +256,8 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
                 })}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </Section>
 

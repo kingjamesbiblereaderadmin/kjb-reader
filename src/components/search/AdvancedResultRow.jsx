@@ -5,6 +5,18 @@ import { parseSearchTerms } from '@/lib/verseAnalysis';
 
 const escapeRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+// Distinct colour per result pill — cycled by chip index so each count chip
+// reads as a different colour.
+const CHIP_COLORS = [
+  'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
+  'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+  'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+  'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300',
+  'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300',
+  'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300',
+  'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/20 dark:text-fuchsia-300',
+];
+
 // Wrap every occurrence of any search term in a <mark> highlight. Used for the
 // default "any order" mode where each term is matched independently.
 function highlightAny(text, terms, keyPrefix) {
@@ -181,9 +193,7 @@ export default function AdvancedResultRow({ record, sortKey, sortLabel, filters 
         {chips.map((c, i) => (
           <span
             key={i}
-            className={`px-2 py-0.5 rounded-full text-[11px] font-sans font-medium ${
-              i === 0 ? 'bg-primary/15 text-primary' : 'bg-secondary text-muted-foreground'
-            }`}
+            className={`px-2 py-0.5 rounded-full text-[11px] font-sans font-medium ${CHIP_COLORS[i % CHIP_COLORS.length]}`}
           >
             {c.value} {c.label}
           </span>
