@@ -9,7 +9,6 @@ import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
 import VerseSelector from '@/components/bible/VerseSelector';
-import NativeSelector from '@/components/bible/NativeSelector';
 import VerseText from '@/components/bible/VerseText';
 import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
@@ -1233,11 +1232,17 @@ export default function BibleReader() {
                   />
                 </div>
               )}
-              <SelectorSheet open={showBookPicker && isMobile()} onClose={() => setShowBookPicker(false)} title="Go to Passage">
-                <NativeSelector
-                  initialAbbr={pos.abbr === 'GEN' && pos.chapter === 0 ? 'GEN' : pos.abbr}
-                  initialChapter={pos.chapter > 0 ? pos.chapter : 1}
-                  onGo={(abbr, chapter, verse) => { navigate(abbr, chapter, verse); setShowBookPicker(false); }}
+              <SelectorSheet open={showBookPicker && isMobile()} onClose={() => setShowBookPicker(false)} title="Select Book">
+                <BookSelector
+                  currentAbbr={pos.abbr}
+                  onSelect={(b, isTitlePage, showChapter) => {
+                    if (isTitlePage) { navigate(b.abbr, 0); setShowBookPicker(false); }
+                    else if (showChapter) {
+                      navigate(b.abbr, 1); setShowBookPicker(false);
+                      if (b.chapters <= 1) setShowVersePicker(true); else setShowChapterPicker(true);
+                    }
+                  }}
+                  onClose={() => setShowBookPicker(false)}
                 />
               </SelectorSheet>
             </div>
@@ -1268,11 +1273,12 @@ export default function BibleReader() {
                     />
                   </div>
                 )}
-                <SelectorSheet open={showChapterPicker && isMobile()} onClose={() => setShowChapterPicker(false)} title="Go to Passage">
-                  <NativeSelector
-                    initialAbbr={pos.abbr}
-                    initialChapter={pos.chapter > 0 ? pos.chapter : 1}
-                    onGo={(abbr, chapter, verse) => { navigate(abbr, chapter, verse); setShowChapterPicker(false); }}
+                <SelectorSheet open={showChapterPicker && isMobile()} onClose={() => setShowChapterPicker(false)} title="Select Chapter">
+                  <ChapterSelector
+                    totalChapters={book.chapters}
+                    currentChapter={pos.chapter}
+                    onSelect={(ch, showVerse) => { navigate(pos.abbr, ch); setShowChapterPicker(false); if (showVerse) setShowVersePicker(true); }}
+                    onClose={() => setShowChapterPicker(false)}
                   />
                 </SelectorSheet>
               </div>
@@ -1308,11 +1314,20 @@ export default function BibleReader() {
                     />
                   </div>
                 )}
-                <SelectorSheet open={showVersePicker && isMobile()} onClose={() => setShowVersePicker(false)} title="Go to Passage">
-                  <NativeSelector
-                    initialAbbr={pos.abbr}
-                    initialChapter={pos.chapter > 0 ? pos.chapter : 1}
-                    onGo={(abbr, chapter, verse) => { navigate(abbr, chapter, verse); setShowVersePicker(false); }}
+                <SelectorSheet open={showVersePicker && verseCount > 0 && isMobile()} onClose={() => setShowVersePicker(false)} title="Select Verse">
+                  <VerseSelector
+                    totalVerses={verseCount}
+                    currentVerse={highlightVerse}
+                    multiSelect={true}
+                    hasSubscript={!!chapterSubscript}
+                    hasColophon={!!colophon}
+                    onSelect={(v) => {
+                      if (v && v.section) { navigate(pos.abbr, pos.chapter, null, false, false, false, v.section); setShowVersePicker(false); return; }
+                      const first = Array.isArray(v) ? v[0] : v;
+                      if (Array.isArray(v) && v.length > 1) { const range = new Set(v); setSelectedVerses(range); setHighlightedVerses(range); setSelectMode(false); setFilterMode(true); }
+                      navigate(pos.abbr, pos.chapter, first); setShowVersePicker(false);
+                    }}
+                    onClose={() => setShowVersePicker(false)}
                   />
                 </SelectorSheet>
               </div>
