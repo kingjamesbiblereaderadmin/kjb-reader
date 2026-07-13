@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260713_1430
+// KJB Reader Service Worker v20260713_2015
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260713_1430';
+const CACHE_NAME = 'kjb-reader-v20260713_2015';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -92,8 +92,8 @@ self.addEventListener('fetch', (event) => {
               });
               if (shell) return shell;
               return new Response(
-                '' +
-                '<!DOCTYPE html><html><head><title>Legacy Reader</title></head><body>' +
+                '<!DOCTYPE html>' +
+                '<html><head><title>Legacy Reader</title></head><body>' +
                 '<h1>Legacy Reader</h1>' +
                 '<p>This page needs to be opened online once before it can be read offline.</p>' +
                 '</body></html>',
@@ -134,11 +134,11 @@ self.addEventListener('fetch', (event) => {
 
   // DEV MODE: Skip service worker caching for development
   if (url.pathname.includes('/@vite') ||
-    url.pathname.includes('/@react-refresh') ||
-    url.pathname.includes('/node_modules/.vite') ||
-    url.pathname.startsWith('/src/') ||
-    url.pathname.endsWith('.jsx') ||
-    url.pathname.endsWith('.js') && url.pathname.includes('chunk-')) {
+      url.pathname.includes('/@react-refresh') ||
+      url.pathname.includes('/node_modules/.vite') ||
+      url.pathname.startsWith('/src/') ||
+      url.pathname.endsWith('.jsx') ||
+      url.pathname.endsWith('.js') && url.pathname.includes('chunk-')) {
     return;
   }
 
@@ -151,7 +151,7 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(request).then((response) => {
-        // Cross-origin <img> fetches (e.g. the logo from media.base44.com) come
+        // Cross-origin  fetches (e.g. the logo from media.base44.com) come
         // back as "opaque" responses when there's no CORS grant: status 0,
         // ok === false, but the body is still valid and cacheable. Previously
         // this handler skipped caching anything with !response.ok, so the logo
