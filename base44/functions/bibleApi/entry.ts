@@ -337,6 +337,14 @@ Deno.serve(async (req) => {
       return Response.json({ schedule: out, totalVerses: flat.length });
     }
 
+    // Resolve a list of "book chapter:verse" refs into full verse payloads.
+    // Used by the exclusion list so it can show the full verse text.
+    if (action === 'resolve_refs') {
+      const refs = Array.isArray(body.refs) ? body.refs : [];
+      const verses = refs.map(ref => verseFromRef(bible, ref) || { ref, text: null });
+      return Response.json({ verses });
+    }
+
     // Find eligible verses filtered by character count and/or word count of the
     // verse text ONLY (brackets/pilcrows stripped, superscription markers removed).
     if (action === 'find_by_length') {

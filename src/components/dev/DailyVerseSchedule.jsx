@@ -22,6 +22,7 @@ export default function DailyVerseSchedule() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [futureDays, setFutureDays] = useState(30);
+  const [pastDays, setPastDays] = useState(7);
   const [actingKey, setActingKey] = useState(null);
   const [pinningDate, setPinningDate] = useState(null);
   const [pinRef, setPinRef] = useState('');
@@ -29,10 +30,10 @@ export default function DailyVerseSchedule() {
   const load = useCallback(async () => {
     setLoading(true);
     setError('');
-    // Build the list of days from TODAY onwards.
+    // Build the list of days spanning past → today → future.
     const dates = [];
     const today = new Date();
-    for (let i = 0; i <= futureDays; i++) {
+    for (let i = -pastDays; i <= futureDays; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
       dates.push({ key: toKey(d), dateObj: d, offset: i });
@@ -53,7 +54,7 @@ export default function DailyVerseSchedule() {
       setRows(dates);
     }
     setLoading(false);
-  }, [futureDays]);
+  }, [futureDays, pastDays]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -98,12 +99,18 @@ export default function DailyVerseSchedule() {
 
       <div className="rounded-xl bg-card border border-border p-4 flex flex-wrap gap-4 items-end">
         <div>
+          <label className="block font-sans text-xs text-muted-foreground mb-1">Days before (from today)</label>
+          <input type="number" min={0} max={365} value={pastDays}
+            onChange={(e) => setPastDays(Math.max(0, Number(e.target.value)))}
+            className="w-28 px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground" />
+        </div>
+        <div>
           <label className="block font-sans text-xs text-muted-foreground mb-1">Days ahead (from today)</label>
           <input type="number" min={0} max={365} value={futureDays}
             onChange={(e) => setFutureDays(Math.max(0, Number(e.target.value)))}
             className="w-28 px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground" />
         </div>
-        <p className="text-xs text-muted-foreground">Starts today. Computed by the backend — reflects live exclusions and pins.</p>
+        <p className="text-xs text-muted-foreground">Shows past & future. Computed by the backend — reflects live exclusions and pins.</p>
       </div>
 
       {error && (
@@ -122,19 +129,19 @@ export default function DailyVerseSchedule() {
             const isPinning = pinningDate === r.key;
             return (
               <div key={r.offset} className={`px-4 py-3 border-b border-border last:border-0 ${isToday ? 'bg-primary/10' : ''}`}>
-                <div className="flex items-start gap-3">
-                  <div className="w-40 shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                  <div className="sm:w-36 sm:shrink-0">
                     <p className={`font-sans text-xs font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>{fmt(r.dateObj)}</p>
-                    <p className="font-sans text-[10px] text-muted-foreground">{isToday ? 'Today' : `+${r.offset}d`}</p>
+                    <p className="font-sans text-[10px] text-muted-foreground">{isToday ? 'Today' : r.offset > 0 ? `+${r.offset}d` : `${r.offset}d`}</p>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-sans text-xs text-accent font-semibold">{r.verse?.ref}</p>
                       {r.pinned && <span className="px-1.5 py-0.5 rounded bg-accent/20 text-accent text-[10px] font-semibold">PINNED</span>}
                     </div>
-                    <p className="font-serif text-sm text-foreground leading-snug break-words">{r.verse?.text?.replace(/[[\]]/g, '')}</p>
+                    <p className="font-serif text-sm text-foreground leading-snug">{r.verse?.text?.replace(/[[\]]/g, '')}</p>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0 self-start">
                     {busy ? (
                       <Loader2 className="w-4 h-4 animate-spin text-primary/70" />
                     ) : r.pinned ? (
@@ -166,7 +173,7 @@ export default function DailyVerseSchedule() {
                   </div>
                 </div>
                 {isPinning && (
-                  <div className="flex items-center gap-2 mt-2 pl-40">
+                  <div className="flex items-center gap-2 mt-2 sm:pl-[9.75rem]">
                     <input
                       value={pinRef}
                       onChange={(e) => setPinRef(e.target.value)}

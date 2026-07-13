@@ -11,6 +11,8 @@ export default function DailyVerseControls({ onChange }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  // Map of excluded ref → full verse text, resolved from the backend.
+  const [verseTexts, setVerseTexts] = useState({});
 
   const [exclRef, setExclRef] = useState('');
   const [exclNote, setExclNote] = useState('');
@@ -28,6 +30,18 @@ export default function DailyVerseControls({ onChange }) {
     try {
       const list = await base44.entities.DailyVerseControl.list('-created_date', 2000);
       setRows(list);
+      // Resolve full verse text for excluded refs so the list can show them.
+      const refs = list.filter(r => r.kind === 'exclusion' && r.ref).map(r => r.ref);
+      if (refs.length) {
+        try {
+          const res = await base44.functions.invoke('bibleApi', { action: 'resolve_refs', refs });
+          const map = {};
+          (res?.data?.verses || []).forEach(v => { if (v.text) map[v.ref] = v.text; });
+          setVerseTexts(map);
+        } catch { /* leave refs without text */ }
+      } else {
+        setVerseTexts({});
+      }
     } catch {
       setRows([]);
     }
@@ -115,10 +129,15 @@ export default function DailyVerseControls({ onChange }) {
           ) : (
             <div className="rounded-lg border border-border overflow-hidden">
               {exclusions.map(r => (
-                <div key={r.id} className="flex items-start gap-3 px-3 py-2 border-b border-border last:border-0">
-                  <span className="font-sans text-sm text-foreground flex-1 min-w-0 break-words">
-                    {r.ref}{r.note ? <span className="text-muted-foreground text-xs"> — {r.note}</span> : null}
-                  </span>
+                <div key={r.id} className="flex items-start gap-3 px-3 py-2.5 border-b border-border last:border-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-sans text-sm font-semibold text-accent">
+                      {r.ref}{r.note ? <span className="text-muted-foreground text-xs font-normal"> — {r.note}</span> : null}
+                    </p>
+                    {verseTexts[r.ref] && (
+                      <p className="font-serif text-sm text-foreground leading-snug mt-0.5">{verseTexts[r.ref].replace(/[[\]]/g, '')}</p>
+                    )}
+                  </div>
                   <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 shrink-0 mt-0.5">
                     <Trash2 className="w-4 h-4" />
                   </button>
