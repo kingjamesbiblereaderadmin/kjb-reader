@@ -18,11 +18,13 @@ const fmt = (d) => d.toLocaleDateString('en-GB', { weekday: 'short', day: '2-dig
 export default function DailyVerseSchedule() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [pastDays, setPastDays] = useState(7);
   const [futureDays, setFutureDays] = useState(14);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError('');
     const dates = [];
     const today = new Date();
     for (let i = -pastDays; i <= futureDays; i++) {
@@ -30,13 +32,18 @@ export default function DailyVerseSchedule() {
       d.setDate(today.getDate() + i);
       dates.push({ key: toKey(d), date: d, offset: i });
     }
-    const res = await base44.functions.invoke('bibleApi', {
-      action: 'daily_schedule',
-      dates: dates.map(d => d.key),
-    });
-    const byDate = {};
-    (res?.data?.schedule || []).forEach(s => { byDate[s.date] = s; });
-    setRows(dates.map(d => ({ ...d, ...(byDate[d.key] || {}) })));
+    try {
+      const res = await base44.functions.invoke('bibleApi', {
+        action: 'daily_schedule',
+        dates: dates.map(d => d.key),
+      });
+      const byDate = {};
+      (res?.data?.schedule || []).forEach(s => { byDate[s.date] = s; });
+      setRows(dates.map(d => ({ ...d, ...(byDate[d.key] || {}) })));
+    } catch (err) {
+      setError(err?.message || 'Failed to load schedule.');
+      setRows(dates);
+    }
     setLoading(false);
   }, [pastDays, futureDays]);
 
@@ -61,6 +68,12 @@ export default function DailyVerseSchedule() {
         </div>
         <p className="text-xs text-muted-foreground">Computed by the backend — reflects live exclusions and pins.</p>
       </div>
+
+      {error && (
+        <div className="rounded-xl bg-destructive/10 border border-destructive/40 p-4">
+          <p className="font-sans text-xs text-destructive">{error}</p>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary/70" /></div>

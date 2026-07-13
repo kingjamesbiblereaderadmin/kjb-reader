@@ -21,8 +21,12 @@ export default function DailyVerseControls({ onChange }) {
 
   const load = async () => {
     setLoading(true);
-    const list = await base44.entities.DailyVerseControl.list('-created_date', 2000);
-    setRows(list);
+    try {
+      const list = await base44.entities.DailyVerseControl.list('-created_date', 2000);
+      setRows(list);
+    } catch {
+      setRows([]);
+    }
     setLoading(false);
   };
 
