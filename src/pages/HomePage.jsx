@@ -445,8 +445,8 @@ export default function HomePage() {
 
 
       {/* Quick links */}
-      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
-        {QUICK_LINKS.map(link =>
+      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 auto-rows-fr">
+        {QUICK_LINKS.map((link, i) =>
           link.label === '__RANDOM__' ? (
             <QuickLinkCard
               key="random"
@@ -464,6 +464,7 @@ export default function HomePage() {
               label={link.label}
               desc={link.desc}
               iconGradient={link.iconGradient}
+              className={i === QUICK_LINKS.length - 1 ? 'sm:col-span-2' : ''}
             />
           )
         )}
