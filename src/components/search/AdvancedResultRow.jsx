@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, Pilcrow } from 'lucide-react';
 import { parseSearchTerms } from '@/lib/verseAnalysis';
 
-// Wrap every occurrence of any search term in a <mark> highlight. Case-insensitive.
-function highlight(text, terms, keyPrefix) {
+const escapeRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Wrap every occurrence of any search term in a <mark> highlight. Used for the
+// default "any order" mode where each term is matched independently.
+function highlightAny(text, terms, keyPrefix) {
   if (!terms || terms.length === 0) return text;
-  const escaped = terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const escaped = terms.map(escapeRe);
   const re = new RegExp(`(${escaped.join('|')})`, 'gi');
   const pieces = text.split(re);
   return pieces.map((piece, i) =>
@@ -16,9 +19,39 @@ function highlight(text, terms, keyPrefix) {
   );
 }
 
+// Highlight the terms only where they appear IN SEQUENCE (in order), so we
+// don't mark stray "of"/"God" words that aren't part of the actual phrase run.
+// `adjacent` = terms must be directly consecutive words; otherwise other words
+// may sit between them but they still must run left-to-right within one span.
+function highlightInOrder(text, terms, keyPrefix, adjacent, caseSensitive, wholeWord) {
+  if (!terms || terms.length === 0) return text;
+  const flags = (caseSensitive ? '' : 'i');
+  const before = wholeWord ? `(?<![A-Za-z'-])` : '';
+  const after = wholeWord ? `(?![A-Za-z'-])` : '';
+  const gap = adjacent ? '\\s+' : `[^A-Za-z]*(?:[A-Za-z'-]+[^A-Za-z]+)*?`;
+  const pattern = before + terms.map(escapeRe).join(`${after}${gap}${before}`) + after;
+  let re;
+  try { re = new RegExp(pattern, flags); } catch { return highlightAny(text, terms, keyPrefix); }
+  const m = re.exec(text);
+  if (!m) return text; // no in-order run in this fragment
+  const start = m.index, end = start + m[0].length;
+  return [
+    text.slice(0, start),
+    <mark key={`${keyPrefix}-m`} className="bg-yellow-200 dark:bg-yellow-500/40 text-foreground rounded px-0.5">{text.slice(start, end)}</mark>,
+    text.slice(end),
+  ];
+}
+
 // Renders the plain verse text, but shows the [supplied] words in italics like
 // the reader does, and keeps the ¶ marker if present. Highlights search terms.
-function renderText(rawText, terms) {
+function renderText(rawText, terms, filters) {
+  const inOrder = filters?.textInOrder || filters?.textAdjacent;
+  const adjacent = filters?.textAdjacent;
+  const caseSensitive = filters?.textCaseSensitive;
+  const wholeWord = filters?.textWholeWord;
+  const hl = (t, prefix) => inOrder
+    ? highlightInOrder(t, terms, prefix, adjacent, caseSensitive, wholeWord)
+    : highlightAny(t, terms, prefix);
   // rawText keeps ¶ and [brackets]; convert to nodes.
   const hasPilcrow = /^¶\s*/.test(rawText);
   const body = rawText.replace(/^¶\s*/, '');
@@ -28,8 +61,8 @@ function renderText(rawText, terms) {
       {hasPilcrow && <span className="pilcrow font-serif mr-1">¶</span>}
       {parts.map((p, i) =>
         p.startsWith('[') && p.endsWith(']')
-          ? <em key={i} className="text-muted-foreground">{highlight(p.slice(1, -1), terms, `em${i}`)}</em>
-          : <span key={i}>{highlight(p, terms, `s${i}`)}</span>
+          ? <em key={i} className="text-muted-foreground">{hl(p.slice(1, -1), `em${i}`)}</em>
+          : <span key={i}>{hl(p, `s${i}`)}</span>
       )}
     </>
   );
@@ -119,7 +152,7 @@ export default function AdvancedResultRow({ record, sortKey, sortLabel, filters 
         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors shrink-0" />
       </div>
       <p className="font-serif text-[15px] leading-relaxed text-foreground">
-        {renderText(record.rawText, terms)}
+        {renderText(record.rawText, terms, filters)}
       </p>
       <div className="flex flex-wrap gap-1.5 mt-2.5">
         {chips.map((c, i) => (
