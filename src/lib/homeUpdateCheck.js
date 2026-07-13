@@ -82,7 +82,7 @@ export async function checkHomeForUpdates() {
   }
 
   // 2. Bible data update
-  const { checkForUpdates } = await import('@/lib/bibleCache');
+  const { checkForUpdates, CACHE_VERSION } = await import('@/lib/bibleCache');
   const bibleNeedsUpdate = await checkForUpdates().catch(() => false);
 
   if (!swUpdated && !bibleNeedsUpdate) {
@@ -91,6 +91,25 @@ export async function checkHomeForUpdates() {
     sessionStorage.removeItem('kjb-splash-home-update');
     return false;
   }
+
+  // GUARD AGAINST A RELOAD LOOP: only reload ONCE per deployed version.
+  // The post-reload splash installs the update and *tries* to mark it applied,
+  // but if that step is unreliable (e.g. an IndexedDB write that doesn't
+  // persist, or the splash flow erroring out early), the same update would be
+  // re-detected on the next check and reload again — forever. By recording the
+  // versions as "seen for reload" HERE, before reloading, we ensure the reload
+  // fires at most once for a given SW + Bible version pair.
+  try {
+    const deployedSw = await fetchDeployedSwVersion();
+    const lastReloadKey = `${deployedSw || 'nosw'}|${CACHE_VERSION}`;
+    if (sessionStorage.getItem('kjb-home-reload-key') === lastReloadKey) {
+      // Already reloaded once for this exact version pair this session —
+      // don't loop. Clear the pending flag and carry on normally.
+      sessionStorage.removeItem('kjb-splash-home-update');
+      return false;
+    }
+    sessionStorage.setItem('kjb-home-reload-key', lastReloadKey);
+  } catch {}
 
   // Updates found — flag the splash sequence and reload. The splash (running on
   // the reloaded page) does the install + activate with proper messaging.
