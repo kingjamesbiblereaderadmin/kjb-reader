@@ -204,8 +204,7 @@ export const NUMERIC_METRICS = [
 
 // Boolean property toggles (tri-state handled in the panel: any / yes / no).
 export const BOOLEAN_METRICS = [
-  { key: 'hasPilcrow', label: 'Contains a pilcrow (¶)' },
-  { key: 'startsWithPilcrow', label: 'Begins a new paragraph (starts with ¶)' },
+  { key: 'hasPilcrow', label: 'Begins a new paragraph (¶)' },
   { key: 'hasItalics', label: 'Contains italics ([supplied] words)' },
   { key: 'hasNumbers', label: 'Contains numbers' },
   { key: 'hasComma', label: 'Contains a comma' },
