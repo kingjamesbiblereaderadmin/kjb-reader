@@ -93,19 +93,25 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
             placeholder="e.g. love LORD begat…"
             className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground"
           />
-          <p className="font-sans text-[11px] text-muted-foreground mt-1 leading-relaxed">
-            Separate terms with a <strong>space</strong> or a <strong>comma</strong> — both work the same way.
+          <ul className="font-sans text-[11px] text-muted-foreground mt-1.5 leading-relaxed list-disc pl-4 space-y-1">
+            <li>Separate terms with a <strong>space</strong> or a <strong>comma</strong> — both work the same way.</li>
             {filters.textAdjacent ? (
-              <> Terms must appear <strong>adjacent, as an exact phrase, in the order typed</strong>.<br />
-              Example: <span className="italic">love God</span> matches only where the words sit side by side.</>
+              <>
+                <li>Terms must appear <strong>adjacent, as an exact phrase, in the order typed</strong>.</li>
+                <li>Example: <span className="italic">love God</span> matches only where the words sit side by side.</li>
+              </>
             ) : filters.textInOrder ? (
-              <> Each term is matched <strong>in the order typed</strong>, but words may sit between them.<br />
-              Example: <span className="italic">love God</span> matches when “love” appears before “God”.</>
+              <>
+                <li>Each term is matched <strong>in the order typed</strong>, but words may sit between them.</li>
+                <li>Example: <span className="italic">love God</span> matches when “love” appears before “God”.</li>
+              </>
             ) : (
-              <> Each term is matched <strong>independently, anywhere in the verse and in any order</strong>. A verse matches only when it contains <strong>every</strong> term.<br />
-              Example: <span className="italic">love, God</span> finds verses containing both, even if far apart.</>
+              <>
+                <li>Each term is matched <strong>independently, anywhere in the verse and in any order</strong>. A verse matches only when it contains <strong>every</strong> term.</li>
+                <li>Example: <span className="italic">love, God</span> finds verses containing both, even if far apart.</li>
+              </>
             )}
-          </p>
+          </ul>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 mt-2.5">
             <label className="flex items-center gap-1.5 cursor-pointer select-none">
               <input
