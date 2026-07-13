@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { FlaskConical, Loader2, SlidersHorizontal, X, CheckSquare, Square } from 'lucide-react';
+import { FlaskConical, Loader2, SlidersHorizontal, X, CheckSquare, Square, ChevronDown } from 'lucide-react';
 import {
   buildVerseIndex, applyFilters, defaultFilters, NUMERIC_METRICS, isDefaultFilters,
 } from '@/lib/verseAnalysis';
@@ -18,6 +18,21 @@ export default function AdvancedSearchPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState(() => new Set());
   const resultsRef = useRef(null);
+  // Collapsed Testament / Book groups (keys stored in a Set = collapsed).
+  const [collapsedGroups, setCollapsedGroups] = useState(() => new Set());
+
+  const toggleGroup = useCallback((groupKey, el) => {
+    setCollapsedGroups(prev => {
+      const next = new Set(prev);
+      const wasCollapsed = next.has(groupKey);
+      if (wasCollapsed) next.delete(groupKey); else next.add(groupKey);
+      // On expand, jump the header into view.
+      if (wasCollapsed && el) {
+        requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,7 +53,7 @@ export default function AdvancedSearchPage() {
   }, [records, filters, isEmpty]);
 
   // Reset the visible window + selection when the result set changes.
-  useEffect(() => { setVisible(PAGE_SIZE); setSelectedKeys(new Set()); }, [filters]);
+  useEffect(() => { setVisible(PAGE_SIZE); setSelectedKeys(new Set()); setCollapsedGroups(new Set()); }, [filters]);
 
   // Lock the page behind the mobile filter drawer so scrolling inside the
   // drawer doesn't scroll the underlying page. We only set overflow:hidden on
@@ -200,17 +215,32 @@ export default function AdvancedSearchPage() {
               </div>
             ) : (
               <div className="space-y-8">
-                {groupedVisible.map(t => (
+                {groupedVisible.map(t => {
+                  const tCollapsed = collapsedGroups.has(t.key);
+                  return (
                   <div key={t.key} className="space-y-5">
-                    <h2 className="font-serif text-2xl font-bold text-foreground border-b-2 border-accent/40 pb-1.5">
-                      {t.label}
-                    </h2>
-                    {t.books.map(b => (
+                    <button
+                      onClick={(e) => toggleGroup(t.key, e.currentTarget)}
+                      className="w-full flex items-center justify-between gap-2 border-b-2 border-accent/40 pb-1.5 text-left"
+                    >
+                      <h2 className="font-serif text-2xl font-bold text-foreground">{t.label}</h2>
+                      <ChevronDown className={`w-6 h-6 text-muted-foreground transition-transform ${tCollapsed ? '-rotate-90' : ''}`} />
+                    </button>
+                    {!tCollapsed && t.books.map(b => {
+                      const bKey = `${t.key}:${b.key}`;
+                      const bCollapsed = collapsedGroups.has(bKey);
+                      return (
                       <div key={b.key} className="space-y-3">
-                        <h3 className="font-serif text-lg font-semibold text-primary sticky top-0 bg-background/90 backdrop-blur-sm py-1 z-10">
-                          {b.label} <span className="font-sans text-xs font-normal text-muted-foreground">({b.rows.length})</span>
-                        </h3>
-                        {b.rows.map(r => {
+                        <button
+                          onClick={(e) => toggleGroup(bKey, e.currentTarget)}
+                          className="w-full flex items-center justify-between gap-2 sticky top-0 bg-background/90 backdrop-blur-sm py-1 z-10 text-left"
+                        >
+                          <h3 className="font-serif text-lg font-semibold text-primary">
+                            {b.label} <span className="font-sans text-xs font-normal text-muted-foreground">({b.rows.length})</span>
+                          </h3>
+                          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${bCollapsed ? '-rotate-90' : ''}`} />
+                        </button>
+                        {!bCollapsed && b.rows.map(r => {
                           const k = keyOf(r);
                           if (selectMode) {
                             const checked = selectedKeys.has(k);
@@ -239,9 +269,11 @@ export default function AdvancedSearchPage() {
                           );
                         })}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                ))}
+                  );
+                })}
                 {visible < results.length && (
                   <button
                     onClick={() => setVisible(v => v + PAGE_SIZE)}
