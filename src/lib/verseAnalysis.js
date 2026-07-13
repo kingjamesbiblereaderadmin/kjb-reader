@@ -216,13 +216,23 @@ export function isDefaultFilters(f) {
   return true;
 }
 
+// Split the "Text contains" box into individual search words. Multiple words
+// are matched with AND (every word must appear somewhere in the verse, in any
+// order) — e.g. "love God" matches verses containing both "love" and "God".
+export function parseSearchTerms(text) {
+  return (text || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+}
+
 // Apply filters + sort to the built records. Returns a new array.
 export function applyFilters(records, f) {
-  const contains = f.textContains.trim().toLowerCase();
+  const terms = parseSearchTerms(f.textContains);
   let out = records.filter(r => {
     if (f.testament !== 'all' && r.testament !== f.testament) return false;
     if (f.book !== 'all' && r.book !== f.book) return false;
-    if (contains && !r.plainText.toLowerCase().includes(contains)) return false;
+    if (terms.length) {
+      const lower = r.plainText.toLowerCase();
+      if (!terms.every(t => lower.includes(t))) return false;
+    }
 
     for (const m of NUMERIC_METRICS) {
       const { min, max } = f.ranges[m.key];

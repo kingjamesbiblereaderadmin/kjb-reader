@@ -82,9 +82,10 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset }) {
             type="text"
             value={filters.textContains}
             onChange={(e) => set({ textContains: e.target.value })}
-            placeholder="e.g. love, LORD, begat…"
+            placeholder="e.g. love LORD begat…"
             className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground"
           />
+          <p className="font-sans text-[11px] text-muted-foreground mt-1">Multiple words match verses containing all of them (any order).</p>
         </div>
       </Section>
 

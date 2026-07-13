@@ -1,10 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Pilcrow } from 'lucide-react';
+import { parseSearchTerms } from '@/lib/verseAnalysis';
+
+// Wrap every occurrence of any search term in a <mark> highlight. Case-insensitive.
+function highlight(text, terms, keyPrefix) {
+  if (!terms || terms.length === 0) return text;
+  const escaped = terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const re = new RegExp(`(${escaped.join('|')})`, 'gi');
+  const pieces = text.split(re);
+  return pieces.map((piece, i) =>
+    i % 2 === 1
+      ? <mark key={`${keyPrefix}-${i}`} className="bg-yellow-200 dark:bg-yellow-500/40 text-foreground rounded px-0.5">{piece}</mark>
+      : piece
+  );
+}
 
 // Renders the plain verse text, but shows the [supplied] words in italics like
-// the reader does, and keeps the ¶ marker if present.
-function renderText(rawText) {
+// the reader does, and keeps the ¶ marker if present. Highlights search terms.
+function renderText(rawText, terms) {
   // rawText keeps ¶ and [brackets]; convert to nodes.
   const hasPilcrow = /^¶\s*/.test(rawText);
   const body = rawText.replace(/^¶\s*/, '');
@@ -14,8 +28,8 @@ function renderText(rawText) {
       {hasPilcrow && <span className="pilcrow font-serif mr-1">¶</span>}
       {parts.map((p, i) =>
         p.startsWith('[') && p.endsWith(']')
-          ? <em key={i} className="text-muted-foreground">{p.slice(1, -1)}</em>
-          : <span key={i}>{p}</span>
+          ? <em key={i} className="text-muted-foreground">{highlight(p.slice(1, -1), terms, `em${i}`)}</em>
+          : <span key={i}>{highlight(p, terms, `s${i}`)}</span>
       )}
     </>
   );
@@ -52,6 +66,7 @@ const BOOL_CHIP_LABELS = {
 export default function AdvancedResultRow({ record, sortKey, sortLabel, filters }) {
   const m = record.metrics;
   const to = `/read?book=${record.abbr}&chapter=${record.chapter}&verse=${record.verse}`;
+  const terms = parseSearchTerms(filters?.textContains);
 
   // Build the chip list ONLY from what the user is actually filtering/sorting on,
   // so e.g. filtering on pilcrows only shows the pilcrow count.
@@ -104,7 +119,7 @@ export default function AdvancedResultRow({ record, sortKey, sortLabel, filters 
         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors shrink-0" />
       </div>
       <p className="font-serif text-[15px] leading-relaxed text-foreground">
-        {renderText(record.rawText)}
+        {renderText(record.rawText, terms)}
       </p>
       <div className="flex flex-wrap gap-1.5 mt-2.5">
         {chips.map((c, i) => (
