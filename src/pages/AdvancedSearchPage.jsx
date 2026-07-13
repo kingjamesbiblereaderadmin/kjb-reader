@@ -22,6 +22,34 @@ export default function AdvancedSearchPage() {
   // Collapsed Testament / Book groups (keys stored in a Set = collapsed).
   const [collapsedGroups, setCollapsedGroups] = useState(() => new Set());
 
+  // Track the mobile bottom-nav footer mode so the filter drawer reserves the
+  // right amount of bottom space — the "Show results"/"Reset" buttons must stay
+  // reachable whether the bottom menu is expanded (two/one rows) or collapsed (bar).
+  const [footerMode, setFooterMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kjb-footer-mode');
+      if (saved === 'none') return 'bar';
+      return ['two', 'one', 'bar'].includes(saved) ? saved : 'one';
+    } catch { return 'one'; }
+  });
+  useEffect(() => {
+    const onChange = () => {
+      try {
+        const saved = localStorage.getItem('kjb-footer-mode');
+        setFooterMode(saved === 'none' ? 'bar' : (['two', 'one', 'bar'].includes(saved) ? saved : 'one'));
+      } catch {}
+    };
+    window.addEventListener('kjb-footer-mode-change', onChange);
+    window.addEventListener('storage', onChange);
+    return () => {
+      window.removeEventListener('kjb-footer-mode-change', onChange);
+      window.removeEventListener('storage', onChange);
+    };
+  }, []);
+  // Approx height of the fixed bottom nav for each mode, plus the drawer's own
+  // action button + breathing room. Used as bottom padding on the scroll area.
+  const footerPad = footerMode === 'two' ? 200 : footerMode === 'one' ? 150 : 90;
+
   const toggleGroup = useCallback((groupKey, el) => {
     setCollapsedGroups(prev => {
       const next = new Set(prev);
@@ -316,20 +344,30 @@ export default function AdvancedSearchPage() {
       {showFilters && records && (
         <div className="lg:hidden fixed inset-0 z-50 flex h-[100dvh]">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilters(false)} />
-          <div className="relative ml-auto w-[88%] max-w-sm h-[100dvh] bg-background overflow-y-auto overscroll-contain px-5 pt-5 pb-40 shadow-2xl" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <div className="flex items-center justify-between mb-4">
+          <div className="relative ml-auto w-[88%] max-w-sm h-[100dvh] bg-background flex flex-col shadow-2xl">
+            <div className="flex items-center justify-between px-5 pt-5 pb-4 shrink-0">
               <h2 className="font-serif text-lg font-semibold text-foreground">Filters</h2>
               <button onClick={() => setShowFilters(false)} className="p-2 rounded-lg hover:bg-secondary">
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
-            <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} />
-            <button
-              onClick={() => setShowFilters(false)}
-              className="w-full mt-4 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium"
+            <div
+              className="flex-1 overflow-y-auto overscroll-contain px-5"
+              style={{ WebkitOverflowScrolling: 'touch', paddingBottom: footerPad }}
             >
-              {isEmpty ? 'Done' : `Show ${results.length.toLocaleString()} results`}
-            </button>
+              <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} />
+            </div>
+            <div
+              className="shrink-0 px-5 pt-3 bg-background border-t border-border/60"
+              style={{ paddingBottom: `calc(1rem + ${footerPad}px)` }}
+            >
+              <button
+                onClick={() => setShowFilters(false)}
+                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium"
+              >
+                {isEmpty ? 'Done' : `Show ${results.length.toLocaleString()} results`}
+              </button>
+            </div>
           </div>
         </div>
       )}
