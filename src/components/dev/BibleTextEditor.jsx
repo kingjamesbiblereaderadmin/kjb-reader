@@ -6,6 +6,7 @@ import { invalidateOverrides, loadOverrides, SUBSCRIPT_VERSE, COLOPHON_VERSE, EN
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import { Loader2, Save, Trash2, RotateCcw } from 'lucide-react';
 import BibleEditsLog from '@/components/dev/BibleEditsLog';
+import EditDiffPreview from '@/components/dev/EditDiffPreview';
 
 const DEV_KEY = 'KJB-DEV-2026';
 
@@ -226,6 +227,7 @@ export default function BibleTextEditor() {
                       placeholder="e.g. ALEPH"
                       className="w-full px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-serif text-foreground uppercase"
                     />
+                    {headingDirty && <EditDiffPreview original={headingCurrent} current={headingValue} />}
                   </div>
                 )}
                 <textarea
@@ -234,6 +236,7 @@ export default function BibleTextEditor() {
                   rows={Math.max(2, Math.ceil(value.length / 80))}
                   className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm font-serif text-foreground resize-y"
                 />
+                {dirty && <EditDiffPreview original={v.text} current={value} />}
               </div>
             );
           })}
