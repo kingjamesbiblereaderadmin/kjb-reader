@@ -19,18 +19,18 @@ export default function DailyVerseSchedule() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [pastDays, setPastDays] = useState(7);
-  const [futureDays, setFutureDays] = useState(14);
+  const [futureDays, setFutureDays] = useState(30);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError('');
+    // Build the list of days from TODAY onwards.
     const dates = [];
     const today = new Date();
-    for (let i = -pastDays; i <= futureDays; i++) {
+    for (let i = 0; i <= futureDays; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      dates.push({ key: toKey(d), date: d, offset: i });
+      dates.push({ key: toKey(d), dateObj: d, offset: i });
     }
     try {
       const res = await base44.functions.invoke('bibleApi', {
@@ -39,13 +39,16 @@ export default function DailyVerseSchedule() {
       });
       const byDate = {};
       (res?.data?.schedule || []).forEach(s => { byDate[s.date] = s; });
-      setRows(dates.map(d => ({ ...d, ...(byDate[d.key] || {}) })));
+      // Spread the backend fields FIRST, then keep our own dateObj/offset — the
+      // backend item also has a `date` string, which must never overwrite the
+      // Date object used for formatting (that caused toLocaleDateString errors).
+      setRows(dates.map(d => ({ ...(byDate[d.key] || {}), ...d })));
     } catch (err) {
       setError(err?.message || 'Failed to load schedule.');
       setRows(dates);
     }
     setLoading(false);
-  }, [pastDays, futureDays]);
+  }, [futureDays]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -55,18 +58,12 @@ export default function DailyVerseSchedule() {
 
       <div className="rounded-xl bg-card border border-border p-4 flex flex-wrap gap-4 items-end">
         <div>
-          <label className="block font-sans text-xs text-muted-foreground mb-1">Past days</label>
-          <input type="number" min={0} max={60} value={pastDays}
-            onChange={(e) => setPastDays(Math.max(0, Number(e.target.value)))}
-            className="w-24 px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground" />
-        </div>
-        <div>
-          <label className="block font-sans text-xs text-muted-foreground mb-1">Future days</label>
-          <input type="number" min={0} max={90} value={futureDays}
+          <label className="block font-sans text-xs text-muted-foreground mb-1">Days ahead (from today)</label>
+          <input type="number" min={0} max={365} value={futureDays}
             onChange={(e) => setFutureDays(Math.max(0, Number(e.target.value)))}
-            className="w-24 px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground" />
+            className="w-28 px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground" />
         </div>
-        <p className="text-xs text-muted-foreground">Computed by the backend — reflects live exclusions and pins.</p>
+        <p className="text-xs text-muted-foreground">Starts today. Computed by the backend — reflects live exclusions and pins.</p>
       </div>
 
       {error && (
@@ -84,8 +81,8 @@ export default function DailyVerseSchedule() {
             return (
               <div key={r.offset} className={`flex items-start gap-3 px-4 py-3 border-b border-border last:border-0 ${isToday ? 'bg-primary/10' : ''}`}>
                 <div className="w-40 shrink-0">
-                  <p className={`font-sans text-xs font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>{fmt(r.date)}</p>
-                  <p className="font-sans text-[10px] text-muted-foreground">{isToday ? 'Today' : r.offset > 0 ? `+${r.offset}d` : `${r.offset}d`}</p>
+                  <p className={`font-sans text-xs font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>{fmt(r.dateObj)}</p>
+                  <p className="font-sans text-[10px] text-muted-foreground">{isToday ? 'Today' : `+${r.offset}d`}</p>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

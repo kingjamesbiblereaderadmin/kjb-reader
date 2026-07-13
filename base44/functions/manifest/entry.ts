@@ -1,5 +1,5 @@
 // Serves the PWA manifest dynamically so it's always live (never stale-cached).
-import { createClient } from 'npm:@base44/sdk@0.8.38';
+import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
 const DEFAULT_ICONS = [
   {
@@ -67,24 +67,34 @@ const DEFAULT_SCREENSHOTS = [
   }
 ];
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
   // Read admin-editable icon/screenshot overrides (falls back to defaults).
   let icons = DEFAULT_ICONS;
   let screenshots = DEFAULT_SCREENSHOTS;
   let dynamicVersion = null;
+
+  // Prefer the request-scoped client (carries caller auth). Reading these
+  // entities is public per their RLS, so this succeeds without a service token
+  // — unlike createClient({ appId }), whose asServiceRole needs a service token
+  // that isn't available here (that call was silently throwing before).
+  const base44 = createClientFromRequest(req);
+
   try {
-    const appId = Deno.env.get("BASE44_APP_ID");
-    const base44 = createClient({ appId });
-    const rows = await base44.asServiceRole.entities.ManifestConfig.list('-updated_date', 1);
+    const rows = await base44.entities.ManifestConfig.list('-updated_date', 1);
     const cfg = rows && rows[0];
     if (cfg?.icons?.length) icons = cfg.icons;
     if (cfg?.screenshots?.length) screenshots = cfg.screenshots;
+  } catch (err) {
+    console.warn('[manifest] icon/screenshot override load failed, using defaults:', err?.message);
+  }
+
+  try {
     // Runtime version (bumped from DevTools) — surfaced so clients can detect
     // an update without a code deploy.
-    const vRows = await base44.asServiceRole.entities.DevVersion.list('-updated_date', 1);
+    const vRows = await base44.entities.DevVersion.list('-updated_date', 1);
     if (vRows && vRows[0]?.version) dynamicVersion = vRows[0].version;
   } catch (err) {
-    console.warn('[manifest] override load failed, using defaults:', err?.message);
+    console.warn('[manifest] version load failed:', err?.message);
   }
 
   const manifest = {
