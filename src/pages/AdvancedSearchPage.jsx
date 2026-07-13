@@ -157,23 +157,30 @@ export default function AdvancedSearchPage() {
     [records, filters]
   );
 
-  // Dynamic testament: if the user has a specific testament selected and the
-  // current search term / filters yield NO matches there, but the OTHER
-  // testament (or "all") does have matches, auto-switch the testament so the
-  // user sees results instead of an empty list.
+  // Dynamic testament: auto-select the tightest testament for the current
+  // search. Only runs when a text search is active.
+  //  • On "All": if matches fall in ONLY one testament, switch to it (e.g.
+  //    "Lamb of God" adjacent → only in New → switch to New).
+  //  • On a specific testament with no matches: switch to whichever one has them.
   useEffect(() => {
     if (!availability) return;
-    // Only act when a specific testament is chosen and it currently matches nothing.
-    if (filters.testament === 'all') return;
-    if (availability.testaments[filters.testament]) return;
-    // Prefer the opposite testament if it has matches; otherwise fall back to All.
-    const other = filters.testament === 'old' ? 'new' : 'old';
-    if (availability.testaments[other]) {
-      setFilters(prev => ({ ...prev, testament: other, book: 'all' }));
-    } else if (availability.testaments.all) {
-      setFilters(prev => ({ ...prev, testament: 'all', book: 'all' }));
+    if (!(filters.textContains || '').trim()) return; // only for text searches
+    const { old, new: neu } = availability.testaments;
+
+    if (filters.testament === 'all') {
+      // Matches in exactly one testament → narrow to it.
+      if (old && !neu) setFilters(prev => ({ ...prev, testament: 'old', book: 'all' }));
+      else if (neu && !old) setFilters(prev => ({ ...prev, testament: 'new', book: 'all' }));
+      return;
     }
-  }, [availability, filters.testament]);
+
+    // A specific testament is selected but yields nothing → rescue.
+    if (!availability.testaments[filters.testament]) {
+      const other = filters.testament === 'old' ? 'new' : 'old';
+      if (availability.testaments[other]) setFilters(prev => ({ ...prev, testament: other, book: 'all' }));
+      else if (availability.testaments.all) setFilters(prev => ({ ...prev, testament: 'all', book: 'all' }));
+    }
+  }, [availability, filters.testament, filters.textContains]);
 
   // The actual data range (min/max) of each numeric metric — used to suggest
   // realistic values as placeholders in the numeric filter inputs.
