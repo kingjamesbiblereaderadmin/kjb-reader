@@ -38,11 +38,17 @@ export function usePinchZoom(targetRef, zoomLevel, onZoomChange) {
         pinchingRef.current = true;
         startDistRef.current = dist(e.touches);
         startZoomRef.current = zoomRef.current;
-        el.style.touchAction = 'none';
+      } else {
+        // Any non-two-finger touch (i.e. a single-finger scroll) must NOT be a
+        // pinch, and must leave touchAction untouched so scrolling works.
+        pinchingRef.current = false;
+        el.style.touchAction = '';
       }
     };
 
     const onTouchMove = (e) => {
+      // Only ever act on genuine two-finger gestures. A single finger falls
+      // straight through so the browser scrolls the page normally.
       if (!pinchingRef.current || e.touches.length !== 2) return;
       // Stop the browser from zooming the whole page during the pinch.
       e.preventDefault();
@@ -55,6 +61,8 @@ export function usePinchZoom(targetRef, zoomLevel, onZoomChange) {
     const onTouchEnd = (e) => {
       if (e.touches.length < 2) {
         pinchingRef.current = false;
+        // Always clear any inline touch-action so single-finger scrolling is
+        // never left disabled after a pinch ends.
         el.style.touchAction = '';
       }
     };
