@@ -9,8 +9,24 @@ import { base44 } from '@/api/base44Client';
 let _cache = null;      // Map | null
 let _loading = null;    // Promise | null
 
+// Persist the last successful fetch so overrides still apply when offline.
+const LS_KEY = 'kjb-overrides-cache';
+
 function keyFor(book, chapter, verse) {
   return `${book}:${chapter}:${verse}`;
+}
+
+// Save/load the override map to localStorage as a plain [key, text] array.
+function persistOverrides(map) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(Array.from(map.entries()))); } catch {}
+}
+function readPersistedOverrides() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    const entries = JSON.parse(raw);
+    return Array.isArray(entries) ? new Map(entries) : null;
+  } catch { return null; }
 }
 
 // Sentinel "verse" numbers used to store non-verse chapter parts as overrides
@@ -65,10 +81,13 @@ export async function loadOverrides(force = false) {
         }
       }
       _cache = map;
+      persistOverrides(map);
       return map;
     } catch (err) {
-      console.warn('[overrides] load failed:', err?.message);
-      _cache = new Map();
+      // Offline / network failure: fall back to the last-fetched overrides
+      // persisted in localStorage so corrections still apply offline.
+      console.warn('[overrides] load failed, using persisted cache:', err?.message);
+      _cache = readPersistedOverrides() || new Map();
       return _cache;
     } finally {
       _loading = null;
