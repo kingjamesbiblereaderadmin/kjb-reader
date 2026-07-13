@@ -132,7 +132,7 @@ export default function DailyVerseSchedule() {
                       <p className="font-sans text-xs text-accent font-semibold">{r.verse?.ref}</p>
                       {r.pinned && <span className="px-1.5 py-0.5 rounded bg-accent/20 text-accent text-[10px] font-semibold">PINNED</span>}
                     </div>
-                    <p className="font-serif text-sm text-foreground leading-snug line-clamp-2">{r.verse?.text?.replace(/[[\]]/g, '')}</p>
+                    <p className="font-serif text-sm text-foreground leading-snug break-words">{r.verse?.text?.replace(/[[\]]/g, '')}</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     {busy ? (

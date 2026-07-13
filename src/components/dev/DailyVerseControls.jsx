@@ -98,14 +98,16 @@ export default function DailyVerseControls({ onChange }) {
           ) : exclusions.length === 0 ? (
             <p className="font-sans text-xs text-muted-foreground py-2">None yet.</p>
           ) : (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="rounded-lg border border-border overflow-hidden">
               {exclusions.map(r => (
-                <span key={r.id} className="flex items-center gap-1.5 px-2 py-1 rounded bg-secondary text-[11px] text-foreground">
-                  {r.ref}{r.note ? ` — ${r.note}` : ''}
-                  <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70">
-                    <Trash2 className="w-3 h-3" />
+                <div key={r.id} className="flex items-start gap-3 px-3 py-2 border-b border-border last:border-0">
+                  <span className="font-sans text-sm text-foreground flex-1 min-w-0 break-words">
+                    {r.ref}{r.note ? <span className="text-muted-foreground text-xs"> — {r.note}</span> : null}
+                  </span>
+                  <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 shrink-0 mt-0.5">
+                    <Trash2 className="w-4 h-4" />
                   </button>
-                </span>
+                </div>
               ))}
             </div>
           )}
