@@ -195,7 +195,7 @@ export function defaultFilters() {
     textContains: '',          // substring in plain text (matching honours the flags below)
     textCaseSensitive: false,  // match the exact letter case
     textWholeWord: false,      // match whole words only (not substrings)
-    textInOrder: false,        // terms must appear in the same order they're typed
+    textInOrder: true,         // terms must appear in the same order they're typed (default on)
     textAdjacent: false,       // terms must be adjacent (a phrase, no words between)
     ranges,
     bools,
