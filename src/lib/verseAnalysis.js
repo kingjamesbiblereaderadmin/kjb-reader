@@ -245,12 +245,17 @@ export function matchesTerms(plainText, terms, caseSensitive, wholeWord, inOrder
     return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   };
   const flags = caseSensitive ? '' : 'i';
-  const bnd = "[^A-Za-z'-]";
+  // Word boundaries as non-consuming look-arounds, so a match never eats the
+  // boundary character that also separates it from the NEXT term. (Consuming
+  // the trailing boundary was the bug that made whole-word "in order" and
+  // "adjacent" phrase searches fail on consecutive words like "Lamb of God".)
+  const before = wholeWord ? `(?<![A-Za-z'-])` : '';
+  const after = wholeWord ? `(?![A-Za-z'-])` : '';
 
   // Adjacent → single phrase: term1 <space(s)> term2 <space(s)> … in order.
   if (adjacent) {
     const phrase = terms.map(frag).join('\\s+');
-    const pattern = wholeWord ? `(^|${bnd})${phrase}($|${bnd})` : phrase;
+    const pattern = `${before}${phrase}${after}`;
     return new RegExp(pattern, flags).test(plainText);
   }
 
@@ -260,7 +265,7 @@ export function matchesTerms(plainText, terms, caseSensitive, wholeWord, inOrder
     let from = 0;
     for (const term of terms) {
       const esc = frag(term);
-      const pattern = wholeWord ? `(^|${bnd})${esc}($|${bnd})` : esc;
+      const pattern = `${before}${esc}${after}`;
       const re = new RegExp(pattern, flags + 'g');
       re.lastIndex = from;
       const m = re.exec(plainText);
@@ -275,7 +280,7 @@ export function matchesTerms(plainText, terms, caseSensitive, wholeWord, inOrder
     const t = caseSensitive ? term : term.toLowerCase();
     if (wholeWord) {
       const esc = frag(term);
-      const re = new RegExp(`(^|${bnd})${esc}($|${bnd})`, flags);
+      const re = new RegExp(`${before}${esc}${after}`, flags);
       return re.test(plainText);
     }
     return haystack.includes(t);
