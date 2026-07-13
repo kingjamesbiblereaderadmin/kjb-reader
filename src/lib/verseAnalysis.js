@@ -41,14 +41,14 @@ const NUMBER_WORDS = new Set([
   'one','two','three','four','five','six','seven','eight','nine','ten',
   'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen',
   'twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety',
-  'hundred','hundreds','thousand','thousands','million','myriad','myriads',
+  'tens','hundred','hundreds','thousand','thousands','million','millions','myriad','myriads',
   'first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth',
   'eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth',
   'twentieth','thirtieth','fortieth','fiftieth','sixtieth','seventieth','eightieth','ninetieth','hundredth','thousandth',
-  'once','twice','thrice','single','double','treble','triple',
-  'twofold','threefold','fourfold','sevenfold','tenfold','hundredfold','manifold',
-  'score','fourscore','threescore','firstborn','firstfruits','firstling','firstlings',
-  'half','halves','third','fourth','quarter','tithe','tithes','both','couple',
+  'once','twice','thrice','twain','single','double','treble','triple',
+  'twofold','threefold','fourfold','sevenfold','tenfold','hundredfold','manifold','thirtyfold','sixtyfold',
+  'score','fourscore','threescore','sixscore','firstborn','firstfruits','firstling','firstlings',
+  'half','halves','quarter','tithe','tithes','both','couple','pair','pairs',
 ]);
 
 // Count number-words in a word list (case-insensitive whole-word match).
