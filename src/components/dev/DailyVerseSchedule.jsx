@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Loader2, Ban, RotateCcw } from 'lucide-react';
+import { Loader2, Ban, RotateCcw, ChevronDown } from 'lucide-react';
 import DailyVerseControls from './DailyVerseControls';
 
 const DEV_KEY = 'KJB-DEV-2026';
@@ -24,6 +24,7 @@ export default function DailyVerseSchedule() {
   const [futureDays, setFutureDays] = useState(30);
   const [pastDays, setPastDays] = useState(7);
   const [actingKey, setActingKey] = useState(null);
+  const [showList, setShowList] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -112,54 +113,68 @@ export default function DailyVerseSchedule() {
         </div>
       )}
 
-      {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary/70" /></div>
-      ) : (
-        <div className="rounded-xl bg-card border border-border overflow-hidden">
-          {rows.map((r) => {
-            const isToday = r.offset === 0;
-            const busy = actingKey === r.key;
-            return (
-              <div key={r.offset} className={`px-4 py-3 border-b border-border last:border-0 ${isToday ? 'bg-primary/10' : ''}`}>
-                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
-                  <div className="sm:w-36 sm:shrink-0">
-                    <p className={`font-sans text-xs font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>{fmt(r.dateObj)}</p>
-                    <p className="font-sans text-[10px] text-muted-foreground">{isToday ? 'Today' : r.offset > 0 ? `+${r.offset}d` : `${r.offset}d`}</p>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-sans text-xs text-accent font-semibold">{r.verse?.ref}</p>
-                      {r.pinned && <span className="px-1.5 py-0.5 rounded bg-accent/20 text-accent text-[10px] font-semibold">PINNED</span>}
+      <div className="rounded-xl bg-card border border-border overflow-hidden">
+        <button
+          onClick={() => setShowList(v => !v)}
+          className="w-full flex items-center justify-between gap-2 px-4 py-3 hover:bg-accent/5 transition-colors text-left"
+        >
+          <span className="font-sans text-sm font-semibold text-foreground">
+            Computed schedule{!loading && rows.length ? ` (${rows.length} days)` : ''}
+          </span>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showList ? 'rotate-180' : ''}`} />
+        </button>
+
+        {showList && (
+          loading ? (
+            <div className="flex justify-center py-12 border-t border-border"><Loader2 className="w-6 h-6 animate-spin text-primary/70" /></div>
+          ) : (
+            <div className="border-t border-border">
+              {rows.map((r) => {
+                const isToday = r.offset === 0;
+                const busy = actingKey === r.key;
+                return (
+                  <div key={r.offset} className={`px-4 py-3 border-b border-border last:border-0 ${isToday ? 'bg-primary/10' : ''}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                      <div className="sm:w-36 sm:shrink-0">
+                        <p className={`font-sans text-xs font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>{fmt(r.dateObj)}</p>
+                        <p className="font-sans text-[10px] text-muted-foreground">{isToday ? 'Today' : r.offset > 0 ? `+${r.offset}d` : `${r.offset}d`}</p>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-sans text-xs text-accent font-semibold">{r.verse?.ref}</p>
+                          {r.pinned && <span className="px-1.5 py-0.5 rounded bg-accent/20 text-accent text-[10px] font-semibold">PINNED</span>}
+                        </div>
+                        <p className="font-serif text-sm text-foreground leading-snug">{r.verse?.text?.replace(/[[\]]/g, '')}</p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0 self-start">
+                        {busy ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-primary/70" />
+                        ) : r.pinned ? (
+                          <button
+                            onClick={() => unpinVerse(r.pinId, r.key)}
+                            title="Remove pin (restore formula verse)"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-[11px] text-foreground hover:bg-secondary/70"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" /> Unpin
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => excludeVerse(r.verse?.ref, r.key)}
+                            title="Exclude this verse permanently"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/10 text-[11px] text-destructive hover:bg-destructive/20"
+                          >
+                            <Ban className="w-3.5 h-3.5" /> Exclude
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <p className="font-serif text-sm text-foreground leading-snug">{r.verse?.text?.replace(/[[\]]/g, '')}</p>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0 self-start">
-                    {busy ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-primary/70" />
-                    ) : r.pinned ? (
-                      <button
-                        onClick={() => unpinVerse(r.pinId, r.key)}
-                        title="Remove pin (restore formula verse)"
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-[11px] text-foreground hover:bg-secondary/70"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" /> Unpin
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => excludeVerse(r.verse?.ref, r.key)}
-                        title="Exclude this verse permanently"
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/10 text-[11px] text-destructive hover:bg-destructive/20"
-                      >
-                        <Ban className="w-3.5 h-3.5" /> Exclude
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                );
+              })}
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 }
