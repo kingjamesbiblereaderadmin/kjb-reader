@@ -170,11 +170,15 @@ const AuthenticatedApp = () => {
     };
   }, []);
 
-  // Re-assert the canonical title on every route change, so if a print/export
-  // flow left a stray title behind (e.g. "Advanced Search"), navigating home,
-  // to read, or anywhere else corrects the tab name.
+  // Keep the tab title pinned to the canonical name. The browser can otherwise
+  // derive a title from the URL path (e.g. "/advanced-search" → "Advanced
+  // Search") on a hard refresh, or restore a stale title from a history entry
+  // that was captured mid print/export. We force it on every route change AND
+  // on a short delay after mount, so any late browser override is corrected.
   useEffect(() => {
-    if (document.title !== CANONICAL_TITLE) document.title = CANONICAL_TITLE;
+    document.title = CANONICAL_TITLE;
+    const t = setTimeout(() => { document.title = CANONICAL_TITLE; }, 400);
+    return () => clearTimeout(t);
   }, [location.pathname]);
 
   // Preload route chunks in background
