@@ -19,13 +19,6 @@ export default function AdvancedSearchPage() {
   const [selectedKeys, setSelectedKeys] = useState(() => new Set());
   const resultsRef = useRef(null);
 
-  const scrollToResults = useCallback(() => {
-    // Wait a frame so the results have rendered before scrolling to them.
-    requestAnimationFrame(() => {
-      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }, []);
-
   useEffect(() => {
     let cancelled = false;
     buildVerseIndex()
@@ -289,7 +282,7 @@ export default function AdvancedSearchPage() {
             </div>
             <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} />
             <button
-              onClick={() => { setShowFilters(false); scrollToResults(); }}
+              onClick={() => setShowFilters(false)}
               className="w-full mt-4 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium"
             >
               {isEmpty ? 'Done' : `Show ${results.length.toLocaleString()} results`}
