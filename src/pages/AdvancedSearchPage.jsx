@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { FlaskConical, Loader2, SlidersHorizontal, X, CheckSquare, Square, ChevronDown } from 'lucide-react';
 import {
   buildVerseIndex, applyFilters, defaultFilters, NUMERIC_METRICS, isDefaultFilters,
+  computeOptionAvailability,
 } from '@/lib/verseAnalysis';
 import AdvancedFilterPanel from '@/components/search/AdvancedFilterPanel';
 import AdvancedResultRow from '@/components/search/AdvancedResultRow';
@@ -108,6 +109,13 @@ export default function AdvancedSearchPage() {
 
   const handleReset = useCallback(() => setFilters(defaultFilters()), []);
 
+  // Which filter options would still return verses given the current filters.
+  // Options yielding 0 results are greyed out in the panel.
+  const availability = useMemo(
+    () => (records ? computeOptionAvailability(records, filters) : null),
+    [records, filters]
+  );
+
   // Group the currently-visible results by Testament, then book — preserving
   // the order results already come in (canonical or by whatever sort is active).
   const groupedVisible = useMemo(() => {
@@ -165,7 +173,7 @@ export default function AdvancedSearchPage() {
           {/* Desktop filter column — sticky, with its own independent scroll
               so a long filter list scrolls on its own without moving the page. */}
           <div className="hidden lg:block sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto pr-1 scrollbar-hide">
-            <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} />
+            <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} />
           </div>
 
           {/* Results column */}
@@ -315,7 +323,7 @@ export default function AdvancedSearchPage() {
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
-            <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} />
+            <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} />
             <button
               onClick={() => setShowFilters(false)}
               className="w-full mt-4 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium"

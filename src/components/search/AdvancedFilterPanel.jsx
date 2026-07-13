@@ -25,7 +25,7 @@ function Section({ title, icon: Icon, open, onToggle, children }) {
 
 // The full filter + sort control panel for Advanced Search. Controlled — the
 // parent owns the `filters` object and passes `onChange(next)`.
-export default function AdvancedFilterPanel({ filters, onChange, onReset }) {
+export default function AdvancedFilterPanel({ filters, onChange, onReset, availability }) {
   const [openSections, setOpenSections] = useState({
     scope: true,
     sort: true,
@@ -59,9 +59,9 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset }) {
               onChange={(e) => set({ testament: e.target.value, book: 'all' })}
               className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground"
             >
-              <option value="all">All (Old + New)</option>
-              <option value="old">Old Testament</option>
-              <option value="new">New Testament</option>
+              <option value="all" disabled={availability && !availability.testaments.all}>All (Old + New)</option>
+              <option value="old" disabled={availability && !availability.testaments.old}>Old Testament</option>
+              <option value="new" disabled={availability && !availability.testaments.new}>New Testament</option>
             </select>
           </div>
           <div>
@@ -71,8 +71,16 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset }) {
               onChange={(e) => set({ book: e.target.value })}
               className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground"
             >
-              <option value="all">All books</option>
-              {books.map(b => <option key={b.abbr} value={b.apiName}>{b.shortName}</option>)}
+              <option value="all" disabled={availability && !availability.books.all}>All books</option>
+              {books.map(b => (
+                <option
+                  key={b.abbr}
+                  value={b.apiName}
+                  disabled={availability && availability.books[b.apiName] === false}
+                >
+                  {b.shortName}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -160,19 +168,24 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset }) {
             <div key={m.key} className="flex items-center justify-between gap-3">
               <span className="font-sans text-xs text-foreground flex-1">{m.label}</span>
               <div className="flex rounded-lg overflow-hidden border border-border shrink-0">
-                {['any', 'yes', 'no'].map(opt => (
+                {['any', 'yes', 'no'].map(opt => {
+                  const active = filters.bools[m.key] === opt;
+                  const unavailable = availability && !active && availability.bools[m.key]?.[opt] === false;
+                  return (
                   <button
                     key={opt}
+                    disabled={unavailable}
                     onClick={() => setBool(m.key, opt)}
                     className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                      filters.bools[m.key] === opt
+                      active
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-secondary text-muted-foreground hover:text-foreground'
-                    }`}
+                    } ${unavailable ? 'opacity-30 cursor-not-allowed hover:text-muted-foreground' : ''}`}
                   >
                     {opt === 'any' ? 'Any' : opt === 'yes' ? 'Yes' : 'No'}
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}

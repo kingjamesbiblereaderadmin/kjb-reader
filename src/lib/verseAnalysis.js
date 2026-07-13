@@ -225,6 +225,70 @@ export function parseSearchTerms(text) {
   return (text || '').trim().toLowerCase().split(/[\s,]+/).filter(Boolean);
 }
 
+// Count how many verses match a given filter object (no sorting needed).
+function countMatches(records, f) {
+  const terms = parseSearchTerms(f.textContains);
+  let n = 0;
+  for (const r of records) {
+    if (f.testament !== 'all' && r.testament !== f.testament) continue;
+    if (f.book !== 'all' && r.book !== f.book) continue;
+    if (terms.length) {
+      const lower = r.plainText.toLowerCase();
+      if (!terms.every(t => lower.includes(t))) continue;
+    }
+    let ok = true;
+    for (const m of NUMERIC_METRICS) {
+      const { min, max } = f.ranges[m.key];
+      const val = r.metrics[m.key];
+      if (min !== '' && val < Number(min)) { ok = false; break; }
+      if (max !== '' && val > Number(max)) { ok = false; break; }
+    }
+    if (!ok) continue;
+    for (const m of BOOLEAN_METRICS) {
+      const want = f.bools[m.key];
+      if (want === 'any') continue;
+      const val = !!r.metrics[m.key];
+      if (want === 'yes' && !val) { ok = false; break; }
+      if (want === 'no' && val) { ok = false; break; }
+    }
+    if (ok) n++;
+  }
+  return n;
+}
+
+// Build a map of which filter OPTIONS would still return at least one verse,
+// given the current filters. Each option is tested by overriding just that one
+// dimension in the current filter object and counting matches. Options that
+// yield 0 results are marked disabled so the panel can grey them out.
+export function computeOptionAvailability(records, f) {
+  if (!records || !records.length) return null;
+
+  // Testament options: 'all' | 'old' | 'new'
+  const testaments = {};
+  for (const t of ['all', 'old', 'new']) {
+    testaments[t] = countMatches(records, { ...f, testament: t, book: 'all' }) > 0;
+  }
+
+  // Book options: 'all' + every apiName. Test within the current testament.
+  const books = { all: countMatches(records, { ...f, book: 'all' }) > 0 };
+  for (const b of BIBLE_BOOKS) {
+    if (f.testament !== 'all' && b.testament !== f.testament) continue;
+    books[b.apiName] = countMatches(records, { ...f, book: b.apiName }) > 0;
+  }
+
+  // Property (boolean) options: for each metric, which of any/yes/no still match.
+  const bools = {};
+  for (const m of BOOLEAN_METRICS) {
+    bools[m.key] = {
+      any: true, // 'any' never removes verses, always available
+      yes: countMatches(records, { ...f, bools: { ...f.bools, [m.key]: 'yes' } }) > 0,
+      no: countMatches(records, { ...f, bools: { ...f.bools, [m.key]: 'no' } }) > 0,
+    };
+  }
+
+  return { testaments, books, bools };
+}
+
 // Apply filters + sort to the built records. Returns a new array.
 export function applyFilters(records, f) {
   const terms = parseSearchTerms(f.textContains);
