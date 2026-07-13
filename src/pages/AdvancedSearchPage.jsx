@@ -22,6 +22,19 @@ export default function AdvancedSearchPage() {
   // Collapsed Testament / Book groups (keys stored in a Set = collapsed).
   const [collapsedGroups, setCollapsedGroups] = useState(() => new Set());
 
+  // The "Text contains" box updates this instantly for a responsive input, but
+  // the actual (expensive) filtering only runs once typing pauses. We commit
+  // the debounced value into filters.textContains ~350ms after the last keystroke.
+  const [textDraft, setTextDraft] = useState(filters.textContains);
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setFilters(prev => (prev.textContains === textDraft ? prev : { ...prev, textContains: textDraft }));
+    }, 350);
+    return () => clearTimeout(id);
+  }, [textDraft]);
+  // Keep the draft in sync when filters are reset externally (e.g. Reset button).
+  useEffect(() => { setTextDraft(filters.textContains); }, [filters.textContains]);
+
   // Track the mobile bottom-nav footer mode so the filter drawer reserves the
   // right amount of bottom space — the "Show results"/"Reset" buttons must stay
   // reachable whether the bottom menu is expanded (two/one rows) or collapsed (bar).
@@ -215,7 +228,7 @@ export default function AdvancedSearchPage() {
           {/* Desktop filter column — sticky, with its own independent scroll
               so a long filter list scrolls on its own without moving the page. */}
           <div className="hidden lg:block sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto pr-1 scrollbar-hide">
-            <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} metricRanges={metricRanges} />
+            <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} metricRanges={metricRanges} textDraft={textDraft} onTextDraftChange={setTextDraft} />
           </div>
 
           {/* Results column */}
@@ -369,7 +382,7 @@ export default function AdvancedSearchPage() {
               className="flex-1 overflow-y-auto overscroll-contain px-5"
               style={{ WebkitOverflowScrolling: 'touch', paddingBottom: footerPad }}
             >
-              <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} metricRanges={metricRanges} />
+              <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} metricRanges={metricRanges} textDraft={textDraft} onTextDraftChange={setTextDraft} />
             </div>
             <div
               className="shrink-0 px-5 pt-3 bg-background border-t border-border/60"

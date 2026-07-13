@@ -25,7 +25,7 @@ function Section({ title, icon: Icon, open, onToggle, children }) {
 
 // The full filter + sort control panel for Advanced Search. Controlled — the
 // parent owns the `filters` object and passes `onChange(next)`.
-export default function AdvancedFilterPanel({ filters, onChange, onReset, availability, metricRanges }) {
+export default function AdvancedFilterPanel({ filters, onChange, onReset, availability, metricRanges, textDraft, onTextDraftChange }) {
   const [openSections, setOpenSections] = useState({
     scope: true,
     sort: true,
@@ -88,8 +88,8 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
           <label className="block font-sans text-xs text-muted-foreground mb-1">Text contains (optional)</label>
           <input
             type="text"
-            value={filters.textContains}
-            onChange={(e) => set({ textContains: e.target.value })}
+            value={textDraft}
+            onChange={(e) => onTextDraftChange(e.target.value)}
             placeholder="e.g. love LORD begat…"
             className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground"
           />
