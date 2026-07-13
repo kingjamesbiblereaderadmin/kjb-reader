@@ -45,6 +45,7 @@ const NUMBER_WORDS = new Set([
   'first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth',
   'eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth',
   'twentieth','thirtieth','fortieth','fiftieth','sixtieth','seventieth','eightieth','ninetieth','hundredth','thousandth',
+  'sevens','thirdly','quaternions',
   'once','twice','thrice','twain','double','treble','triple',
   'twofold','threefold','fourfold','sevenfold','tenfold','hundredfold','manifold','thirtyfold','sixtyfold',
   'score','fourscore','threescore','sixscore',
