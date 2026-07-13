@@ -5,6 +5,7 @@ import { fetchChapter, resolveSubscript, resolveColophon } from '@/lib/bibleApi'
 import { invalidateOverrides, loadOverrides, SUBSCRIPT_VERSE, COLOPHON_VERSE } from '@/lib/bibleTextOverrides';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import { Loader2, Save, Trash2, RotateCcw } from 'lucide-react';
+import BibleEditsLog from '@/components/dev/BibleEditsLog';
 
 const DEV_KEY = 'KJB-DEV-2026';
 
@@ -20,6 +21,7 @@ export default function BibleTextEditor() {
   const [loading, setLoading] = useState(false);
   const [savingV, setSavingV] = useState(null);
   const [msg, setMsg] = useState('');
+  const [logKey, setLogKey] = useState(0);   // bump to reload the edits log
 
   const bookEntry = BIBLE_BOOKS.find(b => b.apiName === book);
   const maxChapters = bookEntry ? bookEntry.chapters : 150;
@@ -71,6 +73,7 @@ export default function BibleTextEditor() {
       await loadOverrides(true);
       setMsg(`Saved ${bookEntry?.shortName} ${chapter}:${verseNum} — live for all readers.`);
       setEdited(prev => { const n = { ...prev }; delete n[verseNum]; return n; });
+      setLogKey(k => k + 1);
     } catch (err) {
       setMsg('Save failed: ' + (err.message || 'unknown'));
     }
@@ -88,6 +91,7 @@ export default function BibleTextEditor() {
       invalidateOverrides();
       await loadOverrides(true);
       await load();
+      setLogKey(k => k + 1);
       setMsg(`Reverted ${bookEntry?.shortName} ${chapter}:${verseNum} to original.`);
     } catch (err) {
       setMsg('Revert failed: ' + (err.message || 'unknown'));
@@ -119,6 +123,11 @@ export default function BibleTextEditor() {
         <p className="text-xs text-muted-foreground">Use [brackets] for italic (supplied) words. Saved edits apply to every reader instantly and cost no credits. Psalm superscriptions/subscripts and epistle colophons are editable here too; Psalm 119 Hebrew-letter headings live inside their verse text (verses 1, 9, 17…), so edit those verses to fix them.</p>
         {msg && <p className="text-xs text-primary">{msg}</p>}
       </div>
+
+      <BibleEditsLog
+        key={logKey}
+        onJump={(b, ch) => { setBook(b); setChapter(Number(ch)); }}
+      />
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary/70" /></div>
