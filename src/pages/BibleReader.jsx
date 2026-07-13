@@ -1160,6 +1160,12 @@ export default function BibleReader() {
     if (searchTerm) { clearSearchContext(); }
     if (gospelMode) { clearGospelNav(); setGospelMode(false); }
     setLastReadingPos(null);
+    lastReadingClearedRef.current = true;
+    // Drop the stale highlight/selection from the previous special mode so only
+    // the freshly-picked verse highlights (navigate() sets the new one below).
+    setHighlightVerse(null); setHighlightSection(null);
+    setFilterMode(false); setSelectMode(false);
+    setSelectedVerses(new Set()); setHighlightedVerses(new Set());
     try { localStorage.removeItem('kjb-last-reading'); localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
   };
 
