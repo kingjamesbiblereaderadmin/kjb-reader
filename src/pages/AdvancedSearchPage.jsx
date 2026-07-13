@@ -39,6 +39,15 @@ export default function AdvancedSearchPage() {
   // Reset the visible window + selection when the result set changes.
   useEffect(() => { setVisible(PAGE_SIZE); setSelectedKeys(new Set()); }, [filters]);
 
+  // Lock the page behind the mobile filter drawer so scrolling inside the
+  // drawer doesn't scroll the underlying page (which left it not-at-top on close).
+  useEffect(() => {
+    if (!showFilters) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [showFilters]);
+
   const keyOf = (r) => `${r.abbr}-${r.chapter}-${r.verse}`;
 
   const toggleSelect = useCallback((r) => {
@@ -61,6 +70,31 @@ export default function AdvancedSearchPage() {
   );
 
   const handleReset = useCallback(() => setFilters(defaultFilters()), []);
+
+  // Group the currently-visible results by Testament, then book — preserving
+  // the order results already come in (canonical or by whatever sort is active).
+  const groupedVisible = useMemo(() => {
+    const shown = results.slice(0, visible);
+    const testaments = [];
+    const tMap = new Map();
+    for (const r of shown) {
+      const tKey = r.testament; // 'old' | 'new'
+      let t = tMap.get(tKey);
+      if (!t) {
+        t = { key: tKey, label: tKey === 'old' ? 'Old Testament' : 'New Testament', books: [], bMap: new Map() };
+        tMap.set(tKey, t);
+        testaments.push(t);
+      }
+      let b = t.bMap.get(r.abbr);
+      if (!b) {
+        b = { key: r.abbr, label: r.shortName, rows: [] };
+        t.bMap.set(r.abbr, b);
+        t.books.push(b);
+      }
+      b.rows.push(r);
+    }
+    return testaments;
+  }, [results, visible]);
 
   return (
     <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 pt-10 pb-32">
@@ -158,35 +192,49 @@ export default function AdvancedSearchPage() {
                 <p className="font-sans text-sm text-muted-foreground">No verses match these filters. Try loosening them.</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {results.slice(0, visible).map(r => {
-                  const k = keyOf(r);
-                  if (selectMode) {
-                    const checked = selectedKeys.has(k);
-                    return (
-                      <button
-                        key={k}
-                        type="button"
-                        onClick={() => toggleSelect(r)}
-                        className={`w-full flex items-start gap-3 text-left rounded-2xl transition-colors ${
-                          checked ? 'ring-2 ring-primary rounded-2xl' : ''
-                        }`}
-                      >
-                        <span className="mt-4 shrink-0">
-                          {checked
-                            ? <CheckSquare className="w-5 h-5 text-primary" />
-                            : <Square className="w-5 h-5 text-muted-foreground" />}
-                        </span>
-                        <span className="flex-1 pointer-events-none">
-                          <AdvancedResultRow record={r} sortKey={filters.sortKey} sortLabel={sortLabel} />
-                        </span>
-                      </button>
-                    );
-                  }
-                  return (
-                    <AdvancedResultRow key={k} record={r} sortKey={filters.sortKey} sortLabel={sortLabel} />
-                  );
-                })}
+              <div className="space-y-8">
+                {groupedVisible.map(t => (
+                  <div key={t.key} className="space-y-5">
+                    <h2 className="font-serif text-2xl font-bold text-foreground border-b-2 border-accent/40 pb-1.5">
+                      {t.label}
+                    </h2>
+                    {t.books.map(b => (
+                      <div key={b.key} className="space-y-3">
+                        <h3 className="font-serif text-lg font-semibold text-primary sticky top-0 bg-background/90 backdrop-blur-sm py-1 z-10">
+                          {b.label} <span className="font-sans text-xs font-normal text-muted-foreground">({b.rows.length})</span>
+                        </h3>
+                        {b.rows.map(r => {
+                          const k = keyOf(r);
+                          if (selectMode) {
+                            const checked = selectedKeys.has(k);
+                            return (
+                              <button
+                                key={k}
+                                type="button"
+                                onClick={() => toggleSelect(r)}
+                                className={`w-full flex items-start gap-3 text-left rounded-2xl transition-colors ${
+                                  checked ? 'ring-2 ring-primary rounded-2xl' : ''
+                                }`}
+                              >
+                                <span className="mt-4 shrink-0">
+                                  {checked
+                                    ? <CheckSquare className="w-5 h-5 text-primary" />
+                                    : <Square className="w-5 h-5 text-muted-foreground" />}
+                                </span>
+                                <span className="flex-1 pointer-events-none">
+                                  <AdvancedResultRow record={r} sortKey={filters.sortKey} sortLabel={sortLabel} />
+                                </span>
+                              </button>
+                            );
+                          }
+                          return (
+                            <AdvancedResultRow key={k} record={r} sortKey={filters.sortKey} sortLabel={sortLabel} />
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                ))}
                 {visible < results.length && (
                   <button
                     onClick={() => { setVisible(v => v + PAGE_SIZE); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
