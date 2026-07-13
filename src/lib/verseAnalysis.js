@@ -233,7 +233,7 @@ export function parseSearchTerms(text) {
 // Max number of unrelated words allowed between consecutive terms in "In order"
 // mode, so it means "in sequence, close together" (e.g. "Lamb of God" won't
 // match a stray "Lamb …(20 words)… of …(10 words)… God"). Adjacent = 0 gaps.
-export const IN_ORDER_MAX_GAP = 2;
+export const IN_ORDER_MAX_GAP = 1;
 
 // Does the verse's plain text contain the given terms, honouring the flags?
 //  - caseSensitive: compare exact letter case
