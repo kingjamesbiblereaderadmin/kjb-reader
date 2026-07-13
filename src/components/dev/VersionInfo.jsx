@@ -32,8 +32,10 @@ export default function VersionInfo() {
   const [bumping, setBumping] = useState(false);
   const [msg, setMsg] = useState(null); // { ok: bool, text: string }
 
-  // Load the current runtime version from the live manifest. Use the SDK invoke
-  // (a raw fetch to /functions/manifest returns the app HTML on some hosts).
+  // Load both the runtime version (from the live manifest) and the ACTUAL
+  // running service worker version (asked directly of the SW). Use the SDK
+  // invoke for the manifest (a raw fetch to /functions/manifest returns the app
+  // HTML on some hosts).
   const loadLive = async () => {
     try {
       const res = await base44.functions.invoke('manifest', {});
@@ -41,13 +43,21 @@ export default function VersionInfo() {
     } catch {
       setLiveVersion(null);
     }
+    const sw = await getLiveWorkerVersion();
+    setSwVersion(sw);
   };
 
   useEffect(() => {
     loadLive();
-    let cancelled = false;
-    getLiveWorkerVersion().then(v => { if (!cancelled) setSwVersion(v); });
-    return () => { cancelled = true; };
+    // Re-query on focus and poll so the tab always reflects the true live state
+    // (e.g. after a deploy activates a new worker, or a bump elsewhere).
+    window.addEventListener('focus', loadLive);
+    const poll = setInterval(loadLive, 8000);
+    return () => {
+      window.removeEventListener('focus', loadLive);
+      clearInterval(poll);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const copy = async () => {
@@ -72,6 +82,8 @@ export default function VersionInfo() {
           if (link) link.href = `/manifest.json?v=${version}`;
         } catch {}
         setMsg({ ok: true, text: `Bumped to ${res.data.version}. Manifest refreshed — clients will detect the update and refresh.` });
+        // Re-read the true live state so the panel reflects reality immediately.
+        loadLive();
       } else {
         setMsg({ ok: false, text: res?.data?.error || 'Bump failed.' });
       }
@@ -90,12 +102,12 @@ export default function VersionInfo() {
           Bumps the runtime version and refreshes the manifest instantly — every client will detect an update and refresh. No code deploy needed.
         </p>
         <div className="text-xs mb-1">
-          <span className="text-muted-foreground">Live service worker: </span>
+          <span className="text-muted-foreground">Live service worker (set by code deploy): </span>
           <code className="px-2 py-1 rounded bg-secondary text-foreground">{swVersion || 'not running'}</code>
         </div>
         <div className="flex items-center justify-between gap-3">
           <div className="text-xs">
-            <span className="text-muted-foreground">Runtime version: </span>
+            <span className="text-muted-foreground">Runtime version (set by bump): </span>
             <code className="px-2 py-1 rounded bg-secondary text-foreground">{liveVersion || 'none set'}</code>
           </div>
           <button onClick={bumpAndRefresh} disabled={bumping}
