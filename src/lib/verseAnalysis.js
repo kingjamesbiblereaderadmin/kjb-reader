@@ -244,24 +244,69 @@ export function matchesTerms(plainText, terms, caseSensitive, wholeWord) {
   });
 }
 
-// Compute the actual min & max value of every numeric metric across all verses,
-// so the filter inputs can suggest a realistic range as placeholder subtext.
+// Compute the actual min & max value of every numeric metric — by default
+// across all verses, or (when `f` is given) across only the verses matching
+// the OTHER active filters. For each metric we ignore that metric's own range
+// while computing its available span, so the placeholders reflect what values
+// are still reachable given everything else the user has selected. If no verse
+// matches, the metric's range is null so the panel can grey it out.
 let _rangeCache = null;
-export function computeMetricRanges(records) {
-  if (_rangeCache) return _rangeCache;
+export function computeMetricRanges(records, f = null) {
   if (!records || !records.length) return null;
+  if (!f) {
+    if (_rangeCache) return _rangeCache;
+    const ranges = {};
+    for (const m of NUMERIC_METRICS) {
+      let min = Infinity, max = -Infinity;
+      for (const r of records) {
+        const v = r.metrics[m.key];
+        if (v < min) min = v;
+        if (v > max) max = v;
+      }
+      ranges[m.key] = { min: Math.round(min), max: Math.round(max) };
+    }
+    _rangeCache = ranges;
+    return ranges;
+  }
+
   const ranges = {};
   for (const m of NUMERIC_METRICS) {
+    // Match against all filters EXCEPT this metric's own numeric range.
+    const others = { ...f, ranges: { ...f.ranges, [m.key]: { min: '', max: '' } } };
     let min = Infinity, max = -Infinity;
     for (const r of records) {
+      if (!matchesNonRange(r, others, m.key)) continue;
       const v = r.metrics[m.key];
       if (v < min) min = v;
       if (v > max) max = v;
     }
-    ranges[m.key] = { min: Math.round(min), max: Math.round(max) };
+    ranges[m.key] = max === -Infinity ? null : { min: Math.round(min), max: Math.round(max) };
   }
-  _rangeCache = ranges;
   return ranges;
+}
+
+// Does a verse match every filter dimension except the numeric range of
+// `skipKey`? Used to compute per-metric available ranges.
+function matchesNonRange(r, f, skipKey) {
+  const terms = parseSearchTerms(f.textContains);
+  if (f.testament !== 'all' && r.testament !== f.testament) return false;
+  if (f.book !== 'all' && r.book !== f.book) return false;
+  if (terms.length && !matchesTerms(r.plainText, terms, f.textCaseSensitive, f.textWholeWord)) return false;
+  for (const m of NUMERIC_METRICS) {
+    if (m.key === skipKey) continue;
+    const { min, max } = f.ranges[m.key];
+    const val = r.metrics[m.key];
+    if (min !== '' && val < Number(min)) return false;
+    if (max !== '' && val > Number(max)) return false;
+  }
+  for (const m of BOOLEAN_METRICS) {
+    const want = f.bools[m.key];
+    if (want === 'any') continue;
+    const val = !!r.metrics[m.key];
+    if (want === 'yes' && !val) return false;
+    if (want === 'no' && val) return false;
+  }
+  return true;
 }
 
 // Count how many verses match a given filter object (no sorting needed).

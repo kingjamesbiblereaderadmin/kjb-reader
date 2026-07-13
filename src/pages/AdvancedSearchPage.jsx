@@ -147,8 +147,8 @@ export default function AdvancedSearchPage() {
   // The actual data range (min/max) of each numeric metric — used to suggest
   // realistic values as placeholders in the numeric filter inputs.
   const metricRanges = useMemo(
-    () => (records ? computeMetricRanges(records) : null),
-    [records]
+    () => (records ? computeMetricRanges(records, filters) : null),
+    [records, filters]
   );
 
   // Group the currently-visible results by Testament, then book — preserving

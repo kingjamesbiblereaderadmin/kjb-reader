@@ -159,24 +159,30 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
         <div className="space-y-2">
           {NUMERIC_METRICS.map(m => {
             const dr = metricRanges?.[m.key];
+            // No matching verses for this metric (given other filters) and the
+            // user hasn't set its own range → grey it out.
+            const hasOwnValue = filters.ranges[m.key].min !== '' || filters.ranges[m.key].max !== '';
+            const unavailable = metricRanges && dr === null && !hasOwnValue;
             return (
-            <div key={m.key} className="grid grid-cols-[1fr_auto_auto] items-center gap-2">
+            <div key={m.key} className={`grid grid-cols-[1fr_auto_auto] items-center gap-2 ${unavailable ? 'opacity-40' : ''}`}>
               <span className="font-sans text-xs text-foreground truncate">{m.label}</span>
               <input
                 type="number"
                 inputMode="numeric"
+                disabled={unavailable}
                 value={filters.ranges[m.key].min}
                 onChange={(e) => setRange(m.key, 'min', e.target.value)}
                 placeholder={dr ? String(dr.min) : 'min'}
-                className="w-20 px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs text-foreground"
+                className="w-20 px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs text-foreground disabled:cursor-not-allowed"
               />
               <input
                 type="number"
                 inputMode="numeric"
+                disabled={unavailable}
                 value={filters.ranges[m.key].max}
                 onChange={(e) => setRange(m.key, 'max', e.target.value)}
                 placeholder={dr ? String(dr.max) : 'max'}
-                className="w-20 px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs text-foreground"
+                className="w-20 px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs text-foreground disabled:cursor-not-allowed"
               />
             </div>
             );
