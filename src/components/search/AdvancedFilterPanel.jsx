@@ -94,6 +94,26 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
             className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground"
           />
           <p className="font-sans text-[11px] text-muted-foreground mt-1">Multiple words match verses containing all of them (any order).</p>
+          <div className="flex flex-wrap items-center gap-4 mt-2.5">
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={filters.textCaseSensitive}
+                onChange={(e) => set({ textCaseSensitive: e.target.checked })}
+                className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
+              />
+              <span className="font-sans text-xs text-foreground">Match case</span>
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={filters.textWholeWord}
+                onChange={(e) => set({ textWholeWord: e.target.checked })}
+                className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
+              />
+              <span className="font-sans text-xs text-foreground">Whole word</span>
+            </label>
+          </div>
         </div>
       </Section>
 

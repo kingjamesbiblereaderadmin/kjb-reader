@@ -192,7 +192,9 @@ export function defaultFilters() {
   return {
     testament: 'all',          // 'all' | 'old' | 'new'
     book: 'all',               // 'all' | apiName
-    textContains: '',          // substring (case-insensitive) in plain text
+    textContains: '',          // substring in plain text (matching honours the flags below)
+    textCaseSensitive: false,  // match the exact letter case
+    textWholeWord: false,      // match whole words only (not substrings)
     ranges,
     bools,
     sortKey: 'wordCount',
@@ -219,10 +221,27 @@ export function isDefaultFilters(f) {
 // Split the "Text contains" box into individual search words. Multiple words
 // are matched with AND (every word must appear somewhere in the verse, in any
 // order) — e.g. "love God" matches verses containing both "love" and "God".
+// Case is preserved so a case-sensitive match can compare exactly.
 export function parseSearchTerms(text) {
   // Split on commas AND/OR whitespace, so "love, LORD begat" and "love LORD"
   // both work. Every term must appear in the verse (AND matching).
-  return (text || '').trim().toLowerCase().split(/[\s,]+/).filter(Boolean);
+  return (text || '').trim().split(/[\s,]+/).filter(Boolean);
+}
+
+// Does the verse's plain text contain ALL of the given terms, honouring the
+// case-sensitive and whole-word flags?
+export function matchesTerms(plainText, terms, caseSensitive, wholeWord) {
+  if (!terms.length) return true;
+  const haystack = caseSensitive ? plainText : plainText.toLowerCase();
+  return terms.every(term => {
+    const t = caseSensitive ? term : term.toLowerCase();
+    if (wholeWord) {
+      const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(`(^|[^A-Za-z'-])${esc}($|[^A-Za-z'-])`, caseSensitive ? '' : 'i');
+      return re.test(plainText);
+    }
+    return haystack.includes(t);
+  });
 }
 
 // Count how many verses match a given filter object (no sorting needed).
@@ -232,10 +251,7 @@ function countMatches(records, f) {
   for (const r of records) {
     if (f.testament !== 'all' && r.testament !== f.testament) continue;
     if (f.book !== 'all' && r.book !== f.book) continue;
-    if (terms.length) {
-      const lower = r.plainText.toLowerCase();
-      if (!terms.every(t => lower.includes(t))) continue;
-    }
+    if (terms.length && !matchesTerms(r.plainText, terms, f.textCaseSensitive, f.textWholeWord)) continue;
     let ok = true;
     for (const m of NUMERIC_METRICS) {
       const { min, max } = f.ranges[m.key];
@@ -295,10 +311,7 @@ export function applyFilters(records, f) {
   let out = records.filter(r => {
     if (f.testament !== 'all' && r.testament !== f.testament) return false;
     if (f.book !== 'all' && r.book !== f.book) return false;
-    if (terms.length) {
-      const lower = r.plainText.toLowerCase();
-      if (!terms.every(t => lower.includes(t))) return false;
-    }
+    if (terms.length && !matchesTerms(r.plainText, terms, f.textCaseSensitive, f.textWholeWord)) return false;
 
     for (const m of NUMERIC_METRICS) {
       const { min, max } = f.ranges[m.key];
