@@ -107,8 +107,10 @@ function renderText(rawText, terms, filters) {
 const CHIP_LABELS = {
   wordCount: 'words', charCount: 'chars', letterCount: 'letters', uniqueWordCount: 'unique words',
   longestWordLen: 'longest word', avgWordLen: 'avg word len', sentenceCount: 'sentences',
-  commaCount: 'commas', colonCount: 'colons', questionCount: 'question marks',
-  exclamationCount: 'exclamations', capitalWordCount: 'capitalised', allCapsWordCount: 'ALL-CAPS',
+  commaCount: 'commas', periodCount: 'full stops', semicolonCount: 'semicolons', colonCount: 'colons',
+  questionCount: 'question marks', exclamationCount: 'exclamations',
+  hyphenCount: 'hyphens', apostropheCount: 'apostrophes', totalPunctuationCount: 'punctuation',
+  capitalWordCount: 'capitalised', allCapsWordCount: 'ALL-CAPS',
   italicWordCount: 'italics', digitCount: 'digits',
 };
 
@@ -116,16 +118,24 @@ const CHIP_LABELS = {
 // so filtering on a property shows the matching count chip.
 const BOOL_TO_COUNT = {
   hasPilcrow: 'pilcrowCount',
+  startsWithPilcrow: 'pilcrowCount',
   hasItalics: 'italicWordCount',
   hasNumbers: 'digitCount',
+  hasComma: 'commaCount',
+  hasPeriod: 'periodCount',
+  hasSemicolon: 'semicolonCount',
+  hasColon: 'colonCount',
   hasQuestion: 'questionCount',
   hasExclamation: 'exclamationCount',
-  hasColon: 'colonCount',
+  hasHyphen: 'hyphenCount',
+  hasApostrophe: 'apostropheCount',
   hasAllCaps: 'allCapsWordCount',
 };
 const BOOL_CHIP_LABELS = {
   pilcrowCount: 'pilcrows', italicWordCount: 'italics', digitCount: 'digits',
+  commaCount: 'commas', periodCount: 'full stops', semicolonCount: 'semicolons',
   questionCount: 'question marks', exclamationCount: 'exclamations',
+  hyphenCount: 'hyphens', apostropheCount: 'apostrophes',
   colonCount: 'colons', allCapsWordCount: 'ALL-CAPS',
 };
 

@@ -62,13 +62,25 @@ function computeMetrics(rawText) {
 
   // Sentence count — terminal punctuation groups.
   const sentenceCount = (plain.match(/[.!?]+/g) || []).length || (plain ? 1 : 0);
-  // Commas, colons, semicolons, question & exclamation marks.
+  // Individual punctuation marks — each tracked separately for precise filtering.
   const commaCount = (plain.match(/,/g) || []).length;
-  const colonCount = (plain.match(/[:;]/g) || []).length;
+  const periodCount = (plain.match(/\./g) || []).length;         // full stops
+  const semicolonCount = (plain.match(/;/g) || []).length;
+  const colonCount = (plain.match(/:/g) || []).length;           // colons only (semicolons split out)
   const questionCount = (plain.match(/\?/g) || []).length;
   const exclamationCount = (plain.match(/!/g) || []).length;
+  const hyphenCount = (plain.match(/-/g) || []).length;
+  const apostropheCount = (plain.match(/['’]/g) || []).length;
+  const totalPunctuationCount = commaCount + periodCount + semicolonCount + colonCount
+    + questionCount + exclamationCount + hyphenCount + apostropheCount;
   const hasNumbers = /\d/.test(plain);
   const digitCount = (plain.match(/\d/g) || []).length;
+
+  // First & last word (lowercased) — useful for "verses beginning/ending with…"
+  const firstWord = wordList.length ? wordList[0].toLowerCase() : '';
+  const lastWord = wordList.length ? wordList[wordList.length - 1].toLowerCase() : '';
+  // Does the verse begin a new paragraph (starts with a pilcrow)?
+  const startsWithPilcrow = /^¶/.test(rawText.trim());
 
   // Unique (case-insensitive) words + longest word length.
   const lower = wordList.map(w => w.toLowerCase());
@@ -90,21 +102,34 @@ function computeMetrics(rawText) {
     avgWordLen,
     sentenceCount,
     commaCount,
+    periodCount,
+    semicolonCount,
     colonCount,
     questionCount,
     exclamationCount,
+    hyphenCount,
+    apostropheCount,
+    totalPunctuationCount,
     capitalWordCount,
     allCapsWordCount,
     italicWordCount,
     digitCount,
     pilcrowCount,
+    firstWord,
+    lastWord,
     hasPilcrow,
     hasItalics,
     hasNumbers,
+    hasComma: commaCount > 0,
+    hasPeriod: periodCount > 0,
+    hasSemicolon: semicolonCount > 0,
+    hasHyphen: hyphenCount > 0,
+    hasApostrophe: apostropheCount > 0,
     hasQuestion: questionCount > 0,
     hasExclamation: exclamationCount > 0,
     hasAllCaps: allCapsWordCount > 0,
     hasColon: colonCount > 0,
+    startsWithPilcrow,
   };
 }
 
@@ -162,10 +187,15 @@ export const NUMERIC_METRICS = [
   { key: 'longestWordLen', label: 'Longest word length' },
   { key: 'avgWordLen', label: 'Average word length' },
   { key: 'sentenceCount', label: 'Sentence count' },
-  { key: 'commaCount', label: 'Comma count' },
-  { key: 'colonCount', label: 'Colon / semicolon count' },
+  { key: 'commaCount', label: 'Commas' },
+  { key: 'periodCount', label: 'Full stops (periods)' },
+  { key: 'semicolonCount', label: 'Semicolons' },
+  { key: 'colonCount', label: 'Colons' },
   { key: 'questionCount', label: 'Question marks' },
   { key: 'exclamationCount', label: 'Exclamation marks' },
+  { key: 'hyphenCount', label: 'Hyphens' },
+  { key: 'apostropheCount', label: 'Apostrophes' },
+  { key: 'totalPunctuationCount', label: 'Total punctuation marks' },
   { key: 'capitalWordCount', label: 'Capitalised words' },
   { key: 'allCapsWordCount', label: 'ALL-CAPS words (e.g. LORD)' },
   { key: 'italicWordCount', label: 'Italic (supplied) words' },
@@ -175,11 +205,17 @@ export const NUMERIC_METRICS = [
 // Boolean property toggles (tri-state handled in the panel: any / yes / no).
 export const BOOLEAN_METRICS = [
   { key: 'hasPilcrow', label: 'Contains a pilcrow (¶)' },
+  { key: 'startsWithPilcrow', label: 'Begins a new paragraph (starts with ¶)' },
   { key: 'hasItalics', label: 'Contains italics ([supplied] words)' },
   { key: 'hasNumbers', label: 'Contains numbers' },
+  { key: 'hasComma', label: 'Contains a comma' },
+  { key: 'hasPeriod', label: 'Contains a full stop (period)' },
+  { key: 'hasSemicolon', label: 'Contains a semicolon' },
+  { key: 'hasColon', label: 'Contains a colon' },
   { key: 'hasQuestion', label: 'Contains a question mark' },
   { key: 'hasExclamation', label: 'Contains an exclamation mark' },
-  { key: 'hasColon', label: 'Contains a colon / semicolon' },
+  { key: 'hasHyphen', label: 'Contains a hyphen' },
+  { key: 'hasApostrophe', label: 'Contains an apostrophe' },
   { key: 'hasAllCaps', label: 'Contains an ALL-CAPS word' },
 ];
 
