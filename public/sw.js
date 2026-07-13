@@ -10,12 +10,6 @@ const APP_SHELL_FILES = [
   '/index.html',
   '/offline.html',
   '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-256.png',
-  '/icons/icon-384.png',
-  '/icons/icon-512.png',
-  '/icons/icon-192-maskable.png',
-  '/icons/icon-512-maskable.png',
 ];
 
 // Install event - cache app shell
