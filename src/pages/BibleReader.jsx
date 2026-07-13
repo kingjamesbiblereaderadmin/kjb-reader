@@ -1152,6 +1152,17 @@ export default function BibleReader() {
     baseNavigate(newAbbr, newChapter, jumpVerse, fromDailyVerse, fromRandom, isAutoAdvance, section, preserveSearchContext, clearSearchNav, setGospelMode, clearGospelNav);
   };
 
+  // Explicit verse pick from the Verse selector. This is plain navigation, so
+  // it must clear any active special mode (search / gospel / daily / random) —
+  // otherwise the yellow indicator lingers when you pick a verse in the same
+  // chapter you were already viewing.
+  const clearSpecialModes = () => {
+    if (searchTerm) { clearSearchContext(); }
+    if (gospelMode) { clearGospelNav(); setGospelMode(false); }
+    setLastReadingPos(null);
+    try { localStorage.removeItem('kjb-last-reading'); localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
+  };
+
   const goNext = (isAutoAdvance = false) => {
     if (pos.chapter < book.chapters) { navigate(pos.abbr, pos.chapter + 1, null, false, false, isAutoAdvance); }
     else { const next = getNextBook(pos.abbr); if (next) navigate(next.abbr, 1, null, false, false, isAutoAdvance); }
@@ -1305,9 +1316,10 @@ export default function BibleReader() {
                       hasSubscript={!!chapterSubscript}
                       hasColophon={!!colophon}
                       onSelect={(v) => {
-                        if (v && v.section) { navigate(pos.abbr, pos.chapter, null, false, false, false, v.section); setShowVersePicker(false); return; }
+                        if (v && v.section) { clearSpecialModes(); navigate(pos.abbr, pos.chapter, null, false, false, false, v.section); setShowVersePicker(false); return; }
                         const first = Array.isArray(v) ? v[0] : v;
                         if (Array.isArray(v) && v.length > 1) { const range = new Set(v); setSelectedVerses(range); setHighlightedVerses(range); setSelectMode(false); setFilterMode(true); }
+                        else { clearSpecialModes(); }
                         navigate(pos.abbr, pos.chapter, first); setShowVersePicker(false);
                       }}
                       onClose={() => setShowVersePicker(false)}
@@ -1322,9 +1334,10 @@ export default function BibleReader() {
                     hasSubscript={!!chapterSubscript}
                     hasColophon={!!colophon}
                     onSelect={(v) => {
-                      if (v && v.section) { navigate(pos.abbr, pos.chapter, null, false, false, false, v.section); setShowVersePicker(false); return; }
+                      if (v && v.section) { clearSpecialModes(); navigate(pos.abbr, pos.chapter, null, false, false, false, v.section); setShowVersePicker(false); return; }
                       const first = Array.isArray(v) ? v[0] : v;
                       if (Array.isArray(v) && v.length > 1) { const range = new Set(v); setSelectedVerses(range); setHighlightedVerses(range); setSelectMode(false); setFilterMode(true); }
+                      else { clearSpecialModes(); }
                       navigate(pos.abbr, pos.chapter, first); setShowVersePicker(false);
                     }}
                     onClose={() => setShowVersePicker(false)}
