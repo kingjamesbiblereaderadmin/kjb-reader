@@ -22,6 +22,21 @@ export const COLOPHON_VERSE = -1;
 //   -2 → the closing end marker ("The End" / "The End of the Prophets")
 export const END_MARKER_VERSE = -2;
 
+// Psalm 119 Hebrew-letter stanza headings (ALEPH, BETH, …) are NOT part of a
+// verse's text — the parser stores them on verse.heading. To make them
+// editable, we store a heading override under a per-verse offset key: the
+// verse number plus this offset. e.g. heading for verse 9 → override verse
+// number 1009. This keeps them in the same BibleTextOverride entity without
+// colliding with real verse numbers (Psalm 119 has 176 verses).
+export const HEADING_VERSE_OFFSET = 1000;
+export const headingKeyVerse = (verseNum) => HEADING_VERSE_OFFSET + verseNum;
+
+// Read an overridden Psalm 119 heading for a specific verse (null if none).
+export function getHeadingOverride(book, chapter, verseNum) {
+  if (!_cache) return null;
+  return _cache.get(keyFor(book, chapter, headingKeyVerse(verseNum))) ?? null;
+}
+
 // Read an overridden subscript/colophon (returns null if none loaded/saved).
 export function getSubscriptOverride(book, chapter) {
   if (!_cache) return null;
@@ -74,12 +89,20 @@ export function applyOverrides(book, chapter, verses) {
   if (!_cache || !_cache.size || !Array.isArray(verses)) return verses;
   let changed = false;
   const out = verses.map(v => {
+    let next = v;
     const ov = _cache.get(keyFor(book, chapter, v.verse));
     if (ov != null && ov !== v.text) {
       changed = true;
-      return { ...v, text: ov };
+      next = { ...next, text: ov };
     }
-    return v;
+    // Psalm 119 heading override for this verse (may add or change a heading).
+    const hov = _cache.get(keyFor(book, chapter, headingKeyVerse(v.verse)));
+    if (hov != null && hov !== (v.heading || '')) {
+      changed = true;
+      // An empty string clears the heading; otherwise set/replace it.
+      next = { ...next, heading: hov.trim() ? hov.trim().toUpperCase() : undefined };
+    }
+    return next;
   });
   return changed ? out : verses;
 }

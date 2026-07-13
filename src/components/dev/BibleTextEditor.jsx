@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { fetchChapter, resolveSubscript, resolveColophon, resolveEndMarker } from '@/lib/bibleApi';
-import { invalidateOverrides, loadOverrides, SUBSCRIPT_VERSE, COLOPHON_VERSE, END_MARKER_VERSE } from '@/lib/bibleTextOverrides';
+import { invalidateOverrides, loadOverrides, SUBSCRIPT_VERSE, COLOPHON_VERSE, END_MARKER_VERSE, headingKeyVerse } from '@/lib/bibleTextOverrides';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import { Loader2, Save, Trash2, RotateCcw } from 'lucide-react';
 import BibleEditsLog from '@/components/dev/BibleEditsLog';
@@ -17,7 +17,9 @@ export default function BibleTextEditor() {
   const [chapter, setChapter] = useState(1);
   const [verses, setVerses] = useState([]);
   const [edited, setEdited] = useState({});   // verseNum -> text
+  const [editedHeading, setEditedHeading] = useState({}); // verseNum -> heading text
   const [overrides, setOverrides] = useState({}); // verseNum -> override row
+  const [headingOverrides, setHeadingOverrides] = useState({}); // verseNum -> heading override row
   const [loading, setLoading] = useState(false);
   const [savingV, setSavingV] = useState(null);
   const [msg, setMsg] = useState('');
@@ -33,8 +35,14 @@ export default function BibleTextEditor() {
       // Existing overrides for this chapter
       const rows = await base44.entities.BibleTextOverride.filter({ book, chapter: Number(chapter) });
       const ovMap = {};
-      rows.forEach(r => { ovMap[r.verse] = r; });
+      const headMap = {};
+      rows.forEach(r => {
+        // Heading overrides are stored under a high verse-number offset (1000+).
+        if (r.verse >= 1000) headMap[r.verse - 1000] = r;
+        else ovMap[r.verse] = r;
+      });
       setOverrides(ovMap);
+      setHeadingOverrides(headMap);
       // Chapter verses (already has overrides applied by fetchChapter)
       const { verses: vs } = await fetchChapter(book, Number(chapter));
       // Prepend the Psalm superscription (verse 0) and append the epistle
@@ -51,6 +59,7 @@ export default function BibleTextEditor() {
       ];
       setVerses(combined);
       setEdited({});
+      setEditedHeading({});
     } catch (err) {
       setMsg(err.message || 'Failed to load');
     }
@@ -78,6 +87,32 @@ export default function BibleTextEditor() {
       setLogKey(k => k + 1);
     } catch (err) {
       setMsg('Save failed: ' + (err.message || 'unknown'));
+    }
+    setSavingV(null);
+  };
+
+  // Save a Psalm 119 Hebrew-letter heading for a verse. Stored as an override
+  // under the verse's heading-offset key so the reader picks it up.
+  const saveHeading = async (verseNum, headingText) => {
+    const headVerse = headingKeyVerse(verseNum);
+    setSavingV(headVerse);
+    setMsg('');
+    try {
+      const existing = headingOverrides[verseNum];
+      if (existing) {
+        await base44.functions.invoke('saveBibleTextOverride', { op: 'update', id: existing.id, text: headingText, key: DEV_KEY });
+      } else {
+        const res = await base44.functions.invoke('saveBibleTextOverride', { op: 'create', book, chapter: Number(chapter), verse: headVerse, text: headingText, key: DEV_KEY });
+        const created = res?.data?.record;
+        if (created) setHeadingOverrides(prev => ({ ...prev, [verseNum]: created }));
+      }
+      invalidateOverrides();
+      await loadOverrides(true);
+      setMsg(`Saved heading for ${bookEntry?.shortName} ${chapter}:${verseNum} — live for all readers.`);
+      setEditedHeading(prev => { const n = { ...prev }; delete n[verseNum]; return n; });
+      setLogKey(k => k + 1);
+    } catch (err) {
+      setMsg('Heading save failed: ' + (err.message || 'unknown'));
     }
     setSavingV(null);
   };
@@ -122,7 +157,7 @@ export default function BibleTextEditor() {
             </select>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">Use [brackets] for italic (supplied) words. Saved edits apply to every reader instantly and cost no credits. Psalm superscriptions/subscripts and epistle colophons are editable here too; Psalm 119 Hebrew-letter headings live inside their verse text (verses 1, 9, 17…), so edit those verses to fix them.</p>
+        <p className="text-xs text-muted-foreground">Use [brackets] for italic (supplied) words. Saved edits apply to every reader instantly and cost no credits. Psalm superscriptions/subscripts and epistle colophons are editable here too. In Psalm 119, each stanza's Hebrew-letter heading (ALEPH, BETH, …) shows its own editable field above the verse it precedes (verses 1, 9, 17…).</p>
         {msg && <p className="text-xs text-primary">{msg}</p>}
       </div>
 
@@ -139,6 +174,13 @@ export default function BibleTextEditor() {
             const isOverridden = !!overrides[v.verse];
             const value = edited[v.verse] != null ? edited[v.verse] : v.text;
             const dirty = edited[v.verse] != null && edited[v.verse] !== v.text;
+            // Psalm 119 Hebrew-letter heading: editable when this verse has one
+            // (or already has a heading override saved).
+            const hasHeading = v.heading != null || !!headingOverrides[v.verse];
+            const headingCurrent = v.heading || '';
+            const headingValue = editedHeading[v.verse] != null ? editedHeading[v.verse] : headingCurrent;
+            const headingDirty = editedHeading[v.verse] != null && editedHeading[v.verse] !== headingCurrent;
+            const headingSaving = savingV === headingKeyVerse(v.verse);
             return (
               <div key={v.verse} className={`rounded-xl border p-3 ${isOverridden ? 'border-primary/50 bg-primary/5' : 'border-border bg-card'}`}>
                 <div className="flex items-center justify-between mb-1.5">
@@ -165,6 +207,27 @@ export default function BibleTextEditor() {
                     </button>
                   </div>
                 </div>
+                {hasHeading && (
+                  <div className="mb-2 rounded-lg border border-accent/40 bg-accent/5 p-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-sans text-[11px] font-semibold text-accent">Hebrew-letter heading (above this verse)</span>
+                      <button
+                        onClick={() => saveHeading(v.verse, headingValue)}
+                        disabled={headingSaving || !headingDirty}
+                        className="flex items-center gap-1 px-2 py-0.5 rounded bg-accent text-accent-foreground text-[11px] hover:opacity-90 disabled:opacity-40"
+                      >
+                        {headingSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />} Save heading
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={headingValue}
+                      onChange={(e) => setEditedHeading(prev => ({ ...prev, [v.verse]: e.target.value }))}
+                      placeholder="e.g. ALEPH"
+                      className="w-full px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm font-serif text-foreground uppercase"
+                    />
+                  </div>
+                )}
                 <textarea
                   value={value}
                   onChange={(e) => setEdited(prev => ({ ...prev, [v.verse]: e.target.value }))}
