@@ -6,6 +6,16 @@
 // marked applied (kjb-applied-sw-version).
 
 export async function fetchDeployedSwVersion() {
+  // Prefer the runtime version bumped from DevTools (served by the manifest
+  // function) so a version bump reaches clients without a code deploy. Falls
+  // back to the version string baked into sw.js.
+  try {
+    const res = await fetch('/functions/manifest', { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json().catch(() => null);
+      if (json?.version) return json.version;
+    }
+  } catch {}
   try {
     const res = await fetch('/sw.js', { cache: 'no-store' });
     if (!res.ok) return null;

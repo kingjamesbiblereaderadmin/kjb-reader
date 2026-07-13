@@ -5,6 +5,8 @@ import { fetchChapter } from '@/lib/bibleApi';
 import { invalidateOverrides, loadOverrides } from '@/lib/bibleTextOverrides';
 import { Loader2, Save, Trash2, RotateCcw } from 'lucide-react';
 
+const DEV_KEY = 'KJB-DEV-2026';
+
 // Admin editor for shared, database-backed verse corrections. Loads a chapter,
 // lets you edit any verse's text, and saves it to the BibleTextOverride entity
 // so all readers see the fix (no credits — fetchChapter applies overrides).
@@ -48,9 +50,9 @@ export default function BibleTextEditor() {
     try {
       const existing = overrides[verseNum];
       if (existing) {
-        await base44.functions.invoke('saveBibleTextOverride', { op: 'update', id: existing.id, text });
+        await base44.functions.invoke('saveBibleTextOverride', { op: 'update', id: existing.id, text, key: DEV_KEY });
       } else {
-        const res = await base44.functions.invoke('saveBibleTextOverride', { op: 'create', book, chapter: Number(chapter), verse: verseNum, text });
+        const res = await base44.functions.invoke('saveBibleTextOverride', { op: 'create', book, chapter: Number(chapter), verse: verseNum, text, key: DEV_KEY });
         const created = res?.data?.record;
         if (created) setOverrides(prev => ({ ...prev, [verseNum]: created }));
       }
@@ -70,7 +72,7 @@ export default function BibleTextEditor() {
     if (!confirm(`Remove the override for ${bookEntry?.shortName} ${chapter}:${verseNum}? The original text will be restored for everyone.`)) return;
     setSavingV(verseNum);
     try {
-      await base44.functions.invoke('saveBibleTextOverride', { op: 'delete', id: existing.id });
+      await base44.functions.invoke('saveBibleTextOverride', { op: 'delete', id: existing.id, key: DEV_KEY });
       setOverrides(prev => { const n = { ...prev }; delete n[verseNum]; return n; });
       invalidateOverrides();
       await loadOverrides(true);

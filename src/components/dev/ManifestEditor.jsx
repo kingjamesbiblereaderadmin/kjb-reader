@@ -3,6 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { autoCropIconFile } from '@/lib/iconAutoCrop';
 import { Loader2, Upload, Save, CheckCircle2, AlertCircle, RotateCcw } from 'lucide-react';
 
+// Shared DevTools key — authorizes the save function in a public/preview
+// session (no admin login required).
+const DEV_KEY = 'KJB-DEV-2026';
+
 // Icon set the manifest needs. Maskable variants pad to a safe zone.
 const ICON_SPECS = [
   { size: 192, purpose: 'any' },
@@ -68,7 +72,7 @@ export default function ManifestEditor() {
     setBusy('Saving…');
     setMsg('');
     try {
-      const res = await base44.functions.invoke('saveManifestConfig', { icons });
+      const res = await base44.functions.invoke('saveManifestConfig', { icons, key: DEV_KEY });
       if (res?.data?.config) setCfg(res.data.config);
       setMsg('Saved. The manifest will serve these icons — republish/clear cache to see them install.');
     } catch (err) {
@@ -82,7 +86,7 @@ export default function ManifestEditor() {
     if (!confirm('Remove custom icons and revert the manifest to the built-in defaults?')) return;
     setBusy('Reverting…');
     try {
-      await base44.functions.invoke('saveManifestConfig', { revert: true });
+      await base44.functions.invoke('saveManifestConfig', { revert: true, key: DEV_KEY });
       setCfg(null);
       setIcons([]);
       setMsg('Reverted to default icons.');

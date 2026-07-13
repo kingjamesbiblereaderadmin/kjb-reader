@@ -71,6 +71,7 @@ Deno.serve(async () => {
   // Read admin-editable icon/screenshot overrides (falls back to defaults).
   let icons = DEFAULT_ICONS;
   let screenshots = DEFAULT_SCREENSHOTS;
+  let dynamicVersion = null;
   try {
     const appId = Deno.env.get("BASE44_APP_ID");
     const base44 = createClient({ appId });
@@ -78,6 +79,10 @@ Deno.serve(async () => {
     const cfg = rows && rows[0];
     if (cfg?.icons?.length) icons = cfg.icons;
     if (cfg?.screenshots?.length) screenshots = cfg.screenshots;
+    // Runtime version (bumped from DevTools) — surfaced so clients can detect
+    // an update without a code deploy.
+    const vRows = await base44.asServiceRole.entities.DevVersion.list('-updated_date', 1);
+    if (vRows && vRows[0]?.version) dynamicVersion = vRows[0].version;
   } catch (err) {
     console.warn('[manifest] override load failed, using defaults:', err?.message);
   }
@@ -116,7 +121,8 @@ Deno.serve(async () => {
       }
     ],
     icons,
-    screenshots
+    screenshots,
+    version: dynamicVersion || undefined
   };
 
   // Add timestamp to force fresh loading on mobile browsers

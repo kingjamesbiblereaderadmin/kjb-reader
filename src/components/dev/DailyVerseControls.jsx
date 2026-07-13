@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Trash2, Plus, Ban, Pin } from 'lucide-react';
 
+const DEV_KEY = 'KJB-DEV-2026';
+
 // Admin UI to manage persistent DailyVerseControl records:
 //  - exclusions: a verse ref that's never picked
 //  - pins: force a specific verse ref on a specific date
@@ -32,7 +34,7 @@ export default function DailyVerseControls({ onChange }) {
     const ref = exclRef.trim();
     if (!ref) return;
     setSaving(true);
-    await base44.functions.invoke('saveDailyVerseControl', { op: 'create', kind: 'exclusion', ref, note: exclNote.trim() || undefined });
+    await base44.functions.invoke('saveDailyVerseControl', { op: 'create', kind: 'exclusion', ref, note: exclNote.trim() || undefined, key: DEV_KEY });
     setExclRef(''); setExclNote('');
     await load();
     setSaving(false);
@@ -43,7 +45,7 @@ export default function DailyVerseControls({ onChange }) {
     const ref = pinRef.trim();
     if (!ref || !pinDate) return;
     setSaving(true);
-    await base44.functions.invoke('saveDailyVerseControl', { op: 'create', kind: 'pin', ref, date: pinDate, note: pinNote.trim() || undefined });
+    await base44.functions.invoke('saveDailyVerseControl', { op: 'create', kind: 'pin', ref, date: pinDate, note: pinNote.trim() || undefined, key: DEV_KEY });
     setPinRef(''); setPinDate(''); setPinNote('');
     await load();
     setSaving(false);
@@ -52,7 +54,7 @@ export default function DailyVerseControls({ onChange }) {
 
   const remove = async (id) => {
     setSaving(true);
-    await base44.functions.invoke('saveDailyVerseControl', { op: 'delete', id });
+    await base44.functions.invoke('saveDailyVerseControl', { op: 'delete', id, key: DEV_KEY });
     await load();
     setSaving(false);
     notifyChange();
