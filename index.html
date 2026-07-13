@@ -179,14 +179,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <meta name="description" content="Read the King James Bible (Pure Cambridge Edition) with offline support, daily verses, and beautiful typography." />
     <meta name="keywords" content="Bible, King James Bible, KJB, Pure Cambridge Edition, offline Bible, Christian, scripture" />
-    <!-- PWA manifest: STABLE url is required for Chromium-based browsers
-         (Edge, Chrome) to reliably evaluate install-eligibility. A per-load
-         cache-busting timestamp here previously made the manifest URL
-         different on every visit, which broke the "Add to Home Screen" /
-         install prompt on Edge mobile. The version query param is still
-         bumped manually on each deploy so updated manifests are picked up,
-         but it no longer changes between loads of the same deployed build. -->
-    <link rel="manifest" href="/manifest.json?v=20260713_0930" id="kjb-manifest-link" />
+    <!-- PWA manifest: served by the dynamic `manifest` backend function so the
+         icons/screenshots saved from the DevTools Manifest editor take effect
+         live (it reads the ManifestConfig entity and responds no-store).
+         The URL is STILL a single stable path (required for Chromium install
+         eligibility) — it does NOT change per load, so the "Add to Home Screen"
+         / install prompt on Edge/Chrome mobile keeps working. -->
+    <link rel="manifest" href="/functions/manifest" id="kjb-manifest-link" />
     <!-- Prevent flash of wrong theme: apply saved theme BEFORE React mounts -->
     <script>
       (function() {
