@@ -115,7 +115,14 @@ export default function SettingsPage() {
     // Re-query when the tab regains focus (e.g. after bumping in DevTools) so
     // the Advanced section reflects the latest pushed version without a reload.
     window.addEventListener('focus', refreshVersions);
-    return () => window.removeEventListener('focus', refreshVersions);
+    // Also poll periodically while Settings is open, so a bump made elsewhere
+    // (another tab, or the DevTools bump) shows up here within a few seconds
+    // without needing to refocus or reload.
+    const poll = setInterval(refreshVersions, 8000);
+    return () => {
+      window.removeEventListener('focus', refreshVersions);
+      clearInterval(poll);
+    };
   }, [refreshVersions]);
 
   useEffect(() => {
