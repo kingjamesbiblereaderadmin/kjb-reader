@@ -190,6 +190,13 @@ export default function AdvancedSearchPage() {
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
 
+      <div className="max-w-md mx-auto mb-8 rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
+        <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-relaxed text-center">
+          ⚠️ Advanced Search is in <strong>beta</strong>. If you run into any issues, please contact me at{' '}
+          <a href="mailto:kingjamesbiblereader@outlook.sg" className="underline">kingjamesbiblereader@outlook.sg</a>.
+        </p>
+      </div>
+
       {records === null && !error && (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-primary/70" />
