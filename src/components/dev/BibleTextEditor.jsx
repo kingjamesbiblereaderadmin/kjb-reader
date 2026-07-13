@@ -48,10 +48,11 @@ export default function BibleTextEditor() {
     try {
       const existing = overrides[verseNum];
       if (existing) {
-        await base44.entities.BibleTextOverride.update(existing.id, { text });
+        await base44.functions.invoke('saveBibleTextOverride', { op: 'update', id: existing.id, text });
       } else {
-        const created = await base44.entities.BibleTextOverride.create({ book, chapter: Number(chapter), verse: verseNum, text });
-        setOverrides(prev => ({ ...prev, [verseNum]: created }));
+        const res = await base44.functions.invoke('saveBibleTextOverride', { op: 'create', book, chapter: Number(chapter), verse: verseNum, text });
+        const created = res?.data?.record;
+        if (created) setOverrides(prev => ({ ...prev, [verseNum]: created }));
       }
       invalidateOverrides();
       await loadOverrides(true);
@@ -69,7 +70,7 @@ export default function BibleTextEditor() {
     if (!confirm(`Remove the override for ${bookEntry?.shortName} ${chapter}:${verseNum}? The original text will be restored for everyone.`)) return;
     setSavingV(verseNum);
     try {
-      await base44.entities.BibleTextOverride.delete(existing.id);
+      await base44.functions.invoke('saveBibleTextOverride', { op: 'delete', id: existing.id });
       setOverrides(prev => { const n = { ...prev }; delete n[verseNum]; return n; });
       invalidateOverrides();
       await loadOverrides(true);
