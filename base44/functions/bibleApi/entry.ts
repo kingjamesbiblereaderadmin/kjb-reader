@@ -101,8 +101,73 @@ async function loadBible() {
   return data;
 }
 
+// Load admin-managed exclusions + date pins from the DailyVerseControl entity.
+// Cached briefly so a schedule request (many dates) doesn't re-query per date.
+let _controlCache = null;
+let _controlCacheAt = 0;
+async function loadControls(b44) {
+  if (_controlCache && Date.now() - _controlCacheAt < 15000) return _controlCache;
+  const result = { extraExcluded: new Set(), pins: {} };
+  try {
+    const rows = await b44.asServiceRole.entities.DailyVerseControl.list('-created_date', 2000);
+    for (const r of rows || []) {
+      if (r.kind === 'exclusion' && r.ref) result.extraExcluded.add(r.ref);
+      else if (r.kind === 'pin' && r.ref && r.date) result.pins[r.date] = r.ref;
+    }
+  } catch (err) {
+    console.warn('[bibleApi] control load failed:', err?.message);
+  }
+  _controlCache = result;
+  _controlCacheAt = Date.now();
+  return result;
+}
+
+// Build the flat eligible-verse list, honouring hardcoded + DB exclusions.
+function buildFlatList(bible, extraExcluded) {
+  const flat = [];
+  for (const bn of BOOK_ORDER) {
+    if (!bible[bn]) continue;
+    const chapters = Object.keys(bible[bn]);
+    for (const cn of chapters) {
+      const verses = bible[bn][cn];
+      if (!verses || !verses.length) continue;
+      for (const vo of verses) {
+        const ref = `${bn} ${cn}:${vo.verse}`;
+        const isExcludedChapter = bn === 'Romans' && parseInt(cn) === 10;
+        if (EXCLUDED_REFS.has(ref) || extraExcluded.has(ref) || isExcludedChapter) continue;
+        flat.push({ bookName: bn, chapterNum: cn, verseObj: vo });
+      }
+    }
+  }
+  return flat;
+}
+
+// Resolve a "book chapter:verse" ref into a verse payload from the loaded bible.
+function verseFromRef(bible, ref) {
+  const m = ref.match(/^(.*)\s+(\d+):(\d+)$/);
+  if (!m) return null;
+  const bookName = m[1];
+  const chapterNum = m[2];
+  const verseNum = parseInt(m[3]);
+  const verses = bible[bookName]?.[chapterNum];
+  if (!verses) return null;
+  const vo = verses.find(v => v.verse === verseNum);
+  if (!vo) return null;
+  const text = vo.text.replace(/^<<[^>]*>>\s*/, '');
+  const abbrEntry = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
+  const abbr = abbrEntry ? abbrEntry[0] : bookName.slice(0, 3).toUpperCase();
+  return { abbr, book: bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
+}
+
+function pickForSeed(flat, seed) {
+  return flat[((seed * 2654435761) % flat.length + flat.length) % flat.length];
+}
+
 Deno.serve(async (req) => {
   try {
+    const { createClientFromRequest } = await import('npm:@base44/sdk@0.8.38');
+    const b44 = createClientFromRequest(req);
+
     const body = await req.json();
     const { action, book, chapter } = body;
 
@@ -213,26 +278,21 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'No bible data' }, { status: 500 });
       }
 
-      // Build a flat list of every (book, chapter, verse) reference, then pick
-      // one deterministically by the date seed. Indexing into a single flat
-      // list guarantees consecutive days land on different verses (the previous
-      // approach derived book/chapter/verse all from the same seed, so nearby
-      // seeds could collide on the same verse).
-      const flat = [];
-      for (const bn of BOOK_ORDER) {
-        if (!bible[bn]) continue;
-        const chapters = Object.keys(bible[bn]);
-        for (const cn of chapters) {
-          const verses = bible[bn][cn];
-          if (!verses || !verses.length) continue;
-          for (const vo of verses) {
-            const ref = `${bn} ${cn}:${vo.verse}`;
-            const isExcludedChapter = bn === 'Romans' && parseInt(cn) === 10;
-            if (EXCLUDED_REFS.has(ref) || isExcludedChapter) continue;
-            flat.push({ bookName: bn, chapterNum: cn, verseObj: vo });
-          }
+      const controls = await loadControls(b44);
+
+      // If an admin pinned a verse for this exact date, always return that.
+      const dateKey = body.clientDate || null;
+      if (dateKey && controls.pins[dateKey]) {
+        const pinned = verseFromRef(bible, controls.pins[dateKey]);
+        if (pinned) {
+          return Response.json({ verse: pinned, _debug: { pinned: true, seed } });
         }
       }
+
+      // Build a flat list of every eligible (book, chapter, verse) reference,
+      // then pick one deterministically by the date seed. Indexing into a
+      // single flat list guarantees consecutive days land on different verses.
+      const flat = buildFlatList(bible, controls.extraExcluded);
       if (!flat.length) {
         return Response.json({ error: 'No eligible verses' }, { status: 500 });
       }
@@ -240,33 +300,44 @@ Deno.serve(async (req) => {
       // Scatter consecutive days across the whole Bible: multiplying the date
       // seed by a large prime (coprime to the list length) makes each day jump
       // far from the previous one instead of landing on the next verse.
-      const picked = flat[((seed * 2654435761) % flat.length + flat.length) % flat.length];
-      const bookName = picked.bookName;
-      const chapterNum = picked.chapterNum;
-      const verseObj = picked.verseObj;
-
-      // Preserve [italics] brackets AND pilcrows; strip only superscription markers
-      const text = verseObj.text
-        .replace(/^<<[^>]*>>\s*/, '');
-
-      const abbrMatches = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
-      const abbr = abbrMatches ? abbrMatches[0] : bookName.slice(0, 3).toUpperCase();
+      const picked = pickForSeed(flat, seed);
+      const verse = verseFromRef(bible, `${picked.bookName} ${picked.chapterNum}:${picked.verseObj.verse}`);
 
       return Response.json({
-        verse: {
-          abbr,
-          book: bookName,
-          chapter: parseInt(chapterNum),
-          verse: verseObj.verse,
-          text,
-          ref: `${bookName} ${chapterNum}:${verseObj.verse}`
-        },
-        _debug: {
-          seed,
-          totalVerses: flat.length,
-          modResult: seed % flat.length
-        }
+        verse,
+        _debug: { seed, totalVerses: flat.length, modResult: seed % flat.length }
       });
+    }
+
+    // Returns the deterministic daily verse for a range of dates — the SAME
+    // code path daily_verse uses, so the dev-tools preview is guaranteed to
+    // match what the app actually shows (honours DB exclusions + pins).
+    if (action === 'daily_schedule') {
+      const dates = Array.isArray(body.dates) ? body.dates : [];
+      if (!dates.length) return Response.json({ error: 'dates[] required' }, { status: 400 });
+
+      const controls = await loadControls(b44);
+      const flat = buildFlatList(bible, controls.extraExcluded);
+      if (!flat.length) return Response.json({ error: 'No eligible verses' }, { status: 500 });
+
+      const out = dates.map((dateKey) => {
+        const [y, m, d] = String(dateKey).split('-').map(Number);
+        const seed = y * 10000 + m * 100 + d;
+        const pinnedRef = controls.pins[dateKey];
+        let verse;
+        let pinned = false;
+        if (pinnedRef) {
+          verse = verseFromRef(bible, pinnedRef);
+          pinned = !!verse;
+        }
+        if (!verse) {
+          const picked = pickForSeed(flat, seed);
+          verse = verseFromRef(bible, `${picked.bookName} ${picked.chapterNum}:${picked.verseObj.verse}`);
+        }
+        return { date: dateKey, verse, pinned };
+      });
+
+      return Response.json({ schedule: out, totalVerses: flat.length });
     }
 
     return Response.json({ error: 'Unknown action' }, { status: 400 });
