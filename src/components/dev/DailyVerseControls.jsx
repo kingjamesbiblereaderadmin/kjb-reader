@@ -32,7 +32,7 @@ export default function DailyVerseControls({ onChange }) {
     const ref = exclRef.trim();
     if (!ref) return;
     setSaving(true);
-    await base44.entities.DailyVerseControl.create({ kind: 'exclusion', ref, note: exclNote.trim() || undefined });
+    await base44.functions.invoke('saveDailyVerseControl', { op: 'create', kind: 'exclusion', ref, note: exclNote.trim() || undefined });
     setExclRef(''); setExclNote('');
     await load();
     setSaving(false);
@@ -43,7 +43,7 @@ export default function DailyVerseControls({ onChange }) {
     const ref = pinRef.trim();
     if (!ref || !pinDate) return;
     setSaving(true);
-    await base44.entities.DailyVerseControl.create({ kind: 'pin', ref, date: pinDate, note: pinNote.trim() || undefined });
+    await base44.functions.invoke('saveDailyVerseControl', { op: 'create', kind: 'pin', ref, date: pinDate, note: pinNote.trim() || undefined });
     setPinRef(''); setPinDate(''); setPinNote('');
     await load();
     setSaving(false);
@@ -52,7 +52,7 @@ export default function DailyVerseControls({ onChange }) {
 
   const remove = async (id) => {
     setSaving(true);
-    await base44.entities.DailyVerseControl.delete(id);
+    await base44.functions.invoke('saveDailyVerseControl', { op: 'delete', id });
     await load();
     setSaving(false);
     notifyChange();
