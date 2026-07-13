@@ -135,9 +135,9 @@ export default function ContentsPage() {
       {showBookSelector && isMobile() && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={() => setShowBookSelector(false)}
+          onPointerDown={(e) => { if (e.target === e.currentTarget) setShowBookSelector(false); }}
         >
-          <div className="relative w-full max-w-sm bg-card border border-border rounded-2xl shadow-2xl p-5" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full max-w-sm bg-card border border-border rounded-2xl shadow-2xl p-5">
             <p className="font-serif text-lg font-semibold text-foreground text-center mb-4">Go to Passage</p>
             <NativeSelector
               initialAbbr={selectedBook || 'GEN'}

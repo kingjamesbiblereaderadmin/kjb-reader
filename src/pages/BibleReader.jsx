@@ -1177,6 +1177,11 @@ export default function BibleReader() {
   useEffect(() => {
     if (!anyMenuOpen) return;
     const onDocClick = (e) => {
+      // Ignore clicks on a native <select> (or its options) — opening the OS
+      // picker fires a click whose target isn't inside any of the panels below,
+      // which would otherwise close the open selector sheet the instant you
+      // tap the Book/Chapter/Verse dropdown.
+      if (e.target.closest('select')) return;
       if (!e.target.closest('.kjb-reader-toolbar, .kjb-popover-panel, [role="menu"], [data-radix-popper-content-wrapper], [vaul-drawer], [data-vaul-drawer], [vaul-overlay], [data-vaul-overlay]')) {
         closeAllMenus();
       }
