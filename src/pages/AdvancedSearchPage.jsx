@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { FlaskConical, Loader2, SlidersHorizontal, X } from 'lucide-react';
+import { FlaskConical, Loader2, SlidersHorizontal, X, CheckSquare, Square } from 'lucide-react';
 import {
   buildVerseIndex, applyFilters, defaultFilters, NUMERIC_METRICS, isDefaultFilters,
 } from '@/lib/verseAnalysis';
 import AdvancedFilterPanel from '@/components/search/AdvancedFilterPanel';
 import AdvancedResultRow from '@/components/search/AdvancedResultRow';
+import AdvancedResultsToolbar from '@/components/search/AdvancedResultsToolbar';
 
 const PAGE_SIZE = 50;
 
@@ -14,6 +15,8 @@ export default function AdvancedSearchPage() {
   const [filters, setFilters] = useState(defaultFilters);
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [showFilters, setShowFilters] = useState(false); // mobile drawer
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState(() => new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -33,8 +36,24 @@ export default function AdvancedSearchPage() {
     return applyFilters(records, filters);
   }, [records, filters, isEmpty]);
 
-  // Reset the visible window when the result set changes.
-  useEffect(() => { setVisible(PAGE_SIZE); }, [filters]);
+  // Reset the visible window + selection when the result set changes.
+  useEffect(() => { setVisible(PAGE_SIZE); setSelectedKeys(new Set()); }, [filters]);
+
+  const keyOf = (r) => `${r.abbr}-${r.chapter}-${r.verse}`;
+
+  const toggleSelect = useCallback((r) => {
+    setSelectedKeys(prev => {
+      const next = new Set(prev);
+      const k = keyOf(r);
+      if (next.has(k)) next.delete(k); else next.add(k);
+      return next;
+    });
+  }, []);
+
+  const selectedRecords = useMemo(
+    () => results.filter(r => selectedKeys.has(keyOf(r))),
+    [results, selectedKeys]
+  );
 
   const sortLabel = useMemo(
     () => NUMERIC_METRICS.find(m => m.key === filters.sortKey)?.label.toLowerCase() || '',
@@ -80,7 +99,7 @@ export default function AdvancedSearchPage() {
           {/* Results column */}
           <div>
             {/* Result count + mobile filter button */}
-            <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center justify-between gap-3 mb-3">
               <p className="font-sans text-sm text-muted-foreground">
                 {isEmpty
                   ? 'Set a filter or search to begin'
@@ -95,6 +114,41 @@ export default function AdvancedSearchPage() {
               </button>
             </div>
 
+            {/* Export / copy / print + select toggle */}
+            {!isEmpty && results.length > 0 && (
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <AdvancedResultsToolbar records={results} selectedRecords={selectMode ? selectedRecords : null} />
+                <button
+                  onClick={() => { setSelectMode(m => !m); setSelectedKeys(new Set()); }}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-medium transition-colors ${
+                    selectMode
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-secondary/60 border-border text-foreground hover:border-accent'
+                  }`}
+                >
+                  {selectMode ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                  {selectMode ? 'Done' : 'Select'}
+                </button>
+              </div>
+            )}
+
+            {selectMode && !isEmpty && results.length > 0 && (
+              <div className="flex items-center gap-3 mb-4">
+                <button
+                  onClick={() => setSelectedKeys(new Set(results.slice(0, visible).map(keyOf)))}
+                  className="font-sans text-xs text-primary font-medium hover:underline"
+                >
+                  Select all shown
+                </button>
+                <button
+                  onClick={() => setSelectedKeys(new Set())}
+                  className="font-sans text-xs text-muted-foreground font-medium hover:underline"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+
             {isEmpty ? (
               <div className="rounded-2xl bg-card/70 border border-border/60 p-8 text-center">
                 <p className="font-sans text-sm text-muted-foreground">Choose a testament, book, keyword, or metric filter to start exploring verses.</p>
@@ -105,9 +159,34 @@ export default function AdvancedSearchPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {results.slice(0, visible).map(r => (
-                  <AdvancedResultRow key={`${r.abbr}-${r.chapter}-${r.verse}`} record={r} sortKey={filters.sortKey} sortLabel={sortLabel} />
-                ))}
+                {results.slice(0, visible).map(r => {
+                  const k = keyOf(r);
+                  if (selectMode) {
+                    const checked = selectedKeys.has(k);
+                    return (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => toggleSelect(r)}
+                        className={`w-full flex items-start gap-3 text-left rounded-2xl transition-colors ${
+                          checked ? 'ring-2 ring-primary rounded-2xl' : ''
+                        }`}
+                      >
+                        <span className="mt-4 shrink-0">
+                          {checked
+                            ? <CheckSquare className="w-5 h-5 text-primary" />
+                            : <Square className="w-5 h-5 text-muted-foreground" />}
+                        </span>
+                        <span className="flex-1 pointer-events-none">
+                          <AdvancedResultRow record={r} sortKey={filters.sortKey} sortLabel={sortLabel} />
+                        </span>
+                      </button>
+                    );
+                  }
+                  return (
+                    <AdvancedResultRow key={k} record={r} sortKey={filters.sortKey} sortLabel={sortLabel} />
+                  );
+                })}
                 {visible < results.length && (
                   <button
                     onClick={() => { setVisible(v => v + PAGE_SIZE); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
