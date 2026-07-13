@@ -21,6 +21,20 @@ const compareRefs = (a, b) => {
   return ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
 };
 
+// Clean verse text for the plain-text preview in the excluded list. The KJB
+// source uses characters that render as diamonds (�) in the serif font — the
+// pilcrow marker (all variants) and curly apostrophes/quotes. Strip the
+// leading heading, brackets, and pilcrows, and normalize smart quotes to ASCII.
+const cleanExclusionText = (text) =>
+  String(text || '')
+    .replace(/^<<[^>]*>>\s*/, '')
+    .replace(/[[\]]/g, '')
+    .replace(/[\u00B6\uFFFD]/g, '')       // pilcrow ¶ and the replacement diamond �
+    .replace(/[\u2018\u2019\u201A\u2032]/g, "'") // curly single quotes / prime → '
+    .replace(/[\u201C\u201D\u201E\u2033]/g, '"') // curly double quotes → "
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
 // Admin UI to manage persistent DailyVerseControl records:
 //  - exclusions: a verse ref that's never picked
 //  - pins: force a specific verse ref on a specific date
@@ -130,7 +144,7 @@ export default function DailyVerseControls({ onChange }) {
           {r.ref}{r.note ? <span className="text-muted-foreground text-xs font-normal"> — {r.note}</span> : null}
         </p>
         {verseTexts[r.ref] && (
-          <p className="font-serif text-sm text-foreground leading-snug mt-0.5">{verseTexts[r.ref].replace(/^<<[^>]*>>\s*/, '').replace(/[[\]]/g, '').replace(/¶/g, '').trim()}</p>
+          <p className="font-serif text-sm text-foreground leading-snug mt-0.5">{cleanExclusionText(verseTexts[r.ref])}</p>
         )}
       </div>
       <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 shrink-0 mt-0.5">
