@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 /**
@@ -22,10 +23,12 @@ export default function SelectorSheet({ open, onClose, title, children }) {
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end">
-      {/* Backdrop — closes only when the press starts on the backdrop itself,
-          so a native <select> interaction never dismisses the sheet. */}
+  // Portaled to document.body — otherwise `fixed` positioning is trapped
+  // inside the reader toolbar's stacking context (z-index + transforms), so
+  // the sheet renders behind/within the toolbar instead of full-screen.
+  return createPortal(
+    <div className="fixed inset-0 z-[200] flex flex-col justify-end">
+      {/* Backdrop — closes only when the press starts on the backdrop itself. */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
@@ -47,6 +50,7 @@ export default function SelectorSheet({ open, onClose, title, children }) {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
