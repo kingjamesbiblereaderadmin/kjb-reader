@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { FlaskConical, Loader2, SlidersHorizontal, X, CheckSquare, Square } from 'lucide-react';
 import {
   buildVerseIndex, applyFilters, defaultFilters, NUMERIC_METRICS, isDefaultFilters,
@@ -17,6 +17,14 @@ export default function AdvancedSearchPage() {
   const [showFilters, setShowFilters] = useState(false); // mobile drawer
   const [selectMode, setSelectMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState(() => new Set());
+  const resultsRef = useRef(null);
+
+  const scrollToResults = useCallback(() => {
+    // Wait a frame so the results have rendered before scrolling to them.
+    requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,12 +48,30 @@ export default function AdvancedSearchPage() {
   useEffect(() => { setVisible(PAGE_SIZE); setSelectedKeys(new Set()); }, [filters]);
 
   // Lock the page behind the mobile filter drawer so scrolling inside the
-  // drawer doesn't scroll the underlying page (which left it not-at-top on close).
+  // drawer doesn't scroll the underlying page. We pin the body to its current
+  // scroll position (position: fixed) and restore it on close, so toggling a
+  // filter inside the drawer never makes the page jump to the top.
   useEffect(() => {
     if (!showFilters) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const prev = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    return () => {
+      body.style.overflow = prev.overflow;
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      window.scrollTo(0, scrollY);
+    };
   }, [showFilters]);
 
   const keyOf = (r) => `${r.abbr}-${r.chapter}-${r.verse}`;
@@ -125,13 +151,14 @@ export default function AdvancedSearchPage() {
 
       {records && !error && (
         <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6 items-start">
-          {/* Desktop filter column */}
-          <div className="hidden lg:block sticky top-4">
+          {/* Desktop filter column — sticky, with its own independent scroll
+              so a long filter list scrolls on its own without moving the page. */}
+          <div className="hidden lg:block sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto pr-1 scrollbar-hide">
             <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} />
           </div>
 
           {/* Results column */}
-          <div>
+          <div ref={resultsRef} className="scroll-mt-4">
             {/* Result count + mobile filter button */}
             <div className="flex items-center justify-between gap-3 mb-3">
               <p className="font-sans text-sm text-muted-foreground">
@@ -237,7 +264,7 @@ export default function AdvancedSearchPage() {
                 ))}
                 {visible < results.length && (
                   <button
-                    onClick={() => { setVisible(v => v + PAGE_SIZE); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    onClick={() => setVisible(v => v + PAGE_SIZE)}
                     className="w-full py-3 rounded-xl bg-secondary/50 border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-colors"
                   >
                     Show more ({(results.length - visible).toLocaleString()} remaining)
@@ -262,7 +289,7 @@ export default function AdvancedSearchPage() {
             </div>
             <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} />
             <button
-              onClick={() => { setShowFilters(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onClick={() => { setShowFilters(false); scrollToResults(); }}
               className="w-full mt-4 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium"
             >
               {isEmpty ? 'Done' : `Show ${results.length.toLocaleString()} results`}

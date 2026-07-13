@@ -111,12 +111,13 @@ Deno.serve(async (req) => {
     background_color: "#0f1117",
     theme_color: "#0f1117",
     prefer_related_applications: false,
-    // Lets navigator.getInstalledRelatedApps() recognise THIS installed PWA
-    // from inside a normal browser tab (Android Chrome/Samsung Internet).
-    // IMPORTANT: URL must match the origin exactly for detection to work
-    related_applications: [
-      { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest" }
-    ],
+    // NOTE: We intentionally do NOT declare `related_applications` here.
+    // A `related_applications` entry whose URL matches THIS origin makes
+    // Chromium browsers (Edge/Chrome/Samsung) treat the app as already
+    // installed and suppress the automatic `beforeinstallprompt` — which broke
+    // the "Add to Home Screen" install prompt on the published domain (preview
+    // runs on a different origin, so it was unaffected). Omitting it restores
+    // the native install prompt.
     // Protocol handlers — register as handler for bible: and kjb: URIs
     protocol_handlers: [
       {
