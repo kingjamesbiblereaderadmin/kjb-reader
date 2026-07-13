@@ -68,15 +68,11 @@ export default function ManifestEditor() {
     setBusy('Saving…');
     setMsg('');
     try {
-      if (cfg) {
-        await base44.entities.ManifestConfig.update(cfg.id, { icons });
-      } else {
-        const created = await base44.entities.ManifestConfig.create({ icons });
-        setCfg(created);
-      }
+      const res = await base44.functions.invoke('saveManifestConfig', { icons });
+      if (res?.data?.config) setCfg(res.data.config);
       setMsg('Saved. The manifest will serve these icons — republish/clear cache to see them install.');
     } catch (err) {
-      setMsg('Save failed: ' + (err.message || 'unknown'));
+      setMsg('Save failed: ' + (err?.response?.data?.error || err.message || 'unknown'));
     }
     setBusy('');
   };
@@ -86,12 +82,12 @@ export default function ManifestEditor() {
     if (!confirm('Remove custom icons and revert the manifest to the built-in defaults?')) return;
     setBusy('Reverting…');
     try {
-      await base44.entities.ManifestConfig.delete(cfg.id);
+      await base44.functions.invoke('saveManifestConfig', { revert: true });
       setCfg(null);
       setIcons([]);
       setMsg('Reverted to default icons.');
     } catch (err) {
-      setMsg('Revert failed: ' + (err.message || 'unknown'));
+      setMsg('Revert failed: ' + (err?.response?.data?.error || err.message || 'unknown'));
     }
     setBusy('');
   };

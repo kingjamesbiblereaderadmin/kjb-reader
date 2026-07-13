@@ -1,7 +1,7 @@
 // Admin-only writer for the PWA ManifestConfig entity. Client-side creates hit
 // RLS edge cases in some sessions, so writes go through here: we verify the
 // caller is an admin, then write with the service role (bypassing client RLS).
-import { createClientFromRequest, createClient } from 'npm:@base44/sdk@0.8.38';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
 Deno.serve(async (req) => {
   try {
@@ -11,14 +11,18 @@ Deno.serve(async (req) => {
     if (user.role !== 'admin') return Response.json({ error: 'Admin only' }, { status: 403 });
 
     const body = await req.json();
-    const { icons, screenshots } = body;
+    const { icons, screenshots, revert } = body;
 
-    const appId = Deno.env.get("BASE44_APP_ID");
-    const svc = createClient({ appId });
+    // Revert: remove the custom config so the manifest falls back to defaults.
+    if (revert) {
+      const rows = await base44.asServiceRole.entities.ManifestConfig.list('-updated_date', 50);
+      for (const r of rows) await base44.asServiceRole.entities.ManifestConfig.delete(r.id);
+      return Response.json({ success: true, reverted: true });
+    }
 
     // Merge onto the latest existing config so saving icons alone doesn't wipe
     // screenshots (and vice versa).
-    const existing = await svc.asServiceRole.entities.ManifestConfig.list('-updated_date', 1);
+    const existing = await base44.asServiceRole.entities.ManifestConfig.list('-updated_date', 1);
     const current = existing && existing[0];
 
     const payload = {
@@ -28,9 +32,9 @@ Deno.serve(async (req) => {
 
     let saved;
     if (current) {
-      saved = await svc.asServiceRole.entities.ManifestConfig.update(current.id, payload);
+      saved = await base44.asServiceRole.entities.ManifestConfig.update(current.id, payload);
     } else {
-      saved = await svc.asServiceRole.entities.ManifestConfig.create(payload);
+      saved = await base44.asServiceRole.entities.ManifestConfig.create(payload);
     }
 
     return Response.json({ success: true, config: saved });
