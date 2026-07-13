@@ -50,7 +50,9 @@ export function useReaderNavigation(pos, loadChapter, routerNavigate, routerLoca
     if (typeof exactY === 'number' && exactY > 0) {
       try { localStorage.setItem(`kjb-scroll-${abbr}-${chapter}`, String(Math.round(exactY))); } catch {}
     }
-    try { window.history.replaceState({}, '', '/read'); } catch {}
+    // Use router navigate (replace) rather than a raw History API call, so
+    // react-router's internal location stays in sync with the real URL.
+    try { routerNavigate('/read', { replace: true }); } catch {}
     freshNavRef.current = false;
     loadChapter(abbr, chapter, null);
   };
