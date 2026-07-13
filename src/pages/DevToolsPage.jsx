@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Wrench, Image, CalendarDays, BookOpen, Tag } from 'lucide-react';
+import { Wrench, Image, CalendarDays, BookOpen, Tag, Smartphone } from 'lucide-react';
 import VerseImageTester from '@/components/dev/VerseImageTester';
 import DailyVerseSchedule from '@/components/dev/DailyVerseSchedule';
 import BibleTextEditor from '@/components/dev/BibleTextEditor';
 import VersionInfo from '@/components/dev/VersionInfo';
+import ManifestEditor from '@/components/dev/ManifestEditor';
 
 // Secret key required in the URL: /dev-tools?key=KJB-DEV-2026
 // Wrong or missing key renders a plain 404-style page so the tools stay hidden.
@@ -13,6 +14,7 @@ const TABS = [
   { id: 'image', label: 'Verse Image', icon: Image },
   { id: 'schedule', label: 'Daily Verses', icon: CalendarDays },
   { id: 'text', label: 'Edit Bible Text', icon: BookOpen },
+  { id: 'manifest', label: 'Manifest & Icons', icon: Smartphone },
   { id: 'version', label: 'Version', icon: Tag },
 ];
 
@@ -54,6 +56,7 @@ export default function DevToolsPage() {
       {tab === 'image' && <VerseImageTester />}
       {tab === 'schedule' && <DailyVerseSchedule />}
       {tab === 'text' && <BibleTextEditor />}
+      {tab === 'manifest' && <ManifestEditor />}
       {tab === 'version' && <VersionInfo />}
     </div>
   );
