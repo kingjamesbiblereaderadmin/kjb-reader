@@ -19,6 +19,10 @@ export default function DailyVerseControls({ onChange }) {
   const [pinDate, setPinDate] = useState('');
   const [pinNote, setPinNote] = useState('');
 
+  // Which existing pin is being edited, and the draft ref for it.
+  const [editingPinId, setEditingPinId] = useState(null);
+  const [editPinRef, setEditPinRef] = useState('');
+
   const load = async () => {
     setLoading(true);
     try {
@@ -51,6 +55,17 @@ export default function DailyVerseControls({ onChange }) {
     setSaving(true);
     await base44.functions.invoke('saveDailyVerseControl', { op: 'create', kind: 'pin', ref, date: pinDate, note: pinNote.trim() || undefined, key: DEV_KEY });
     setPinRef(''); setPinDate(''); setPinNote('');
+    await load();
+    setSaving(false);
+    notifyChange();
+  };
+
+  const savePinRef = async (id) => {
+    const ref = editPinRef.trim();
+    if (!ref) return;
+    setSaving(true);
+    await base44.functions.invoke('saveDailyVerseControl', { op: 'update', id, ref, key: DEV_KEY });
+    setEditingPinId(null); setEditPinRef('');
     await load();
     setSaving(false);
     notifyChange();
@@ -149,15 +164,45 @@ export default function DailyVerseControls({ onChange }) {
             <p className="font-sans text-xs text-muted-foreground py-2">None yet.</p>
           ) : (
             <div className="rounded-lg border border-border overflow-hidden">
-              {pins.map(r => (
+              {pins.map(r => {
+                const isEditing = editingPinId === r.id;
+                return (
                 <div key={r.id} className="flex items-center gap-3 px-3 py-2 border-b border-border last:border-0">
                   <span className="font-sans text-xs font-semibold text-primary w-24 shrink-0">{r.date}</span>
-                  <span className="font-sans text-sm text-foreground flex-1 min-w-0">{r.ref}{r.note ? <span className="text-muted-foreground text-xs"> — {r.note}</span> : null}</span>
-                  <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 shrink-0">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {isEditing ? (
+                    <>
+                      <input
+                        value={editPinRef}
+                        onChange={(e) => setEditPinRef(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') savePinRef(r.id); }}
+                        autoFocus
+                        placeholder="e.g. John 3:16"
+                        className="flex-1 min-w-0 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm text-foreground"
+                      />
+                      <button onClick={() => savePinRef(r.id)} disabled={saving || !editPinRef.trim()}
+                        className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50 shrink-0">
+                        Save
+                      </button>
+                      <button onClick={() => { setEditingPinId(null); setEditPinRef(''); }}
+                        className="px-3 py-1.5 rounded-lg bg-secondary text-xs text-muted-foreground shrink-0">
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-sans text-sm text-foreground flex-1 min-w-0 break-words">{r.ref}{r.note ? <span className="text-muted-foreground text-xs"> — {r.note}</span> : null}</span>
+                      <button onClick={() => { setEditingPinId(r.id); setEditPinRef(r.ref); }} disabled={saving}
+                        className="px-2 py-1 rounded-lg bg-secondary text-[11px] text-foreground hover:bg-secondary/70 shrink-0">
+                        Change verse
+                      </button>
+                      <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 shrink-0">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

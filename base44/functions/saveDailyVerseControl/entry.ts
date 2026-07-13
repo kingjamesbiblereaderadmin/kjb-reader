@@ -30,6 +30,17 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, record: saved });
     }
 
+    if (op === 'update') {
+      const { id, ref, date, note } = body;
+      if (!id) return Response.json({ error: 'id required' }, { status: 400 });
+      const patch = {};
+      if (ref !== undefined) patch.ref = ref;
+      if (date !== undefined) patch.date = date;
+      if (note !== undefined) patch.note = note;
+      const saved = await base44.asServiceRole.entities.DailyVerseControl.update(id, patch);
+      return Response.json({ success: true, record: saved });
+    }
+
     if (op === 'delete') {
       const { id } = body;
       if (!id) return Response.json({ error: 'id required' }, { status: 400 });

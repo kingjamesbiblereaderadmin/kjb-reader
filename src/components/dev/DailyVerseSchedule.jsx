@@ -94,6 +94,13 @@ export default function DailyVerseSchedule() {
 
   return (
     <div className="space-y-5">
+      <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
+        <p className="font-sans text-xs text-amber-700 dark:text-amber-400 font-medium leading-relaxed">
+          ⚠️ This scheduler is in <strong>beta</strong>. If you run into any issues, please contact me at{' '}
+          <a href="mailto:kingjamesbiblereader@outlook.sg" className="underline">kingjamesbiblereader@outlook.sg</a>.
+        </p>
+      </div>
+
       <DailyVerseControls onChange={load} />
 
       <div className="rounded-xl bg-card border border-border p-4 flex flex-wrap gap-4 items-end">
