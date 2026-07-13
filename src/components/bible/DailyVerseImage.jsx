@@ -954,7 +954,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           visible either way. */}
       <div className="px-1 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full">
         <div className={`flex-1 flex flex-col justify-center min-h-0 ${showVersePanel && hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] mx-1 xs:mx-3 px-2 xs:px-4 py-3' : ''}`}>
-          <div className="flex self-stretch items-center justify-center gap-3 xs:gap-6 mt-4 mb-4 w-full px-2 xs:px-4 py-1.5">
+          <div className={`flex self-stretch items-center justify-center gap-3 xs:gap-6 mb-4 w-full px-2 xs:px-4 py-1.5 ${showButtons && !capturing ? 'mt-10' : 'mt-4'}`}>
             <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />
             <p 
               className={`font-sans text-xs xs:text-base md:text-lg font-black tracking-[0.12em] xs:tracking-[0.22em] uppercase flex-shrink-0 ${accentClass}`}
