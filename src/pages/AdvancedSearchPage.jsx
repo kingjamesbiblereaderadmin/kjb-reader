@@ -55,21 +55,33 @@ export default function AdvancedSearchPage() {
   // Reset the visible window + selection when the result set changes.
   useEffect(() => { setVisible(PAGE_SIZE); setSelectedKeys(new Set()); setCollapsedGroups(new Set()); }, [filters]);
 
-  // Lock the page behind the mobile filter drawer so scrolling inside the
-  // drawer doesn't scroll the underlying page. Locking both <html> and <body>
-  // with overflow:hidden (no position:fixed, so no scroll-restore jump) stops
-  // the touch scroll from bubbling to the page and jumping it to the top.
+  // Lock the page behind the mobile filter drawer. On mobile, overflow:hidden
+  // alone doesn't stop touch scroll from bubbling to the page. We freeze the
+  // body at its current scroll position with position:fixed, then restore the
+  // exact scroll offset on close so there's no jump.
   useEffect(() => {
     if (!showFilters) return;
-    const html = document.documentElement;
     const body = document.body;
-    const prevHtml = html.style.overflow;
-    const prevBody = body.style.overflow;
-    html.style.overflow = 'hidden';
-    body.style.overflow = 'hidden';
+    const scrollY = window.scrollY;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+    };
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
     return () => {
-      html.style.overflow = prevHtml;
-      body.style.overflow = prevBody;
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.left = prev.left;
+      body.style.right = prev.right;
+      body.style.width = prev.width;
+      window.scrollTo(0, scrollY);
     };
   }, [showFilters]);
 
