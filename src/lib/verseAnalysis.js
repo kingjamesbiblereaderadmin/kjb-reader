@@ -45,10 +45,10 @@ const NUMBER_WORDS = new Set([
   'first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth',
   'eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth',
   'twentieth','thirtieth','fortieth','fiftieth','sixtieth','seventieth','eightieth','ninetieth','hundredth','thousandth',
-  'once','twice','thrice','twain','single','double','treble','triple',
+  'once','twice','thrice','twain','double','treble','triple',
   'twofold','threefold','fourfold','sevenfold','tenfold','hundredfold','manifold','thirtyfold','sixtyfold',
   'score','fourscore','threescore','sixscore',
-  'half','halves','quarter','tithe','tithes','both','couple','pair','pairs',
+  'half','halves','quarter','tithe','tithes','pair','pairs',
 ]);
 
 // Count number-words in a word list (case-insensitive whole-word match).
