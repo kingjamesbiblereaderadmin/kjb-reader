@@ -18,6 +18,9 @@ export default function AdvancedSearchPage() {
   const [showFilters, setShowFilters] = useState(false); // mobile drawer
   const [selectMode, setSelectMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState(() => new Set());
+  // When no filter/term is set, results are hidden by default (so we don't dump
+  // all 31,102 verses). "Show results" flips this on to force-display them.
+  const [forceShow, setForceShow] = useState(false);
   const resultsRef = useRef(null);
   // Collapsed Testament / Book groups (keys stored in a Set = collapsed).
   const [collapsedGroups, setCollapsedGroups] = useState(() => new Set());
@@ -86,7 +89,9 @@ export default function AdvancedSearchPage() {
 
   // Until the user actually sets a filter or search term, the page starts
   // empty (no results) rather than dumping all 31,102 verses.
-  const isEmpty = useMemo(() => isDefaultFilters(filters), [filters]);
+  const noFilters = useMemo(() => isDefaultFilters(filters), [filters]);
+  // Show nothing until the user sets a filter/term OR explicitly taps "Show results".
+  const isEmpty = noFilters && !forceShow;
 
   // Recompute results whenever filters or records change.
   const results = useMemo(() => {
@@ -148,7 +153,7 @@ export default function AdvancedSearchPage() {
     [filters.sortKey]
   );
 
-  const handleReset = useCallback(() => setFilters(defaultFilters()), []);
+  const handleReset = useCallback(() => { setFilters(defaultFilters()); setForceShow(false); }, []);
 
   // Which filter options would still return verses given the current filters.
   // Options yielding 0 results are greyed out in the panel.
@@ -312,7 +317,14 @@ export default function AdvancedSearchPage() {
 
             {isEmpty ? (
               <div className="rounded-2xl bg-card/70 border border-border/60 p-8 text-center">
-                <p className="font-sans text-sm text-muted-foreground">Choose a testament, book, keyword, or metric filter to start exploring verses.</p>
+                <p className="font-sans text-sm text-muted-foreground mb-5">Choose a testament, book, keyword, or metric filter to start exploring verses — or show every verse and sort by the selected metric.</p>
+                <button
+                  onClick={() => setForceShow(true)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 active:scale-[0.98]"
+                >
+                  <FlaskConical className="w-4 h-4" />
+                  Show all verses
+                </button>
               </div>
             ) : results.length === 0 ? (
               <div className="rounded-2xl bg-card/70 border border-border/60 p-8 text-center">
@@ -415,10 +427,10 @@ export default function AdvancedSearchPage() {
               style={{ paddingBottom: `calc(1rem + ${footerPad}px)` }}
             >
               <button
-                onClick={() => setShowFilters(false)}
+                onClick={() => { if (noFilters) setForceShow(true); setShowFilters(false); }}
                 className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium"
               >
-                {isEmpty ? 'Done' : `Show ${results.length.toLocaleString()} results`}
+                {isEmpty ? 'Show all verses' : `Show ${results.length.toLocaleString()} results`}
               </button>
             </div>
           </div>
