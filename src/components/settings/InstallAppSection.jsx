@@ -17,11 +17,21 @@ const isBookmarkBrowser = () => {
   return !isMobile && (isFirefox || (isMac && isSafari));
 };
 
+// Edge on a phone (EdgA on Android, EdgiOS on iOS) frequently never fires
+// beforeinstallprompt, so the native install button can't work — the user must
+// use Edge's own menu. Detect it so we can show the correct manual steps.
+const isEdgeMobile = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  return /EdgA|EdgiOS/i.test(ua) || (/edg/i.test(ua) && /iphone|ipad|ipod|android/i.test(ua));
+};
+
 export default function InstallAppSection({ expanded, isIncognito }) {
   const { isInstallable, isInstalled: hookIsInstalled, isSamsung, promptInstall } = useInstallPrompt();
   const [isInstalled, setIsInstalled] = useState(false);
   const [showInstallHint, setShowInstallHint] = useState(false);
   const [bookmarkBrowser] = useState(isBookmarkBrowser);
+  const [edgeMobile] = useState(isEdgeMobile);
   const [localIncognito, setLocalIncognito] = useState(false);
 
   useEffect(() => {
@@ -45,13 +55,19 @@ export default function InstallAppSection({ expanded, isIncognito }) {
     setIsInstalled(hookIsInstalled);
   }, [hookIsInstalled]);
 
+  // Edge mobile rarely fires beforeinstallprompt, so the native prompt is a
+  // no-op there — show the manual guide immediately instead of a dead button.
+  useEffect(() => {
+    if (edgeMobile && !isInstallable) setShowInstallHint(true);
+  }, [edgeMobile, isInstallable]);
+
   const handleInstall = async () => {
     promptInstall().then((result) => {
       const ua = navigator.userAgent;
       const isIOS = /iphone|ipad|ipod/i.test(ua);
       const isFirefox = /firefox/i.test(ua);
       const isMacSafari = !/chrome|android|crios|edg/i.test(ua) && /safari/i.test(ua) && /Macintosh|Mac OS X/i.test(ua);
-      if (isIOS || isFirefox || isMacSafari || result === false) {
+      if (isIOS || isFirefox || isMacSafari || edgeMobile || result === false) {
         setShowInstallHint(true);
       }
     }).catch((err) => {
@@ -210,6 +226,11 @@ export default function InstallAppSection({ expanded, isIncognito }) {
                         <AlertCircle className="w-4 h-4 shrink-0 -mt-0.5" />
                         <span>You are viewing this inside a preview window, where browsers block PWA installation. Please open the app in a new tab to install it!</span>
                       </p>
+                    ) : edgeMobile ? (
+                      <p className="font-sans text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1.5 leading-snug">
+                        <AlertCircle className="w-4 h-4 shrink-0 -mt-0.5" />
+                        <span>Edge on phones doesn't support the automatic install button. Use the manual steps below, or open this site in Chrome for one-tap install.</span>
+                      </p>
                     ) : (
                       <p className="font-sans text-xs text-amber-600 dark:text-amber-400 font-medium flex items-start gap-1.5 leading-snug">
                         <AlertCircle className="w-4 h-4 shrink-0 -mt-0.5" />
@@ -225,7 +246,8 @@ export default function InstallAppSection({ expanded, isIncognito }) {
                   <p>• <strong>Apple iOS:</strong> Tap the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Share</span> button in Safari, then select <span className="text-foreground font-medium">"Add to Home Screen"</span>.</p>
                   <p>• <strong>Android / Chrome:</strong> Open the browser menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋮ or ⋯)</span>, then select <span className="text-foreground font-medium">"Add to phone"</span>, <span className="text-foreground font-medium">"Install app"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span>.</p>
                   <p>• <strong>Samsung Internet:</strong> Samsung's browser doesn't support automatic install. Tap the menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(≡)</span> → <span className="text-foreground font-medium">"Add page to"</span> → <span className="text-foreground font-medium">"Home screen"</span>.</p>
-                  <p>• <strong>Edge:</strong> Menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋯)</span> → <span className="text-foreground font-medium">Apps</span> → <span className="text-foreground font-medium">"Install this site as an app"</span>. Choose <span className="text-foreground font-medium">App</span> (not Shortcut) for the full app experience.</p>
+                  <p>• <strong>Edge (phone):</strong> Tap the menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋯)</span> at the bottom, then select <span className="text-foreground font-medium">"Add to phone"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span>. If you don't see it, scroll the menu — it's under the sharing options.</p>
+                  <p>• <strong>Edge (desktop):</strong> Menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋯)</span> → <span className="text-foreground font-medium">Apps</span> → <span className="text-foreground font-medium">"Install this site as an app"</span>. Choose <span className="text-foreground font-medium">App</span> (not Shortcut) for the full app experience.</p>
                   <p>• <strong>Desktop:</strong> Click the <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">Install</span> icon located in your browser's address bar, or check the main menu.</p>
                   <p>• <strong>Firefox & Safari (Mac):</strong> These browsers don't support installing apps — instead, press <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">⌘ D</span> (or use the menu) to <span className="text-foreground font-medium">Add to Favourites / Bookmarks</span> for quick access.</p>
                 </div>
