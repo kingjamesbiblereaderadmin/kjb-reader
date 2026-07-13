@@ -78,29 +78,56 @@ function highlightInOrder(text, terms, keyPrefix, adjacent, caseSensitive, whole
 }
 
 // Renders the plain verse text, but shows the [supplied] words in italics like
-// the reader does, and keeps the ¶ marker if present. Highlights search terms.
+// the reader does, and keeps the ¶ marker if present. Highlights search terms
+// when text is searched, otherwise highlights the feature being filtered/sorted
+// on (pilcrow / italics).
 function renderText(rawText, terms, filters) {
   const inOrder = filters?.textInOrder || filters?.textAdjacent;
   const adjacent = filters?.textAdjacent;
   const caseSensitive = filters?.textCaseSensitive;
   const wholeWord = filters?.textWholeWord;
+  const hasTerms = terms && terms.length > 0;
   const hl = (t, prefix) => inOrder
     ? highlightInOrder(t, terms, prefix, adjacent, caseSensitive, wholeWord)
     : highlightAny(t, terms, prefix);
+
+  // With no text search, highlight the feature the user is filtering/sorting on.
+  const highlightPilcrow = !hasTerms && isFeatureActive(filters, 'hasPilcrow', 'pilcrowCount');
+  const highlightItalics = !hasTerms && isFeatureActive(filters, 'hasItalics', 'italicWordCount');
+
   // rawText keeps ¶ and [brackets]; convert to nodes.
   const hasPilcrow = /^¶\s*/.test(rawText);
   const body = rawText.replace(/^¶\s*/, '');
   const parts = body.split(/(\[[^\]]*\])/g).filter(Boolean);
   return (
     <>
-      {hasPilcrow && <span className="pilcrow font-serif mr-1">¶</span>}
-      {parts.map((p, i) =>
-        p.startsWith('[') && p.endsWith(']')
-          ? <em key={i} className="text-muted-foreground">{hl(p.slice(1, -1), `em${i}`)}</em>
-          : <span key={i}>{hl(p, `s${i}`)}</span>
+      {hasPilcrow && (
+        highlightPilcrow
+          ? <mark className="pilcrow font-serif mr-1 bg-yellow-200 dark:bg-yellow-500/40 rounded px-0.5">¶</mark>
+          : <span className="pilcrow font-serif mr-1">¶</span>
       )}
+      {parts.map((p, i) => {
+        if (p.startsWith('[') && p.endsWith(']')) {
+          const inner = hasTerms ? hl(p.slice(1, -1), `em${i}`) : p.slice(1, -1);
+          return highlightItalics
+            ? <em key={i} className="text-muted-foreground"><mark className="bg-yellow-200 dark:bg-yellow-500/40 text-muted-foreground rounded px-0.5">{inner}</mark></em>
+            : <em key={i} className="text-muted-foreground">{inner}</em>;
+        }
+        return <span key={i}>{hasTerms ? hl(p, `s${i}`) : p}</span>;
+      })}
     </>
   );
+}
+
+// A feature is "active" if its boolean filter is set to 'yes' or the matching
+// count metric is being sorted on or range-filtered.
+function isFeatureActive(filters, boolKey, countKey) {
+  if (!filters) return false;
+  if (filters.bools?.[boolKey] === 'yes') return true;
+  if (filters.sortKey === countKey) return true;
+  const range = filters.ranges?.[countKey];
+  if (range && (range.min !== '' || range.max !== '')) return true;
+  return false;
 }
 
 // Short labels for the metric chips.
