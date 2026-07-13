@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, Printer } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
-import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText } from '@/lib/bibleApi';
+import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText, resolveSubscript } from '@/lib/bibleApi';
 import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
@@ -286,8 +286,7 @@ export default function BibleReader() {
     });
     if (group.length) groups.push(group);
 
-    const subscriptKey = `${book.apiName}:${pos.chapter}`;
-    const chapterSubscript = SUBSCRIPTS[subscriptKey] || null;
+    const chapterSubscript = resolveSubscript(book.apiName, pos.chapter) || null;
     const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
     const blocks = groups.map((g) => {
       const range = formatVerseRange(g.map(v => v.verse));
@@ -384,6 +383,9 @@ export default function BibleReader() {
   const posRef = useRef(pos);
   useEffect(() => { posRef.current = pos; }, [pos]);
   const book = BIBLE_BOOKS.find(b => b.abbr === pos.abbr) || BIBLE_BOOKS[0];
+  // Subscript for the current chapter, honouring any admin override. Recomputed
+  // when verses reload (loadOverrides populates the cache by then).
+  const chapterSubscript = resolveSubscript(book.apiName, pos.chapter);
 
   useReaderUrlSync(pos, loading, a11yFont, routerNavigate);
   const isViewingTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
@@ -1295,7 +1297,7 @@ export default function BibleReader() {
                       totalVerses={verseCount}
                       currentVerse={highlightVerse}
                       multiSelect={true}
-                      hasSubscript={!!SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+                      hasSubscript={!!chapterSubscript}
                       hasColophon={!!colophon}
                       onSelect={(v) => {
                         if (v && v.section) { navigate(pos.abbr, pos.chapter, null, false, false, false, v.section); setShowVersePicker(false); return; }
@@ -1312,7 +1314,7 @@ export default function BibleReader() {
                     totalVerses={verseCount}
                     currentVerse={highlightVerse}
                     multiSelect={false}
-                    hasSubscript={!!SUBSCRIPTS[`${book.apiName}:${pos.chapter}`]}
+                    hasSubscript={!!chapterSubscript}
                     hasColophon={!!colophon}
                     onSelect={(v) => {
                       const first = Array.isArray(v) ? v[0] : v;
@@ -1623,12 +1625,12 @@ export default function BibleReader() {
           <p className={`font-sans text-muted-foreground tracking-widest uppercase mt-5 ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100 * 0.875}rem`, fontWeight: fontFamily === 'cursive' ? '400' : undefined }}>
             Chapter {pos.chapter}
           </p>
-          {SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
+          {chapterSubscript && (
             <p
               onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor"
               className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
               style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem` }}
-              dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`], highlightSection === 'subscript' ? searchTerm : null) }}
+              dangerouslySetInnerHTML={{ __html: renderSubscriptText(chapterSubscript, highlightSection === 'subscript' ? searchTerm : null) }}
             />
           )}
         </div>
@@ -1660,8 +1662,8 @@ export default function BibleReader() {
           const useColumns = columnMode && shownCount > 6;
           return (
           <div className={`${useColumns ? 'kjb-two-col text-left hyphens-auto' : 'text-left'} ${paragraphMode ? 'text-left px-2 sm:px-4' : ''}`} style={useColumns ? { fontSize: 'inherit', columnCount: 2, columnGap: '1.5rem', columnRule: '1px solid hsl(var(--border))' } : { fontSize: 'inherit' }}>
-            {columnMode && !isViewingTitlePage && SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] && (
-              <p onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor" className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }} dangerouslySetInnerHTML={{ __html: renderSubscriptText(SUBSCRIPTS[`${book.apiName}:${pos.chapter}`], highlightSection === 'subscript' ? searchTerm : null) }} />
+            {columnMode && !isViewingTitlePage && chapterSubscript && (
+              <p onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor" className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }} dangerouslySetInnerHTML={{ __html: renderSubscriptText(chapterSubscript, highlightSection === 'subscript' ? searchTerm : null) }} />
             )}
             {verses.filter(v => !activeFilter || verseInSelection(v)).map((v, idx) => (
               <VerseText
@@ -1669,7 +1671,7 @@ export default function BibleReader() {
                 id={`v${v.verse}`} bookName={book.name} abbr={pos.abbr} chapter={pos.chapter} isFirstVerse={idx === 0} paragraphMode={paragraphMode} selectMode={selectMode}
                 isSelected={selectedVerses.has(parseInt(v.verse, 10)) || selectedVerses.has(String(v.verse))} onSelect={toggleVerseSelect} onActivateSelect={activateSelectFromVerse} totalVerses={verseCount}
                 colophon={verses.length > 0 && String(v.verse) === String(verses[verses.length - 1].verse) ? colophon : null}
-                subscript={parseInt(v.verse, 10) === 1 ? (SUBSCRIPTS[`${book.apiName}:${pos.chapter}`] || null) : null}
+                subscript={parseInt(v.verse, 10) === 1 ? (chapterSubscript || null) : null}
                 isCursive={fontFamily === 'cursive'} fontFamilyValue={getFontFamilyValue(fontFamily)} zoomLevel={zoomLevel} columnMode={useColumns} dropCap={idx === 0 && parseInt(v.verse, 10) === 1}
                 searchTerm={searchTerm && parseInt(highlightVerse, 10) === parseInt(v.verse, 10) ? searchTerm : null}
               />

@@ -1,6 +1,16 @@
 import { getBibleData, isBibleCached } from '@/lib/bibleCache';
-import { COLOPHONS } from '@/lib/bibleSubscripts';
-import { loadOverrides, applyOverrides } from '@/lib/bibleTextOverrides';
+import { COLOPHONS, SUBSCRIPTS } from '@/lib/bibleSubscripts';
+import { loadOverrides, applyOverrides, getSubscriptOverride, getColophonOverride } from '@/lib/bibleTextOverrides';
+
+// Resolve the subscript (Psalm superscription) for a chapter, honouring any
+// admin override saved via the editor.
+export function resolveSubscript(bookApiName, chapter) {
+  return getSubscriptOverride(bookApiName, chapter) ?? SUBSCRIPTS[`${bookApiName}:${chapter}`] ?? null;
+}
+// Resolve the colophon for a chapter, honouring any admin override.
+export function resolveColophon(bookApiName, chapter) {
+  return getColophonOverride(bookApiName, chapter) ?? COLOPHONS[`${bookApiName}:${chapter}`] ?? null;
+}
 
 // Kick off a one-time background load of the shared verse corrections so
 // they're ready in memory by the time a chapter is opened.
@@ -64,8 +74,9 @@ export async function fetchChapter(bookApiName, chapter) {
   // Apply shared, database-backed verse corrections (if any are loaded).
   verses = applyOverrides(bookApiName, chapter, verses);
 
-  // Colophons are hardcoded in bibleSubscripts.js (sourced from TEXT-PCE-127.txt)
-  const colophon = COLOPHONS[`${bookApiName}:${chapter}`] || null;
+  // Colophon: admin override (BibleTextOverride verse=-1) falls back to the
+  // hardcoded value in bibleSubscripts.js.
+  const colophon = resolveColophon(bookApiName, chapter);
   return { verses, colophon };
 }
 

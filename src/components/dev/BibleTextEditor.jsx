@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { fetchChapter } from '@/lib/bibleApi';
-import { invalidateOverrides, loadOverrides } from '@/lib/bibleTextOverrides';
+import { fetchChapter, resolveSubscript, resolveColophon } from '@/lib/bibleApi';
+import { invalidateOverrides, loadOverrides, SUBSCRIPT_VERSE, COLOPHON_VERSE } from '@/lib/bibleTextOverrides';
+import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import { Loader2, Save, Trash2, RotateCcw } from 'lucide-react';
 
 const DEV_KEY = 'KJB-DEV-2026';
@@ -34,7 +35,17 @@ export default function BibleTextEditor() {
       setOverrides(ovMap);
       // Chapter verses (already has overrides applied by fetchChapter)
       const { verses: vs } = await fetchChapter(book, Number(chapter));
-      setVerses(vs);
+      // Prepend the Psalm superscription (verse 0) and append the epistle
+      // colophon (verse -1) as editable pseudo-verses, when present — resolving
+      // any override so the editor shows the live text.
+      const sub = resolveSubscript(book, Number(chapter));
+      const col = resolveColophon(book, Number(chapter));
+      const combined = [
+        ...(sub != null ? [{ verse: SUBSCRIPT_VERSE, text: sub, kind: 'subscript' }] : []),
+        ...vs,
+        ...(col != null ? [{ verse: COLOPHON_VERSE, text: col, kind: 'colophon' }] : []),
+      ];
+      setVerses(combined);
       setEdited({});
     } catch (err) {
       setMsg(err.message || 'Failed to load');
@@ -102,7 +113,7 @@ export default function BibleTextEditor() {
               className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground" />
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">Use [brackets] for italic (supplied) words. Saved edits apply to every reader instantly and cost no credits.</p>
+        <p className="text-xs text-muted-foreground">Use [brackets] for italic (supplied) words. Saved edits apply to every reader instantly and cost no credits. Psalm superscriptions/subscripts and epistle colophons are editable here too; Psalm 119 Hebrew-letter headings live inside their verse text (verses 1, 9, 17…), so edit those verses to fix them.</p>
         {msg && <p className="text-xs text-primary">{msg}</p>}
       </div>
 
@@ -118,7 +129,12 @@ export default function BibleTextEditor() {
               <div key={v.verse} className={`rounded-xl border p-3 ${isOverridden ? 'border-primary/50 bg-primary/5' : 'border-border bg-card'}`}>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="font-sans text-xs font-semibold text-accent">
-                    {bookEntry?.shortName} {chapter}:{v.verse} {isOverridden && <span className="text-primary">(overridden)</span>}
+                    {v.kind === 'subscript'
+                      ? `${bookEntry?.shortName} ${chapter} — Superscription/Subscript`
+                      : v.kind === 'colophon'
+                        ? `${bookEntry?.shortName} ${chapter} — Colophon`
+                        : `${bookEntry?.shortName} ${chapter}:${v.verse}`}
+                    {' '}{isOverridden && <span className="text-primary">(overridden)</span>}
                   </span>
                   <div className="flex gap-1.5">
                     {isOverridden && (

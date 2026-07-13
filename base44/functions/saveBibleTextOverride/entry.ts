@@ -22,7 +22,9 @@ Deno.serve(async (req) => {
 
     if (op === 'create') {
       const { book, chapter, verse, text, note } = body;
-      if (!book || !chapter || !verse || text == null) {
+      // verse may be 0 (subscript) or -1 (colophon), so check for null/undefined
+      // rather than falsiness.
+      if (!book || !chapter || verse == null || text == null) {
         return Response.json({ error: 'book, chapter, verse, text required' }, { status: 400 });
       }
       const payload = { book, chapter: Number(chapter), verse: Number(verse), text };

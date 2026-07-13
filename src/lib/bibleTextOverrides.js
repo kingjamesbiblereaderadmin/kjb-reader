@@ -13,6 +13,23 @@ function keyFor(book, chapter, verse) {
   return `${book}:${chapter}:${verse}`;
 }
 
+// Sentinel "verse" numbers used to store non-verse chapter parts as overrides
+// in the same BibleTextOverride entity:
+//   0  → the Psalm superscription / subscript line for that chapter
+//   -1 → the epistle colophon line for that chapter
+export const SUBSCRIPT_VERSE = 0;
+export const COLOPHON_VERSE = -1;
+
+// Read an overridden subscript/colophon (returns null if none loaded/saved).
+export function getSubscriptOverride(book, chapter) {
+  if (!_cache) return null;
+  return _cache.get(keyFor(book, chapter, SUBSCRIPT_VERSE)) ?? null;
+}
+export function getColophonOverride(book, chapter) {
+  if (!_cache) return null;
+  return _cache.get(keyFor(book, chapter, COLOPHON_VERSE)) ?? null;
+}
+
 // Load all overrides from the database (once). Safe to call repeatedly.
 export async function loadOverrides(force = false) {
   if (_cache && !force) return _cache;
