@@ -19,27 +19,50 @@ function highlightAny(text, terms, keyPrefix) {
   );
 }
 
-// Highlight the terms only where they appear IN SEQUENCE (in order), so we
-// don't mark stray "of"/"God" words that aren't part of the actual phrase run.
-// `adjacent` = terms must be directly consecutive words; otherwise other words
-// may sit between them but they still must run left-to-right within one span.
+// Highlight the terms where they appear IN SEQUENCE (in order).
+// `adjacent` = terms must be directly consecutive words → highlight the whole
+// phrase as one span. Otherwise (in-order, non-adjacent) each term word is
+// highlighted individually at its in-sequence position, so the connecting
+// text between terms is NOT marked.
 function highlightInOrder(text, terms, keyPrefix, adjacent, caseSensitive, wholeWord) {
   if (!terms || terms.length === 0) return text;
   const flags = (caseSensitive ? '' : 'i');
   const before = wholeWord ? `(?<![A-Za-z'-])` : '';
   const after = wholeWord ? `(?![A-Za-z'-])` : '';
-  const gap = adjacent ? '\\s+' : `[^A-Za-z]*(?:[A-Za-z'-]+[^A-Za-z]+)*?`;
-  const pattern = before + terms.map(escapeRe).join(`${after}${gap}${before}`) + after;
-  let re;
-  try { re = new RegExp(pattern, flags); } catch { return highlightAny(text, terms, keyPrefix); }
-  const m = re.exec(text);
-  if (!m) return text; // no in-order run in this fragment
-  const start = m.index, end = start + m[0].length;
-  return [
-    text.slice(0, start),
-    <mark key={`${keyPrefix}-m`} className="bg-yellow-200 dark:bg-yellow-500/40 text-foreground rounded px-0.5">{text.slice(start, end)}</mark>,
-    text.slice(end),
-  ];
+
+  const mark = (str, key) => (
+    <mark key={key} className="bg-yellow-200 dark:bg-yellow-500/40 text-foreground rounded px-0.5">{str}</mark>
+  );
+
+  // Adjacent → one contiguous phrase span.
+  if (adjacent) {
+    const pattern = before + terms.map(escapeRe).join(`${after}\\s+${before}`) + after;
+    let re;
+    try { re = new RegExp(pattern, flags); } catch { return highlightAny(text, terms, keyPrefix); }
+    const m = re.exec(text);
+    if (!m) return text;
+    const start = m.index, end = start + m[0].length;
+    return [text.slice(0, start), mark(text.slice(start, end), `${keyPrefix}-m`), text.slice(end)];
+  }
+
+  // In order (non-adjacent) → walk left-to-right, marking each term at its
+  // sequential position and leaving the text between terms untouched.
+  const nodes = [];
+  let cursor = 0;
+  let found = false;
+  for (let t = 0; t < terms.length; t++) {
+    const re = new RegExp(`${before}${escapeRe(terms[t])}${after}`, flags + 'g');
+    re.lastIndex = cursor;
+    const m = re.exec(text);
+    if (!m) break;
+    found = true;
+    nodes.push(text.slice(cursor, m.index));
+    nodes.push(mark(m[0], `${keyPrefix}-${t}`));
+    cursor = m.index + m[0].length;
+  }
+  if (!found) return text;
+  nodes.push(text.slice(cursor));
+  return nodes;
 }
 
 // Renders the plain verse text, but shows the [supplied] words in italics like
