@@ -56,16 +56,20 @@ export default function AdvancedSearchPage() {
   useEffect(() => { setVisible(PAGE_SIZE); setSelectedKeys(new Set()); setCollapsedGroups(new Set()); }, [filters]);
 
   // Lock the page behind the mobile filter drawer so scrolling inside the
-  // drawer doesn't scroll the underlying page. We only set overflow:hidden on
-  // the body — NOT position:fixed — so toggling a filter (which shrinks/grows
-  // the results list behind the drawer) never forces a scroll-restore jump.
+  // drawer doesn't scroll the underlying page. Locking both <html> and <body>
+  // with overflow:hidden (no position:fixed, so no scroll-restore jump) stops
+  // the touch scroll from bubbling to the page and jumping it to the top.
   useEffect(() => {
     if (!showFilters) return;
+    const html = document.documentElement;
     const body = document.body;
-    const prevOverflow = body.style.overflow;
+    const prevHtml = html.style.overflow;
+    const prevBody = body.style.overflow;
+    html.style.overflow = 'hidden';
     body.style.overflow = 'hidden';
     return () => {
-      body.style.overflow = prevOverflow;
+      html.style.overflow = prevHtml;
+      body.style.overflow = prevBody;
     };
   }, [showFilters]);
 
@@ -292,7 +296,7 @@ export default function AdvancedSearchPage() {
       {showFilters && records && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilters(false)} />
-          <div className="relative ml-auto w-[88%] max-w-sm h-full bg-background overflow-y-auto p-5 shadow-2xl">
+          <div className="relative ml-auto w-[88%] max-w-sm h-full bg-background overflow-y-auto overscroll-contain p-5 shadow-2xl" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-serif text-lg font-semibold text-foreground">Filters</h2>
               <button onClick={() => setShowFilters(false)} className="p-2 rounded-lg hover:bg-secondary">
