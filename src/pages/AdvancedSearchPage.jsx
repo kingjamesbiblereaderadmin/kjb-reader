@@ -264,7 +264,7 @@ export default function AdvancedSearchPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6 items-start">
           {/* Desktop filter column — sticky, with its own independent scroll
               so a long filter list scrolls on its own without moving the page. */}
-          <div className="hidden lg:block sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto pr-1 scrollbar-hide">
+          <div className="hidden lg:block sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain pr-1 pb-8 scrollbar-hide">
             <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} metricRanges={metricRanges} textDraft={textDraft} onTextDraftChange={setTextDraft} />
           </div>
 

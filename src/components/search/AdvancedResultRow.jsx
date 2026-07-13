@@ -100,7 +100,7 @@ const BOOL_TO_FEATURE = {
   hasComma: 'commaCount', hasPeriod: 'periodCount', hasSemicolon: 'semicolonCount',
   hasColon: 'colonCount', hasQuestion: 'questionCount', hasExclamation: 'exclamationCount',
   hasHyphen: 'hyphenCount', hasApostrophe: 'apostropheCount',
-  hasAllCaps: 'allCapsWordCount',
+  hasAllCaps: 'allCapsWordCount', hasCapital: 'capitalWordCount',
 };
 
 // Wrap all regex matches of `pattern` in `text` with a highlight <mark>.
@@ -135,7 +135,9 @@ function renderText(rawText, terms, filters) {
   // With no text search, highlight the feature the user is filtering/sorting on.
   const highlightPilcrow = !hasTerms && isFeatureActive(filters, 'hasPilcrow', 'pilcrowCount');
   const highlightItalics = !hasTerms && isFeatureActive(filters, 'hasItalics', 'italicWordCount');
-  // The first active character/word pattern (punctuation, capitals, digits, …).
+  // ALL active character/word patterns (punctuation, capitals, etc.), combined
+  // into a single regex so every active property filter highlights at once —
+  // not just the first one found.
   const activePattern = !hasTerms ? getActivePattern(filters) : null;
 
   // Renders a plain text segment: search-term highlight if searching, else the
@@ -181,15 +183,19 @@ function isFeatureActive(filters, boolKey, countKey) {
   return false;
 }
 
-// Find the first character/word metric the user is actively filtering/sorting
-// on, so its matching characters get highlighted in the verse text.
+// Collect EVERY character/word metric the user is actively filtering/sorting
+// on and combine their patterns into one regex, so all of them highlight in
+// the verse text simultaneously (e.g. colons AND commas together). Word-type
+// patterns and char-type patterns are merged into a single alternation.
 function getActivePattern(filters) {
   if (!filters) return null;
+  const sources = [];
   for (const [countKey, pattern] of Object.entries(FEATURE_PATTERNS)) {
     const boolKey = Object.keys(BOOL_TO_FEATURE).find(k => BOOL_TO_FEATURE[k] === countKey);
-    if (isFeatureActive(filters, boolKey, countKey)) return pattern;
+    if (isFeatureActive(filters, boolKey, countKey)) sources.push(pattern.re.source);
   }
-  return null;
+  if (sources.length === 0) return null;
+  return { re: new RegExp(sources.join('|'), 'g') };
 }
 
 // Short labels for the metric chips.
