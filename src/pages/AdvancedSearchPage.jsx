@@ -135,7 +135,7 @@ export default function AdvancedSearchPage() {
             </div>
             <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} />
             <button
-              onClick={() => setShowFilters(false)}
+              onClick={() => { setShowFilters(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               className="w-full mt-4 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium"
             >
               {isEmpty ? 'Done' : `Show ${results.length.toLocaleString()} results`}
