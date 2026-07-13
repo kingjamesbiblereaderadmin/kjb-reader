@@ -140,6 +140,20 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     // Prevent main.jsx from reloading while the splash is running this flow.
     window._kjbSplashApplyingUpdate = true;
 
+    // Safety net: no matter what happens inside the flow (a thrown error, a
+    // hung import, etc.), the splash MUST hand off to the app. Without this,
+    // any unhandled exception left the overlay stuck on its last message
+    // (e.g. "NO UPDATES FOUND.") forever, blanking the whole app behind it.
+    let finished = false;
+    const finishOnce = () => {
+      if (finished) return;
+      finished = true;
+      try { window.dispatchEvent(new Event('kjb-progress-clear')); } catch {}
+      onDone?.();
+    };
+    // Absolute cap — if the flow ever stalls, force the hand-off after 20s.
+    const hardTimeout = setTimeout(finishOnce, 20000);
+
     (async () => {
       // Wait for incognito detection to complete before starting splash flow
       const detectedIncognito = await detectIncognito();
@@ -245,7 +259,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         console.groupEnd();
         try { const { markSwVersionApplied } = await import('@/lib/swVersionCheck'); markSwVersionApplied(); } catch {}
         markVisited();
-        onDone?.();
+        finishOnce();
         return;
       }
 
@@ -300,7 +314,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         console.groupEnd();
         try { const { markSwVersionApplied } = await import('@/lib/swVersionCheck'); markSwVersionApplied(); } catch {}
         markVisited();
-        onDone?.();
+        finishOnce();
         return;
       }
 
@@ -412,10 +426,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
         console.groupEnd();
         markVisited();
-        onDone?.();
+        finishOnce();
         return;
       }
-    })();
+    })().catch((err) => {
+      console.error('[Splash] flow error — handing off to app anyway:', err);
+      finishOnce();
+    }).finally(() => {
+      clearTimeout(hardTimeout);
+    });
   }, [isVisible, mode]);
 
   if (!isVisible) return null;
