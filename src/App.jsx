@@ -153,10 +153,15 @@ const AuthenticatedApp = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
 
+  // The app's canonical tab title. Printing/exporting opens a temporary
+  // document whose title (e.g. "KJB Advanced Search") can otherwise get stuck
+  // in the browser tab if `afterprint` doesn't fire (cancelled dialog, mobile
+  // "Save as PDF"). We always restore to this fixed value, never a captured
+  // snapshot that could itself already be stale.
+  const CANONICAL_TITLE = 'KJB Reader';
   useEffect(() => {
-    const originalTitle = document.title;
     const beforePrint = () => { document.title = '\u200B'; };
-    const afterPrint = () => { document.title = originalTitle; };
+    const afterPrint = () => { document.title = CANONICAL_TITLE; };
     window.addEventListener('beforeprint', beforePrint);
     window.addEventListener('afterprint', afterPrint);
     return () => {
@@ -164,6 +169,13 @@ const AuthenticatedApp = () => {
       window.removeEventListener('afterprint', afterPrint);
     };
   }, []);
+
+  // Re-assert the canonical title on every route change, so if a print/export
+  // flow left a stray title behind (e.g. "Advanced Search"), navigating home,
+  // to read, or anywhere else corrects the tab name.
+  useEffect(() => {
+    if (document.title !== CANONICAL_TITLE) document.title = CANONICAL_TITLE;
+  }, [location.pathname]);
 
   // Preload route chunks in background
   useEffect(() => { preloadAllRoutes(); }, []);
