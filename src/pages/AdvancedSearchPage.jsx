@@ -99,8 +99,14 @@ export default function AdvancedSearchPage() {
     return applyFilters(records, filters);
   }, [records, filters, isEmpty]);
 
-  // Reset the visible window + selection when the result set changes.
-  useEffect(() => { setVisible(PAGE_SIZE); setSelectedKeys(new Set()); setCollapsedGroups(new Set()); }, [filters]);
+  // Reset the visible window + selection when the result set changes, and jump
+  // the results panel back to the top so the user sees the first match.
+  useEffect(() => {
+    setVisible(PAGE_SIZE); setSelectedKeys(new Set()); setCollapsedGroups(new Set());
+    if (resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [filters]);
 
   // Lock the page behind the mobile filter drawer. On mobile, overflow:hidden
   // alone doesn't stop touch scroll from bubbling to the page. We freeze the
