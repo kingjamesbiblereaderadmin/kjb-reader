@@ -179,8 +179,8 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
               </>
             ) : (
               <>
-                <option value="desc">Highest first (e.g. longest)</option>
-                <option value="asc">Lowest first (e.g. shortest)</option>
+                <option value="desc">Highest first</option>
+                <option value="asc">Lowest first</option>
               </>
             )}
           </select>

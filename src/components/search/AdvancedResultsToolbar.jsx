@@ -67,15 +67,42 @@ export default function AdvancedResultsToolbar({ records, selectedRecords, filte
   const filterSummary = describeFilters(filters);
   const exportOptions = { titlePrefix: 'KJB Advanced Search', filterSummary, showQuery: !!searchText };
 
+  // The exporter's highlighter reads `filters.caseSensitive` / `filters.wholeWord`
+  // and treats commas / quotes specially. Advanced Search stores these under
+  // different names (textCaseSensitive / textWholeWord) and separates terms by
+  // spaces or commas. Build a query + filters pair the highlighter understands
+  // so the highlighted words in exports match what actually searched.
+  const buildHighlight = () => {
+    if (!searchText) return { hlQuery: query, hlFilters: filters };
+    const terms = searchText.split(/[\s,]+/).map(t => t.trim()).filter(Boolean);
+    // Adjacent = exact phrase → quote it so the highlighter matches the whole phrase.
+    if (filters.textAdjacent) {
+      return {
+        hlQuery: `"${terms.join(' ')}"`,
+        hlFilters: { ...filters, caseSensitive: filters.textCaseSensitive, wholeWord: filters.textWholeWord },
+      };
+    }
+    // Otherwise highlight each term independently (comma-separated for the highlighter).
+    return {
+      hlQuery: terms.join(', '),
+      hlFilters: { ...filters, caseSensitive: filters.textCaseSensitive, wholeWord: filters.textWholeWord },
+    };
+  };
+
   const doExport = (format) => {
     setMenuOpen(false);
     if (!items.length) return;
-    exportVerses(format, items, query, filters, exportOptions);
+    const { hlQuery, hlFilters } = buildHighlight();
+    // Keep the title clean ("KJB Advanced Search") — the exact search text is
+    // already shown in the Applied Filters block, so don't append the
+    // comma/quote-normalised highlight query to the heading.
+    exportVerses(format, items, hlQuery, hlFilters, { ...exportOptions, showQuery: false });
   };
 
   const doPrint = () => {
     if (!items.length) return;
-    exportVerses('print', items, query, filters, exportOptions);
+    const { hlQuery, hlFilters } = buildHighlight();
+    exportVerses('print', items, hlQuery, hlFilters, { ...exportOptions, showQuery: false });
   };
 
   const doCopy = async () => {

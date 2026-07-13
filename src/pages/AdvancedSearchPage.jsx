@@ -157,6 +157,24 @@ export default function AdvancedSearchPage() {
     [records, filters]
   );
 
+  // Dynamic testament: if the user has a specific testament selected and the
+  // current search term / filters yield NO matches there, but the OTHER
+  // testament (or "all") does have matches, auto-switch the testament so the
+  // user sees results instead of an empty list.
+  useEffect(() => {
+    if (!availability) return;
+    // Only act when a specific testament is chosen and it currently matches nothing.
+    if (filters.testament === 'all') return;
+    if (availability.testaments[filters.testament]) return;
+    // Prefer the opposite testament if it has matches; otherwise fall back to All.
+    const other = filters.testament === 'old' ? 'new' : 'old';
+    if (availability.testaments[other]) {
+      setFilters(prev => ({ ...prev, testament: other, book: 'all' }));
+    } else if (availability.testaments.all) {
+      setFilters(prev => ({ ...prev, testament: 'all', book: 'all' }));
+    }
+  }, [availability, filters.testament]);
+
   // The actual data range (min/max) of each numeric metric — used to suggest
   // realistic values as placeholders in the numeric filter inputs.
   const metricRanges = useMemo(
