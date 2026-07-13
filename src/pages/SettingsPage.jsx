@@ -1181,10 +1181,6 @@ export default function SettingsPage() {
                         else if (hasCodeUpdates) { reloadText = 'Found app updates...'; updateType = 'app'; }
 
                         setDlStatus(reloadText);
-                        
-                        // Force UI feedback event so banner shows
-                        window.dispatchEvent(new Event('kjb-progress-clear'));
-                        window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: reloadText, status: 'loading' } }));
 
                         if (hasBibleUpdates) {
                           localStorage.removeItem('bible_cache_version');
