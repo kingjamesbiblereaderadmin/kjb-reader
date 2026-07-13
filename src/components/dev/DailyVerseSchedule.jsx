@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Ban, Pin, RotateCcw } from 'lucide-react';
 import DailyVerseControls from './DailyVerseControls';
+
+const DEV_KEY = 'KJB-DEV-2026';
 
 const toKey = (d) => {
   const y = d.getFullYear();
@@ -20,6 +22,9 @@ export default function DailyVerseSchedule() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [futureDays, setFutureDays] = useState(30);
+  const [actingKey, setActingKey] = useState(null);
+  const [pinningDate, setPinningDate] = useState(null);
+  const [pinRef, setPinRef] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -52,6 +57,41 @@ export default function DailyVerseSchedule() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Exclude the verse currently scheduled for a given day — it will never be
+  // picked again, and the schedule recomputes with the next eligible verse.
+  const excludeVerse = async (ref, date) => {
+    if (!ref) return;
+    setActingKey(date);
+    await base44.functions.invoke('saveDailyVerseControl', {
+      op: 'create', kind: 'exclusion', ref, note: 'excluded from schedule', key: DEV_KEY,
+    });
+    await load();
+    setActingKey(null);
+  };
+
+  // Pin (force) a specific verse for a given date, overriding the formula.
+  const pinVerse = async (date) => {
+    const ref = pinRef.trim();
+    if (!ref) return;
+    setActingKey(date);
+    await base44.functions.invoke('saveDailyVerseControl', {
+      op: 'create', kind: 'pin', ref, date, note: 'pinned from schedule', key: DEV_KEY,
+    });
+    setPinningDate(null);
+    setPinRef('');
+    await load();
+    setActingKey(null);
+  };
+
+  // Remove a pin for a date, restoring the formula-picked verse.
+  const unpinVerse = async (pinId, date) => {
+    if (!pinId) return;
+    setActingKey(date);
+    await base44.functions.invoke('saveDailyVerseControl', { op: 'delete', id: pinId, key: DEV_KEY });
+    await load();
+    setActingKey(null);
+  };
+
   return (
     <div className="space-y-5">
       <DailyVerseControls onChange={load} />
@@ -78,19 +118,78 @@ export default function DailyVerseSchedule() {
         <div className="rounded-xl bg-card border border-border overflow-hidden">
           {rows.map((r) => {
             const isToday = r.offset === 0;
+            const busy = actingKey === r.key;
+            const isPinning = pinningDate === r.key;
             return (
-              <div key={r.offset} className={`flex items-start gap-3 px-4 py-3 border-b border-border last:border-0 ${isToday ? 'bg-primary/10' : ''}`}>
-                <div className="w-40 shrink-0">
-                  <p className={`font-sans text-xs font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>{fmt(r.dateObj)}</p>
-                  <p className="font-sans text-[10px] text-muted-foreground">{isToday ? 'Today' : `+${r.offset}d`}</p>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-sans text-xs text-accent font-semibold">{r.verse?.ref}</p>
-                    {r.pinned && <span className="px-1.5 py-0.5 rounded bg-accent/20 text-accent text-[10px] font-semibold">PINNED</span>}
+              <div key={r.offset} className={`px-4 py-3 border-b border-border last:border-0 ${isToday ? 'bg-primary/10' : ''}`}>
+                <div className="flex items-start gap-3">
+                  <div className="w-40 shrink-0">
+                    <p className={`font-sans text-xs font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>{fmt(r.dateObj)}</p>
+                    <p className="font-sans text-[10px] text-muted-foreground">{isToday ? 'Today' : `+${r.offset}d`}</p>
                   </div>
-                  <p className="font-serif text-sm text-foreground leading-snug line-clamp-2">{r.verse?.text?.replace(/[[\]]/g, '')}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-sans text-xs text-accent font-semibold">{r.verse?.ref}</p>
+                      {r.pinned && <span className="px-1.5 py-0.5 rounded bg-accent/20 text-accent text-[10px] font-semibold">PINNED</span>}
+                    </div>
+                    <p className="font-serif text-sm text-foreground leading-snug line-clamp-2">{r.verse?.text?.replace(/[[\]]/g, '')}</p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {busy ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-primary/70" />
+                    ) : r.pinned ? (
+                      <button
+                        onClick={() => unpinVerse(r.pinId, r.key)}
+                        title="Remove pin (restore formula verse)"
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-[11px] text-foreground hover:bg-secondary/70"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" /> Unpin
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => excludeVerse(r.verse?.ref, r.key)}
+                          title="Exclude this verse permanently"
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/10 text-[11px] text-destructive hover:bg-destructive/20"
+                        >
+                          <Ban className="w-3.5 h-3.5" /> Exclude
+                        </button>
+                        <button
+                          onClick={() => { setPinningDate(isPinning ? null : r.key); setPinRef(''); }}
+                          title="Pin a specific verse for this date"
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-[11px] text-foreground hover:bg-secondary/70"
+                        >
+                          <Pin className="w-3.5 h-3.5" /> Pin
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
+                {isPinning && (
+                  <div className="flex items-center gap-2 mt-2 pl-40">
+                    <input
+                      value={pinRef}
+                      onChange={(e) => setPinRef(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') pinVerse(r.key); }}
+                      placeholder="e.g. John 3:16"
+                      autoFocus
+                      className="flex-1 min-w-0 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm text-foreground"
+                    />
+                    <button
+                      onClick={() => pinVerse(r.key)}
+                      disabled={!pinRef.trim()}
+                      className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50"
+                    >
+                      Pin
+                    </button>
+                    <button
+                      onClick={() => { setPinningDate(null); setPinRef(''); }}
+                      className="px-3 py-1.5 rounded-lg bg-secondary text-xs text-muted-foreground"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}

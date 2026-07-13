@@ -107,12 +107,12 @@ let _controlCache = null;
 let _controlCacheAt = 0;
 async function loadControls(b44) {
   if (_controlCache && Date.now() - _controlCacheAt < 15000) return _controlCache;
-  const result = { extraExcluded: new Set(), pins: {} };
+  const result = { extraExcluded: new Set(), pins: {}, pinIds: {} };
   try {
     const rows = await b44.asServiceRole.entities.DailyVerseControl.list('-created_date', 2000);
     for (const r of rows || []) {
       if (r.kind === 'exclusion' && r.ref) result.extraExcluded.add(r.ref);
-      else if (r.kind === 'pin' && r.ref && r.date) result.pins[r.date] = r.ref;
+      else if (r.kind === 'pin' && r.ref && r.date) { result.pins[r.date] = r.ref; result.pinIds[r.date] = r.id; }
     }
   } catch (err) {
     console.warn('[bibleApi] control load failed:', err?.message);
@@ -334,7 +334,7 @@ Deno.serve(async (req) => {
           const picked = pickForSeed(flat, seed);
           verse = verseFromRef(bible, `${picked.bookName} ${picked.chapterNum}:${picked.verseObj.verse}`);
         }
-        return { date: dateKey, verse, pinned };
+        return { date: dateKey, verse, pinned, pinId: pinned ? controls.pinIds[dateKey] : null };
       });
 
       return Response.json({ schedule: out, totalVerses: flat.length });
