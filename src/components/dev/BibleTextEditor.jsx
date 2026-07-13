@@ -107,10 +107,13 @@ export default function BibleTextEditor() {
             </select>
           </div>
           <div>
-            <label className="block font-sans text-xs text-muted-foreground mb-1">Chapter (1–{maxChapters})</label>
-            <input type="number" min={1} max={maxChapters} value={chapter}
-              onChange={(e) => setChapter(Math.max(1, Number(e.target.value)))}
-              className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground" />
+            <label className="block font-sans text-xs text-muted-foreground mb-1">Chapter</label>
+            <select value={chapter} onChange={(e) => setChapter(Number(e.target.value))}
+              className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground">
+              {Array.from({ length: maxChapters }, (_, i) => i + 1).map(ch => (
+                <option key={ch} value={ch}>Chapter {ch}</option>
+              ))}
+            </select>
           </div>
         </div>
         <p className="text-xs text-muted-foreground">Use [brackets] for italic (supplied) words. Saved edits apply to every reader instantly and cost no credits. Psalm superscriptions/subscripts and epistle colophons are editable here too; Psalm 119 Hebrew-letter headings live inside their verse text (verses 1, 9, 17…), so edit those verses to fix them.</p>
