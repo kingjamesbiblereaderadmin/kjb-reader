@@ -158,13 +158,14 @@ export default function AdvancedSearchPage() {
   );
 
   // Dynamic testament: auto-select the tightest testament for the current
-  // search. Only runs when a text search is active.
+  // filters. Re-evaluates on ANY filter change (text, numeric, property, etc.)
+  // since `availability` recomputes each time.
   //  • On "All": if matches fall in ONLY one testament, switch to it (e.g.
   //    "Lamb of God" adjacent → only in New → switch to New).
   //  • On a specific testament with no matches: switch to whichever one has them.
+  // Skips when no filter is set at all (default state shows nothing).
   useEffect(() => {
-    if (!availability) return;
-    if (!(filters.textContains || '').trim()) return; // only for text searches
+    if (!availability || isEmpty) return;
     const { old, new: neu } = availability.testaments;
 
     if (filters.testament === 'all') {
@@ -180,7 +181,7 @@ export default function AdvancedSearchPage() {
       if (availability.testaments[other]) setFilters(prev => ({ ...prev, testament: other, book: 'all' }));
       else if (availability.testaments.all) setFilters(prev => ({ ...prev, testament: 'all', book: 'all' }));
     }
-  }, [availability, filters.testament, filters.textContains]);
+  }, [availability, filters.testament, isEmpty]);
 
   // The actual data range (min/max) of each numeric metric — used to suggest
   // realistic values as placeholders in the numeric filter inputs.
