@@ -12,7 +12,18 @@ export default function SelectorSheet({ open, onClose, title, children }) {
     <Drawer.Root open={open} onOpenChange={(o) => { if (!o) onClose(); }} shouldScaleBackground handleOnly>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
-        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-2xl bg-card border-t border-border max-h-[80vh] sm:max-h-[85vh]">
+        <Drawer.Content
+          className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-2xl bg-card border-t border-border max-h-[80vh] sm:max-h-[85vh]"
+          onPointerDownOutside={(e) => {
+            // Opening a native <select> picker fires a pointer event the drawer
+            // treats as "outside", instantly dismissing the sheet. Ignore it
+            // when the target is (or is inside) a <select>.
+            const target = e.detail?.originalEvent?.target;
+            if (target && target.closest && target.closest('select')) {
+              e.preventDefault();
+            }
+          }}
+        >
           {/* Drag handle — only this can be dragged to dismiss (handleOnly) */}
           <Drawer.Handle className="mx-auto mt-3 mb-2 !w-10 !h-1.5 rounded-full bg-border flex-shrink-0" />
           <div className="flex items-center justify-center relative pb-3 flex-shrink-0 px-4">

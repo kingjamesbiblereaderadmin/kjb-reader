@@ -54,7 +54,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
     <div className="space-y-3 p-1">
       <div>
         <label className="block font-sans text-xs text-muted-foreground mb-1.5">Book</label>
-        <select value={abbr} onChange={(e) => handleBook(e.target.value)} className={selectClass}>
+        <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={abbr} onChange={(e) => handleBook(e.target.value)} className={selectClass}>
           {BIBLE_BOOKS.map(b => (
             <option key={b.abbr} value={b.abbr}>{b.shortName}</option>
           ))}
@@ -64,7 +64,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block font-sans text-xs text-muted-foreground mb-1.5">Chapter</label>
-          <select value={chapter} onChange={(e) => handleChapter(e.target.value)} className={selectClass}>
+          <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={chapter} onChange={(e) => handleChapter(e.target.value)} className={selectClass}>
             {Array.from({ length: maxChapters }, (_, i) => i + 1).map(ch => (
               <option key={ch} value={ch}>{ch}</option>
             ))}
@@ -72,7 +72,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
         </div>
         <div>
           <label className="block font-sans text-xs text-muted-foreground mb-1.5">Verse</label>
-          <select value={verse} onChange={(e) => setVerse(e.target.value)} disabled={loadingVerses || verseCount === 0} className={`${selectClass} disabled:opacity-50`}>
+          <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={verse} onChange={(e) => setVerse(e.target.value)} disabled={loadingVerses || verseCount === 0} className={`${selectClass} disabled:opacity-50`}>
             <option value="">Whole chapter</option>
             {Array.from({ length: verseCount }, (_, i) => i + 1).map(v => (
               <option key={v} value={v}>{v}</option>
