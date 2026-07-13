@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
   }
 
   const manifest = {
-    id: "/?app=kjb-reader-v2",
+    id: "/",
     name: "KJB Reader",
     short_name: "KJB Reader",
     description: "Read the King James Bible (Pure Cambridge Edition) with offline support, daily verses, and beautiful typography.",
