@@ -10,7 +10,7 @@ import { parsePceText } from '@/lib/biblePceParser';
 // Bump this version string whenever the Bible text file changes — every client
 // will then re-download and re-parse fresh. Replaces the old remote VERSION.txt
 // check (which 404'd/403'd and broke auto-updates).
-export const CACHE_VERSION = 'v20260713_1500';
+export const CACHE_VERSION = 'v20260713_2130';
 const CACHE_KEY = 'bible_data_pce_v100_SINGLE_FILE';
 // Single clean PCE source file: book titles, CHAPTER headings, [bracketed] italics,
 // and double-space paragraph (pilcrow) markers. No separate italics file needed.
