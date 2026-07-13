@@ -30,12 +30,12 @@ export default function VersionInfo() {
   const [bumping, setBumping] = useState(false);
   const [msg, setMsg] = useState(null); // { ok: bool, text: string }
 
-  // Load the current runtime version from the live manifest.
+  // Load the current runtime version from the live manifest. Use the SDK invoke
+  // (a raw fetch to /functions/manifest returns the app HTML on some hosts).
   const loadLive = async () => {
     try {
-      const res = await fetch('/functions/manifest', { cache: 'no-store' });
-      const json = await res.json();
-      setLiveVersion(json?.version || null);
+      const res = await base44.functions.invoke('manifest', {});
+      setLiveVersion(res?.data?.version || null);
     } catch {
       setLiveVersion(null);
     }
