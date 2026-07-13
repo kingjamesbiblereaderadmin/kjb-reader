@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260713_2330
+// KJB Reader Service Worker v20260714_0100
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260713_2330';
+const CACHE_NAME = 'kjb-reader-v20260714_0100';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -115,6 +115,29 @@ self.addEventListener('fetch', (event) => {
 
   // Never cache sw.js itself — browser must always fetch it fresh for update detection
   if (url.pathname === '/sw.js') return;
+
+  // Navigation requests (the HTML document) use NETWORK-FIRST so a freshly
+  // deployed build's index.html — which references the new hashed JS chunks —
+  // is always fetched when online. Serving a stale cached index.html was the
+  // cause of black screens on reload: the old HTML pointed at lazy chunks that
+  // no longer exist on the CDN (404), crashing the page. Falling back to cache
+  // (then offline.html) keeps full offline support.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).then((response) => {
+        if (response && response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      }).catch(() =>
+        caches.match(request).then((cached) =>
+          cached || caches.match('/index.html').then((idx) => idx || caches.match('/offline.html'))
+        )
+      )
+    );
+    return;
+  }
 
   // Always fetch the manifest fresh (network-first) so corrected icons reach
   // Chrome/Samsung/Edge immediately instead of a stale cached version.
