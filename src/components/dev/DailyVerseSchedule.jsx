@@ -30,13 +30,22 @@ export default function DailyVerseSchedule() {
   const load = useCallback(async () => {
     setLoading(true);
     setError('');
-    // Build the list of days spanning past → today → future.
+    // The schedule always starts at the app's launch date (13 Jul 2026) and
+    // never earlier — so past days only appear once today is after launch.
+    const START = new Date(2026, 6, 13); // month is 0-based: 6 = July
     const dates = [];
     const today = new Date();
-    for (let i = -pastDays; i <= futureDays; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      dates.push({ key: toKey(d), dateObj: d, offset: i });
+    today.setHours(0, 0, 0, 0);
+    // Earliest day shown: `pastDays` before today, but clamped to START.
+    const earliest = new Date(today);
+    earliest.setDate(today.getDate() - pastDays);
+    if (earliest < START) earliest.setTime(START.getTime());
+    const latest = new Date(today);
+    latest.setDate(today.getDate() + futureDays);
+    for (let d = new Date(earliest); d <= latest; d.setDate(d.getDate() + 1)) {
+      const dd = new Date(d);
+      const offset = Math.round((dd - today) / 86400000);
+      dates.push({ key: toKey(dd), dateObj: dd, offset });
     }
     try {
       const res = await base44.functions.invoke('bibleApi', {
