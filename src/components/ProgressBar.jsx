@@ -11,7 +11,10 @@ export default function ProgressBar() {
   useEffect(() => {
     const handleProgress = (e) => {
       const { message: msg, status: st } = e.detail || {};
-      if (msg) {
+      // Only show explicit info/error pills (e.g. the online/offline Wifi tap).
+      // Update-flow messages ('loading'/'success') are handled silently by the
+      // full-screen splash + reload, so we never surface them as a top pill.
+      if (msg && (st === 'info' || st === 'error')) {
         setMessage(msg);
         setStatus(st);
         setVisible(true);
