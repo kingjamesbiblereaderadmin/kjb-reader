@@ -238,15 +238,34 @@ export function applyFilters(records, f) {
     return true;
   });
 
-  const dir = f.sortDir === 'asc' ? 1 : -1;
   const key = f.sortKey;
+
+  // 'none' → keep the records in their natural (canonical) order, unsorted by
+  // any metric. records are already built in canonical book order.
+  if (key === 'none') return out;
+
+  const dir = f.sortDir === 'asc' ? 1 : -1;
+  const bookIndex = (apiName) => BIBLE_BOOKS.findIndex(x => x.apiName === apiName);
+
+  // 'canonical' → sort by Bible book order, then chapter, then verse.
+  if (key === 'canonical') {
+    out = out.slice().sort((a, b) => {
+      const ai = bookIndex(a.book);
+      const bi = bookIndex(b.book);
+      if (ai !== bi) return (ai - bi) * dir;
+      if (a.chapter !== b.chapter) return (a.chapter - b.chapter) * dir;
+      return (a.verse - b.verse) * dir;
+    });
+    return out;
+  }
+
   out = out.slice().sort((a, b) => {
     const av = a.metrics[key];
     const bv = b.metrics[key];
     if (av === bv) {
       // Tie-break by canonical order (book index, chapter, verse).
-      const ai = BIBLE_BOOKS.findIndex(x => x.apiName === a.book);
-      const bi = BIBLE_BOOKS.findIndex(x => x.apiName === b.book);
+      const ai = bookIndex(a.book);
+      const bi = bookIndex(b.book);
       if (ai !== bi) return ai - bi;
       if (a.chapter !== b.chapter) return a.chapter - b.chapter;
       return a.verse - b.verse;
