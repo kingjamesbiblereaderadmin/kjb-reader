@@ -334,13 +334,16 @@ export default function AdvancedSearchPage() {
               <div className="space-y-8">
                 {groupedVisible.map(t => {
                   const tCollapsed = collapsedGroups.has(t.key);
+                  const tCount = t.books.reduce((n, b) => n + b.rows.length, 0);
                   return (
                   <div key={t.key} className="space-y-5">
                     <button
                       onClick={(e) => toggleGroup(t.key, e.currentTarget)}
                       className="w-full flex items-center justify-between gap-2 border-b-2 border-accent/40 pb-1.5 text-left"
                     >
-                      <h2 className="font-serif text-2xl font-bold text-foreground">{t.label}</h2>
+                      <h2 className="font-serif text-2xl font-bold text-foreground">
+                        {t.label} <span className="font-sans text-sm font-normal text-muted-foreground">({tCount.toLocaleString()})</span>
+                      </h2>
                       <ChevronDown className={`w-6 h-6 text-muted-foreground transition-transform ${tCollapsed ? '-rotate-90' : ''}`} />
                     </button>
                     {!tCollapsed && t.books.map(b => {
