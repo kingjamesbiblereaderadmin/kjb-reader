@@ -40,7 +40,7 @@ function words(t) {
 const NUMBER_WORDS = new Set([
   'one','two','three','four','five','six','seven','eight','nine','ten',
   'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen',
-  'twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety',
+  'twenty','thirty','forty','fifty','fifties','sixty','seventy','eighty','ninety',
   'tens','hundred','hundreds','thousand','thousands','million','millions','myriad','myriads',
   'first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth',
   'eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth',
