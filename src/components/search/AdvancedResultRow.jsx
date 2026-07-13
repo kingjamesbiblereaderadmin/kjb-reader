@@ -90,7 +90,6 @@ const FEATURE_PATTERNS = {
   exclamationCount: { type: 'char', re: /!/g },
   hyphenCount: { type: 'char', re: /-/g },
   apostropheCount: { type: 'char', re: /['’]/g },
-  numberWordCount: { type: 'word', re: /\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|fifties|sixty|seventy|eighty|ninety|tens|hundred|hundreds|thousand|thousands|million|millions|myriad|myriads|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|sixteenth|seventeenth|eighteenth|nineteenth|twentieth|thirtieth|fortieth|fiftieth|sixtieth|seventieth|eightieth|ninetieth|hundredth|thousandth|sevens|thirdly|secondarily|quaternions|quarters|once|twice|thrice|twain|double|treble|triple|twofold|threefold|fourfold|sevenfold|tenfold|hundredfold|manifold|thirtyfold|sixtyfold|score|fourscore|threescore|sixscore|half|halves|quarter|tithe|tithes|pair|pairs)\b/gi },
   totalPunctuationCount: { type: 'char', re: /[.,;:?!\-'’]/g },
   capitalWordCount: { type: 'word', re: /\b[A-Z][A-Za-z'’-]*/g },
   allCapsWordCount: { type: 'word', re: /\b[A-Z]{2,}\b/g },
@@ -100,7 +99,7 @@ const FEATURE_PATTERNS = {
 const BOOL_TO_FEATURE = {
   hasComma: 'commaCount', hasPeriod: 'periodCount', hasSemicolon: 'semicolonCount',
   hasColon: 'colonCount', hasQuestion: 'questionCount', hasExclamation: 'exclamationCount',
-  hasHyphen: 'hyphenCount', hasApostrophe: 'apostropheCount', hasNumbers: 'numberWordCount',
+  hasHyphen: 'hyphenCount', hasApostrophe: 'apostropheCount',
   hasAllCaps: 'allCapsWordCount',
 };
 
@@ -201,7 +200,7 @@ const CHIP_LABELS = {
   questionCount: 'question marks', exclamationCount: 'exclamations',
   hyphenCount: 'hyphens', apostropheCount: 'apostrophes', totalPunctuationCount: 'punctuation',
   capitalWordCount: 'capitalised', allCapsWordCount: 'ALL-CAPS',
-  italicWordCount: 'italics', numberWordCount: 'number words',
+  italicWordCount: 'italics',
 };
 
 // Maps each boolean property filter to the numeric count that describes it,
@@ -210,7 +209,6 @@ const BOOL_TO_COUNT = {
   hasPilcrow: 'pilcrowCount',
   startsWithPilcrow: 'pilcrowCount',
   hasItalics: 'italicWordCount',
-  hasNumbers: 'numberWordCount',
   hasComma: 'commaCount',
   hasPeriod: 'periodCount',
   hasSemicolon: 'semicolonCount',
@@ -222,7 +220,7 @@ const BOOL_TO_COUNT = {
   hasAllCaps: 'allCapsWordCount',
 };
 const BOOL_CHIP_LABELS = {
-  pilcrowCount: 'pilcrows', italicWordCount: 'italics', numberWordCount: 'number words',
+  pilcrowCount: 'pilcrows', italicWordCount: 'italics',
   commaCount: 'commas', periodCount: 'full stops', semicolonCount: 'semicolons',
   questionCount: 'question marks', exclamationCount: 'exclamations',
   hyphenCount: 'hyphens', apostropheCount: 'apostrophes',

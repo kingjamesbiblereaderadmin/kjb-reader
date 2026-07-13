@@ -34,30 +34,6 @@ function words(t) {
   return m || [];
 }
 
-// Spelled-out number words in the KJB (there are no literal digits in the text).
-// Covers cardinals, ordinals, multipliers and the common "-fold/-score/-firstborn"
-// number-derived words. Matched case-insensitively as whole words.
-const NUMBER_WORDS = new Set([
-  'one','two','three','four','five','six','seven','eight','nine','ten',
-  'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen',
-  'twenty','thirty','forty','fifty','fifties','sixty','seventy','eighty','ninety',
-  'tens','hundred','hundreds','thousand','thousands','million','millions','myriad','myriads',
-  'first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth',
-  'eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth',
-  'twentieth','thirtieth','fortieth','fiftieth','sixtieth','seventieth','eightieth','ninetieth','hundredth','thousandth',
-  'sevens','thirdly','secondarily','quaternions',
-  'quarters',
-  'once','twice','thrice','twain','double','treble','triple',
-  'twofold','threefold','fourfold','sevenfold','tenfold','hundredfold','manifold','thirtyfold','sixtyfold',
-  'score','fourscore','threescore','sixscore',
-  'half','halves','quarter','tithe','tithes','pair','pairs',
-]);
-
-// Count number-words in a word list (case-insensitive whole-word match).
-function countNumberWords(wordList) {
-  return wordList.filter(w => NUMBER_WORDS.has(w.toLowerCase())).length;
-}
-
 // Compute all metrics for one verse's raw text.
 function computeMetrics(rawText) {
   const hasPilcrow = /¶/.test(rawText);
@@ -97,10 +73,6 @@ function computeMetrics(rawText) {
   const apostropheCount = (plain.match(/['’]/g) || []).length;
   const totalPunctuationCount = commaCount + periodCount + semicolonCount + colonCount
     + questionCount + exclamationCount + hyphenCount + apostropheCount;
-  // The KJB text has no literal digits — instead we detect spelled-out number
-  // words ("seven", "hundred", "firstborn", …).
-  const numberWordCount = countNumberWords(wordList);
-  const hasNumbers = numberWordCount > 0;
 
   // First & last word (lowercased) — useful for "verses beginning/ending with…"
   const firstWord = wordList.length ? wordList[0].toLowerCase() : '';
@@ -139,13 +111,11 @@ function computeMetrics(rawText) {
     capitalWordCount,
     allCapsWordCount,
     italicWordCount,
-    numberWordCount,
     pilcrowCount,
     firstWord,
     lastWord,
     hasPilcrow,
     hasItalics,
-    hasNumbers,
     hasComma: commaCount > 0,
     hasPeriod: periodCount > 0,
     hasSemicolon: semicolonCount > 0,
@@ -225,14 +195,12 @@ export const NUMERIC_METRICS = [
   { key: 'capitalWordCount', label: 'Capitalised words' },
   { key: 'allCapsWordCount', label: 'ALL-CAPS words (e.g. LORD)' },
   { key: 'italicWordCount', label: 'Italic (supplied) words' },
-  { key: 'numberWordCount', label: 'Number words (e.g. seven, hundred)' },
 ];
 
 // Boolean property toggles (tri-state handled in the panel: any / yes / no).
 export const BOOLEAN_METRICS = [
   { key: 'hasPilcrow', label: 'Begins a new paragraph (¶)' },
   { key: 'hasItalics', label: 'Contains italics ([supplied] words)' },
-  { key: 'hasNumbers', label: 'Contains a number word (seven, hundred…)' },
   { key: 'hasComma', label: 'Contains a comma' },
   { key: 'hasPeriod', label: 'Contains a full stop (period)' },
   { key: 'hasSemicolon', label: 'Contains a semicolon' },
