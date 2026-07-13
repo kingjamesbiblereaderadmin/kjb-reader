@@ -167,37 +167,39 @@ export default function DailyVerseControls({ onChange }) {
               {pins.map(r => {
                 const isEditing = editingPinId === r.id;
                 return (
-                <div key={r.id} className="flex items-center gap-3 px-3 py-2 border-b border-border last:border-0">
-                  <span className="font-sans text-xs font-semibold text-primary w-24 shrink-0">{r.date}</span>
+                <div key={r.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-3 py-3 border-b border-border last:border-0">
+                  <span className="font-sans text-xs font-semibold text-primary shrink-0">{r.date}</span>
                   {isEditing ? (
-                    <>
+                    <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
                       <input
                         value={editPinRef}
                         onChange={(e) => setEditPinRef(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') savePinRef(r.id); }}
                         autoFocus
                         placeholder="e.g. John 3:16"
-                        className="flex-1 min-w-0 px-3 py-1.5 rounded-lg bg-secondary border border-border text-sm text-foreground"
+                        className="flex-1 min-w-[140px] px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground"
                       />
                       <button onClick={() => savePinRef(r.id)} disabled={saving || !editPinRef.trim()}
-                        className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50 shrink-0">
+                        className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50 shrink-0">
                         Save
                       </button>
                       <button onClick={() => { setEditingPinId(null); setEditPinRef(''); }}
-                        className="px-3 py-1.5 rounded-lg bg-secondary text-xs text-muted-foreground shrink-0">
+                        className="px-3 py-2 rounded-lg bg-secondary text-xs text-muted-foreground shrink-0">
                         Cancel
                       </button>
-                    </>
+                    </div>
                   ) : (
                     <>
                       <span className="font-sans text-sm text-foreground flex-1 min-w-0 break-words">{r.ref}{r.note ? <span className="text-muted-foreground text-xs"> — {r.note}</span> : null}</span>
-                      <button onClick={() => { setEditingPinId(r.id); setEditPinRef(r.ref); }} disabled={saving}
-                        className="px-2 py-1 rounded-lg bg-secondary text-[11px] text-foreground hover:bg-secondary/70 shrink-0">
-                        Change verse
-                      </button>
-                      <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 shrink-0">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button onClick={() => { setEditingPinId(r.id); setEditPinRef(r.ref); }} disabled={saving}
+                          className="px-2.5 py-1.5 rounded-lg bg-secondary text-xs text-foreground hover:bg-secondary/70">
+                          Change verse
+                        </button>
+                        <button onClick={() => remove(r.id)} disabled={saving} className="text-destructive hover:opacity-70 p-1">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   )}
                 </div>
