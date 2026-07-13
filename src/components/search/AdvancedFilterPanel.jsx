@@ -93,7 +93,13 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
             placeholder="e.g. love LORD begat…"
             className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-sm text-foreground"
           />
-          <p className="font-sans text-[11px] text-muted-foreground mt-1">Multiple words match verses containing all of them (any order).</p>
+          <p className="font-sans text-[11px] text-muted-foreground mt-1 leading-relaxed">
+            Separate terms with a <strong>space</strong> or a <strong>comma</strong> — both work the same way.
+            Each term is matched <strong>independently, anywhere in the verse and in any order</strong> (not as an adjacent phrase).
+            A verse only matches when it contains <strong>every</strong> term.
+            <br />
+            Example: <span className="italic">love, God</span> (or <span className="italic">love God</span>) finds verses containing both “love” and “God”, even if they’re far apart.
+          </p>
           <div className="flex flex-wrap items-center gap-4 mt-2.5">
             <label className="flex items-center gap-1.5 cursor-pointer select-none">
               <input
