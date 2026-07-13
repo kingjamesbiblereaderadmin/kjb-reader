@@ -1,3 +1,20 @@
+// Fetch the DEPLOYED /sw.js file and parse its CACHE_NAME. This is the true
+// source of the worker version — it reflects the actual service worker code on
+// the server, independent of whether a worker is currently controlling this
+// page (which is unreliable in preview/dev). Falls back to null if the file
+// can't be read or has no recognizable version.
+export async function getDeployedWorkerVersion() {
+  try {
+    const res = await fetch('/sw.js', { cache: 'no-store' });
+    if (!res.ok) return null;
+    const text = await res.text();
+    const m = text.match(/kjb-reader-(v\d{8}_\d{4})/);
+    return m ? m[1] : null;
+  } catch {
+    return null;
+  }
+}
+
 // Ask the ACTUAL running service worker for its live version (its CACHE_NAME).
 // This is the single source of truth for "what worker is really running" — far
 // more reliable than a hardcoded constant in the UI, which drifts out of sync.

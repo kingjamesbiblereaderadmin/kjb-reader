@@ -35,7 +35,7 @@ import { getDailyVerse } from '@/lib/dailyVerse';
 import { downloadBibleForOffline, downloadBibleForOfflineWithRetry, clearBibleCache, isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { detectIncognito } from '@/lib/incognito';
-import { getLiveWorkerVersion } from '@/lib/liveWorkerVersion';
+import { getLiveWorkerVersion, getDeployedWorkerVersion } from '@/lib/liveWorkerVersion';
 
 const A11Y_FONTS = [
   { value: 'dyslexic', label: 'OpenDyslexic', desc: 'Designed for readers with dyslexia', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
@@ -104,7 +104,7 @@ export default function SettingsPage() {
   const [runtimeVersion, setRuntimeVersion] = useState(null);
 
   const refreshVersions = React.useCallback(() => {
-    getLiveWorkerVersion().then(v => setLiveWorkerVersion(v));
+    getDeployedWorkerVersion().then(v => v ? setLiveWorkerVersion(v) : getLiveWorkerVersion().then(setLiveWorkerVersion));
     base44.functions.invoke('manifest', {})
       .then(res => setRuntimeVersion(res?.data?.version || null))
       .catch(() => {});

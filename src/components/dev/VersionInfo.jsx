@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Copy, Check, RefreshCw, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { getLiveWorkerVersion } from '@/lib/liveWorkerVersion';
+import { getLiveWorkerVersion, getDeployedWorkerVersion } from '@/lib/liveWorkerVersion';
 
 // The DEV key that unlocks this page — also used to authorize the bumpVersion
 // backend function so it works in a public/preview session (no admin login).
@@ -43,7 +43,9 @@ export default function VersionInfo() {
     } catch {
       setLiveVersion(null);
     }
-    const sw = await getLiveWorkerVersion();
+    // The worker version comes from the DEPLOYED /sw.js file (true source),
+    // falling back to the running worker only if that fetch fails.
+    const sw = await getDeployedWorkerVersion() || await getLiveWorkerVersion();
     setSwVersion(sw);
   };
 
