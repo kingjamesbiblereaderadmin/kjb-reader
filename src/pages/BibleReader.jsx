@@ -681,6 +681,14 @@ export default function BibleReader() {
           setSelectedVerses(single);
           setHighlightedVerses(single);
           setFilterMode(true);
+        } else if (!verseNum) {
+          // A reference typed WITHOUT a verse (e.g. "John 3") must show the
+          // full chapter — clear any filterMode/selectedVerses left over from
+          // a previous verse-filtered view, otherwise the reader keeps showing
+          // just the old selected verse(s) instead of the whole chapter.
+          setFilterMode(false);
+          setSelectedVerses(new Set());
+          setHighlightedVerses(new Set());
         }
       }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
