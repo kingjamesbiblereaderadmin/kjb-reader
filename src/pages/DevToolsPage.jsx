@@ -5,6 +5,7 @@ import DailyVerseSchedule from '@/components/dev/DailyVerseSchedule';
 import BibleTextEditor from '@/components/dev/BibleTextEditor';
 import VersionInfo from '@/components/dev/VersionInfo';
 import ManifestEditor from '@/components/dev/ManifestEditor';
+import DevToolErrorBoundary from '@/components/dev/DevToolErrorBoundary';
 
 // Secret key required in the URL: /dev-tools?key=KJB-DEV-2026
 // Wrong or missing key renders a plain 404-style page so the tools stay hidden.
@@ -53,11 +54,13 @@ export default function DevToolsPage() {
         })}
       </div>
 
-      {tab === 'image' && <VerseImageTester />}
-      {tab === 'schedule' && <DailyVerseSchedule />}
-      {tab === 'text' && <BibleTextEditor />}
-      {tab === 'manifest' && <ManifestEditor />}
-      {tab === 'version' && <VersionInfo />}
+      <DevToolErrorBoundary resetKey={tab}>
+        {tab === 'image' && <VerseImageTester />}
+        {tab === 'schedule' && <DailyVerseSchedule />}
+        {tab === 'text' && <BibleTextEditor />}
+        {tab === 'manifest' && <ManifestEditor />}
+        {tab === 'version' && <VersionInfo />}
+      </DevToolErrorBoundary>
     </div>
   );
 }
