@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { FlaskConical, Loader2, SlidersHorizontal, X, CheckSquare, Square, ChevronDown } from 'lucide-react';
 import {
   buildVerseIndex, applyFilters, defaultFilters, NUMERIC_METRICS, isDefaultFilters,
-  computeOptionAvailability,
+  computeOptionAvailability, computeMetricRanges,
 } from '@/lib/verseAnalysis';
 import AdvancedFilterPanel from '@/components/search/AdvancedFilterPanel';
 import AdvancedResultRow from '@/components/search/AdvancedResultRow';
@@ -144,6 +144,13 @@ export default function AdvancedSearchPage() {
     [records, filters]
   );
 
+  // The actual data range (min/max) of each numeric metric — used to suggest
+  // realistic values as placeholders in the numeric filter inputs.
+  const metricRanges = useMemo(
+    () => (records ? computeMetricRanges(records) : null),
+    [records]
+  );
+
   // Group the currently-visible results by Testament, then book — preserving
   // the order results already come in (canonical or by whatever sort is active).
   const groupedVisible = useMemo(() => {
@@ -201,7 +208,7 @@ export default function AdvancedSearchPage() {
           {/* Desktop filter column — sticky, with its own independent scroll
               so a long filter list scrolls on its own without moving the page. */}
           <div className="hidden lg:block sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto pr-1 scrollbar-hide">
-            <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} />
+            <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} metricRanges={metricRanges} />
           </div>
 
           {/* Results column */}
@@ -355,7 +362,7 @@ export default function AdvancedSearchPage() {
               className="flex-1 overflow-y-auto overscroll-contain px-5"
               style={{ WebkitOverflowScrolling: 'touch', paddingBottom: footerPad }}
             >
-              <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} />
+              <AdvancedFilterPanel filters={filters} onChange={setFilters} onReset={handleReset} availability={availability} metricRanges={metricRanges} />
             </div>
             <div
               className="shrink-0 px-5 pt-3 bg-background border-t border-border/60"

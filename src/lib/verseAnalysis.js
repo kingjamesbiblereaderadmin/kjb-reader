@@ -244,6 +244,26 @@ export function matchesTerms(plainText, terms, caseSensitive, wholeWord) {
   });
 }
 
+// Compute the actual min & max value of every numeric metric across all verses,
+// so the filter inputs can suggest a realistic range as placeholder subtext.
+let _rangeCache = null;
+export function computeMetricRanges(records) {
+  if (_rangeCache) return _rangeCache;
+  if (!records || !records.length) return null;
+  const ranges = {};
+  for (const m of NUMERIC_METRICS) {
+    let min = Infinity, max = -Infinity;
+    for (const r of records) {
+      const v = r.metrics[m.key];
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    ranges[m.key] = { min: Math.round(min), max: Math.round(max) };
+  }
+  _rangeCache = ranges;
+  return ranges;
+}
+
 // Count how many verses match a given filter object (no sorting needed).
 function countMatches(records, f) {
   const terms = parseSearchTerms(f.textContains);

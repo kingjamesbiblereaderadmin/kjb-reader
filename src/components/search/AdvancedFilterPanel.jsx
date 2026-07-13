@@ -25,7 +25,7 @@ function Section({ title, icon: Icon, open, onToggle, children }) {
 
 // The full filter + sort control panel for Advanced Search. Controlled — the
 // parent owns the `filters` object and passes `onChange(next)`.
-export default function AdvancedFilterPanel({ filters, onChange, onReset, availability }) {
+export default function AdvancedFilterPanel({ filters, onChange, onReset, availability, metricRanges }) {
   const [openSections, setOpenSections] = useState({
     scope: true,
     sort: true,
@@ -157,7 +157,9 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
       <Section title="Numeric filters" open={openSections.numeric} onToggle={() => toggleSection('numeric')}>
         <p className="font-sans text-xs text-muted-foreground -mt-1">Leave blank for no limit.</p>
         <div className="space-y-2">
-          {NUMERIC_METRICS.map(m => (
+          {NUMERIC_METRICS.map(m => {
+            const dr = metricRanges?.[m.key];
+            return (
             <div key={m.key} className="grid grid-cols-[1fr_auto_auto] items-center gap-2">
               <span className="font-sans text-xs text-foreground truncate">{m.label}</span>
               <input
@@ -165,7 +167,7 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
                 inputMode="numeric"
                 value={filters.ranges[m.key].min}
                 onChange={(e) => setRange(m.key, 'min', e.target.value)}
-                placeholder="min"
+                placeholder={dr ? String(dr.min) : 'min'}
                 className="w-20 px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs text-foreground"
               />
               <input
@@ -173,11 +175,12 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
                 inputMode="numeric"
                 value={filters.ranges[m.key].max}
                 onChange={(e) => setRange(m.key, 'max', e.target.value)}
-                placeholder="max"
+                placeholder={dr ? String(dr.max) : 'max'}
                 className="w-20 px-2 py-1.5 rounded-lg bg-secondary border border-border text-xs text-foreground"
               />
             </div>
-          ))}
+            );
+          })}
         </div>
       </Section>
 
