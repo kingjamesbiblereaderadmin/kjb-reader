@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon, ChevronRight, Printer } from 'lucide-react';
+import { Search, BookOpen, Loader2, Filter, Copy, Download, CheckSquare, Square, X, BookMarked, ChevronDown, Share2, ChevronUp, ChevronDown as ChevronDownIcon, ChevronRight, Printer, FlaskConical } from 'lucide-react';
 import { getBibleData } from '@/lib/bibleCache';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT, BOOK_BY_API_NAME } from '@/lib/bibleData';
 import { parseReference, resolveBook } from '@/lib/parseReference';
@@ -1592,9 +1592,18 @@ export default function SearchPage() {
       )}
 
       {!searched && !loading && (
-        <p className="font-sans text-sm text-muted-foreground text-center py-12 print:hidden">
-          Type a word or phrase above and press Search.
-        </p>
+        <div className="text-center py-12 print:hidden space-y-4">
+          <p className="font-sans text-sm text-muted-foreground">
+            Type a word or phrase above and press Search.
+          </p>
+          <button
+            onClick={() => navigate('/advanced-search')}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-colors"
+          >
+            <FlaskConical className="w-4 h-4" />
+            Advanced Search — research by verse properties
+          </button>
+        </div>
       )}
     </div>
     </div>
