@@ -1,6 +1,18 @@
 import { getBibleData, isBibleCached } from '@/lib/bibleCache';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { base44 } from '@/api/base44Client';
+import { loadOverrides, getOverrideSync } from '@/lib/bibleTextOverrides';
+
+// Apply a shared verse correction to a daily-verse object, if one exists.
+// bookShort is the short book name (e.g. "Psalms"); overrides are keyed by it.
+function applyVerseOverride(verse) {
+  if (!verse || !verse.book) return verse;
+  const ov = getOverrideSync(verse.book, verse.chapter, verse.verse);
+  if (ov != null && ov !== verse.text) {
+    return { ...verse, text: ov.replace(/^<<[^>]*>>\s*/, '') };
+  }
+  return verse;
+}
 
 const EXCLUDED_REFS = new Set([
   "Genesis 26:11", "Genesis 33:14", "Exodus 15:6", "Exodus 18:23", "Exodus 19:12", "Exodus 21:12", "Exodus 21:15", "Exodus 21:16", "Exodus 21:17", "Exodus 22:19", "Exodus 31:14", "Exodus 31:15", "Exodus 35:2", "Leviticus 5:5", "Leviticus 16:21", "Leviticus 19:20", "Leviticus 20:2", "Leviticus 20:9", "Leviticus 20:10", "Leviticus 20:11", "Leviticus 20:12", "Leviticus 20:13", "Leviticus 20:20", "Leviticus 20:21", "Leviticus 20:27", "Leviticus 24:16", "Leviticus 27:29", "Numbers 1:51", "Numbers 3:10", "Numbers 3:38", "Numbers 5:7", "Numbers 15:35", "Numbers 18:7", "Numbers 35:16", "Numbers 35:17", "Numbers 35:18", "Numbers 35:31", "Deuteronomy 13:5", "Deuteronomy 17:6", "Deuteronomy 21:22", "Deuteronomy 24:16", "Joshua 1:18", "Judges 6:31", "Judges 21:5", "1 Samuel 11:13", "1 Samuel 15:33", "2 Samuel 8:2", "2 Samuel 19:21", "2 Samuel 19:22", "2 Samuel 21:9", "1 Kings 1:12", "1 Kings 2:24", "1 Kings 8:33", "1 Kings 8:35", "1 Kings 20:31",
@@ -63,8 +75,11 @@ export async function getDailyVerseFromBible() {
       const res = await base44.functions.invoke('bibleApi', { action: 'daily_verse', clientDate });
       if (res.data?.verse) {
         console.log("[DEBUG] Verse generated from API:", res.data.verse.ref);
-        saveCachedDailyVerse(res.data.verse);
-        return res.data.verse;
+        // Apply any shared verse correction so the daily card matches the reader.
+        await loadOverrides().catch(() => {});
+        const corrected = applyVerseOverride(res.data.verse);
+        saveCachedDailyVerse(corrected);
+        return corrected;
       }
     } catch (err) {
       console.warn("[DEBUG] API fetch failed, falling back to local:", err.message);

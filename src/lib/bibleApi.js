@@ -1,5 +1,10 @@
 import { getBibleData, isBibleCached } from '@/lib/bibleCache';
 import { COLOPHONS } from '@/lib/bibleSubscripts';
+import { loadOverrides, applyOverrides } from '@/lib/bibleTextOverrides';
+
+// Kick off a one-time background load of the shared verse corrections so
+// they're ready in memory by the time a chapter is opened.
+loadOverrides();
 
 // Strip trailing end markers and "Made in Australia" from verse text
 function stripEndMarker(text) {
@@ -56,6 +61,9 @@ export async function fetchChapter(bookApiName, chapter) {
     }
   }
   
+  // Apply shared, database-backed verse corrections (if any are loaded).
+  verses = applyOverrides(bookApiName, chapter, verses);
+
   // Colophons are hardcoded in bibleSubscripts.js (sourced from TEXT-PCE-127.txt)
   const colophon = COLOPHONS[`${bookApiName}:${chapter}`] || null;
   return { verses, colophon };

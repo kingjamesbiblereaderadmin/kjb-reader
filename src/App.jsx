@@ -31,6 +31,7 @@ const loaders = {
   LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
   DailyVerseTxt: () => import('@/pages/DailyVerseTxt.jsx').catch((err) => { console.error('Failed to load DailyVerseTxt:', err); throw err; }),
   BibleTxt: () => import('@/pages/BibleTxt.jsx').catch((err) => { console.error('Failed to load BibleTxt:', err); throw err; }),
+  DevTools: () => import('@/pages/DevToolsPage.jsx').catch((err) => { console.error('Failed to load DevToolsPage:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -49,6 +50,7 @@ const PrivacyPolicyPage = lazy(loaders.Privacy);
 const LegacyReader = lazy(loaders.LegacyReader);
 const DailyVerseTxt = lazy(loaders.DailyVerseTxt);
 const BibleTxt = lazy(loaders.BibleTxt);
+const DevToolsPage = lazy(loaders.DevTools);
 
 
 const getLoaderForPath = (pathname) => {
@@ -226,6 +228,7 @@ const AuthenticatedApp = () => {
         <Route path="/manifest-screenshots" element={<Suspense fallback={<RouteLoader />}><FadeIn><ManifestScreenshots /></FadeIn></Suspense>} />
         <Route path="/privacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><PrivacyPolicyPage /></FadeIn></Suspense>} />
         <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
+        <Route path="/dev-tools" element={<Suspense fallback={<RouteLoader />}><FadeIn><DevToolsPage /></FadeIn></Suspense>} />
 
           </Route>
           <Route path="/dailyverse.txt" element={<Suspense fallback={null}><DailyVerseTxt /></Suspense>} />
