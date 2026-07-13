@@ -77,10 +77,52 @@ function highlightInOrder(text, terms, keyPrefix, adjacent, caseSensitive, whole
   return nodes;
 }
 
+// Regex patterns that isolate the characters/words a given metric measures, so
+// we can highlight exactly those parts of the verse when that metric is active.
+// `type: 'char'` matches individual characters; `type: 'word'` matches whole
+// words. Order matters only for label clarity; matching itself is independent.
+const FEATURE_PATTERNS = {
+  commaCount: { type: 'char', re: /,/g },
+  periodCount: { type: 'char', re: /\./g },
+  semicolonCount: { type: 'char', re: /;/g },
+  colonCount: { type: 'char', re: /:/g },
+  questionCount: { type: 'char', re: /\?/g },
+  exclamationCount: { type: 'char', re: /!/g },
+  hyphenCount: { type: 'char', re: /-/g },
+  apostropheCount: { type: 'char', re: /['’]/g },
+  digitCount: { type: 'char', re: /\d/g },
+  totalPunctuationCount: { type: 'char', re: /[.,;:?!\-'’]/g },
+  capitalWordCount: { type: 'word', re: /\b[A-Z][A-Za-z'’-]*/g },
+  allCapsWordCount: { type: 'word', re: /\b[A-Z]{2,}\b/g },
+};
+
+// Map every boolean property + its count metric to the same highlight pattern.
+const BOOL_TO_FEATURE = {
+  hasComma: 'commaCount', hasPeriod: 'periodCount', hasSemicolon: 'semicolonCount',
+  hasColon: 'colonCount', hasQuestion: 'questionCount', hasExclamation: 'exclamationCount',
+  hasHyphen: 'hyphenCount', hasApostrophe: 'apostropheCount', hasNumbers: 'digitCount',
+  hasAllCaps: 'allCapsWordCount',
+};
+
+// Wrap all regex matches of `pattern` in `text` with a highlight <mark>.
+function highlightPattern(text, pattern, keyPrefix) {
+  const re = new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g');
+  const nodes = [];
+  let cursor = 0, m, idx = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > cursor) nodes.push(text.slice(cursor, m.index));
+    nodes.push(<mark key={`${keyPrefix}-${idx++}`} className="bg-yellow-200 dark:bg-yellow-500/40 text-foreground rounded px-0.5">{m[0]}</mark>);
+    cursor = m.index + m[0].length;
+    if (m[0].length === 0) re.lastIndex++; // guard against zero-width loops
+  }
+  if (cursor < text.length) nodes.push(text.slice(cursor));
+  return nodes;
+}
+
 // Renders the plain verse text, but shows the [supplied] words in italics like
 // the reader does, and keeps the ¶ marker if present. Highlights search terms
-// when text is searched, otherwise highlights the feature being filtered/sorted
-// on (pilcrow / italics).
+// when text is searched, otherwise highlights the feature(s) being filtered/
+// sorted on (pilcrow, italics, punctuation, capitals, digits, etc.).
 function renderText(rawText, terms, filters) {
   const inOrder = filters?.textInOrder || filters?.textAdjacent;
   const adjacent = filters?.textAdjacent;
@@ -94,6 +136,16 @@ function renderText(rawText, terms, filters) {
   // With no text search, highlight the feature the user is filtering/sorting on.
   const highlightPilcrow = !hasTerms && isFeatureActive(filters, 'hasPilcrow', 'pilcrowCount');
   const highlightItalics = !hasTerms && isFeatureActive(filters, 'hasItalics', 'italicWordCount');
+  // The first active character/word pattern (punctuation, capitals, digits, …).
+  const activePattern = !hasTerms ? getActivePattern(filters) : null;
+
+  // Renders a plain text segment: search-term highlight if searching, else the
+  // active feature pattern highlight (if any), else raw text.
+  const renderSegment = (str, prefix) => {
+    if (hasTerms) return hl(str, prefix);
+    if (activePattern) return highlightPattern(str, activePattern.re, prefix);
+    return str;
+  };
 
   // rawText keeps ¶ and [brackets]; convert to nodes.
   const hasPilcrow = /^¶\s*/.test(rawText);
@@ -108,12 +160,12 @@ function renderText(rawText, terms, filters) {
       )}
       {parts.map((p, i) => {
         if (p.startsWith('[') && p.endsWith(']')) {
-          const inner = hasTerms ? hl(p.slice(1, -1), `em${i}`) : p.slice(1, -1);
+          const inner = renderSegment(p.slice(1, -1), `em${i}`);
           return highlightItalics
             ? <em key={i} className="text-muted-foreground"><mark className="bg-yellow-200 dark:bg-yellow-500/40 text-muted-foreground rounded px-0.5">{inner}</mark></em>
             : <em key={i} className="text-muted-foreground">{inner}</em>;
         }
-        return <span key={i}>{hasTerms ? hl(p, `s${i}`) : p}</span>;
+        return <span key={i}>{renderSegment(p, `s${i}`)}</span>;
       })}
     </>
   );
@@ -123,11 +175,22 @@ function renderText(rawText, terms, filters) {
 // count metric is being sorted on or range-filtered.
 function isFeatureActive(filters, boolKey, countKey) {
   if (!filters) return false;
-  if (filters.bools?.[boolKey] === 'yes') return true;
-  if (filters.sortKey === countKey) return true;
-  const range = filters.ranges?.[countKey];
+  if (boolKey && filters.bools?.[boolKey] === 'yes') return true;
+  if (countKey && filters.sortKey === countKey) return true;
+  const range = countKey ? filters.ranges?.[countKey] : null;
   if (range && (range.min !== '' || range.max !== '')) return true;
   return false;
+}
+
+// Find the first character/word metric the user is actively filtering/sorting
+// on, so its matching characters get highlighted in the verse text.
+function getActivePattern(filters) {
+  if (!filters) return null;
+  for (const [countKey, pattern] of Object.entries(FEATURE_PATTERNS)) {
+    const boolKey = Object.keys(BOOL_TO_FEATURE).find(k => BOOL_TO_FEATURE[k] === countKey);
+    if (isFeatureActive(filters, boolKey, countKey)) return pattern;
+  }
+  return null;
 }
 
 // Short labels for the metric chips.
