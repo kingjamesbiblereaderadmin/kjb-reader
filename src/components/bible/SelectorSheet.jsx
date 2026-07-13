@@ -14,15 +14,18 @@ export default function SelectorSheet({ open, onClose, title, children }) {
         <Drawer.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
         <Drawer.Content
           className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-2xl bg-card border-t border-border max-h-[80vh] sm:max-h-[85vh]"
-          onPointerDownOutside={(e) => {
-            // Opening a native <select> picker fires a pointer event the drawer
-            // treats as "outside", instantly dismissing the sheet. Ignore it
-            // when the target is (or is inside) a <select>.
-            const target = e.detail?.originalEvent?.target;
-            if (target && target.closest && target.closest('select')) {
-              e.preventDefault();
-            }
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onInteractOutside={(e) => {
+            // Opening a native <select> picker (and dismissing it) fires
+            // pointer/focus events Vaul treats as "outside", which instantly
+            // closes the sheet. The OS picker often reports the target as the
+            // body/overlay rather than the <select>, so we can't reliably guard
+            // by target. Since the sheet already has an explicit close button
+            // and drag handle, block ALL interact-outside dismissal here.
+            e.preventDefault();
           }}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onFocusOutside={(e) => e.preventDefault()}
         >
           {/* Drag handle — only this can be dragged to dismiss (handleOnly) */}
           <Drawer.Handle className="mx-auto mt-3 mb-2 !w-10 !h-1.5 rounded-full bg-border flex-shrink-0" />
