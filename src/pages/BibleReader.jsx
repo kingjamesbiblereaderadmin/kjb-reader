@@ -1214,7 +1214,12 @@ export default function BibleReader() {
                     currentAbbr={pos.abbr}
                     onSelect={(b, isTitlePage, showChapter) => {
                       if (isTitlePage) { navigate(b.abbr, 0); setShowBookPicker(false); }
-                      else if (showChapter) { navigate(b.abbr, 1); setShowBookPicker(false); setShowChapterPicker(true); }
+                      else if (showChapter) {
+                        navigate(b.abbr, 1); setShowBookPicker(false);
+                        // Single-chapter books (Obadiah, Philemon, Jude, etc.) have
+                        // nothing to pick in the chapter grid — open the verse picker.
+                        if (b.chapters <= 1) setShowVersePicker(true); else setShowChapterPicker(true);
+                      }
                     }}
                     onClose={() => setShowBookPicker(false)}
                   />
@@ -1225,7 +1230,10 @@ export default function BibleReader() {
                   currentAbbr={pos.abbr}
                   onSelect={(b, isTitlePage, showChapter) => {
                     if (isTitlePage) { navigate(b.abbr, 0); setShowBookPicker(false); }
-                    else if (showChapter) { navigate(b.abbr, 1); setShowBookPicker(false); setShowChapterPicker(true); }
+                    else if (showChapter) {
+                      navigate(b.abbr, 1); setShowBookPicker(false);
+                      if (b.chapters <= 1) setShowVersePicker(true); else setShowChapterPicker(true);
+                    }
                   }}
                   onClose={() => setShowBookPicker(false)}
                 />
@@ -1236,7 +1244,13 @@ export default function BibleReader() {
               <>
               <div className="relative flex">
                 <button
-                  onClick={() => { setShowChapterPicker(p => !p); setShowBookPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
+                  onClick={() => {
+                    setShowBookPicker(false); setShowZoomPopover(false); setShowFontPopover(false);
+                    // Single-chapter books have no chapters to choose — open the
+                    // verse picker instead of a pointless one-item chapter grid.
+                    if (book.chapters <= 1) { setShowVersePicker(p => !p); setShowChapterPicker(false); }
+                    else { setShowChapterPicker(p => !p); setShowVersePicker(false); }
+                  }}
                   className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 w-full"
                 >
                   <span>Ch.{pos.chapter}</span>
