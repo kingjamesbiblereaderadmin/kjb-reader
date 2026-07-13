@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { FlaskConical, Loader2, SlidersHorizontal, X } from 'lucide-react';
 import {
-  buildVerseIndex, applyFilters, defaultFilters, NUMERIC_METRICS,
+  buildVerseIndex, applyFilters, defaultFilters, NUMERIC_METRICS, isDefaultFilters,
 } from '@/lib/verseAnalysis';
 import AdvancedFilterPanel from '@/components/search/AdvancedFilterPanel';
 import AdvancedResultRow from '@/components/search/AdvancedResultRow';
@@ -23,11 +23,15 @@ export default function AdvancedSearchPage() {
     return () => { cancelled = true; };
   }, []);
 
+  // Until the user actually sets a filter or search term, the page starts
+  // empty (no results) rather than dumping all 31,102 verses.
+  const isEmpty = useMemo(() => isDefaultFilters(filters), [filters]);
+
   // Recompute results whenever filters or records change.
   const results = useMemo(() => {
-    if (!records) return [];
+    if (!records || isEmpty) return [];
     return applyFilters(records, filters);
-  }, [records, filters]);
+  }, [records, filters, isEmpty]);
 
   // Reset the visible window when the result set changes.
   useEffect(() => { setVisible(PAGE_SIZE); }, [filters]);
@@ -78,7 +82,9 @@ export default function AdvancedSearchPage() {
             {/* Result count + mobile filter button */}
             <div className="flex items-center justify-between gap-3 mb-4">
               <p className="font-sans text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">{results.length.toLocaleString()}</span> verse{results.length === 1 ? '' : 's'} match
+                {isEmpty
+                  ? 'Set a filter or search to begin'
+                  : <><span className="font-semibold text-foreground">{results.length.toLocaleString()}</span> verse{results.length === 1 ? '' : 's'} match</>}
               </p>
               <button
                 onClick={() => setShowFilters(true)}
@@ -89,7 +95,11 @@ export default function AdvancedSearchPage() {
               </button>
             </div>
 
-            {results.length === 0 ? (
+            {isEmpty ? (
+              <div className="rounded-2xl bg-card/70 border border-border/60 p-8 text-center">
+                <p className="font-sans text-sm text-muted-foreground">Choose a testament, book, keyword, or metric filter to start exploring verses.</p>
+              </div>
+            ) : results.length === 0 ? (
               <div className="rounded-2xl bg-card/70 border border-border/60 p-8 text-center">
                 <p className="font-sans text-sm text-muted-foreground">No verses match these filters. Try loosening them.</p>
               </div>
@@ -100,7 +110,7 @@ export default function AdvancedSearchPage() {
                 ))}
                 {visible < results.length && (
                   <button
-                    onClick={() => setVisible(v => v + PAGE_SIZE)}
+                    onClick={() => { setVisible(v => v + PAGE_SIZE); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                     className="w-full py-3 rounded-xl bg-secondary/50 border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-colors"
                   >
                     Show more ({(results.length - visible).toLocaleString()} remaining)
@@ -128,7 +138,7 @@ export default function AdvancedSearchPage() {
               onClick={() => setShowFilters(false)}
               className="w-full mt-4 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium"
             >
-              Show {results.length.toLocaleString()} results
+              {isEmpty ? 'Done' : `Show ${results.length.toLocaleString()} results`}
             </button>
           </div>
         </div>

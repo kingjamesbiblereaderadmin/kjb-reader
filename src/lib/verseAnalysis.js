@@ -198,6 +198,22 @@ export function defaultFilters() {
   };
 }
 
+// True when the filters are still at their untouched defaults — i.e. the user
+// hasn't set a testament, book, text search, any numeric range, or any boolean
+// toggle. Sort key/direction alone don't count as "active" filtering.
+export function isDefaultFilters(f) {
+  if (f.testament !== 'all') return false;
+  if (f.book !== 'all') return false;
+  if (f.textContains.trim() !== '') return false;
+  for (const m of NUMERIC_METRICS) {
+    if (f.ranges[m.key].min !== '' || f.ranges[m.key].max !== '') return false;
+  }
+  for (const m of BOOLEAN_METRICS) {
+    if (f.bools[m.key] !== 'any') return false;
+  }
+  return true;
+}
+
 // Apply filters + sort to the built records. Returns a new array.
 export function applyFilters(records, f) {
   const contains = f.textContains.trim().toLowerCase();

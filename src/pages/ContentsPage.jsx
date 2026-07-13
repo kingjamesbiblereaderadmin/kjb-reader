@@ -6,6 +6,9 @@ import { fetchVerseCount } from '@/lib/bibleApi';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
 import VerseSelector from '@/components/bible/VerseSelector';
+import NativeSelector from '@/components/bible/NativeSelector';
+
+const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 640;
 
 // Format verses with dashes for consecutive, commas for gaps
 function formatVerses(verses) {
@@ -128,8 +131,26 @@ export default function ContentsPage() {
         </button>
       </div>
 
-      {/* Book Selector Popup */}
-      {showBookSelector && (
+      {/* Book Selector Popup — native dropdowns on mobile, grid popup on desktop */}
+      {showBookSelector && isMobile() && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowBookSelector(false)}
+        >
+          <div className="relative w-full max-w-sm bg-card border border-border rounded-2xl shadow-2xl p-5" onClick={(e) => e.stopPropagation()}>
+            <p className="font-serif text-lg font-semibold text-foreground text-center mb-4">Go to Passage</p>
+            <NativeSelector
+              initialAbbr={selectedBook || 'GEN'}
+              initialChapter={selectedChapter && selectedChapter > 0 ? selectedChapter : 1}
+              onGo={(abbr, chapter, verse) => {
+                setShowBookSelector(false);
+                goTo(abbr, chapter, verse ? [verse] : null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+      {showBookSelector && !isMobile() && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 pb-24 bg-black/50 backdrop-blur-sm"
           onClick={() => setShowBookSelector(false)}
