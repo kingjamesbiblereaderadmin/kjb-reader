@@ -18,8 +18,6 @@ Deno.serve(async () => {
     // from inside a normal browser tab (Android Chrome/Samsung Internet).
     // IMPORTANT: URL must match the origin exactly for detection to work
     related_applications: [
-      { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest.json" },
-      { platform: "webapp", url: "https://base44.app/api/apps/6a05d76723afe58d80c58d80c589e8/functions/manifest" },
       { platform: "webapp", url: "https://kingjamesbiblereader.com/manifest" }
     ],
     // Protocol handlers — register as handler for bible: and kjb: URIs
@@ -37,19 +35,19 @@ Deno.serve(async () => {
     ],
     icons: [
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/35e329953_cfb4bf781_Untitled.png",
-        sizes: "141x141",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/efb7b4ff3_launchericon-512x512.png",
+        sizes: "192x192",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/d201176a5_f1ca33755_kjb-maskable-512.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/efb7b4ff3_launchericon-512x512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "https://base44.app/api/apps/6a05d76723afe58d80c58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/b4d6bd971_kjb-maskable-512-nopad.png",
+        src: "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/d201176a5_f1ca33755_kjb-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable"
@@ -73,7 +71,7 @@ Deno.serve(async () => {
       {
         src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/31cc1311c_screenshot-WhatsAppImage2026-05-31at182822.jpeg",
         sizes: "1024x1707",
-        type: "image/png",
+        type: "image/jpeg",
         form_factor: "narrow",
         label: "Screenshot 3"
       },
@@ -94,7 +92,7 @@ Deno.serve(async () => {
       {
         src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/534e626f0_screenshot-WhatsAppImage2026-05-31at182822.jpeg",
         sizes: "1920x1080",
-        type: "image/png",
+        type: "image/jpeg",
         form_factor: "wide",
         label: "Screenshot 6"
       }
