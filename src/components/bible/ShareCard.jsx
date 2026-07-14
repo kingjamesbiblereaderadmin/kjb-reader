@@ -1,6 +1,7 @@
-import React, { useRef, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { renderVerseText } from '@/lib/bibleApi';
 import { cleanVerseText } from '@/lib/formatDailyVerse';
+import { getShareCardSettings } from '@/lib/shareCardSettings';
 
 // Fixed 1024×1024 square card used ONLY for the shared/downloaded image.
 // Style: vertical blue→purple gradient (or a custom background photo),
@@ -14,23 +15,12 @@ const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e
 // about exactly how much vertical space is actually available, rather than
 // inferring it from live DOM measurement.
 const CARD_SIZE = 1024;
-const OUTER_PAD_TOP = 32;
-const OUTER_PAD_BOTTOM = 40;
 const HEADER_BLOCK_H = 76;   // title row + its margins
-const DIVIDER_BLOCK_H = 42;  // header divider (6px) + increased margin below it (36px)
-const FOOTER_DIVIDER_H = 74; // curved footer arc (32px) + margins above/below (16 + 26)
-const FOOTER_TEXT_H = 46;    // "KingJamesBibleReader.com" line
 const BLOCKQUOTE_MAX_W = 880; // 1024 - 2*72 outer padding
 const BLOCKQUOTE_PAD_H = 48;  // 24px each side
-// Deliberate slack: canvas measureText() line-wrap simulation is an
-// approximation (kerning, actual glyph widths, quote-mark width aren't
-// modeled exactly), so the height estimate is inflated by this factor before
-// comparing against available space. Better to land slightly smaller than to
-// risk the real render overflowing and getting clipped at the bottom.
-const HEIGHT_SAFETY_FACTOR = 1.1;
 
 const ShareCard = React.forwardRef(function ShareCard(
-  { verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline, backgroundImageUrl, showTextPanel },
+  { verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline, backgroundImageUrl, showTextPanel, visible },
   ref
 ) {
   const blockRef = useRef(null);
@@ -40,6 +30,30 @@ const ShareCard = React.forwardRef(function ShareCard(
   // Reused off-DOM canvas purely for text measurement — never rendered.
   const measureCanvasRef = useRef(null);
   if (!measureCanvasRef.current) measureCanvasRef.current = document.createElement('canvas');
+
+  // Adjustable layout settings (Dev Tools → Card Layout Adjustments). Re-read
+  // whenever they change so the card re-fits live.
+  const [settings, setSettings] = useState(getShareCardSettings);
+  useEffect(() => {
+    const onStorage = () => setSettings(getShareCardSettings());
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  // Derived layout constants — some fixed, some driven by adjustable settings.
+  const OUTER_PAD_TOP = settings.outerPadTop;
+  const OUTER_PAD_BOTTOM = settings.outerPadBottom;
+  const OUTER_PAD_X = settings.outerPadX;
+  const HEADER_DIVIDER_GAP = settings.headerDividerGap;
+  const FOOTER_GAP_TOP = settings.footerGapTop;
+  const FOOTER_GAP_BOTTOM = settings.footerGapBottom;
+  const PANEL_PAD = settings.panelPad;
+  const HEIGHT_SAFETY_FACTOR = settings.heightSafety;
+  // header divider (6px) + adjustable gap below it
+  const DIVIDER_BLOCK_H = 6 + HEADER_DIVIDER_GAP;
+  // curved footer arc (32px) + adjustable margins above/below
+  const FOOTER_DIVIDER_H = 32 + FOOTER_GAP_TOP + FOOTER_GAP_BOTTOM;
+  const FOOTER_TEXT_H = 46; // "KingJamesBibleReader.com" line
 
   const headerFont = uiFont || "'Inter', system-ui, sans-serif";
   const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -98,14 +112,14 @@ const ShareCard = React.forwardRef(function ShareCard(
     // own padding around the text block, so it needs to be subtracted from
     // the available space too, or the fit prediction would run too large
     // and the safety-net-free layout could overflow the panel's own edges.
-    const panelPad = showTextPanel ? 40 : 0;
+    const panelPad = showTextPanel ? PANEL_PAD : 0;
     const availableWidth = BLOCKQUOTE_MAX_W - BLOCKQUOTE_PAD_H - panelPad * 2;
     const availableHeight =
       CARD_SIZE - OUTER_PAD_TOP - OUTER_PAD_BOTTOM - HEADER_BLOCK_H - DIVIDER_BLOCK_H - FOOTER_DIVIDER_H - FOOTER_TEXT_H - panelPad * 2;
     const safetyMargin = 12;
 
-    const maxSize = 108;
-    const minSize = 15;
+    const maxSize = settings.maxFontSize;
+    const minSize = settings.minFontSize;
 
     for (let size = maxSize; size >= minSize; size -= 1) {
       ctx.font = `700 ${size}px ${verseFont.replace(/'/g, '')}`;
@@ -176,7 +190,7 @@ const ShareCard = React.forwardRef(function ShareCard(
     }
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline, showTextPanel]);
+  }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline, showTextPanel, settings]);
 
   // NOTE: a real-DOM-measurement "safety net" effect used to live here,
   // shrinking fitSize further if the rendered box appeared to overflow its
@@ -239,7 +253,9 @@ const ShareCard = React.forwardRef(function ShareCard(
   );
 
   return (
-    <div ref={ref} style={{ position: 'fixed', top: 0, left: '-9999px', width: `${CARD_SIZE}px`, height: `${CARD_SIZE}px` }}>
+    <div ref={ref} style={visible
+      ? { position: 'relative', width: `${CARD_SIZE}px`, height: `${CARD_SIZE}px` }
+      : { position: 'fixed', top: 0, left: '-9999px', width: `${CARD_SIZE}px`, height: `${CARD_SIZE}px` }}>
       {hasCustomBg ? (
         <>
           <img
@@ -261,7 +277,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         }}
       />
 
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: `${OUTER_PAD_TOP}px 72px ${OUTER_PAD_BOTTOM}px` }}>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: `${OUTER_PAD_TOP}px ${OUTER_PAD_X}px ${OUTER_PAD_BOTTOM}px` }}>
         <img
           src={logoSrc || LOGO_URL}
           alt="KJB Reader"
@@ -279,7 +295,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         </div>
 
         {/* Divider under the header — top boundary of the growable text area */}
-        <div style={{ width: '100%', maxWidth: '820px', marginBottom: '36px', flexShrink: 0 }}>
+        <div style={{ width: '100%', maxWidth: '820px', marginBottom: `${HEADER_DIVIDER_GAP}px`, flexShrink: 0 }}>
           <Divider gradId="kjbHeaderDividerGrad" />
         </div>
 
@@ -299,8 +315,11 @@ const ShareCard = React.forwardRef(function ShareCard(
             overflow: 'hidden',
             ...(showTextPanel ? {
               backgroundColor: 'rgba(0,0,0,0.35)',
-              borderRadius: '24px',
-              padding: '40px',
+              borderRadius: `${settings.panelRadius}px`,
+              padding: `${PANEL_PAD}px`,
+              border: settings.panelBorderWidth > 0
+                ? `${settings.panelBorderWidth}px solid rgba(255,255,255,0.5)`
+                : undefined,
               boxSizing: 'border-box',
               maxWidth: '960px',
             } : {}),
@@ -366,7 +385,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         </div>
 
         {/* Curved footer arc — bottom boundary of the growable text area */}
-        <div style={{ width: '100%', maxWidth: '820px', marginTop: '16px', marginBottom: '26px', flexShrink: 0 }}>
+        <div style={{ width: '100%', maxWidth: '820px', marginTop: `${FOOTER_GAP_TOP}px`, marginBottom: `${FOOTER_GAP_BOTTOM}px`, flexShrink: 0 }}>
           <FooterCurve />
         </div>
 

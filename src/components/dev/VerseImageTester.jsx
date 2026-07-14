@@ -5,6 +5,7 @@ import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import { Loader2, Shuffle } from 'lucide-react';
 import { getDailyVerseForDate } from '@/lib/dailyVerseSchedule';
 import VerseLengthFinder from './VerseLengthFinder';
+import ShareCardControls from './ShareCardControls';
 
 // Lets the admin load ANY verse into the real daily-verse card so they can
 // check crop / sizing / text-overlap. Toggles the custom background and the
@@ -162,6 +163,8 @@ export default function VerseImageTester() {
           return <p className="text-xs text-muted-foreground">{words} words · {clean.length} chars (verse text only)</p>;
         })()}
       </div>
+
+      <ShareCardControls verse={verse} />
 
       {verse && (
         <div className="max-w-2xl mx-auto">
