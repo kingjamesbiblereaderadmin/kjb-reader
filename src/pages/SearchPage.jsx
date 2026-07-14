@@ -1392,10 +1392,10 @@ export default function SearchPage() {
               ) : (
                 <>
                   <button onClick={selectAll} title="Select All" className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
-                    <CheckSquare className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">All</span>
+                    <CheckSquare className="w-3.5 h-3.5 flex-shrink-0" /> <span>All</span>
                   </button>
                   <button onClick={clearSelection} title="Cancel" className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
-                    <X className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">Cancel</span>
+                    <X className="w-3.5 h-3.5 flex-shrink-0" /> <span>Cancel</span>
                   </button>
                   {selected.size > 0 && (
                     <>
