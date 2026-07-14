@@ -1206,37 +1206,13 @@ export default function BibleReader() {
     return () => document.removeEventListener('click', onDocClick, true);
   }, [anyMenuOpen, closeAllMenus]);
 
-  // Track the mobile bottom-nav footer mode so the reader can reserve exactly
-  // enough bottom space for the prev/next buttons to clear it. 'two' rows is
-  // tallest, 'bar' is a thin strip. Desktop (sm+) has no fixed footer, so this
-  // padding only applies on mobile.
-  const [footerMode, setFooterMode] = useState(() => {
-    try {
-      const saved = localStorage.getItem('kjb-footer-mode');
-      if (saved === 'none') return 'bar';
-      return ['two', 'one', 'bar'].includes(saved) ? saved : 'one';
-    } catch { return 'one'; }
-  });
-  useEffect(() => {
-    const sync = () => {
-      try {
-        const saved = localStorage.getItem('kjb-footer-mode');
-        setFooterMode(saved === 'none' ? 'bar' : (['two', 'one', 'bar'].includes(saved) ? saved : 'one'));
-      } catch {}
-    };
-    window.addEventListener('kjb-footer-mode-change', sync);
-    window.addEventListener('storage', sync);
-    return () => { window.removeEventListener('kjb-footer-mode-change', sync); window.removeEventListener('storage', sync); };
-  }, []);
-  const footerPadClass = footerMode === 'two' ? 'pb-48 sm:pb-3' : footerMode === 'bar' ? 'pb-20 sm:pb-3' : 'pb-32 sm:pb-3';
-
   const lastReadingActive = !!(lastReadingPos && !lastReadingPos.cleared && lastReadingPos.abbr === pos.abbr && lastReadingPos.chapter === pos.chapter);
   const isLastChapterLastBook = pos.abbr === 'REV' && pos.chapter === 22;
   const isFirstChapterFirstBook = pos.abbr === 'GEN' && pos.chapter === 0;
   const isGenesisChapterOne = pos.abbr === 'GEN' && pos.chapter === 1;
 
   return (
-    <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-3 ${footerPadClass} ${hideHeader ? 'pt-16' : ''}`}>
+    <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
       {!hideHeader && (
         <div ref={topRef} className="print:hidden sticky top-0 z-[100] border-b border-border pb-4 pt-3 mb-8 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
           <div

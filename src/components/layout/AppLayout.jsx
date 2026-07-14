@@ -327,7 +327,7 @@ export default function AppLayout() {
     <AutoUpdateHandler>
     <div className="h-screen bg-gradient-to-br from-background via-accent/5 to-background flex flex-col overflow-hidden">
       <header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
-        <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 min-h-14 py-2 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
+        <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
           {/* Logo / Back Button */}
           {pathname === '/' ? (
             <Link
@@ -447,7 +447,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main id="kjb-scroll" className="flex-1 overflow-y-auto overscroll-contain pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 relative">
+      <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 relative">
         <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
           <Outlet />
         </div>
