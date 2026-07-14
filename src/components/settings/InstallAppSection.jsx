@@ -62,22 +62,12 @@ export default function InstallAppSection({ expanded, isIncognito }) {
   }, [edgeMobile, isInstallable]);
 
   const handleInstall = async () => {
-    // Edge mobile never fires beforeinstallprompt, so there's no prompt to
-    // show — the native button would do nothing. Reveal the manual guide
-    // right away (and scroll to it) so the tap always has a visible result.
-    if (edgeMobile) {
-      setShowInstallHint(true);
-      requestAnimationFrame(() => {
-        document.getElementById('kjb-install-hint')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-      return;
-    }
     promptInstall().then((result) => {
       const ua = navigator.userAgent;
       const isIOS = /iphone|ipad|ipod/i.test(ua);
       const isFirefox = /firefox/i.test(ua);
       const isMacSafari = !/chrome|android|crios|edg/i.test(ua) && /safari/i.test(ua) && /Macintosh|Mac OS X/i.test(ua);
-      if (isIOS || isFirefox || isMacSafari || result === false) {
+      if (isIOS || isFirefox || isMacSafari || edgeMobile || result === false) {
         setShowInstallHint(true);
       }
     }).catch((err) => {
@@ -197,7 +187,7 @@ export default function InstallAppSection({ expanded, isIncognito }) {
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Smartphone className="w-4 h-4" />
-              {edgeMobile ? 'How to Add to Home Screen' : 'Add to Home Screen'}
+              Add to Home Screen
             </button>
             
             <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/40 p-4">
