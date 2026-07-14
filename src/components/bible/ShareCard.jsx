@@ -135,7 +135,9 @@ const ShareCard = React.forwardRef(function ShareCard(
       const lineHeightMult = isCursive ? 1.65 : 1.4;
       const verseBlockHeight = lines * size * lineHeightMult;
       const refBlockHeight = size * 0.5 + size * 0.52 * 1.2; // margin-top + line height
-      const dateBlockHeight = size * 1.05 + size * 0.42 * 1.15 + size * 0.32; // margin-top + line height + badge padding (now scales with size)
+      // margin-top (1.05) + badge line height (0.42*1.15) + badge vertical padding (0.16*2 = 0.32).
+      // Add extra slack so the pill is never clipped by the container's overflow:hidden.
+      const dateBlockHeight = size * 1.05 + size * 0.42 * 1.15 + size * 0.32 + size * 0.45;
       const total = (verseBlockHeight + refBlockHeight + dateBlockHeight) * HEIGHT_SAFETY_FACTOR;
 
       if (total <= availableHeight - safetyMargin) {
@@ -293,7 +295,7 @@ const ShareCard = React.forwardRef(function ShareCard(
             alignItems: 'center',
             justifyContent: 'flex-start',
             width: '100%',
-            overflow: 'hidden',
+            overflow: 'visible',
             ...(showTextPanel ? {
               backgroundColor: 'rgba(0,0,0,0.35)',
               borderRadius: '24px',
