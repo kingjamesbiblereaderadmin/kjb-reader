@@ -135,9 +135,10 @@ const ShareCard = React.forwardRef(function ShareCard(
       const lineHeightMult = isCursive ? 1.65 : 1.4;
       const verseBlockHeight = lines * size * lineHeightMult;
       const refBlockHeight = size * 0.5 + size * 0.52 * 1.2; // margin-top + line height
-      // margin-top (1.05) + badge line height (0.42*1.15) + badge vertical padding (0.16*2 = 0.32).
-      // Add extra slack so the pill is never clipped by the container's overflow:hidden.
-      const dateBlockHeight = size * 1.05 + size * 0.42 * 1.15 + size * 0.32 + size * 0.45;
+      // Badge is now a fixed bottom row: margin-top (max(24, 0.7*size)) + line
+      // height (0.42*1.15) + vertical padding (0.16*2 = 0.32).
+      const badgeMarginTop = Math.max(24, size * 0.7);
+      const dateBlockHeight = badgeMarginTop + size * 0.42 * 1.15 + size * 0.32;
       const total = (verseBlockHeight + refBlockHeight + dateBlockHeight) * HEIGHT_SAFETY_FACTOR;
 
       if (total <= availableHeight - safetyMargin) {
@@ -293,9 +294,9 @@ const ShareCard = React.forwardRef(function ShareCard(
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             width: '100%',
-            overflow: 'visible',
+            overflow: 'hidden',
             ...(showTextPanel ? {
               backgroundColor: 'rgba(0,0,0,0.35)',
               borderRadius: '24px',
@@ -305,63 +306,80 @@ const ShareCard = React.forwardRef(function ShareCard(
             } : {}),
           }}
         >
-          <blockquote
-            ref={blockRef}
-            className="kjb-sharecard-verse"
+          {/* Verse + reference: grows/shrinks to fill available space above the fixed badge */}
+          <div
             style={{
-              margin: 0,
-              textAlign: 'center',
-              fontFamily: verseFont,
-              fontWeight: 700,
-              fontSize: `${fitSize}px`,
-              lineHeight: isCursive ? 1.65 : 1.4,
-              color: verseColor,
-              opacity: verseOpacity,
-              textShadow: '0 3px 10px rgba(0,0,0,0.4)',
+              flex: 1,
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
               width: '100%',
-              maxWidth: '960px',
-              boxSizing: 'border-box',
-              padding: '0 24px',
             }}
           >
-            <style>{`.kjb-sharecard-verse em { font-style: ${isDyslexic ? 'normal' : 'italic'} !important; font-weight: inherit; vertical-align: baseline !important; line-height: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)).replace(/<span class="pilcrow">¶<\/span>/g, `<span class="pilcrow" style="color: ${verseColor}; opacity: ${verseOpacity};">¶</span>`) }} />"
-            <span
+            <blockquote
+              ref={blockRef}
+              className="kjb-sharecard-verse"
               style={{
-                display: 'block',
-                marginTop: `${fitSize * 0.5}px`,
+                margin: 0,
+                textAlign: 'center',
                 fontFamily: verseFont,
                 fontWeight: 700,
-                fontSize: `${fitSize * 0.52}px`,
-                lineHeight: 1.2,
-                opacity: Math.min(1, verseOpacity + 0.05),
-                textShadow: '0 2px 6px rgba(0,0,0,0.35)',
+                fontSize: `${fitSize}px`,
+                lineHeight: isCursive ? 1.65 : 1.4,
+                color: verseColor,
+                opacity: verseOpacity,
+                textShadow: '0 3px 10px rgba(0,0,0,0.4)',
+                width: '100%',
+                maxWidth: '960px',
+                boxSizing: 'border-box',
+                padding: '0 24px',
               }}
             >
-              — {verse.ref}
-            </span>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                whiteSpace: 'nowrap',
-                marginTop: `${fitSize * 1.05}px`,
-                background: dateBadgeBg,
-                borderRadius: '999px',
-                padding: `${fitSize * 0.16}px ${fitSize * 0.26}px`,
-                fontFamily: headerFont,
-                fontSize: `${fitSize * 0.42}px`,
-                fontWeight: 700,
-                lineHeight: 1.15,
-                letterSpacing: '0.04em',
-                color: '#ffffff',
-                textShadow: 'none',
-              }}
-            >
-              {dateStr}
-            </span>
-          </blockquote>
+              <style>{`.kjb-sharecard-verse em { font-style: ${isDyslexic ? 'normal' : 'italic'} !important; font-weight: inherit; vertical-align: baseline !important; line-height: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
+              "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)).replace(/<span class="pilcrow">¶<\/span>/g, `<span class="pilcrow" style="color: ${verseColor}; opacity: ${verseOpacity};">¶</span>`) }} />"
+              <span
+                style={{
+                  display: 'block',
+                  marginTop: `${fitSize * 0.5}px`,
+                  fontFamily: verseFont,
+                  fontWeight: 700,
+                  fontSize: `${fitSize * 0.52}px`,
+                  lineHeight: 1.2,
+                  opacity: Math.min(1, verseOpacity + 0.05),
+                  textShadow: '0 2px 6px rgba(0,0,0,0.35)',
+                }}
+              >
+                — {verse.ref}
+              </span>
+            </blockquote>
+          </div>
+
+          {/* Date badge: fixed row at the bottom of the text area — the verse
+              above shrinks to fit, so this can never overlap or be clipped. */}
+          <span
+            style={{
+              flexShrink: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              whiteSpace: 'nowrap',
+              marginTop: `${Math.max(24, fitSize * 0.7)}px`,
+              background: dateBadgeBg,
+              borderRadius: '999px',
+              padding: `${fitSize * 0.16}px ${fitSize * 0.26}px`,
+              fontFamily: headerFont,
+              fontSize: `${fitSize * 0.42}px`,
+              fontWeight: 700,
+              lineHeight: 1.15,
+              letterSpacing: '0.04em',
+              color: '#ffffff',
+              textShadow: 'none',
+            }}
+          >
+            {dateStr}
+          </span>
         </div>
 
         {/* Curved footer arc — bottom boundary of the growable text area */}
