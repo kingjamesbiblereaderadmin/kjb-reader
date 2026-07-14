@@ -118,8 +118,12 @@ async function loadControls(b44) {
   return result;
 }
 
-// Build the flat eligible-verse list, honouring hardcoded + DB exclusions.
-function buildFlatList(bible, extraExcluded) {
+// Build the flat verse list. `extraExcluded` is NOT used to remove entries
+// here anymore — the list length must stay STABLE regardless of exclusions, so
+// that adding/removing an exclusion doesn't reshuffle every other day's verse.
+// Only the permanent structural exclusions (hardcoded set + Romans 10) are
+// removed. DB exclusions are applied AFTER seeding (see pickForSeed).
+function buildFlatList(bible, _extraExcluded) {
   const flat = [];
   for (const bn of BOOK_ORDER) {
     if (!bible[bn]) continue;
@@ -130,7 +134,7 @@ function buildFlatList(bible, extraExcluded) {
       for (const vo of verses) {
         const ref = `${bn} ${cn}:${vo.verse}`;
         const isExcludedChapter = bn === 'Romans' && parseInt(cn) === 10;
-        if (EXCLUDED_REFS.has(ref) || extraExcluded.has(ref) || isExcludedChapter) continue;
+        if (EXCLUDED_REFS.has(ref) || isExcludedChapter) continue;
         flat.push({ bookName: bn, chapterNum: cn, verseObj: vo });
       }
     }
@@ -155,8 +159,22 @@ function verseFromRef(bible, ref) {
   return { abbr, book: bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
 }
 
-function pickForSeed(flat, seed) {
-  return flat[((seed * 2654435761) % flat.length + flat.length) % flat.length];
+// Pick a verse for a date seed. Seeds against the full stable list, then if the
+// landed verse is excluded (DB exclusion), deterministically steps forward to
+// the next non-excluded verse. Because the list length never changes, every
+// OTHER day keeps its verse when an exclusion is added — only the day that
+// landed on the excluded verse moves on to the next one.
+function pickForSeed(flat, seed, extraExcluded) {
+  const len = flat.length;
+  let idx = ((seed * 2654435761) % len + len) % len;
+  const excl = extraExcluded || new Set();
+  for (let i = 0; i < len; i++) {
+    const item = flat[idx];
+    const ref = `${item.bookName} ${item.chapterNum}:${item.verseObj.verse}`;
+    if (!excl.has(ref)) return item;
+    idx = (idx + 1) % len;
+  }
+  return flat[((seed * 2654435761) % len + len) % len];
 }
 
 Deno.serve(async (req) => {
@@ -297,7 +315,7 @@ Deno.serve(async (req) => {
       // Scatter consecutive days across the whole Bible: multiplying the date
       // seed by a large prime (coprime to the list length) makes each day jump
       // far from the previous one instead of landing on the next verse.
-      const picked = pickForSeed(flat, seed);
+      const picked = pickForSeed(flat, seed, controls.extraExcluded);
       const verse = verseFromRef(bible, `${picked.bookName} ${picked.chapterNum}:${picked.verseObj.verse}`);
 
       return Response.json({
@@ -328,7 +346,7 @@ Deno.serve(async (req) => {
           pinned = !!verse;
         }
         if (!verse) {
-          const picked = pickForSeed(flat, seed);
+          const picked = pickForSeed(flat, seed, controls.extraExcluded);
           verse = verseFromRef(bible, `${picked.bookName} ${picked.chapterNum}:${picked.verseObj.verse}`);
         }
         return { date: dateKey, verse, pinned, pinId: pinned ? controls.pinIds[dateKey] : null };

@@ -118,6 +118,10 @@ export async function getDailyVerseFromBible() {
       }
       if (!flat.length) return getDailyVerse();
       // Same prime-scatter as the backend so consecutive days differ widely.
+      // Offline has no DB exclusions, and the flat list is built with the
+      // hardcoded exclusions only — matching the backend's stable-length list —
+      // so this lands on the same verse the backend picks for days without a
+      // DB exclusion or pin.
       const picked = flat[((seed * 2654435761) % flat.length + flat.length) % flat.length];
       const bookName = picked.bookName;
       const chapterNum = picked.chapterNum;
