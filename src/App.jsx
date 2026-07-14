@@ -130,21 +130,34 @@ let _lastHistoryIdx = typeof window !== 'undefined' ? (window.history.state?.idx
 const FadeIn = ({ children }) => {
   const { pathname } = useLocation();
   const [direction, setDirection] = useState('forward');
+  // Once the slide animation finishes we strip the animation class. The
+  // keyframes end at transform: translateX(0), but with fill-mode `both` that
+  // transform stays applied — and a non-none transform makes this div the
+  // containing block for any `position: sticky` descendant (e.g. the reader
+  // toolbar), so it sticks to this scrolling div instead of the scroll
+  // viewport and scrolls away. Removing the class after the animation clears
+  // the transform and restores correct sticky behaviour.
+  const [animating, setAnimating] = useState(true);
 
   useEffect(() => {
     const idx = window.history.state?.idx ?? 0;
     setDirection(idx < _lastHistoryIdx ? 'back' : 'forward');
     _lastHistoryIdx = idx;
     _firstRenderDone = true;
+    setAnimating(true);
   }, [pathname]);
 
-  const animClass = !_firstRenderDone
+  const animClass = !_firstRenderDone || !animating
     ? ''
     : direction === 'back'
       ? 'kjb-slide-back'
       : 'kjb-slide-forward';
 
-  return <div key={pathname} className={animClass}>{children}</div>;
+  return (
+    <div key={pathname} className={animClass} onAnimationEnd={() => setAnimating(false)}>
+      {children}
+    </div>
+  );
 };
 
 const AuthenticatedApp = () => {
