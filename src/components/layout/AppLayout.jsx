@@ -325,7 +325,7 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="h-screen bg-gradient-to-br from-background via-accent/5 to-background flex flex-col overflow-hidden">
+    <div className="h-screen [height:100dvh] bg-gradient-to-br from-background via-accent/5 to-background flex flex-col overflow-hidden">
       <header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 min-h-14 py-2 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
           {/* Logo / Back Button */}
