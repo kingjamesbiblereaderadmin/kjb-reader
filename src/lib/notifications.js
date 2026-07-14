@@ -134,14 +134,8 @@ export function disableNotifications() {
 
 
 // App logo for notifications
-// Android shows this in the expanded notification (full color).
+// Android shows this in expanded notification (full color)
 const APP_LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png';
-
-// Status-bar BADGE icon. Android renders the badge as a monochrome silhouette
-// using ONLY the image's alpha channel — a full-colour/opaque image (like the
-// logo above) therefore shows as a solid white square. This is a transparent
-// white glyph so the status bar shows a clean book icon instead of a square.
-const NOTIF_BADGE_URL = 'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/9c0b782fa_kjb-notif-badge.png';
 
 // Clean verse text for plain-text notifications. KEEP pilcrows (¶) and the
 // [italic] brackets. The source stores every apostrophe AND pilcrow as the
@@ -195,7 +189,7 @@ export async function showLocalNotification(title, body, imageUrl = null, target
         await reg.showNotification(title, {
           body: body,
           icon: APP_LOGO_URL,
-          badge: NOTIF_BADGE_URL,
+          badge: APP_LOGO_URL,
           tag: 'daily-verse',
           renotify: true,
           vibrate: [200, 100, 200],
@@ -228,7 +222,7 @@ export async function showLocalNotification(title, body, imageUrl = null, target
       const notif = new Notification(title, { 
         body: body,
         icon: APP_LOGO_URL,
-        badge: NOTIF_BADGE_URL,
+        badge: APP_LOGO_URL,
         tag: 'daily-verse',
         renotify: true,
         vibrate: [200, 100, 200],
