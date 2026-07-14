@@ -104,12 +104,8 @@
   body {
     @apply bg-background text-foreground;
     overscroll-behavior-y: none;
-    /* NOTE: top/bottom safe-area insets are intentionally NOT applied here.
-       The app shell fills the full dynamic viewport (h-screen / 100dvh); adding
-       top+bottom body padding on top of that made the shell taller than the
-       viewport, so its top scrolled under the browser chrome and clipped the
-       header. The header carries the top inset (max(env(...),0.5rem)) and the
-       bottom nav carries the bottom inset, so insets are still respected. */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
