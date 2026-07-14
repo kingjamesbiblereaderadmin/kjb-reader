@@ -75,6 +75,7 @@ const ShareCard = React.forwardRef(function ShareCard(
 
   const verseFont = fontFamily || "'Merriweather', 'Cormorant Garamond', Georgia, serif";
   const isCursive = /dancing script/i.test(verseFont);
+  const isDyslexic = /opendyslexic/i.test(verseFont);
   const verseColor = textColor || '#ffffff';
   const verseOpacity = textOpacity != null ? textOpacity : 1;
 
@@ -321,7 +322,7 @@ const ShareCard = React.forwardRef(function ShareCard(
               padding: '0 24px',
             }}
           >
-            <style>{`.kjb-sharecard-verse em { font-style: italic !important; font-weight: inherit; vertical-align: baseline; line-height: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
+            <style>{`.kjb-sharecard-verse em { font-style: ${isDyslexic ? 'normal' : 'italic'} !important; font-weight: inherit; vertical-align: baseline !important; line-height: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
             "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)).replace(/<span class="pilcrow">¶<\/span>/g, `<span class="pilcrow" style="color: ${verseColor}; opacity: ${verseOpacity};">¶</span>`) }} />"
             <span
               style={{
