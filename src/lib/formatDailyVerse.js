@@ -51,8 +51,19 @@ function withPilcrow(text = '') {
 //   Read more: <link>
 //
 // Optional title (e.g. "Verse of the Day") sits on its own line at the very top.
+// Put each pilcrow (¶) on its own new, indented line — matching read mode,
+// where a paragraph mark starts a fresh indented paragraph rather than sitting
+// inline mid-sentence. A leading pilcrow stays at the very start (no blank
+// line before it).
+function breakParagraphsAtPilcrow(text = '') {
+  return String(text)
+    .replace(/\s*¶\s*/g, '\n    ¶ ')
+    .replace(/^\n\s*/, '')
+    .trim();
+}
+
 export function formatVerseShare({ text, ref, url, title, subscript, colophon } = {}) {
-  const clean = cleanVerseText(text);
+  const clean = breakParagraphsAtPilcrow(cleanVerseText(text));
   const parts = [];
   if (title) parts.push(title);
   // Subscript, quoted verse + ref, then colophon — grouped together as one block.
