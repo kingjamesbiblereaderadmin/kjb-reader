@@ -159,6 +159,18 @@ function verseFromRef(bible, ref) {
   return { abbr, book: bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
 }
 
+// Normalize a date key to zero-padded YYYY-MM-DD. The app sends clientDate
+// built with getMonth()+1 / getDate() (unpadded, e.g. "2026-7-14"), while pins
+// are stored zero-padded ("2026-07-14"). Without this, pin lookups miss on the
+// live daily card even though the schedule preview (which pads) finds them.
+function normalizeDateKey(key) {
+  if (!key) return key;
+  const parts = String(key).split('-');
+  if (parts.length !== 3) return key;
+  const [y, m, d] = parts;
+  return `${y}-${String(Number(m)).padStart(2, '0')}-${String(Number(d)).padStart(2, '0')}`;
+}
+
 // Pick a verse for a date seed. Seeds against the full stable list, then if the
 // landed verse is excluded (DB exclusion), deterministically steps forward to
 // the next non-excluded verse. Because the list length never changes, every
@@ -296,7 +308,7 @@ Deno.serve(async (req) => {
       const controls = await loadControls(b44);
 
       // If an admin pinned a verse for this exact date, always return that.
-      const dateKey = body.clientDate || null;
+      const dateKey = normalizeDateKey(body.clientDate || null);
       if (dateKey && controls.pins[dateKey]) {
         const pinned = verseFromRef(bible, controls.pins[dateKey]);
         if (pinned) {
@@ -335,7 +347,8 @@ Deno.serve(async (req) => {
       const flat = buildFlatList(bible, controls.extraExcluded);
       if (!flat.length) return Response.json({ error: 'No eligible verses' }, { status: 500 });
 
-      const out = dates.map((dateKey) => {
+      const out = dates.map((rawKey) => {
+        const dateKey = normalizeDateKey(rawKey);
         const [y, m, d] = String(dateKey).split('-').map(Number);
         const seed = y * 10000 + m * 100 + d;
         const pinnedRef = controls.pins[dateKey];
