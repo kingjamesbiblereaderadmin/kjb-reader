@@ -976,7 +976,7 @@ export default function SearchPage() {
       testament,
       bookCount: selectedBooks.size > 0 && selectedBooks.size < 66 ? selectedBooks.size : 0,
     };
-    exportVerses(format, items, q, filters);
+    exportVerses(format, items, q, filters, { showQuery: true });
   };
 
   // Share search results as a LINK ONLY — builds the search URL and copies/shares it.
