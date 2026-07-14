@@ -20,7 +20,7 @@ const BLOCKQUOTE_MAX_W = 880; // 1024 - 2*72 outer padding
 const BLOCKQUOTE_PAD_H = 48;  // 24px each side
 
 const ShareCard = React.forwardRef(function ShareCard(
-  { verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline, backgroundImageUrl, showTextPanel, visible },
+  { verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline, backgroundImageUrl, showTextPanel, visible, dateKey },
   ref
 ) {
   const blockRef = useRef(null);
@@ -33,12 +33,12 @@ const ShareCard = React.forwardRef(function ShareCard(
 
   // Adjustable layout settings (Dev Tools → Card Layout Adjustments). Re-read
   // whenever they change so the card re-fits live.
-  const [settings, setSettings] = useState(getShareCardSettings);
+  const [settings, setSettings] = useState(() => getShareCardSettings(dateKey));
   useEffect(() => {
-    const onStorage = () => setSettings(getShareCardSettings());
+    const onStorage = () => setSettings(getShareCardSettings(dateKey));
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
-  }, []);
+  }, [dateKey]);
 
   // Derived layout constants — some fixed, some driven by adjustable settings.
   const OUTER_PAD_TOP = settings.outerPadTop;
