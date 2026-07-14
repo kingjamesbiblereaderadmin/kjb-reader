@@ -61,18 +61,23 @@ export default function InstallAppSection({ expanded, isIncognito }) {
     if (edgeMobile && !isInstallable) setShowInstallHint(true);
   }, [edgeMobile, isInstallable]);
 
+  const revealGuide = () => {
+    setShowInstallHint(true);
+    requestAnimationFrame(() => {
+      document.getElementById('kjb-install-hint')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
   const handleInstall = async () => {
     promptInstall().then((result) => {
-      const ua = navigator.userAgent;
-      const isIOS = /iphone|ipad|ipod/i.test(ua);
-      const isFirefox = /firefox/i.test(ua);
-      const isMacSafari = !/chrome|android|crios|edg/i.test(ua) && /safari/i.test(ua) && /Macintosh|Mac OS X/i.test(ua);
-      if (isIOS || isFirefox || isMacSafari || edgeMobile || result === false) {
-        setShowInstallHint(true);
-      }
+      // result === true  → native prompt shown & accepted, nothing more to do.
+      // result === false → no usable deferred prompt (event never fired, was
+      // consumed, or this browser doesn't support it). In every such case the
+      // only way forward is the manual guide, so always reveal + scroll to it.
+      if (result !== true) revealGuide();
     }).catch((err) => {
       console.error('[InstallApp] Install prompt failed:', err);
-      setShowInstallHint(true);
+      revealGuide();
     });
   };
 
