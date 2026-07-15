@@ -120,6 +120,17 @@ export default function AboutPage() {
             <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>I believe Jesus will reign in the new heaven and earth after the white throne judgment.</li>
           </ul>
         </AccordionSection>
+
+        <AccordionSection title="Pagan Holidays & Traditions">
+          <p className="font-sans text-sm text-foreground/80 mb-3">
+            Many widely-observed holidays have roots in pagan customs that were later given a Christian veneer. Believers should study these origins for themselves.
+          </p>
+          <ul className="space-y-2 font-sans text-sm text-foreground/80">
+            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Easter — its name, timing and symbols (eggs, rabbits) trace back to pagan spring fertility festivals rather than scripture.</li>
+            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Christmas — December 25th and many of its customs (trees, wreaths, yule logs) originate in pagan winter solstice celebrations, not the biblical account of Christ's birth.</li>
+            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Halloween — descends from pagan harvest and death festivals (such as Samhain) later absorbed into the church calendar as "All Hallows' Eve."</li>
+          </ul>
+        </AccordionSection>
       </div>
 
       {/* Links */}
