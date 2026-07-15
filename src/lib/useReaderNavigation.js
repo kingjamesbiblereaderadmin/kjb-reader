@@ -37,7 +37,19 @@ export function useReaderNavigation(pos, loadChapter, routerNavigate, routerLoca
     try {
       let url;
       if (newChapter === 0) url = `/read?titlePage=${newAbbr === 'MAT' ? 'new' : 'old'}`;
-      else { url = `/read?book=${newAbbr}&chapter=${newChapter}`; if (jumpVerse) url += `&verse=${jumpVerse}`; if (section) url += `&highlight=${section}`; }
+      else {
+        url = `/read?book=${newAbbr}&chapter=${newChapter}`;
+        if (jumpVerse) url += `&verse=${jumpVerse}`;
+        if (section) url += `&highlight=${section}`;
+        // Carry the correct navigation-source context in the URL so the
+        // "currently reading" indicator can't glitch. Without this, a plain
+        // navigation (e.g. typing a search reference) built a URL with NO
+        // `from` flag, and useReaderUrlSync then re-appended the STALE
+        // `from=daily`/`from=random` flag left over from a previous daily/
+        // random view — making the indicator show "Daily Verse"/"Random
+        // Chapter" against the new search reference.
+        if (preserveSearchContext) url += '&from=search';
+      }
       routerNavigate(url, { replace: isAutoAdvance || false });
     } catch {}
   };

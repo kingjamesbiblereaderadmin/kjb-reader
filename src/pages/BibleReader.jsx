@@ -387,7 +387,7 @@ export default function BibleReader() {
   // when verses reload (loadOverrides populates the cache by then).
   const chapterSubscript = resolveSubscript(book.apiName, pos.chapter);
 
-  useReaderUrlSync(pos, loading, a11yFont, routerNavigate);
+  useReaderUrlSync(pos, loading, a11yFont, routerNavigate, searchTerm, gospelMode);
   const isViewingTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
 
   const loadChapter = useCallback(async (bookAbbr, chapter, jumpVerse) => {

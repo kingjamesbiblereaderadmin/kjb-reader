@@ -5,13 +5,21 @@ import { useEffect } from 'react';
 // steppers, the kjb-navigate event from Home's daily/random buttons), not just
 // the ones that call navigate(). Preserves any ?from=…&q=… context flags
 // already in the URL so the "currently reading" indicators still restore.
-export function useReaderUrlSync(pos, loading, a11yFont, navigate) {
+export function useReaderUrlSync(pos, loading, a11yFont, navigate, searchTerm, gospelMode) {
   useEffect(() => {
     if (loading) return;
     try {
       const params = new URLSearchParams(window.location.search);
-      const from = params.get('from');
+      let from = params.get('from');
       const q = params.get('q');
+      // An active search/gospel context must win over a stale daily/random
+      // flag left in the URL from a previous view. Otherwise the "currently
+      // reading" indicator glitches — keeping the search term but showing the
+      // old daily-verse / random-chapter reference. Drop the stale flag (or
+      // switch it to 'search') so the indicator stays consistent.
+      if ((from === 'daily' || from === 'random') && (searchTerm || gospelMode)) {
+        from = gospelMode ? 'gospel' : 'search';
+      }
       let url;
       if (pos.chapter === 0) {
         url = `/read?titlePage=${pos.abbr === 'MAT' ? 'new' : 'old'}`;
@@ -38,5 +46,5 @@ export function useReaderUrlSync(pos, loading, a11yFont, navigate) {
         }
       }
     } catch {}
-  }, [pos.abbr, pos.chapter, pos.verse, loading, a11yFont, navigate]);
+  }, [pos.abbr, pos.chapter, pos.verse, loading, a11yFont, navigate, searchTerm, gospelMode]);
 }
