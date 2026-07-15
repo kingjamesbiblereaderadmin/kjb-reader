@@ -53,7 +53,7 @@ export default function AboutPage() {
         <ul className="space-y-2 font-sans text-sm text-foreground/80">
           <li className="flex items-start gap-2">
             <span className="text-accent mt-1">•</span>
-            I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah's Witnesses, etc.
+            I'm not a Roman Catholick, LDS/Mormon, Calvinist, or Jehovah Witness. See the <a href="https://youtube.com/playlist?list=PLNGhZnJavRf293XCMldBgwRpQ4U1o8uEf&si=U518NbpNw7HhaCBx" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">"Why I Am Not..." playlist by Robert Breaker</a> to learn more.
           </li>
           <li className="flex items-start gap-2">
             <span className="text-accent mt-1">•</span>
