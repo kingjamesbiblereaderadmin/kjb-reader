@@ -1458,7 +1458,7 @@ export default function SettingsPage() {
         <p>• <strong className="text-foreground">Dancing Script:</strong> Google Fonts (SIL Open Font License)</p>
         <p className="pt-2 text-[10px] opacity-75">All fonts are open source and freely available under the SIL Open Font License.</p>
         <p>• <strong className="text-foreground">King James Bible Text:</strong> Public domain worldwide. In the United Kingdom, the KJB is protected by a perpetual Crown Copyright administered by the King's Printer. This app is for personal, non-commercial use only. For commercial use within the UK, a licence from Cambridge University Press or the King's Printer may be required. See <a href="https://www.cambridge.org/bibles/about/rights-and-permissions" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">cambridge.org/bibles/about/rights-and-permissions</a> for details.</p>
-        <p className="pt-2 text-[11px] text-foreground/80">This app is public domain and freely shareable. Made in Singapore. 🇸🇬</p>
+        <p className="pt-2 text-[11px] text-foreground/80">This app is public domain and freely shareable.</p>
         <p className="pt-1 text-[11px] text-foreground/80">• <strong className="text-foreground">AI Disclaimer:</strong> This app was built with the assistance of artificial intelligence (AI). AI-generated code and content may contain errors. The King James Bible text itself is not AI-generated. Please report any issues so we can correct them.</p>
       </div>
         </div>
