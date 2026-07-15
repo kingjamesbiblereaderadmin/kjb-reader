@@ -53,10 +53,6 @@ export default function AboutPage() {
         <ul className="space-y-2 font-sans text-sm text-foreground/80">
           <li className="flex items-start gap-2">
             <span className="text-accent mt-1">•</span>
-            I'm not a Roman Catholick, LDS/Mormon, Calvinist, or Jehovah Witness. See the "Why I Am Not... Series" below to learn more.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-accent mt-1">•</span>
             I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.
           </li>
           <li className="flex items-start gap-2">
@@ -120,7 +116,7 @@ export default function AboutPage() {
 
         <AccordionSection title="Why I Am Not... Series">
           <p className="font-sans text-sm text-foreground/80 mb-3">
-            A video series by Robert Breaker examining why various religious movements depart from the truth of scripture.
+            I'm not a Roman Catholick, LDS/Mormon, Calvinist, or Jehovah Witness. This video series by Robert Breaker examines why various religious movements depart from the truth of scripture.
           </p>
           <a
             href="https://youtube.com/playlist?list=PLNGhZnJavRf293XCMldBgwRpQ4U1o8uEf&si=U518NbpNw7HhaCBx"
