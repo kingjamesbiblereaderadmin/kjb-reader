@@ -64,6 +64,7 @@ export default function DailyVerseControls({ onChange }) {
   const [editPinRef, setEditPinRef] = useState('');
 
   const [showExclList, setShowExclList] = useState(false);
+  const [showPinList, setShowPinList] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -257,7 +258,16 @@ export default function DailyVerseControls({ onChange }) {
           ) : pins.length === 0 ? (
             <p className="font-sans text-xs text-muted-foreground py-2">None yet.</p>
           ) : (
-            <div className="rounded-lg border border-border overflow-hidden">
+            <div>
+              <button
+                onClick={() => setShowPinList(v => !v)}
+                className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary hover:bg-secondary/70 transition-colors text-left"
+              >
+                <span className="font-sans text-xs font-semibold text-foreground">{showPinList ? 'Hide' : 'Show'} changed list ({pins.length})</span>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showPinList ? 'rotate-180' : ''}`} />
+              </button>
+              {showPinList && (
+              <div className="rounded-lg border border-border overflow-hidden mt-3">
               {pins.map(r => {
                 const isEditing = editingPinId === r.id;
                 return (
@@ -299,6 +309,8 @@ export default function DailyVerseControls({ onChange }) {
                 </div>
                 );
               })}
+              </div>
+              )}
             </div>
           )}
         </div>
