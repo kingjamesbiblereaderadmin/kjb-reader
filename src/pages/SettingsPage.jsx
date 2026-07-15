@@ -1626,51 +1626,6 @@ localStorage.removeItem('kjb-daily-verse-cache-v17');
               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
             </a>
             <a
-              href="https://discord.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-            >
-              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
-                <DiscordIcon />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Discord</p>
-                <p className="font-sans text-xs text-muted-foreground">shawn_faithinhisbloodr325av</p>
-              </div>
-              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
-            </a>
-            <a
-              href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-            >
-              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-slate-700 to-slate-900">
-                <TikTokIcon />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">TikTok</p>
-                <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinr325av</p>
-              </div>
-              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
-            </a>
-            <a
-              href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-            >
-              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-fuchsia-500 to-pink-600">
-                <Instagram className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Instagram</p>
-                <p className="font-sans text-xs text-muted-foreground">@svdbyfaithinhisbloodr325av</p>
-              </div>
-              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
-            </a>
-            <a
               href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS"
               target="_blank"
               rel="noopener noreferrer"
