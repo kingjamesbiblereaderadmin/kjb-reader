@@ -123,7 +123,7 @@ export default function AboutPage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Pagan Holidays Playlist</p>
-              <p className="font-sans text-xs text-muted-foreground truncate">YouTube playlist</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">YouTube playlist &middot; Robert Breaker</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
@@ -131,7 +131,7 @@ export default function AboutPage() {
 
         <AccordionSection title="Why I Am Not... Series">
           <p className="font-sans text-sm text-foreground/80 mb-3">
-            I'm not a Roman Catholick, LDS/Mormon, Calvinist, or Jehovah Witness. This video series by Robert Breaker examines why various religious movements depart from the truth of scripture.
+            I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah's Witnesses, etc. This video series by Robert Breaker examines why various religious movements depart from the truth of scripture.
           </p>
           <a
             href="https://youtube.com/playlist?list=PLNGhZnJavRf293XCMldBgwRpQ4U1o8uEf&si=U518NbpNw7HhaCBx"
