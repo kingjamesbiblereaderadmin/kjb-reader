@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Loader2, Trash2, Plus, Ban, Pin } from 'lucide-react';
+import { Loader2, Trash2, Plus, Ban, Pin, ChevronDown } from 'lucide-react';
 
 const DEV_KEY = 'KJB-DEV-2026';
 
@@ -62,6 +62,8 @@ export default function DailyVerseControls({ onChange }) {
   // Which existing pin is being edited, and the draft ref for it.
   const [editingPinId, setEditingPinId] = useState(null);
   const [editPinRef, setEditPinRef] = useState('');
+
+  const [showExclList, setShowExclList] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -184,27 +186,38 @@ export default function DailyVerseControls({ onChange }) {
           ) : exclusions.length === 0 ? (
             <p className="font-sans text-xs text-muted-foreground py-2">None yet.</p>
           ) : (
-            <div className="space-y-3">
-              <div>
-                <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Old Testament ({otExclusions.length})</p>
-                {otExclusions.length === 0 ? (
-                  <p className="font-sans text-xs text-muted-foreground py-1">None.</p>
-                ) : (
-                  <div className="rounded-lg border border-border overflow-hidden">
-                    {otExclusions.map(renderExclusionRow)}
+            <div>
+              <button
+                onClick={() => setShowExclList(v => !v)}
+                className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary hover:bg-secondary/70 transition-colors text-left"
+              >
+                <span className="font-sans text-xs font-semibold text-foreground">{showExclList ? 'Hide' : 'Show'} excluded list ({exclusions.length})</span>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showExclList ? 'rotate-180' : ''}`} />
+              </button>
+              {showExclList && (
+                <div className="space-y-3 mt-3">
+                  <div>
+                    <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Old Testament ({otExclusions.length})</p>
+                    {otExclusions.length === 0 ? (
+                      <p className="font-sans text-xs text-muted-foreground py-1">None.</p>
+                    ) : (
+                      <div className="rounded-lg border border-border overflow-hidden">
+                        {otExclusions.map(renderExclusionRow)}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <div>
-                <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">New Testament ({ntExclusions.length})</p>
-                {ntExclusions.length === 0 ? (
-                  <p className="font-sans text-xs text-muted-foreground py-1">None.</p>
-                ) : (
-                  <div className="rounded-lg border border-border overflow-hidden">
-                    {ntExclusions.map(renderExclusionRow)}
+                  <div>
+                    <p className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">New Testament ({ntExclusions.length})</p>
+                    {ntExclusions.length === 0 ? (
+                      <p className="font-sans text-xs text-muted-foreground py-1">None.</p>
+                    ) : (
+                      <div className="rounded-lg border border-border overflow-hidden">
+                        {ntExclusions.map(renderExclusionRow)}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
         </div>
