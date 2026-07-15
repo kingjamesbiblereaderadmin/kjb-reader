@@ -101,6 +101,21 @@ export default function AboutPage() {
             <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Those in the 7-year tribulation will have to endure to the end, not take the mark, and be martyrs for Christ.</li>
             <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>I believe Jesus will reign in the new heaven and earth after the white throne judgment.</li>
           </ul>
+          <a
+            href="https://youtube.com/playlist?list=PLNGhZnJavRf3LX3ZaUiQaSn4kLLT7dt1c&si=M6mzCAKvtJjr_eH4"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 mt-3 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-red-500 to-rose-600">
+              <Youtube className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Pre-Tribulation Rapture Playlist</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">YouTube playlist</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
+          </a>
         </AccordionSection>
 
         <AccordionSection title="Pagan Holidays & Traditions">
