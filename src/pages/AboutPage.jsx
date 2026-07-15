@@ -103,6 +103,21 @@ export default function AboutPage() {
             <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>The wages of sin is death and the wicked shall be turned into hell.</li>
             <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Hell is a place of torment day and night. Hell was created for Satan and his angels. Hell will be thrown into the lake of fire at the second death.</li>
           </ul>
+          <a
+            href="https://youtube.com/playlist?list=PLPVNJ2ztsABc&si=YJQYHu7YYT_F8v3s"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 mt-3 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-red-500 to-rose-600">
+              <Youtube className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Satan & Hell Playlist</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">YouTube playlist</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
+          </a>
         </AccordionSection>
 
         <AccordionSection title="Salvation & Pre-Tribulation Rapture">
