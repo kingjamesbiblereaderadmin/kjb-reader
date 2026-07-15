@@ -168,36 +168,6 @@ export default function AboutPage() {
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
-          <a
-            href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-          >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-slate-700 to-slate-900">
-              <TikTokLinkIcon className="w-5 h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">TikTok</p>
-              <p className="font-sans text-xs text-muted-foreground truncate">@svdbyfaithinr325av</p>
-            </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
-          </a>
-          <a
-            href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-          >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-fuchsia-500 to-pink-600">
-              <Instagram className="w-5 h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Instagram</p>
-              <p className="font-sans text-xs text-muted-foreground truncate">@svdbyfaithinhisbloodr325av</p>
-            </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
-          </a>
 
           <a
             href="mailto:kingjamesbiblereader@outlook.sg"
@@ -210,21 +180,6 @@ export default function AboutPage() {
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Email</p>
               <p className="font-sans text-xs text-muted-foreground truncate">kingjamesbiblereader@outlook.sg</p>
             </div>
-          </a>
-          <a
-            href="https://discord.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-          >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
-              <DiscordIcon />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Discord</p>
-              <p className="font-sans text-xs text-muted-foreground truncate">shawn_svdbyfaithinhisbloodr325av</p>
-            </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
         </div>
       </div>
