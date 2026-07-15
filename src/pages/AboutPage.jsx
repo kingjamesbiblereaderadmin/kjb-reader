@@ -78,6 +78,21 @@ export default function AboutPage() {
             <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Translated by godly men well versed in the Biblical languages who studied commentaries and foreign translations from an early age.</li>
             <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>The Bible God has used for countless revivals and bringing the gospel to the world. It is mathematically proven to be a miracle.</li>
           </ul>
+          <a
+            href="https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm&si=DZZUQXC_e-8LaQGI"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 mt-3 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-red-500 to-rose-600">
+              <Youtube className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">King James Bible Playlist</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">YouTube playlist</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
+          </a>
         </AccordionSection>
 
         <AccordionSection title="Satan & Hell">
@@ -112,6 +127,21 @@ export default function AboutPage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Pre-Tribulation Rapture Playlist</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">YouTube playlist</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
+          </a>
+          <a
+            href="https://youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq&si=JfYeXBybD1baCm74"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 mt-3 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-red-500 to-rose-600">
+              <Youtube className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Salvation Playlist</p>
               <p className="font-sans text-xs text-muted-foreground truncate">YouTube playlist</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
