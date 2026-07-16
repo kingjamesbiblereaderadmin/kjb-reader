@@ -55,7 +55,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'July 13th, 2026';
-const WORKER_VERSION = 'v20260716_2238';
+const WORKER_VERSION = 'v20260716_2240';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -567,27 +567,21 @@ export default function SettingsPage() {
           </p>
         )}
         <div className="flex flex-col gap-2">
-        {[...A11Y_FONT_OPTIONS, ...VERSE_FONTS].map(font => {
-          const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
-          const isActive = a11yFont !== 'default' ? a11yFont === font.value : readerFontFamily === font.value;
-          const isDisabled = a11yFont !== 'default' && !isA11yChoice;
-          return (
+        {VERSE_FONTS.map(font => (
           <button
             key={font.value}
-            disabled={isDisabled}
             onClick={() => pickReaderFont(font.value)}
             className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center border ${
-              isActive
+              (a11yFont === 'default' && readerFontFamily === font.value)
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-secondary/50 backdrop-blur-sm text-foreground border-border hover:border-accent'
-            } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
-            style={isA11yChoice ? undefined : { fontFamily: font.value }}
+            } ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}
+            style={{ fontFamily: font.value }}
           >
             {font.label}
           </button>
-          );
-        })}
-        {a11yFont === 'default' && (
+        ))}
+        {a11yFont === 'default' && readerFontFamily !== 'serif' && (
           <button
             onClick={() => pickReaderFont('serif')}
             className="w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center bg-secondary/50 backdrop-blur-sm border border-border text-foreground hover:border-accent"
@@ -962,26 +956,20 @@ export default function SettingsPage() {
               </p>
             )}
             <div className="grid grid-cols-2 gap-2">
-              {[...A11Y_FONT_OPTIONS, ...VERSE_FONTS].map(font => {
-                const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
-                const isActive = a11yFont !== 'default' ? a11yFont === font.value : verseFontFamily === font.value;
-                const isDisabled = a11yFont !== 'default' && !isA11yChoice;
-                return (
+              {VERSE_FONTS.map(font => (
                 <button
                   key={font.value}
-                  disabled={isDisabled}
                   onClick={() => pickVerseFont(font.value)}
                   className={`px-4 py-3 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
-                    isActive
+                    (a11yFont === 'default' && verseFontFamily === font.value)
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-secondary/50 backdrop-blur-sm text-foreground border-border hover:border-accent'
-                  } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
-                  style={isA11yChoice ? undefined : { fontFamily: font.value }}
+                  } ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}
+                  style={{ fontFamily: font.value }}
                 >
                   {font.label}
                 </button>
-                );
-              })}
+              ))}
             </div>
           </div>
         </div>
