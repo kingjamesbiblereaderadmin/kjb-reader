@@ -778,7 +778,23 @@ export default function BibleReader() {
       let p;
       try { p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return; }
       if (!p || !resolveBook(p.abbr)) return;
-      const fromSearch = new URLSearchParams(window.location.search).get('from') === 'search';
+
+      // If the URL already has the correct book/chapter/verse, the
+      // routerLocation.search effect is already handling the load — don't
+      // fire a redundant loadChapter that would clear verses mid-scroll
+      // and break the verse jump (especially when navigating from Home).
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlBookObj = resolveBook(urlParams.get('book'));
+      const urlChapter = urlParams.get('chapter');
+      const urlVerse = urlParams.get('verse');
+      if (urlBookObj && urlChapter && urlBookObj.abbr === p.abbr &&
+          parseInt(urlChapter, 10) === p.chapter &&
+          parseInt(urlVerse || '0', 10) === (p.verse || 0)) {
+        setHighlightVerse(p.verse || null);
+        return;
+      }
+
+      const fromSearch = urlParams.get('from') === 'search';
       const nav = getSearchNav();
       if (fromSearch && nav.results.length > 0) {
         const cur = nav.results[nav.index] || nav.results[0];
