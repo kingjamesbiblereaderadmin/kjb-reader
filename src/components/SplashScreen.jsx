@@ -25,9 +25,18 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
 
-  // Sync cloud settings for signed-in users. Shown as a splash step so the user
-  // sees their data being restored. No-op for guests (isAuthed returns false).
-  const syncCloudSettings = async () => {
+  // Check if the user is signed in. The actual sync runs inside runStep below
+  // so the "SYNCING YOUR DATA..." banner is visible while it works.
+  const isSignedIn = async () => {
+    try {
+      const base44 = (await import('@/api/base44Client')).base44;
+      return await base44.auth.isAuthenticated().catch(() => false);
+    } catch {
+      return false;
+    }
+  };
+
+  const doSync = async () => {
     try {
       const { syncSettingsFromCloud } = await import('@/lib/settingsSync');
       await syncSettingsFromCloud();
@@ -254,8 +263,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           });
         }
 
-        // 8. Sync cloud settings (for signed-in users)
-        await runStep('SYNCING YOUR DATA...', syncCloudSettings);
+        // 8. Sync cloud settings (skipped for guests — nothing to sync)
+        if (await isSignedIn()) {
+          await runStep('SYNCING YOUR DATA...', doSync);
+        }
 
         // 9. Welcome
         if (detectedIncognito) {
@@ -317,8 +328,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // 7. Sync cloud settings (for signed-in users)
-        await runStep('SYNCING YOUR DATA...', syncCloudSettings);
+        // 7. Sync cloud settings (skipped for guests — nothing to sync)
+        if (await isSignedIn()) {
+          await runStep('SYNCING YOUR DATA...', doSync);
+        }
 
         // 8. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
@@ -423,8 +436,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // 5. Sync cloud settings (for signed-in users)
-        await runStep('SYNCING YOUR DATA...', syncCloudSettings);
+        // 5. Sync cloud settings (skipped for guests — nothing to sync)
+        if (await isSignedIn()) {
+          await runStep('SYNCING YOUR DATA...', doSync);
+        }
 
         // 6. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
