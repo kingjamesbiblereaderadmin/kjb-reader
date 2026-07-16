@@ -32,6 +32,10 @@ export default function SavedVersesPage() {
 
   useEffect(() => {
     loadData();
+    // Re-read from localStorage after cloud sync completes (signed-in users)
+    const onSynced = () => loadData();
+    window.addEventListener('kjb-saved-synced', onSynced);
+    return () => window.removeEventListener('kjb-saved-synced', onSynced);
   }, []);
 
   const handleRemove = (abbr, chapter, verse) => {
