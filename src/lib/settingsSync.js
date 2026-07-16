@@ -24,6 +24,7 @@ const SYNC_KEYS = [
   'kjb-position',
   // Indicators — daily/random verse, search, gospel
   'kjb-last-reading',
+  'kjb-search-results',
   'kjb-search-term',
   'kjb-search-index',
   'kjb-search-total',
@@ -42,6 +43,31 @@ let _periodicTimer = null;
 // unnecessary API calls when nothing has changed, and by the periodic
 // safety-net timer to detect writes that missed the storage event dispatch.
 let _lastPushedSnapshot = null;
+let _patched = false;
+
+// Monkey-patch localStorage.setItem / removeItem so that any write to a synced
+// key automatically dispatches a 'storage' event. Same-tab localStorage writes
+// don't fire storage events natively, so without this the cloud push never
+// triggers for the 60+ places across the app that write synced keys. This
+// catches every write — current and future — in one place.
+function _patchLocalStorage() {
+  if (_patched) return;
+  _patched = true;
+  const originalSetItem = localStorage.setItem.bind(localStorage);
+  const originalRemoveItem = localStorage.removeItem.bind(localStorage);
+  localStorage.setItem = function(key, value) {
+    originalSetItem(key, value);
+    if (SYNC_KEYS.includes(key)) {
+      window.dispatchEvent(new Event('storage'));
+    }
+  };
+  localStorage.removeItem = function(key) {
+    originalRemoveItem(key);
+    if (SYNC_KEYS.includes(key)) {
+      window.dispatchEvent(new Event('storage'));
+    }
+  };
+}
 
 async function isAuthed() {
   try {
@@ -137,15 +163,14 @@ export async function syncSettingsFromCloud() {
 }
 
 function _startPushListener() {
+  _patchLocalStorage();
   window.addEventListener('storage', _debouncedPush);
   window.addEventListener('kjb-fonts-changed', _debouncedPush);
   // Safety-net: periodically check if local settings have drifted from the
-  // last pushed snapshot. This catches any localStorage write that didn't
-  // dispatch a 'storage' event (same-tab writes don't fire one natively, and
-  // not every writer in the app dispatches it manually). The snapshot
-  // comparison in _pushToCloud makes this a no-op when nothing changed.
+  // last pushed snapshot. With the localStorage patch this is mostly redundant,
+  // but kept as a backup. The snapshot comparison makes it a no-op when idle.
   if (_periodicTimer) clearInterval(_periodicTimer);
-  _periodicTimer = setInterval(_debouncedPush, 10_000);
+  _periodicTimer = setInterval(_debouncedPush, 15_000);
 }
 
 function _stopPushListener() {
