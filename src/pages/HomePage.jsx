@@ -464,7 +464,7 @@ export default function HomePage() {
               label={link.label}
               desc={link.desc}
               iconGradient={link.iconGradient}
-              className=""
+              className={i === QUICK_LINKS.length - 1 ? 'sm:col-span-2' : ''}
             />
           )
         )}
