@@ -261,7 +261,7 @@ function esc(s) {
 
 function renderVerse(raw) {
   let t = raw.replace(/\u2019/g, "'").replace(/\u2018/g, "'").replace(/\u201C/g, '"').replace(/\u201D/g, '"').replace(/(\w)\uFFFD(\w)/g, "$1'$2");
-  t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  t = esc(t);
   let leadingPilcrow = false;
   if (/^[\u00B6\uFFFD]\s*/.test(t)) { leadingPilcrow = true; t = t.replace(/^[\u00B6\uFFFD]\s*/, ''); }
   t = t.replace(/([\s.,;:!?'")\]])[\u00B6\uFFFD]\s*/g, '$1<span class="pil">&para; </span>');
@@ -400,6 +400,7 @@ Deno.serve(async (req) => {
       const chunkHtml = buildBookHtml(bible, bi);
       return new Response(chunkHtml, { headers: {
         'Content-Type': 'text/html;charset=UTF-8',
+        'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'self'",
         'Cache-Control': 'public, max-age=31536000, immutable',
         'Expires': 'Fri, 31 Dec 9999 23:59:59 GMT',
         'Access-Control-Allow-Origin': '*'
@@ -641,6 +642,7 @@ Deno.serve(async (req) => {
 
       return new Response(dlHtml, { headers: {
         'Content-Type': 'text/html;charset=UTF-8',
+        'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'self'",
         'Content-Disposition': 'attachment; filename="kjb-bible.html"',
         'Cache-Control': 'public, max-age=86400'
       } });
@@ -720,6 +722,7 @@ Deno.serve(async (req) => {
 
     return new Response(html, { headers: {
       'Content-Type': 'text/html;charset=UTF-8',
+      'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'self'",
       // The SHELL page is SMALL (no inlined Bible — books load as separate
       // immutable chunks). Allow the BROWSER's own HTTP cache to store it for a
       // short window so a refresh works OFFLINE even if the Service Worker
@@ -731,6 +734,6 @@ Deno.serve(async (req) => {
       'Vary': 'Accept-Encoding'
     } });
   } catch (error) {
-    return new Response('<!DOCTYPE html><html><body style="font-family:Arial;padding:20px;color:#c00;">Error: ' + String(error.message) + '</body></html>', { status: 500, headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
+    return new Response('<!DOCTYPE html><html><body style="font-family:Arial;padding:20px;color:#c00;">Error: ' + esc(error.message) + '</body></html>', { status: 500, headers: { 'Content-Type': 'text/html;charset=UTF-8', 'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'" } });
   }
 });
