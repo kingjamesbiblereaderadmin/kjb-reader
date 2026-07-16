@@ -2,8 +2,8 @@ import { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
-import { syncFromCloud, resetCloudSync } from '@/lib/savedVerses';
-import { syncSettingsFromCloud, resetSettingsSync } from '@/lib/settingsSync';
+import { syncFromCloud, resetCloudSync, clearLocalSavedVerses } from '@/lib/savedVerses';
+import { syncSettingsFromCloud, resetSettingsSync, clearLocalSettings } from '@/lib/settingsSync';
 
 const AuthContext = createContext();
 
@@ -148,6 +148,10 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     resetCloudSync();
     resetSettingsSync();
+    // Clear user-specific localStorage data so a guest or next user on this
+    // device doesn't see the previous user's saved verses and settings.
+    clearLocalSavedVerses();
+    clearLocalSettings();
     
     if (shouldRedirect) {
       // Use the SDK's logout method which handles token cleanup and redirect

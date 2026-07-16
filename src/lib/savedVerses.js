@@ -111,6 +111,16 @@ export function resetCloudSync() {
   _synced = false;
 }
 
+/**
+ * Clears all locally-stored saved verses and folders.
+ * Called on logout so a guest (or next user) on the same device doesn't
+ * see the previous user's cloud-synced verses from localStorage.
+ */
+export function clearLocalSavedVerses() {
+  localStorage.removeItem(SAVED_KEY);
+  localStorage.removeItem('kjb-saved-folders');
+}
+
 // ── Write operations — update localStorage synchronously, then sync to cloud ──
 
 export function saveVerse(entry) {

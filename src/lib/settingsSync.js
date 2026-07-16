@@ -157,3 +157,13 @@ export function resetSettingsSync() {
   _stopPushListener();
   if (_pushTimer) { clearTimeout(_pushTimer); _pushTimer = null; }
 }
+
+/**
+ * Clears all locally-stored synced settings and the session sync flag.
+ * Called on logout so a guest (or next user) on the same device doesn't
+ * inherit the previous user's cloud-synced preferences from localStorage.
+ */
+export function clearLocalSettings() {
+  SYNC_KEYS.forEach(key => localStorage.removeItem(key));
+  sessionStorage.removeItem('kjb-settings-cloud-synced');
+}
