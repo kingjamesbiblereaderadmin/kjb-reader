@@ -251,7 +251,6 @@ export default function LandingSetupWizard() {
     { id: 'theme', label: 'Theme', icon: Palette },
     { id: 'fonts', label: 'Fonts', icon: Type },
     { id: 'background', label: 'Background', icon: ImageIcon },
-    { id: 'a11y', label: 'Accessibility', icon: Accessibility },
     { id: 'notif', label: 'Notifications', icon: Bell },
   ];
 
@@ -558,34 +557,8 @@ export default function LandingSetupWizard() {
           </div>
         )}
 
-        {/* Step 4: Accessibility Font */}
+        {/* Step 4: Notifications */}
         {step === 4 && (
-          <div className="text-center">
-            <h3 className="font-serif text-lg font-bold text-foreground mb-1">Accessibility Font</h3>
-            <p className="font-sans text-xs text-muted-foreground mb-4">For readers with dyslexia or low vision</p>
-            <div className="grid grid-cols-3 gap-2 max-w-sm mx-auto">
-              {A11Y_FONTS.map(font => (
-                <button
-                  key={font.value}
-                  type="button"
-                  onClick={() => { setA11yFont(font.value); setAccessibilityFont(font.value); markDone('a11y'); }}
-                  className={`px-2 py-3 rounded-xl border-2 font-sans text-xs font-bold transition-all flex flex-col items-center justify-center ${
-                    a11yFont === font.value ? 'bg-primary text-primary-foreground border-primary shadow-md scale-[1.02]'
-                    : 'bg-card text-foreground border-border hover:border-accent'
-                  }`}
-                  style={font.preview ? { fontFamily: font.preview } : undefined}
-                >
-                  {font.label}
-                  {font.value === 'dyslexic' && <span className="text-[8px] opacity-75 font-normal">Dyslexia</span>}
-                  {font.value === 'hyperlegible' && <span className="text-[8px] opacity-75 font-normal">Low Vision</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Step 5: Notifications */}
-        {step === 5 && (
           <div className="text-center">
             <h3 className="font-serif text-lg font-bold text-foreground mb-1">Daily Verse Notifications</h3>
             <p className="font-sans text-xs text-muted-foreground mb-2">See the verse of the day when you open the app on a new day</p>
