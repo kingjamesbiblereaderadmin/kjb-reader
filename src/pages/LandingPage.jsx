@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/AuthContext';
 const LAST_UPDATED = 'July 16th, 2026';
 
 export default function LandingPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoadingAuth } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
@@ -34,7 +34,11 @@ export default function LandingPage() {
             and customizable typography — all with privacy at the forefront.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            {isAuthenticated ? (
+            {isLoadingAuth ? (
+              <div className="px-6 py-3 rounded-xl bg-secondary text-muted-foreground font-sans text-sm font-medium">
+                Loading…
+              </div>
+            ) : isAuthenticated ? (
               <Link
                 to="/"
                 onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
