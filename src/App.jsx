@@ -31,7 +31,6 @@ const loaders = {
   ManifestScreenshots: () => import('@/pages/ManifestScreenshots.jsx').catch((err) => { console.error('Failed to load ManifestScreenshots:', err); throw err; }),
   Privacy: () => import('@/pages/PrivacyPolicyPage.jsx').catch((err) => { console.error('Failed to load PrivacyPolicyPage:', err); throw err; }),
   LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
-  DailyVerseTxt: () => import('@/pages/DailyVerseTxt.jsx').catch((err) => { console.error('Failed to load DailyVerseTxt:', err); throw err; }),
   BibleTxt: () => import('@/pages/BibleTxt.jsx').catch((err) => { console.error('Failed to load BibleTxt:', err); throw err; }),
   DevTools: () => import('@/pages/DevToolsPage.jsx').catch((err) => { console.error('Failed to load DevToolsPage:', err); throw err; }),
   Login: () => import('@/pages/Login').catch((err) => { console.error('Failed to load Login:', err); throw err; }),
@@ -55,7 +54,6 @@ const ManifestIcons = lazy(loaders.ManifestIcons);
 const ManifestScreenshots = lazy(loaders.ManifestScreenshots);
 const PrivacyPolicyPage = lazy(loaders.Privacy);
 const LegacyReader = lazy(loaders.LegacyReader);
-const DailyVerseTxt = lazy(loaders.DailyVerseTxt);
 const BibleTxt = lazy(loaders.BibleTxt);
 const DevToolsPage = lazy(loaders.DevTools);
 const Login = lazy(loaders.Login);
@@ -249,7 +247,7 @@ const AuthenticatedApp = () => {
         isFadingOut={fadeSplash}
         onDone={handleSplashDone}
         mode={splashMode}
-        isVisible={showSplash && location.pathname !== '/legacy' && location.pathname !== '/dailyverse.txt' && location.pathname !== '/bible.txt'}
+        isVisible={showSplash && location.pathname !== '/legacy' && location.pathname !== '/bible.txt'}
       />
       {!isInitializing && !authError && (
         <ChunkErrorBoundary>
@@ -276,7 +274,6 @@ const AuthenticatedApp = () => {
               <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
               <Route path="/dev-tools" element={<Suspense fallback={<RouteLoader />}><FadeIn><DevToolsPage /></FadeIn></Suspense>} />
             </Route>
-            <Route path="/dailyverse.txt" element={<Suspense fallback={null}><DailyVerseTxt /></Suspense>} />
             <Route path="/bible.txt" element={<Suspense fallback={null}><BibleTxt /></Suspense>} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
