@@ -55,12 +55,6 @@ export function useSearchAndGospelResults(
     const section = r.section || null;
     const targetVerse = section ? null : (r.verse || null);
     setHighlightSection(section);
-    // Entering search/gospel mode supersedes any prior daily/random context.
-    // Clear the React state so the indicator doesn't show "Random Chapter" /
-    // "Daily Verse" alongside the search/gospel label. (Don't remove
-    // kjb-last-reading from localStorage — its prevAbbr/prevChapter may be
-    // needed as a fallback return position when the user clicks Clear.)
-    if (setLastReadingPos) setLastReadingPos(null);
     const useFilter = resultViewRef.current !== 'full';
     if (!section && r.verse && r.verseEnd && parseInt(r.verseEnd, 10) > parseInt(r.verse, 10)) {
       const start = parseInt(r.verse, 10); const end = parseInt(r.verseEnd, 10);
