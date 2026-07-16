@@ -22,18 +22,16 @@ const SYNC_KEYS = [
   'kjb-notification-time',
   'kjb-theme-1611',
   'kjb-position',
-  // Indicators — daily/random verse, search, gospel
-  'kjb-last-reading',
-  'kjb-search-results',
-  'kjb-search-term',
-  'kjb-search-index',
-  'kjb-search-total',
-  'kjb-gospel-results',
-  'kjb-gospel-index',
-  'kjb-reader-toolbar-state',
   // Reading layout preferences (paragraph/line mode, column mode)
   'kjb-flow',
   'kjb-column',
+  // NOTE: Transient session-state keys (kjb-last-reading, kjb-search-*,
+  // kjb-gospel-*, kjb-reader-toolbar-state) are intentionally NOT synced.
+  // They represent what the user is doing on THIS device right now — another
+  // device's reading context is irrelevant. Syncing them caused indicators
+  // (Daily Verse, Random Chapter, Search, Gospel) to reappear after being
+  // cleared, because the next cloud pull (route change / tab focus) wrote
+  // the stale cloud value back into localStorage.
 ];
 
 let _pushListenerStarted = false;
