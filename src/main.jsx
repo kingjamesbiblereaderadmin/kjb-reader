@@ -10,9 +10,20 @@ import { toast } from 'sonner'
 // found" rejection that the preview sandbox throws when /sw.js momentarily
 // can't be fetched. It's already caught at every call site; this is a final
 // safety net so it never surfaces as an uncaught error.
+const isSwNotFoundError = (msg) => /Failed to (update|register) a ServiceWorker/i.test(msg || '');
+
 window.addEventListener('unhandledrejection', (event) => {
   const msg = event?.reason?.message || String(event?.reason || '');
-  if (/Failed to update a ServiceWorker/i.test(msg)) {
+  if (isSwNotFoundError(msg)) {
+    event.preventDefault();
+  }
+});
+
+// The browser also emits this as a window 'error' event during its automatic
+// SW update check (separate from manual reg.update() calls). Catch it here too.
+window.addEventListener('error', (event) => {
+  const msg = event?.error?.message || event?.message || '';
+  if (isSwNotFoundError(msg)) {
     event.preventDefault();
   }
 });
