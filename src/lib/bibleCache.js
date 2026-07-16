@@ -341,7 +341,10 @@ export async function isBibleCached() {
 }
 
 export async function clearBibleCache() {
-  // Clear ALL possible cache keys
+  // Clear ONLY Bible data cache keys — never user settings (theme, notifications,
+  // fonts, etc.). Previously this also wiped kjb-theme-preference,
+  // kjb-notifications-enabled, and notification scheduling keys, which could
+  // reset the user's theme and turn off notifications after a cache clear.
   for (let i = 1; i <= 100; i++) {
     localStorage.removeItem(`bible_data_pce_v${i}`);
     localStorage.removeItem(`bible_data_pce_v${i}_WITH_BRACKETS`);
@@ -350,14 +353,10 @@ export async function clearBibleCache() {
   localStorage.removeItem('bible_data_complete_v2');
   localStorage.removeItem('bible_cache_version');
   localStorage.removeItem('bible_last_refresh');
-  localStorage.removeItem('kjb-theme-preference');
   localStorage.removeItem('kjb-daily-verse-cache');
-  localStorage.removeItem('kjb-notifications-enabled');
-  localStorage.removeItem('kjb-notification-last');
-  localStorage.removeItem('kjb-notification-next');
   await clearIndexedDB();
   parsedData = null;
-  console.log('[CLEAR] ✓✓✓ ALL cache cleared - will fetch fresh with brackets');
+  console.log('[CLEAR] ✓✓✓ Bible cache cleared - will fetch fresh with brackets');
 }
 
 export async function forceReloadBibleData() {

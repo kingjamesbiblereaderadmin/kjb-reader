@@ -50,31 +50,52 @@ export async function syncSettingsFromCloud() {
   if (_synced) return;
   if (!(await isAuthed())) return;
 
+  // Only pull cloud settings DOWN once per browser session. Without this, a
+  // service-worker update reload re-runs the sync and a stale cloud value
+  // (e.g. an old "light" theme) overwrites the user's current local setting
+  // (e.g. "dark") — making it look like the update reset their preferences.
+  // sessionStorage persists across same-tab reloads (exactly the SW update
+  // case) but is cleared when the tab/browser closes, so a fresh open still
+  // syncs from cloud as expected.
+  const SESSION_SYNCED_KEY = 'kjb-settings-cloud-synced';
+  const alreadySyncedThisSession = sessionStorage.getItem(SESSION_SYNCED_KEY) === 'true';
+
   try {
     const existing = await base44.entities.UserSetting.list('-updated_date', 1);
 
     if (existing.length === 0) {
-      // First sign-in: push local settings to cloud
+      // First sign-in ever: push local settings to cloud
       const localSettings = collectLocalSettings();
       if (Object.keys(localSettings).length > 0) {
         await base44.entities.UserSetting.create({ settings: localSettings });
       }
     } else {
-      // Cloud has settings: merge (cloud wins for existing keys)
       const cloudSettings = existing[0].settings || {};
       const recordId = existing[0].id;
 
-      let changed = false;
-      Object.entries(cloudSettings).forEach(([key, val]) => {
-        if (SYNC_KEYS.includes(key)) {
-          if (localStorage.getItem(key) !== val) {
-            localStorage.setItem(key, val);
-            changed = true;
+      // Only apply cloud settings DOWN on the first sync of the session.
+      // Subsequent reloads (e.g. after a SW update) skip this step so local
+      // changes the user just made are preserved.
+      if (!alreadySyncedThisSession) {
+        let changed = false;
+        Object.entries(cloudSettings).forEach(([key, val]) => {
+          if (SYNC_KEYS.includes(key)) {
+            if (localStorage.getItem(key) !== val) {
+              localStorage.setItem(key, val);
+              changed = true;
+            }
           }
-        }
-      });
+        });
 
-      // Push local-only keys (not in cloud) back up
+        if (changed) {
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new Event('kjb-fonts-changed'));
+          window.dispatchEvent(new Event('kjb-settings-synced'));
+        }
+      }
+
+      // Always push local-only keys (not in cloud) back up — this is safe
+      // on every reload because it only adds missing keys, never overwrites.
       const hasLocalOnly = SYNC_KEYS.some(
         k => cloudSettings[k] === undefined && localStorage.getItem(k) !== null
       );
@@ -82,15 +103,9 @@ export async function syncSettingsFromCloud() {
         const merged = { ...cloudSettings, ...collectLocalSettings() };
         await base44.entities.UserSetting.update(recordId, { settings: merged });
       }
-
-      if (changed) {
-        // Notify all components to re-read from localStorage
-        window.dispatchEvent(new Event('storage'));
-        window.dispatchEvent(new Event('kjb-fonts-changed'));
-        window.dispatchEvent(new Event('kjb-settings-synced'));
-      }
     }
 
+    sessionStorage.setItem(SESSION_SYNCED_KEY, 'true');
     _synced = true;
     _startPushListener();
   } catch (err) {
