@@ -24,6 +24,7 @@ import { downloadBibleForOffline, downloadBibleForOfflineWithRetry, clearBibleCa
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { detectIncognito } from '@/lib/incognito';
 import { getLiveWorkerVersion, getDeployedWorkerVersion } from '@/lib/liveWorkerVersion';
+import { useAuth } from '@/lib/AuthContext';
 
 const A11Y_FONTS = [
   { value: 'dyslexic', label: 'OpenDyslexic', desc: 'Designed for readers with dyslexia', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
@@ -141,8 +142,28 @@ export default function SettingsPage() {
     advanced: true,
     contact: true,
     developer: false,
+    danger: false,
   });
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
+  const { user, isAuthenticated } = useAuth();
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      '⚠️ Delete your account?\n\nThis will permanently erase all your saved verses, reading progress, and synced settings. This action CANNOT be undone.\n\nAre you sure you want to continue?'
+    );
+    if (!confirmed) return;
+    setDeletingAccount(true);
+    try {
+      if (user?.id) {
+        await base44.entities.User.delete(user.id);
+      }
+      await base44.auth.logout('/');
+    } catch (err) {
+      setDeletingAccount(false);
+      toast.error('Could not delete account: ' + (err?.message || 'Please contact support.'));
+    }
+  };
   
   const [customBg, setCustomBg] = useState(() => {
     try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; }
@@ -1631,6 +1652,40 @@ localStorage.removeItem('kjb-daily-verse-cache-v17');
           </div>
         )}
       </div>
+
+      {/* Danger Zone — only for authenticated users */}
+      {isAuthenticated && (
+        <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl mb-5 overflow-hidden">
+          <button
+            onClick={() => toggleSection('danger')}
+            className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-red-500/5 transition-colors text-left"
+          >
+            <div className="flex flex-col gap-1">
+              <h2 className="font-serif text-lg font-semibold text-red-700 dark:text-red-400">Danger Zone</h2>
+              <p className="font-sans text-xs text-red-600/70 dark:text-red-400/70">Permanently delete your account</p>
+            </div>
+            <ChevronDown className={`w-5 h-5 text-red-500 transition-transform ${expandedSections.danger ? 'rotate-180' : ''}`} />
+          </button>
+          {expandedSections.danger && (
+            <div className="px-5 pb-6 pt-2">
+              <p className="font-sans text-sm text-foreground/80 mb-4">
+                Deleting your account will permanently erase all your saved verses, reading progress, and synced settings. This action <strong>cannot be undone</strong>.
+              </p>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive text-destructive-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed w-full"
+              >
+                {deletingAccount ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Deleting account...</>
+                ) : (
+                  <><Trash2 className="w-4 h-4" /> Delete Account</>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

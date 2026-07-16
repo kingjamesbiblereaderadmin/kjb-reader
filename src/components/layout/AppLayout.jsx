@@ -582,6 +582,20 @@ function BottomNav({ pathname, navigate }) {
     } catch { return 'one'; }
   });
 
+  // Tab history: remember the last sub-path (pathname + search) for each tab,
+  // so switching back to a tab restores its previous route instead of the root.
+  const location = useLocation();
+  const tabHistoryRef = useRef({});
+  useEffect(() => {
+    const fullPath = location.pathname + location.search;
+    const matchedTab = NAV_ITEMS.find(item =>
+      item.path === '/' ? location.pathname === '/' : location.pathname === item.path
+    );
+    if (matchedTab) {
+      tabHistoryRef.current[matchedTab.path] = fullPath;
+    }
+  }, [location.pathname, location.search]);
+
   const cycleShowMode = () => {
     // Cycle: two rows → one row → bar (centered chevron only) → two rows
     const next =
@@ -636,7 +650,7 @@ function BottomNav({ pathname, navigate }) {
                     }
                   } else {
                     scrollMainToTop();
-                    setTimeout(() => navigate(item.path), 150);
+                    setTimeout(() => navigate(tabHistoryRef.current[item.path] || item.path), 150);
                   }
                 }}
                 className="flex flex-col items-center justify-center flex-1 min-h-[48px] active:bg-secondary/50 transition-all duration-200"
@@ -686,7 +700,7 @@ function BottomNav({ pathname, navigate }) {
                       }
                     } else {
                       scrollMainToTop();
-                      setTimeout(() => navigate(item.path), 150);
+                      setTimeout(() => navigate(tabHistoryRef.current[item.path] || item.path), 150);
                     }
                   }}
                   className="flex flex-col items-center justify-center w-full min-h-[48px] active:bg-secondary/50 transition-all duration-200"
