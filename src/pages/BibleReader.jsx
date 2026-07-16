@@ -1645,7 +1645,7 @@ export default function BibleReader() {
               selectedCount={selectedVerses.size} totalVerses={verses.length} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onSelectAll={selectAllVerses} onCancel={() => {
                 if (searchTerm) { clearSearchContext(); return; }
-                if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
+                if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); setLastReadingPos(null); try { localStorage.removeItem('kjb-last-reading'); } catch {} return; }
                 // Exit select mode but PRESERVE the existing filter/selection
                 // so the user returns to their filtered view, not full chapter.
                 setSelectMode(false);
@@ -1680,7 +1680,7 @@ export default function BibleReader() {
               }}
               onClear={() => {
                 if (searchTerm) { clearSearchContext(); return; }
-                if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
+                if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); setLastReadingPos(null); try { localStorage.removeItem('kjb-last-reading'); localStorage.removeItem('kjb-reader-toolbar-state'); } catch {} return; }
                 if (lastReadingActive) { setLastReadingPos(null); try { localStorage.removeItem('kjb-last-reading'); localStorage.removeItem('kjb-reader-toolbar-state'); } catch {} return; }
                 rangeHighlightRef.current = false; setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set()); setShowFilterOverlay(false);
                 try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
