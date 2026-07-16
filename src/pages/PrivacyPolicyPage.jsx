@@ -161,19 +161,13 @@ export default function PrivacyPolicyPage() {
         </p>
       </Section>
 
-      <div className="flex items-center justify-center gap-4 mt-8">
+      <div className="text-center mt-8">
         <Link
           to="/landing"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
         >
           <ArrowLeft className="w-4 h-4" />
-          Landing
-        </Link>
-        <Link
-          to="/terms"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
-        >
-          Terms of Service
+          Back to Landing
         </Link>
       </div>
     </div>
