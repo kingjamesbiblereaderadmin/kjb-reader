@@ -56,7 +56,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'July 13th, 2026';
-const WORKER_VERSION = 'v20260716_2017';
+const WORKER_VERSION = 'v20260716_2018';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -540,6 +540,7 @@ export default function SettingsPage() {
                   const newZoom = Math.max(75, zoomLevel - 25);
                   setZoomLevel(newZoom);
                   try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+                  window.dispatchEvent(new Event('storage'));
                 }}
                 className="p-2 rounded-xl bg-transparent border border-border text-foreground hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
@@ -550,6 +551,7 @@ export default function SettingsPage() {
                   const newZoom = Math.min(150, zoomLevel + 25);
                   setZoomLevel(newZoom);
                   try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+                  window.dispatchEvent(new Event('storage'));
                 }}
                 className="p-2 rounded-xl bg-transparent border border-border text-foreground hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
@@ -560,6 +562,7 @@ export default function SettingsPage() {
                   onClick={() => {
                     setZoomLevel(100);
                     try { localStorage.setItem('kjb-zoom', '100'); } catch {}
+                    window.dispatchEvent(new Event('storage'));
                   }}
                   className="px-3 py-2 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 >

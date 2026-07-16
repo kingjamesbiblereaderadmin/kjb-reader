@@ -229,12 +229,14 @@ export default function BibleReader() {
     const next = flowMode === 'line' ? 'paragraph' : 'line';
     setFlowMode(next);
     try { localStorage.setItem('kjb-flow', next); } catch {}
+    window.dispatchEvent(new Event('storage'));
   };
 
   const toggleColumn = () => {
     setColumnOn(prev => {
       const next = !prev;
       try { localStorage.setItem('kjb-column', String(next)); } catch {}
+      window.dispatchEvent(new Event('storage'));
       return next;
     });
   };
@@ -243,12 +245,14 @@ export default function BibleReader() {
     const newZoom = Math.max(75, Math.min(250, zoomLevel + delta));
     setZoomLevel(newZoom);
     try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleZoomChange = (e) => {
     const newZoom = parseInt(e.target.value);
     setZoomLevel(newZoom);
     try { localStorage.setItem('kjb-zoom', String(newZoom)); } catch {}
+    window.dispatchEvent(new Event('storage'));
   };
 
   const toggleSelectMode = () => {

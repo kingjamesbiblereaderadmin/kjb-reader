@@ -160,6 +160,7 @@ export function ThemeProvider({ children }) {
   const setColorMode = (m) => {
     setColorModeState(m);
     try { localStorage.setItem('kjb-color-mode', m); } catch {}
+    window.dispatchEvent(new Event('storage'));
   };
   const [isDark, setIsDark] = useState(() => {
     const savedMode = (() => { try { return localStorage.getItem('kjb-theme-mode') || 'system'; } catch { return 'system'; } })();
@@ -170,6 +171,7 @@ export function ThemeProvider({ children }) {
   const setColourId = (id) => {
     setColourIdState(id);
     try { localStorage.setItem('kjb-colour', id); } catch {}
+    window.dispatchEvent(new Event('storage'));
   };
 
   const toggleTheme = () => {
@@ -185,6 +187,9 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     try { localStorage.setItem('kjb-theme-mode', mode); } catch {}
     setIsDark(resolveIsDark(mode));
+    // Dispatch so the settings sync push listener fires and pushes the new
+    // theme mode to the cloud for cross-device sync.
+    window.dispatchEvent(new Event('storage'));
   }, [mode]);
 
   // For 'system': listen to OS changes
