@@ -120,6 +120,7 @@ function preloadAllRoutes() {
 
 import { Loader2 } from 'lucide-react';
 import SplashScreen from '@/components/SplashScreen';
+import { syncAllFromCloud } from '@/lib/syncAll';
 
 const RouteLoader = () => (
   <div className="flex justify-center py-24">
@@ -195,6 +196,23 @@ const AuthenticatedApp = () => {
   // App mounted successfully — clear the one-shot chunk-reload guard so a
   // future genuine chunk failure can auto-recover again.
   useEffect(() => { try { sessionStorage.removeItem('kjb-chunk-reloaded'); } catch {} }, []);
+
+  // Pull cloud data on every route / query-param change (covers search, daily
+  // verse, chapter changes, etc.) and when the tab regains focus — so changes
+  // from another device appear without needing a manual sync.
+  useEffect(() => {
+    syncAllFromCloud();
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    const onFocus = () => syncAllFromCloud();
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onFocus);
+    };
+  }, []);
 
   const isInitializing = isLoadingPublicSettings || isLoadingAuth;
   
