@@ -71,32 +71,19 @@ export async function syncSettingsFromCloud() {
         await base44.entities.UserSetting.create({ settings: localSettings });
       }
       try { localStorage.setItem('kjb-last-sync-time', new Date().toISOString()); } catch {}
+      window.dispatchEvent(new Event('kjb-settings-synced'));
     } else {
       const cloudSettings = existing[0].settings || {};
       const recordId = existing[0].id;
 
-      // PUSH local settings UP first, merging with cloud (local takes priority).
-      // This ensures the user's latest local changes are in the cloud BEFORE
-      // we pull anything down — preventing a stale cloud value (e.g. an old
-      // "light" theme) from overwriting a recent local change (e.g. "dark")
-      // when the user reopens the app.
-      const hasLocalChanges = SYNC_KEYS.some(
-        k => localStorage.getItem(k) !== null && localStorage.getItem(k) !== cloudSettings[k]
-      );
-      if (hasLocalChanges) {
-        const mergedUp = { ...cloudSettings, ...localSettings };
-        await base44.entities.UserSetting.update(recordId, { settings: mergedUp });
-      }
-
-      // Pull cloud settings DOWN every time. Because we pushed local UP first,
-      // local values are already in the cloud — so this only fills in keys
-      // that exist in cloud but not locally (cross-device sync). Local values
-      // are never overwritten by stale cloud data.
-      const effectiveSettings = hasLocalChanges
-        ? { ...cloudSettings, ...localSettings }
-        : cloudSettings;
+      // PULL cloud DOWN first — cloud is the source of truth for cross-device
+      // sync. This must happen BEFORE any push, so that a fresh device's local
+      // defaults (e.g. "serif" font, "light" theme) don't overwrite the user's
+      // actual cloud settings. Real-time local changes are pushed up separately
+      // by the _debouncedPush listener whenever the user changes a setting.
+      const cloudKeys = new Set(Object.keys(cloudSettings));
       let changed = false;
-      Object.entries(effectiveSettings).forEach(([key, val]) => {
+      Object.entries(cloudSettings).forEach(([key, val]) => {
         if (SYNC_KEYS.includes(key)) {
           if (localStorage.getItem(key) !== val) {
             localStorage.setItem(key, val);
@@ -109,9 +96,26 @@ export async function syncSettingsFromCloud() {
         window.dispatchEvent(new Event('storage'));
         window.dispatchEvent(new Event('kjb-fonts-changed'));
       }
-      // Always stamp a local sync-completion time so the Account page can show
-      // when the sync actually ran — even when there were no changes to push
-      // (the cloud record's updated_date only moves when a write happens).
+
+      // Push local UP only for keys that exist locally but NOT in cloud
+      // (i.e. new local settings the user added that haven't synced yet).
+      // Don't push keys that differ from cloud — those are either defaults
+      // (which should be overwritten by cloud) or real-time changes already
+      // handled by _debouncedPush.
+      const localOnly = {};
+      let hasLocalOnly = false;
+      SYNC_KEYS.forEach(key => {
+        const val = localStorage.getItem(key);
+        if (val !== null && !cloudKeys.has(key)) {
+          localOnly[key] = val;
+          hasLocalOnly = true;
+        }
+      });
+      if (hasLocalOnly) {
+        const mergedUp = { ...cloudSettings, ...localOnly };
+        await base44.entities.UserSetting.update(recordId, { settings: mergedUp });
+      }
+
       try { localStorage.setItem('kjb-last-sync-time', new Date().toISOString()); } catch {}
       window.dispatchEvent(new Event('kjb-settings-synced'));
     }
