@@ -57,6 +57,10 @@ function savePosition(abbr, chapter, verse = null) {
       }
     } catch {}
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse, verseEnd }));
+    // Dispatch a storage event so the settings sync push listener picks up
+    // the new position and pushes it to the cloud for cross-device sync.
+    // localStorage.setItem in the same tab does NOT fire 'storage' natively.
+    window.dispatchEvent(new Event('storage'));
   } catch {}
 }
 
