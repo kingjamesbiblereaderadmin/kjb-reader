@@ -42,7 +42,7 @@ export default function LandingPage() {
               className="w-full h-full object-cover"
             />
           </Link>
-          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader</h1>
+          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Welcome to KJB Reader</h1>
           <p className="font-sans text-sm text-muted-foreground">Read the King James Bible — anytime, anywhere, even offline.</p>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
