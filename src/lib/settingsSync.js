@@ -28,6 +28,9 @@ const SYNC_KEYS = [
   'kjb-gospel-results',
   'kjb-gospel-index',
   'kjb-reader-toolbar-state',
+  // Reading layout preferences (paragraph/line mode, column mode)
+  'kjb-flow',
+  'kjb-column',
 ];
 
 let _pushListenerStarted = false;

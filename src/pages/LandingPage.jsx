@@ -95,7 +95,7 @@ export default function LandingPage() {
         </div>
 
         {/* Legal Links */}
-        <div className="grid sm:grid-cols-2 gap-4 mb-5">
+        <div className="grid sm:grid-cols-3 gap-4 mb-5">
           <Link
             to="/privacy"
             className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
