@@ -185,29 +185,6 @@ export default function InstallAppSection({ expanded, isIncognito }) {
               </div>
             </div>
           </div>
-        ) : edgeMobile && !isInstallable ? (
-          <div className="space-y-3">
-            <div className="rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <h3 className="font-sans text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">Edge doesn't support one-tap install</h3>
-                  <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-                    Edge on phones doesn't fire the automatic install prompt. Use the manual steps below, or open this site in <strong>Chrome</strong> for one-tap install.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2 bg-secondary/50 rounded-xl p-4">
-              <p className="font-sans text-xs text-foreground mb-2">
-                <strong>Manual Installation Guide:</strong>
-              </p>
-              <div className="font-sans text-xs text-muted-foreground space-y-1.5">
-                <p>• <strong>Edge (phone):</strong> Tap the menu <span className="inline-flex items-center px-1.5 py-0.5 bg-background rounded text-foreground font-medium">(⋯)</span> at the bottom, then select <span className="text-foreground font-medium">"Add to phone"</span> or <span className="text-foreground font-medium">"Add to Home screen"</span>. If you don't see it, scroll the menu — it's under the sharing options.</p>
-                <p>• <strong>Or use Chrome:</strong> Open this site in Chrome for the best one-tap install experience.</p>
-              </div>
-            </div>
-          </div>
         ) : (
           <div className="space-y-3">
             <button

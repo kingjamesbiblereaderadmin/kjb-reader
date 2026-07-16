@@ -177,11 +177,9 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
   const actuallyInstalled = isStandalone || parentIsInstalled || installDone;
   
   // Show install button if NOT installed AND (native prompt available OR was cancelled/manual guide needed).
-  // On Edge mobile & Samsung (no beforeinstallprompt), skip the broken button — show guide directly.
   // Wait until the incognito check has resolved so the button never flashes in (or
   // stays) during the async detection in a private window.
-  const skipNativeButton = (isEdgeMobile() || isSamsung()) && !window.kjbDeferredPrompt;
-  const showInstall = incognitoChecked && !isIncognito && !actuallyInstalled && !skipNativeButton && (isInstallable || isIOS() || isAndroid() || !isMobile() || promptCancelled);
+  const showInstall = incognitoChecked && !isIncognito && !actuallyInstalled && (isInstallable || isIOS() || isAndroid() || !isMobile() || promptCancelled);
 
   // Show prompt for configuration even when installed — only hide install section
   const shouldShow = !dismissed;
@@ -318,21 +316,19 @@ export default function FirstLoadPrompt({ isInstallable, isInstalled: parentIsIn
             </div>
           )}
           
-          {(showInstall || (skipNativeButton && !isBookmarkBrowser() && !inIframe())) && !actuallyInstalled && (
+          {showInstall && !isBookmarkBrowser() && !inIframe() && (
             <div className="space-y-2 shrink-0">
-              {showInstall && (
-                <button
-                  type="button"
-                  onClick={handleInstallClick}
-                  className="w-full flex items-center gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl font-sans text-[13px] sm:text-sm font-medium transition-all duration-200 touch-manipulation hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground border-2 border-primary"
-                >
-                  {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
-                  <span className="text-left leading-tight">
-                    <span className="block font-semibold">{isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
-                    <span className="block text-[10px] sm:text-xs opacity-80">Offline access, faster loading</span>
-                  </span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                className="w-full flex items-center gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl font-sans text-[13px] sm:text-sm font-medium transition-all duration-200 touch-manipulation hover:scale-[1.02] active:scale-[0.98] bg-primary text-primary-foreground border-2 border-primary"
+              >
+                {isIOS() ? <Share className="w-4 h-4 shrink-0" /> : isMobile() ? <Download className="w-4 h-4 shrink-0" /> : <MonitorSmartphone className="w-4 h-4 shrink-0" />}
+                <span className="text-left leading-tight">
+                  <span className="block font-semibold">{isMobile() ? 'Add to Home Screen' : 'Install App'}</span>
+                  <span className="block text-[10px] sm:text-xs opacity-80">Offline access, faster loading</span>
+                </span>
+              </button>
               
               {showIOSHint && !parentIsInstalled && (
                 <div className="bg-secondary/40 border border-border rounded-xl p-2.5 sm:p-3">
