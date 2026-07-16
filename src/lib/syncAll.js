@@ -4,7 +4,7 @@ import { syncReadingProgressFromCloud } from '@/lib/readingProgress';
 
 let _syncTimer = null;
 let _lastSync = 0;
-const MIN_INTERVAL = 8000; // Don't sync more than once every 8 seconds
+const MIN_INTERVAL = 3000; // Don't sync more than once every 3 seconds
 
 /**
  * Debounced pull of all user data from the cloud (saved verses, settings,
@@ -23,5 +23,5 @@ export function syncAllFromCloud(force = false) {
     syncFromCloud();
     syncSettingsFromCloud();
     syncReadingProgressFromCloud();
-  }, 500);
+  }, 200);
 }

@@ -38,12 +38,17 @@ const SYNC_KEYS = [
 
 let _pushListenerStarted = false;
 let _pushTimer = null;
+let _pullTimer = null;
 let _periodicTimer = null;
 // Snapshot of the last settings we pushed to the cloud. Used to skip
 // unnecessary API calls when nothing has changed, and by the periodic
 // safety-net timer to detect writes that missed the storage event dispatch.
 let _lastPushedSnapshot = null;
 let _patched = false;
+// True while we're writing cloud-pulled values INTO localStorage. Suppresses
+// the push listener so we don't immediately push back (redundant API call /
+// race with the other tab that just pushed).
+let _applyingCloud = false;
 
 // Monkey-patch localStorage.setItem / removeItem so that any write to a synced
 // key automatically dispatches a 'storage' event. Same-tab localStorage writes
@@ -122,6 +127,11 @@ export async function syncSettingsFromCloud() {
       // defaults (e.g. "serif" font, "light" theme) don't overwrite the user's
       // actual cloud settings. Real-time local changes are pushed up separately
       // by the _debouncedPush listener whenever the user changes a setting.
+      //
+      // _applyingCloud suppresses the push listener while we write cloud values
+      // into localStorage — otherwise each setItem triggers a synthetic storage
+      // event → _debouncedPush → redundant push of the very data we just pulled.
+      _applyingCloud = true;
       const cloudKeys = new Set(Object.keys(cloudSettings));
       let changed = false;
       Object.entries(cloudSettings).forEach(([key, val]) => {
@@ -132,6 +142,11 @@ export async function syncSettingsFromCloud() {
           }
         }
       });
+      _applyingCloud = false;
+
+      // Update the snapshot so the next _pushToCloud sees the freshly-pulled
+      // state as "already known" and skips a redundant push.
+      _lastPushedSnapshot = JSON.stringify(collectLocalSettings());
 
       if (changed) {
         window.dispatchEvent(new Event('storage'));
@@ -170,24 +185,47 @@ export async function syncSettingsFromCloud() {
 function _startPushListener() {
   if (_pushListenerStarted) return;
   _pushListenerStarted = true;
-  window.addEventListener('storage', _debouncedPush);
+
+  // CRITICAL: distinguish same-tab writes from cross-tab writes.
+  // - Same-tab: the monkey-patch dispatches a synthetic Event('storage')
+  //   (NOT a StorageEvent). We PUSH our change to the cloud.
+  // - Cross-tab: the browser fires a native StorageEvent with .key set.
+  //   Another tab/device changed something — we PULL from cloud, never push
+  //   (pushing would overwrite the other tab's change with our stale state).
+  window.addEventListener('storage', (e) => {
+    if (_applyingCloud) return;
+    if (e instanceof StorageEvent && e.key) {
+      // Native cross-tab event — pull the latest from cloud.
+      _debouncedPull();
+    } else {
+      // Synthetic same-tab event — push our change up.
+      _debouncedPush();
+    }
+  });
   window.addEventListener('kjb-fonts-changed', _debouncedPush);
   // Safety-net: periodically check if local settings have drifted from the
   // last pushed snapshot. With the localStorage patch this is mostly redundant,
   // but kept as a backup. The snapshot comparison makes it a no-op when idle.
   if (_periodicTimer) clearInterval(_periodicTimer);
-  _periodicTimer = setInterval(_debouncedPush, 15_000);
+  _periodicTimer = setInterval(_debouncedPush, 5_000);
 }
 
 function _stopPushListener() {
   window.removeEventListener('storage', _debouncedPush);
   window.removeEventListener('kjb-fonts-changed', _debouncedPush);
   if (_periodicTimer) { clearInterval(_periodicTimer); _periodicTimer = null; }
+  if (_pullTimer) { clearTimeout(_pullTimer); _pullTimer = null; }
 }
 
 function _debouncedPush() {
+  if (_applyingCloud) return;
   if (_pushTimer) clearTimeout(_pushTimer);
-  _pushTimer = setTimeout(_pushToCloud, 2000);
+  _pushTimer = setTimeout(_pushToCloud, 800);
+}
+
+function _debouncedPull() {
+  if (_pullTimer) clearTimeout(_pullTimer);
+  _pullTimer = setTimeout(syncSettingsFromCloud, 300);
 }
 
 async function _pushToCloud() {
@@ -214,8 +252,10 @@ async function _pushToCloud() {
 export function resetSettingsSync() {
   _pushListenerStarted = false;
   _lastPushedSnapshot = null;
+  _applyingCloud = false;
   _stopPushListener();
   if (_pushTimer) { clearTimeout(_pushTimer); _pushTimer = null; }
+  if (_pullTimer) { clearTimeout(_pullTimer); _pullTimer = null; }
 }
 
 /**
