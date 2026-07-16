@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { applyDailyAccent } from '@/lib/dailyVerseTheme';
+import { getAccessibilityFont, applyAccessibilityFont, applyReaderFont } from '@/lib/accessibilityFont';
 
 // theme modes: 'light' | 'dark' | 'system' | 'auto'
 // colour palettes: 'gold' | 'sapphire' | 'forest' | 'rose' | 'amethyst' | 'slate'
@@ -282,7 +283,16 @@ export function ThemeProvider({ children }) {
     return () => window.removeEventListener('dyslexic-font-change', handleFontChange);
   }, []);
 
-  // Re-read theme settings from localStorage when cloud sync applies new values
+  // Apply app-wide accessibility font + reader font on mount (so the landing
+  // page and other public routes outside AppLayout also get the synced font).
+  useEffect(() => {
+    applyAccessibilityFont(getAccessibilityFont());
+    try {
+      applyReaderFont(localStorage.getItem('kjb-reader-font-family') || 'serif');
+    } catch {}
+  }, []);
+
+  // Re-read theme + font settings from localStorage when cloud sync applies new values
   useEffect(() => {
     const onSettingsSynced = () => {
       try {
@@ -292,6 +302,9 @@ export function ThemeProvider({ children }) {
         setMode(newMode);
         setColourIdState(newColourId);
         setColorModeState(newColorMode);
+        // Re-apply accessibility + reader fonts from the freshly synced settings
+        applyAccessibilityFont(getAccessibilityFont());
+        applyReaderFont(localStorage.getItem('kjb-reader-font-family') || 'serif');
       } catch {}
     };
     window.addEventListener('kjb-settings-synced', onSettingsSynced);

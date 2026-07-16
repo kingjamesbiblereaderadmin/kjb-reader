@@ -19,6 +19,7 @@ const SYNC_KEYS = [
   'kjb-notifications-enabled',
   'kjb-notif-time',
   'kjb-theme-1611',
+  'kjb-position',
 ];
 
 let _synced = false;
