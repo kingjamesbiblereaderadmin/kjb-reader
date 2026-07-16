@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { detectIncognito } from '@/lib/incognito';
 
 const QUICK_LINKS = [
-  { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', iconGradient: 'from-indigo-500 to-violet-600' },
+  { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', iconGradient: 'from-indigo-500 to-violet-600', fullSpan: true },
   { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', iconGradient: 'from-blue-500 to-indigo-600' },
   { path: null, icon: Shuffle, label: '__RANDOM__', desc: 'Jump to a random chapter', iconGradient: 'from-violet-500 to-purple-600' },
   { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', iconGradient: 'from-fuchsia-500 to-pink-600' },
@@ -464,7 +464,7 @@ export default function HomePage() {
               label={link.label}
               desc={link.desc}
               iconGradient={link.iconGradient}
-              className={i === QUICK_LINKS.length - 1 ? 'sm:col-span-2' : ''}
+              className={link.fullSpan ? 'sm:col-span-2' : ''}
             />
           )
         )}
