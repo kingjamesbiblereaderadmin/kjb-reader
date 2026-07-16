@@ -58,8 +58,8 @@ export default function LandingPage() {
             <Heart className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">How to Be Saved</p>
-            <p className="font-sans text-xs text-muted-foreground">The Gospel of Jesus Christ</p>
+            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Are you saved?</p>
+            <p className="font-sans text-xs text-muted-foreground">Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
           </div>
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
         </Link>
