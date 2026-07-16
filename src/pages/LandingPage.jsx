@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn, Heart } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
-import GospelContent from '@/components/GospelContent';
 
 const LAST_UPDATED = 'July 16th, 2026';
 
@@ -50,10 +49,20 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Gospel — full content inline */}
-        <div className="bg-card/40 backdrop-blur-sm border border-border/60 rounded-2xl p-5 sm:p-8 mb-5 shadow-lg shadow-black/[0.03]">
-          <GospelContent collapsible />
-        </div>
+        {/* Gospel — summary pill linking to dedicated page */}
+        <Link
+          to="/salvation"
+          className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
+        >
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-rose-500 to-pink-600">
+            <Heart className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">How to Be Saved</p>
+            <p className="font-sans text-xs text-muted-foreground">The Gospel of Jesus Christ</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-muted-foreground" />
+        </Link>
 
         {/* Step-by-step setup wizard */}
         <div className="mb-5">

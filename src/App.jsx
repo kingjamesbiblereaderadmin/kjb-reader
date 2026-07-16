@@ -37,6 +37,7 @@ const loaders = {
   Login: () => import('@/pages/Login').catch((err) => { console.error('Failed to load Login:', err); throw err; }),
   Landing: () => import('@/pages/LandingPage').catch((err) => { console.error('Failed to load LandingPage:', err); throw err; }),
   Terms: () => import('@/pages/TermsOfServicePage').catch((err) => { console.error('Failed to load TermsOfServicePage:', err); throw err; }),
+  Salvation: () => import('@/pages/SalvationPage').catch((err) => { console.error('Failed to load SalvationPage:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -60,6 +61,7 @@ const DevToolsPage = lazy(loaders.DevTools);
 const Login = lazy(loaders.Login);
 const LandingPage = lazy(loaders.Landing);
 const TermsOfServicePage = lazy(loaders.Terms);
+const SalvationPage = lazy(loaders.Salvation);
 
 
 const getLoaderForPath = (pathname) => {
@@ -255,6 +257,7 @@ const AuthenticatedApp = () => {
             <Route path="/login" element={<Suspense fallback={<RouteLoader />}><Login /></Suspense>} />
             <Route path="/landing" element={<Suspense fallback={<RouteLoader />}><LandingPage /></Suspense>} />
             <Route path="/terms" element={<Suspense fallback={<RouteLoader />}><TermsOfServicePage /></Suspense>} />
+            <Route path="/salvation" element={<Suspense fallback={<RouteLoader />}><SalvationPage /></Suspense>} />
             <Route element={<AppLayout />}>
               <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
               <Route path="/read" element={<Suspense fallback={<RouteLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />
