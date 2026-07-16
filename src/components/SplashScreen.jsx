@@ -266,6 +266,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         // 8. Sync cloud settings (skipped for guests — nothing to sync)
         if (await isSignedIn()) {
           await runStep('SYNCING YOUR DATA...', doSync);
+          setStep('DATA SYNCED.');
+          await pause(STEP_PAUSE_MS);
         }
 
         // 9. Welcome
@@ -331,6 +333,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         // 7. Sync cloud settings (skipped for guests — nothing to sync)
         if (await isSignedIn()) {
           await runStep('SYNCING YOUR DATA...', doSync);
+          setStep('DATA SYNCED.');
+          await pause(STEP_PAUSE_MS);
         }
 
         // 8. Welcome back
@@ -439,6 +443,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         // 5. Sync cloud settings (skipped for guests — nothing to sync)
         if (await isSignedIn()) {
           await runStep('SYNCING YOUR DATA...', doSync);
+          setStep('DATA SYNCED.');
+          await pause(STEP_PAUSE_MS);
         }
 
         // 6. Welcome back
