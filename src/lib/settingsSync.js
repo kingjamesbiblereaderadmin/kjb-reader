@@ -70,6 +70,7 @@ export async function syncSettingsFromCloud() {
       if (Object.keys(localSettings).length > 0) {
         await base44.entities.UserSetting.create({ settings: localSettings });
       }
+      try { localStorage.setItem('kjb-last-sync-time', new Date().toISOString()); } catch {}
     } else {
       const cloudSettings = existing[0].settings || {};
       const recordId = existing[0].id;
@@ -107,8 +108,12 @@ export async function syncSettingsFromCloud() {
       if (changed) {
         window.dispatchEvent(new Event('storage'));
         window.dispatchEvent(new Event('kjb-fonts-changed'));
-        window.dispatchEvent(new Event('kjb-settings-synced'));
       }
+      // Always stamp a local sync-completion time so the Account page can show
+      // when the sync actually ran — even when there were no changes to push
+      // (the cloud record's updated_date only moves when a write happens).
+      try { localStorage.setItem('kjb-last-sync-time', new Date().toISOString()); } catch {}
+      window.dispatchEvent(new Event('kjb-settings-synced'));
     }
 
     if (!_pushListenerStarted) {

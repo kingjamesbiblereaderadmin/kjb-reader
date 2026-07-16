@@ -9,16 +9,40 @@ export default function SyncStatus() {
 
   useEffect(() => {
     const fetchSyncTime = async () => {
-      try {
-        const existing = await base44.entities.UserSetting.list('-updated_date', 1);
-        if (existing.length > 0) {
-          setLastSynced(existing[0].updated_date || existing[0].created_date);
+      // Prefer the local sync-completion stamp — it's set every time the sync
+      // actually runs, even when there were no changes to push to the cloud.
+      // The cloud record's updated_date only moves on a write, so it can lag
+      // behind (showing "8h ago" right after a successful no-change sync).
+      const localStamp = localStorage.getItem('kjb-last-sync-time');
+      if (localStamp) {
+        setLastSynced(localStamp);
+      } else {
+        try {
+          const existing = await base44.entities.UserSetting.list('-updated_date', 1);
+          if (existing.length > 0) {
+            setLastSynced(existing[0].updated_date || existing[0].created_date);
+          }
+        } catch {
+          setError('Could not check sync status.');
         }
-      } catch {
-        setError('Could not check sync status.');
       }
     };
     fetchSyncTime();
+
+    // Refresh when a sync completes (fired by settingsSync.js) or when the
+    // tab regains focus so the timestamp stays current without a manual pull.
+    const onSynced = () => {
+      const stamp = localStorage.getItem('kjb-last-sync-time');
+      if (stamp) setLastSynced(stamp);
+    };
+    window.addEventListener('kjb-settings-synced', onSynced);
+    window.addEventListener('focus', onSynced);
+    window.addEventListener('storage', onSynced);
+    return () => {
+      window.removeEventListener('kjb-settings-synced', onSynced);
+      window.removeEventListener('focus', onSynced);
+      window.removeEventListener('storage', onSynced);
+    };
   }, []);
 
   const handleSyncNow = async () => {
@@ -27,10 +51,8 @@ export default function SyncStatus() {
     try {
       const { syncSettingsFromCloud } = await import('@/lib/settingsSync');
       await syncSettingsFromCloud();
-      const existing = await base44.entities.UserSetting.list('-updated_date', 1);
-      if (existing.length > 0) {
-        setLastSynced(existing[0].updated_date || existing[0].created_date);
-      }
+      const stamp = localStorage.getItem('kjb-last-sync-time');
+      if (stamp) setLastSynced(stamp);
     } catch (err) {
       setError('Sync failed. Please try again.');
     } finally {
