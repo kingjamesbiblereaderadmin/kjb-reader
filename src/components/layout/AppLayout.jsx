@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Wifi, WifiOff } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -348,6 +348,9 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
+            <div className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 flex items-center justify-center" title={isOnline ? 'Online' : 'Offline'}>
+              {isOnline ? <Wifi className="w-4 h-4 text-emerald-500" /> : <WifiOff className="w-4 h-4 text-muted-foreground" />}
+            </div>
             <button className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"

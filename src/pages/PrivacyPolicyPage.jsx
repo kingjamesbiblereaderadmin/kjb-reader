@@ -58,23 +58,17 @@ export default function PrivacyPolicyPage() {
         <Section title="Overview">
         <p>
           KJB Reader is a free, public-domain King James Bible reading app. Your privacy
-          matters to us. The App works entirely on your own device by default — no account is
-          required. If you choose to sign in for cross-device syncing, a limited set of your data
-          is also stored securely in the cloud so it appears on your other devices. We do not sell
-          or share your personal information with third parties.
+          matters to us. The App works entirely on your own device — no account is
+          required, and no personal information is collected. All your data stays only on
+          your device. We do not sell or share your personal information with third parties.
         </p>
       </Section>
 
       <Section title="Information We Collect">
-        <p>If you choose to create an account and sign in, we collect:</p>
-        <ul className="space-y-2 list-disc pl-5">
-          <li>Your email address (used for authentication and account management).</li>
-          <li>Your saved verses, reading progress, and app settings (synced to the cloud so they appear on your other devices).</li>
-        </ul>
         <p>
-          If you use the App without signing in, no personal information is collected. Your data
-          stays only on your device. We do not collect your name, location, contacts, device files,
-          or any tracking identifiers.
+          We do not collect any personal information. No account is needed to use the App,
+          and we do not ask for your name, email address, location, contacts, device files,
+          or any tracking identifiers. The App is fully functional without signing in.
         </p>
       </Section>
 
@@ -90,40 +84,17 @@ export default function PrivacyPolicyPage() {
           <li>Notification preferences for the daily verse reminder.</li>
         </ul>
         <p>
-          If you are signed in, this same data is also synced to your cloud account so it is
-          available on other devices. You can clear local data at any time using the "Reset All
-          Settings" or "Clear Cache" options in Settings, or by clearing your browser data.
-          Clearing local data does not delete data already synced to the cloud.
+          All of this data stays only on your device. You can clear it at any time using the
+          "Reset All Settings" or "Clear Cache" options in Settings, or by clearing your
+          browser data.
         </p>
       </Section>
 
-      <Section title="Cloud Sync & Data Storage">
+      <Section title="No Cloud Sync">
         <p>
-          When you sign in, your saved verses, reading progress, app settings, and reading
-          indicators (such as daily verse or search context) are synced to our secure cloud backend
-          (hosted by Base44). This data is associated with your account and is only accessible by
-          you. It is used solely to provide the cross-device sync feature — it is not analysed, sold,
-          or shared with third parties.
-        </p>
-        <p>
-          Your data is transmitted over encrypted (HTTPS) connections. You can request deletion of
-          your synced data at any time by contacting us. Account authentication is handled by our
-          platform provider; we do not store your password in plain text.
-        </p>
-      </Section>
-
-      <Section title="Account Visibility">
-        <p>
-          When you create an account, your email address and account role (user or admin) are
-          visible to the app administrator via the platform's management dashboard. This is a
-          standard function of the Base44 platform used solely for account administration (such as
-          managing user roles or sending invitations). Regular users cannot see other users' email
-          addresses or account information — each user can only view and manage their own profile.
-        </p>
-        <p>
-          No other personal information (such as your name, location, or device details) is shared
-          with the administrator. You can request deletion of your account at any time from the
-          Account page or by contacting us.
+          The App does not sync any data to the cloud. There are no accounts, no sign-in, and
+          no cloud storage. Everything you do in the App — your saved verses, reading
+          progress, settings, and preferences — exists only on the device you are using.
         </p>
       </Section>
 

@@ -94,24 +94,12 @@ export default function TermsOfServicePage() {
           </ul>
         </Section>
 
-        <Section title="Accounts & Cloud Sync">
+        <Section title="No Accounts Required">
           <p>
-            The App offers optional account features. If you choose to sign in (via email/password or
-            a third-party provider such as Google, Facebook, or Apple), your saved verses, reading
-            progress, and app settings can be synced across your devices through our secure cloud
-            backend. This means your data is stored both on your device (for offline access) and on
-            our servers (so it appears on other devices where you sign in).
-          </p>
-          <p>
-            If you create an account, you are responsible for maintaining the confidentiality of your
-            credentials and for all activities that occur under your account. The core reading
-            functionality does not require an account — you can use the App fully without signing in,
-            in which case your data stays only on your device.
-          </p>
-          <p>
-            You can delete your synced data at any time by removing saved verses within the App or by
-            contacting us. Deleting your local data (via "Clear Cache") does not delete data already
-            synced to the cloud.
+            The App does not require an account. There is no sign-in, no cloud sync, and no
+            remote data storage. All your data — saved verses, reading progress, and settings —
+            exists only on the device you are using. You are responsible for managing your own
+            data on your device.
           </p>
         </Section>
 
