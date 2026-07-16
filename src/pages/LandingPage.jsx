@@ -33,22 +33,22 @@ export default function LandingPage() {
             (Pure Cambridge Edition). Enjoy daily verses, offline reading, search, bookmarks,
             and customizable typography — all with privacy at the forefront.
           </p>
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            {isLoadingAuth ? (
-              <div className="px-6 py-3 rounded-xl bg-secondary text-muted-foreground font-sans text-sm font-medium">
-                Loading…
-              </div>
-            ) : isAuthenticated ? (
-              <Link
-                to="/"
-                onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <ArrowRight className="w-4 h-4" />
-                Enter App
-              </Link>
-            ) : (
-              <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-3">
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              {isLoadingAuth ? (
+                <div className="px-6 py-3 rounded-xl bg-secondary text-muted-foreground font-sans text-sm font-medium">
+                  Loading…
+                </div>
+              ) : isAuthenticated ? (
+                <Link
+                  to="/"
+                  onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  Enter App
+                </Link>
+              ) : (
                 <Link
                   to="/login"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
@@ -56,19 +56,21 @@ export default function LandingPage() {
                   <LogIn className="w-4 h-4" />
                   Sign In to Sync
                 </Link>
-                <p className="font-sans text-[11px] text-muted-foreground max-w-xs text-center leading-relaxed">
-                  Sign in to sync your saved verses, reading progress, and settings across all your devices. You can also use the app without an account.
-                </p>
-              </div>
+              )}
+              <Link
+                to="/"
+                onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Open KJB Reader
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            {!isLoadingAuth && !isAuthenticated && (
+              <p className="font-sans text-[11px] text-muted-foreground max-w-sm text-center leading-relaxed">
+                Sign in to sync your saved verses, reading progress, and settings across all your devices. You can also use the app without an account.
+              </p>
             )}
-            <Link
-              to="/"
-              onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Open KJB Reader
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </div>
 

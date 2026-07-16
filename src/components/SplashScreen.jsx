@@ -25,6 +25,17 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
 
+  // Sync cloud settings for signed-in users. Shown as a splash step so the user
+  // sees their data being restored. No-op for guests (isAuthed returns false).
+  const syncCloudSettings = async () => {
+    try {
+      const { syncSettingsFromCloud } = await import('@/lib/settingsSync');
+      await syncSettingsFromCloud();
+    } catch (err) {
+      console.warn('[Splash] Settings sync failed:', err?.message);
+    }
+  };
+
   // Run a real async task while showing `label`. The banner stays visible for at
   // least MIN_VISIBLE_MS so it's readable, but it never advances before the real
   // work actually finishes — so every banner reflects real-time progress.
@@ -243,7 +254,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           });
         }
 
-        // 8. Welcome
+        // 8. Sync cloud settings (for signed-in users)
+        await runStep('SYNCING YOUR DATA...', syncCloudSettings);
+
+        // 9. Welcome
         if (detectedIncognito) {
           setStep('WELCOME TO KJB READER (GUEST MODE)');
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME TO KJB READER (GUEST MODE)', status: 'success' } }));
@@ -303,7 +317,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // 7. Welcome back
+        // 7. Sync cloud settings (for signed-in users)
+        await runStep('SYNCING YOUR DATA...', syncCloudSettings);
+
+        // 8. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
         window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME BACK TO KJB READER.', status: 'success' } }));
         await pause(STEP_PAUSE_MS);
@@ -406,7 +423,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // 5. Welcome back
+        // 5. Sync cloud settings (for signed-in users)
+        await runStep('SYNCING YOUR DATA...', syncCloudSettings);
+
+        // 6. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
         window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME BACK TO KJB READER.', status: 'success' } }));
         await pause(STEP_PAUSE_MS);
