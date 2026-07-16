@@ -52,7 +52,7 @@ export default function LandingPage() {
 
         {/* Gospel — full content inline */}
         <div className="bg-card/40 backdrop-blur-sm border border-border/60 rounded-2xl p-5 sm:p-8 mb-5 shadow-lg shadow-black/[0.03]">
-          <GospelContent />
+          <GospelContent collapsible />
         </div>
 
         {/* Step-by-step setup wizard */}

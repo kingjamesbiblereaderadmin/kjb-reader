@@ -318,11 +318,55 @@ const VERSE_TEXTS = {
   'Rom3:25': '"Whom God hath set forth to be a propitiation through faith in his blood, to declare his righteousness for the remission of sins that are past, through the forbearance of God;" — Romans 3:25',
 };
 
-export default function GospelContent() {
+function StepCard({ number, icon, iconBg, title, copyText, children, defaultOpen = false, collapsible = false }) {
+  const [open, setOpen] = useState(defaultOpen || !collapsible);
+  const headerClass = collapsible
+    ? "flex items-center gap-4 w-full text-left cursor-pointer"
+    : "flex items-start justify-between gap-4 mb-2";
+
+  return (
+    <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
+      <div className={headerClass} onClick={collapsible ? () => setOpen(!open) : undefined}>
+        <div className="flex-shrink-0 w-10 h-10 rounded-2xl shadow-md flex items-center justify-center" style={{ backgroundImage: iconBg }}>
+          {icon}
+        </div>
+        <h3 className="font-serif text-xl font-semibold text-foreground flex-1">{number ? `${number}. ` : ''}{title}</h3>
+        {collapsible ? (
+          <ChevronDown className={"w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-200 " + (open ? "rotate-180" : "")} />
+        ) : (
+          <CopyButton text={copyText} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
+        )}
+      </div>
+      {open && (
+        <div className={collapsible ? "mt-3 pl-0 sm:pl-14" : ""}>
+          {collapsible && copyText && (
+            <div className="flex justify-end mb-2">
+              <CopyButton text={copyText} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors cursor-pointer" />
+            </div>
+          )}
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const NOT_SAVED_ITEMS = [
+  'Repenting of sins',
+  'Making Jesus Lord',
+  'Being a member of a church',
+  'Tithing',
+  'Being baptised (water)',
+  'Saying a sinner\'s prayer',
+  'Confessing with your mouth',
+  'Lordship Salvation',
+];
+
+export default function GospelContent({ collapsible = false }) {
   return (
     <>
       {/* Header */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 shadow-lg shadow-red-500/30 mb-4">
           <Heart className="w-7 h-7 text-white" />
         </div>
@@ -340,71 +384,67 @@ export default function GospelContent() {
       </div>
 
       {/* Gospel Steps */}
-      <div className="space-y-6 mb-10">
-        {/* Step 1 */}
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 flex gap-4 shadow-lg shadow-black/[0.03]">
-          <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 shadow-md shadow-red-500/30 flex items-center justify-center">
-            <AlertCircle className="w-5 h-5 text-white" />
+      {collapsible && (
+        <p className="font-sans text-xs text-muted-foreground text-center mb-4">
+          Tap each step to read the verses
+        </p>
+      )}
+      <div className="space-y-4 mb-8">
+        <StepCard
+          number={1}
+          collapsible={collapsible}
+          icon={<AlertCircle className="w-5 h-5 text-white" />}
+          iconBg="linear-gradient(to bottom right, #f43f5e, #dc2626)"
+          title="Believe you are a sinner that deserves hell"
+          copyText={`1. Believe you are a sinner that deserves hell\n\n${VERSE_TEXTS['Rom3:20']}\n\n${VERSE_TEXTS['Psa9:17']}`}
+        >
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+            {VERSE_TEXTS['Rom3:20']}
+          </blockquote>
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+            {VERSE_TEXTS['Psa9:17']}
+          </blockquote>
+          <div className="flex flex-wrap gap-2">
+            <VerseLink book="Romans" chapter={3} verse={20}>Romans 3:20</VerseLink>
+            <VerseLink book="Psalms" chapter={9} verse={17}>Psalm 9:17</VerseLink>
           </div>
-          <div className="flex-1">
-            <div className="flex items-start justify-between gap-4 mb-2">
-              <h3 className="font-serif text-xl font-semibold text-foreground">Believe you are a sinner that deserves hell</h3>
-              <CopyButton text={`1. Believe you are a sinner that deserves hell\n\n${VERSE_TEXTS['Rom3:20']}\n\n${VERSE_TEXTS['Psa9:17']}`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
-            </div>
-            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
-              {VERSE_TEXTS['Rom3:20']}
-            </blockquote>
-            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
-              {VERSE_TEXTS['Psa9:17']}
-            </blockquote>
-            <div className="flex flex-wrap gap-2">
-              <VerseLink book="Romans" chapter={3} verse={20}>Romans 3:20</VerseLink>
-              <VerseLink book="Psalms" chapter={9} verse={17}>Psalm 9:17</VerseLink>
-            </div>
-          </div>
-        </div>
+        </StepCard>
 
-        {/* Step 2 */}
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 flex gap-4 shadow-lg shadow-black/[0.03]">
-          <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md shadow-blue-500/30 flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-white" />
+        <StepCard
+          number={2}
+          collapsible={collapsible}
+          icon={<CheckCircle className="w-5 h-5 text-white" />}
+          iconBg="linear-gradient(to bottom right, #3b82f6, #4f46e5)"
+          title="Believe that Jesus is God manifested in the flesh"
+          copyText={`2. Believe that Jesus is God manifested in the flesh\n\n${VERSE_TEXTS['1Tim3:16']}`}
+        >
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+            {VERSE_TEXTS['1Tim3:16']}
+          </blockquote>
+          <div className="flex flex-wrap gap-2">
+            <VerseLink book="1 Timothy" chapter={3} verse={16}>1 Timothy 3:16</VerseLink>
           </div>
-          <div className="flex-1">
-            <div className="flex items-start justify-between gap-4 mb-2">
-              <h3 className="font-serif text-xl font-semibold text-foreground">Believe that Jesus is God manifested in the flesh</h3>
-              <CopyButton text={`2. Believe that Jesus is God manifested in the flesh\n\n${VERSE_TEXTS['1Tim3:16']}`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
-            </div>
-            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
-              {VERSE_TEXTS['1Tim3:16']}
-            </blockquote>
-            <div className="flex flex-wrap gap-2">
-              <VerseLink book="1 Timothy" chapter={3} verse={16}>1 Timothy 3:16</VerseLink>
-            </div>
-          </div>
-        </div>
+        </StepCard>
 
-        {/* Step 3 */}
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 flex gap-4 shadow-lg shadow-black/[0.03]">
-          <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 shadow-md shadow-yellow-500/30 flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-white" />
+        <StepCard
+          number={3}
+          collapsible={collapsible}
+          icon={<CheckCircle className="w-5 h-5 text-white" />}
+          iconBg="linear-gradient(to bottom right, #fbbf24, #eab308)"
+          title="Believe he died, shed his blood, was buried and rose again for our sins according to the scriptures"
+          copyText={`3. Believe he died, shed his blood, was buried and rose again for our sins according to the scriptures\n\n"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4\n\n${VERSE_TEXTS['Rom3:25']}`}
+        >
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+            "Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4
+          </blockquote>
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+            {VERSE_TEXTS['Rom3:25']}
+          </blockquote>
+          <div className="flex flex-wrap gap-2">
+            <VerseLink book="1 Corinthians" chapter={15} verse={1} verseEnd={4}>1 Corinthians 15:1–4</VerseLink>
+            <VerseLink book="Romans" chapter={3} verse={25}>Romans 3:25</VerseLink>
           </div>
-          <div className="flex-1">
-            <div className="flex items-start justify-between gap-4 mb-2">
-              <h3 className="font-serif text-xl font-semibold text-foreground">Believe he died, shed his blood, was buried and rose again for our sins according to the scriptures</h3>
-              <CopyButton text={`3. Believe he died, shed his blood, was buried and rose again for our sins according to the scriptures\n\n"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4\n\n${VERSE_TEXTS['Rom3:25']}`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
-            </div>
-            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
-              "Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4
-            </blockquote>
-            <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
-              {VERSE_TEXTS['Rom3:25']}
-            </blockquote>
-            <div className="flex flex-wrap gap-2">
-              <VerseLink book="1 Corinthians" chapter={15} verse={1} verseEnd={4}>1 Corinthians 15:1–4</VerseLink>
-              <VerseLink book="Romans" chapter={3} verse={25}>Romans 3:25</VerseLink>
-            </div>
-          </div>
-        </div>
+        </StepCard>
 
         {/* What DOESN'T save */}
         <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-xl p-6 flex gap-4">
@@ -414,19 +454,10 @@ export default function GospelContent() {
           <div className="flex-1">
             <div className="flex items-start justify-between gap-4 mb-2">
               <h3 className="font-serif text-xl font-semibold text-red-700 dark:text-red-400">These do NOT make you a Christian:</h3>
-              <CopyButton text={`These do NOT make you a Christian:\n• Repenting of sins\n• Making Jesus Lord\n• Being a member of a church\n• Tithing\n• Being baptised (water)\n• Saying a sinner's prayer\n• Confessing with your mouth\n• Lordship Salvation`} className="p-1.5 rounded-md hover:bg-red-500/10 text-red-500 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer" />
+              <CopyButton text={`These do NOT make you a Christian:\n${NOT_SAVED_ITEMS.map(i => '• ' + i).join('\n')}`} className="p-1.5 rounded-md hover:bg-red-500/10 text-red-500 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer" />
             </div>
             <ul className="space-y-1 font-sans text-sm text-foreground/80">
-              {[
-                'Repenting of sins',
-                'Making Jesus Lord',
-                'Being a member of a church',
-                'Tithing',
-                'Being baptised (water)',
-                'Saying a sinner\'s prayer',
-                'Confessing with your mouth',
-                'Lordship Salvation',
-              ].map((item) => (
+              {NOT_SAVED_ITEMS.map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
                   {item}
@@ -438,7 +469,7 @@ export default function GospelContent() {
       </div>
 
       {/* OSAS */}
-      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 mb-10 shadow-lg shadow-black/[0.03]">
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 mb-8 shadow-lg shadow-black/[0.03]">
         <div className="flex items-start justify-between gap-4 mb-2">
           <h3 className="font-serif text-xl font-semibold text-foreground">Once Saved, Always Saved</h3>
           <CopyButton text={`Once Saved, Always Saved\n\nA believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God's gift of eternal life is just that — eternal.\n\n"In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — Ephesians 1:13`} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0 cursor-pointer" />
