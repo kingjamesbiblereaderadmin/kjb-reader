@@ -56,7 +56,10 @@ export default function Login() {
       subtitle="Log in to your account"
       headerExtra={
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            if (window.history.length > 1) navigate(-1);
+            else navigate('/landing');
+          }}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
         >
           <ArrowLeft className="w-4 h-4" />
