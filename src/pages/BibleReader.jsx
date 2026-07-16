@@ -1087,7 +1087,31 @@ export default function BibleReader() {
   useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults, setGospelMode, setGospelResultIndex, setGospelTotalResults);
 
   const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
-  
+
+  // When cloud sync delivers a new reading position from another device,
+  // reload the chapter so Device B picks up where Device A left off.
+  // Skipped if the URL has explicit book/chapter params or the user has
+  // manually navigated since mount.
+  useEffect(() => {
+    const handler = () => {
+      if (freshNavRef.current) return;
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('book') && params.get('chapter')) return;
+      try {
+        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        if (!p || !p.abbr || !p.chapter) return;
+        if (!resolveBook(p.abbr)) return;
+        const cur = posRef.current;
+        if (p.abbr === cur.abbr && p.chapter === cur.chapter) return;
+        setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });
+        setHighlightVerse(p.verse || null);
+        loadChapter(p.abbr, p.chapter, p.verse || null);
+      } catch {}
+    };
+    window.addEventListener('kjb-settings-synced', handler);
+    return () => window.removeEventListener('kjb-settings-synced', handler);
+  }, [loadChapter]);
+
   const returnToChapter = (abbr, chapter, exactY) => {
     if (!abbr || !chapter) return;
     setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set());
