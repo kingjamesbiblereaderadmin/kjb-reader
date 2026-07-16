@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn, Heart } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
+import GospelContent from '@/components/GospelContent';
 
 const LAST_UPDATED = 'July 16th, 2026';
 
@@ -49,26 +50,9 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Gospel */}
-        <div className="bg-gradient-to-br from-rose-500/10 to-red-600/10 border border-rose-200/60 dark:border-rose-900/30 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03]">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 shadow-md shadow-red-500/30 flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
-            </div>
-            <h2 className="font-serif text-xl font-semibold text-foreground">How to be Saved</h2>
-          </div>
-          <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
-            The Gospel is the glad tidings of the Lord Jesus Christ. Trust he is God, died, shed his blood,
-            was buried, and rose again on the third day for our sins according to the scriptures.
-          </p>
-          <Link
-            to="/gospel"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white font-sans text-sm font-medium hover:scale-[1.02] active:scale-[0.98] transition-all"
-          >
-            <Heart className="w-4 h-4" />
-            Read the Full Gospel
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+        {/* Gospel — full content inline */}
+        <div className="bg-card/40 backdrop-blur-sm border border-border/60 rounded-2xl p-5 sm:p-8 mb-5 shadow-lg shadow-black/[0.03]">
+          <GospelContent />
         </div>
 
         {/* Step-by-step setup wizard */}
