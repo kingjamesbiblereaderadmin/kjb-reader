@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn, Heart } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
 import { useAuth } from '@/lib/AuthContext';
@@ -7,12 +7,7 @@ import { useAuth } from '@/lib/AuthContext';
 const LAST_UPDATED = 'July 16th, 2026';
 
 export default function LandingPage() {
-  const { isAuthenticated, isLoadingAuth } = useAuth();
-
-  // If already signed in (e.g. redirected back from OAuth), go straight to the app.
-  if (!isLoadingAuth && isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
@@ -39,13 +34,24 @@ export default function LandingPage() {
             and customizable typography — all with privacy at the forefront.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <LogIn className="w-4 h-4" />
-              Sign In
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                to="/"
+                onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <ArrowRight className="w-4 h-4" />
+                Enter App
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <LogIn className="w-4 h-4" />
+                Sign In
+              </Link>
+            )}
             <Link
               to="/"
               onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
