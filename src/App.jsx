@@ -33,6 +33,7 @@ const loaders = {
   LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
   BibleTxt: () => import('@/pages/BibleTxt.jsx').catch((err) => { console.error('Failed to load BibleTxt:', err); throw err; }),
   DevTools: () => import('@/pages/DevToolsPage.jsx').catch((err) => { console.error('Failed to load DevToolsPage:', err); throw err; }),
+  Account: () => import('@/pages/AccountPage.jsx').catch((err) => { console.error('Failed to load AccountPage:', err); throw err; }),
   Login: () => import('@/pages/Login').catch((err) => { console.error('Failed to load Login:', err); throw err; }),
   Landing: () => import('@/pages/LandingPage').catch((err) => { console.error('Failed to load LandingPage:', err); throw err; }),
   Terms: () => import('@/pages/TermsOfServicePage').catch((err) => { console.error('Failed to load TermsOfServicePage:', err); throw err; }),
@@ -56,6 +57,7 @@ const PrivacyPolicyPage = lazy(loaders.Privacy);
 const LegacyReader = lazy(loaders.LegacyReader);
 const BibleTxt = lazy(loaders.BibleTxt);
 const DevToolsPage = lazy(loaders.DevTools);
+const AccountPage = lazy(loaders.Account);
 const Login = lazy(loaders.Login);
 const LandingPage = lazy(loaders.Landing);
 const TermsOfServicePage = lazy(loaders.Terms);
@@ -273,6 +275,7 @@ const AuthenticatedApp = () => {
               <Route path="/manifest-screenshots" element={<Suspense fallback={<RouteLoader />}><FadeIn><ManifestScreenshots /></FadeIn></Suspense>} />
               <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
               <Route path="/dev-tools" element={<Suspense fallback={<RouteLoader />}><FadeIn><DevToolsPage /></FadeIn></Suspense>} />
+              <Route path="/account" element={<Suspense fallback={<RouteLoader />}><FadeIn><AccountPage /></FadeIn></Suspense>} />
             </Route>
             <Route path="/bible.txt" element={<Suspense fallback={null}><BibleTxt /></Suspense>} />
             <Route path="*" element={<PageNotFound />} />

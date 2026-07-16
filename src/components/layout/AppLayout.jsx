@@ -354,7 +354,7 @@ export default function AppLayout() {
               className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation text-muted-foreground"
               onClick={(e) => { 
                 e.stopPropagation();
-                navigate(isAuthenticated ? '/settings' : '/login');
+                navigate(isAuthenticated ? '/account' : '/login');
               }}
               title={isAuthenticated ? 'Account' : 'Sign in'}
               type="button"

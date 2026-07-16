@@ -534,8 +534,11 @@ export default function LandingSetupWizard() {
         {/* Step 5: Notifications */}
         {step === 5 && (
           <div className="text-center">
-            <h3 className="font-serif text-lg font-bold text-foreground mb-1">Daily Notifications</h3>
-            <p className="font-sans text-xs text-muted-foreground mb-4">Get the verse of the day every morning</p>
+            <h3 className="font-serif text-lg font-bold text-foreground mb-1">Daily Verse Notifications</h3>
+            <p className="font-sans text-xs text-muted-foreground mb-2">See the verse of the day when you open the app on a new day</p>
+            <p className="font-sans text-[11px] text-muted-foreground/80 mb-4 max-w-xs mx-auto leading-relaxed">
+              When you open KJB Reader for the first time each day, today's verse appears as a notification. You can also set a daily reminder time in Settings.
+            </p>
             {!isIncognito ? (
               notifDone ? (
                 <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900/40 p-3 inline-flex items-center gap-2">

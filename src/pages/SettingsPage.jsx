@@ -56,7 +56,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'July 13th, 2026';
-const WORKER_VERSION = 'v20260716_1951';
+const WORKER_VERSION = 'v20260716_1955';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -1650,84 +1650,23 @@ localStorage.removeItem('kjb-daily-verse-cache-v17');
         )}
       </div>
 
-      {/* Account — only for authenticated users */}
+      {/* Account link — points to dedicated Account page */}
       {isAuthenticated && (
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
-          <button
-            onClick={() => toggleSection('account')}
-            className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
-          >
-            <div className="flex flex-col gap-1">
-              <h2 className="font-serif text-lg font-semibold text-foreground">Account</h2>
-              <p className="font-sans text-xs text-muted-foreground">Manage your account and data</p>
+        <Link
+          to="/account"
+          className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03] flex items-center justify-between px-5 py-4 hover:border-accent/40 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-primary to-accent">
+              <UserCircle className="w-5 h-5" />
             </div>
-            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.account ? 'rotate-180' : ''}`} />
-          </button>
-          {expandedSections.account && (
-            <div className="px-5 pb-6 pt-2 space-y-4">
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-secondary/50 border border-border">
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-primary to-accent">
-                  <UserCircle className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-sans font-medium text-sm text-foreground truncate">{user?.email || 'Signed in'}</p>
-                  <p className="font-sans text-xs text-muted-foreground capitalize">{user?.role || 'user'}</p>
-                </div>
-              </div>
-              <div className="rounded-xl border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/5 p-4 space-y-3">
-                <div>
-                  <p className="font-sans text-sm font-semibold text-red-700 dark:text-red-400">Delete Account</p>
-                  <p className="font-sans text-xs text-red-600/70 dark:text-red-400/70 mt-1 leading-relaxed">
-                    Permanently erase all your saved verses, reading progress, and synced settings. This action <strong>cannot be undone</strong>.
-                  </p>
-                </div>
-                {showDeleteConfirm ? (
-                  <div className="space-y-3">
-                    <p className="font-sans text-xs text-foreground/80">
-                      Type <strong className="text-red-600 dark:text-red-400">DELETE</strong> to confirm:
-                    </p>
-                    <input
-                      type="text"
-                      value={deleteInput}
-                      onChange={(e) => setDeleteInput(e.target.value)}
-                      placeholder="DELETE"
-                      autoComplete="off"
-                      className="w-full px-4 py-2.5 rounded-xl bg-background border border-border font-sans text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-destructive/50"
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => { setDeleteInput(''); setShowDeleteConfirm(false); }}
-                        disabled={deletingAccount}
-                        className="flex-1 px-4 py-2.5 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:bg-secondary transition-all duration-200 disabled:opacity-50"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleDeleteAccount}
-                        disabled={deletingAccount || deleteInput !== 'DELETE'}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                      >
-                        {deletingAccount ? (
-                          <><Loader2 className="w-4 h-4 animate-spin" /> Deleting...</>
-                        ) : (
-                          <><Trash2 className="w-4 h-4" /> Delete Forever</>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-transparent border border-destructive text-destructive font-sans text-sm font-medium hover:bg-destructive/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] w-full"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete Account
-                  </button>
-                )}
-              </div>
+            <div>
+              <h2 className="font-serif text-lg font-semibold text-foreground group-hover:text-accent transition-colors">Account</h2>
+              <p className="font-sans text-xs text-muted-foreground truncate">{user?.email || 'Signed in'} · {user?.role || 'user'}</p>
             </div>
-          )}
-        </div>
+          </div>
+          <ExternalLink className="w-4 h-4 text-muted-foreground" />
+        </Link>
       )}
     </div>
   );
