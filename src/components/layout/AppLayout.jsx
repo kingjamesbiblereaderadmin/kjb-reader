@@ -6,7 +6,6 @@ import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
-import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
@@ -265,9 +264,7 @@ export default function AppLayout() {
   // Footer is always visible on desktop, controlled by bottom nav on mobile
   const isRoot = pathname === '/';
 
-  // FirstLoadPrompt state (centralized in AppLayout)
-  const { isInstallable, notifPermission, handleInstall, handleEnableNotif, handleDismiss } = useAppLayoutPrompt();
-  const [showPrompt, setShowPrompt] = useState(false);
+  // FirstLoadPrompt has been moved to the LandingPage.
 
   useEffect(() => {
     // Apply app-wide accessibility font preference on load
@@ -284,41 +281,10 @@ export default function AppLayout() {
     if (notifEnabled && osPermission === 'granted') {
       initNotifications();
     }
-    // If permission not granted yet, wait for user to explicitly enable in FirstLoadPrompt or Settings
+    // If permission not granted yet, wait for user to explicitly enable in Settings
+    // (FirstLoadPrompt has been moved to the LandingPage).
 
-    // Show prompt once per session — use ONLY the authoritative isPWAInstalled from display-mode detection
-    const notifGranted = 'Notification' in window && Notification.permission === 'granted';
-    const dismissed = localStorage.getItem('kjb-prompt-dismissed') === 'true' || localStorage.getItem('kjb-install-dismissed') === 'true';
-
-    const triggerPrompt = () => {
-      // Show immediately once the splash is gone — no extra delay. A gap here
-      // (even briefly) lets the user tap the page, only for the prompt to
-      // suddenly appear and take over, which feels like a bait-and-switch.
-      if (isPWAInstalled && !notifGranted) {
-        // Already installed: show prompt for notification setup
-        setShowPrompt(true);
-      } else if (!isPWAInstalled && !dismissed) {
-        // Not installed + not dismissed: show full prompt (install + config)
-        setShowPrompt(true);
-      }
-    };
-
-    if (window.kjbSplashDone) {
-      triggerPrompt();
-    } else {
-      const onSplashDone = () => {
-        window.removeEventListener('kjb-splash-done', onSplashDone);
-        triggerPrompt();
-      };
-      window.addEventListener('kjb-splash-done', onSplashDone);
-      return () => window.removeEventListener('kjb-splash-done', onSplashDone);
-    }
-  }, [isPWAInstalled, notifPermission]);
-
-  const handleDismissPrompt = () => {
-    setShowPrompt(false);
-    handleDismiss();
-  };
+  }, [isPWAInstalled]);
 
   // Legacy reader gets no layout chrome - just render the outlet
   if (isLegacy) {
@@ -384,9 +350,9 @@ export default function AppLayout() {
               className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation text-muted-foreground"
               onClick={(e) => { 
                 e.stopPropagation();
-                navigate('/settings');
+                navigate('/login');
               }}
-              title="Settings"
+              title="Sign in"
               type="button"
             >
               <UserCircle className="w-5 h-5 pointer-events-none" />
@@ -455,18 +421,6 @@ export default function AppLayout() {
       </main>
 
       <BottomNav pathname={pathname} navigate={navigate} />
-
-      {/* FirstLoadPrompt - shows once per session */}
-      {showPrompt && (
-        <FirstLoadPrompt
-          isInstallable={isInstallable}
-          isInstalled={isPWAInstalled}
-          notifPermission={notifPermission}
-          onInstall={handleInstall}
-          onEnableNotif={handleEnableNotif}
-          onDismiss={handleDismissPrompt}
-        />
-      )}
 
       {/* Scroll to top button - appears on all pages when scrolling */}
       <ScrollToTop />

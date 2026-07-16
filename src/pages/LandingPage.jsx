@@ -1,18 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Shield, FileText, Mail, Globe, Youtube, ArrowRight } from 'lucide-react';
+import { BookOpen, Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn } from 'lucide-react';
+import FirstLoadPrompt from '@/components/FirstLoadPrompt';
+import { useFirstLoadPrompt } from '@/hooks/useFirstLoadPrompt';
 
 const LAST_UPDATED = 'July 16th, 2026';
 
 export default function LandingPage() {
+  const [isPWAInstalled, setIsPWAInstalled] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (window.self !== window.top) return;
+    } catch { return; }
+    const dmStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
+    const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
+    const iOSStandalone = navigator.standalone === true;
+    setIsPWAInstalled(dmStandalone || dmMinimal || dmOverlay || iOSStandalone);
+  }, []);
+
+  const {
+    showPrompt,
+    isInstallable,
+    isInstalled,
+    notifPermission,
+    handleInstall,
+    handleEnableNotif,
+    handleDismissPrompt,
+  } = useFirstLoadPrompt(isPWAInstalled);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
       <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 mb-4">
+          <Link to="/login" className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 mb-4 hover:scale-105 active:scale-95 transition-transform">
             <BookOpen className="w-7 h-7 text-white" />
-          </div>
+          </Link>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader</h1>
           <p className="font-sans text-sm text-muted-foreground">Read the King James Bible — anytime, anywhere, even offline.</p>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
@@ -25,13 +50,22 @@ export default function LandingPage() {
             (Pure Cambridge Edition). Enjoy daily verses, offline reading, search, bookmarks,
             and customizable typography — all with privacy at the forefront.
           </p>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            Open KJB Reader
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <LogIn className="w-4 h-4" />
+              Sign In
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Open KJB Reader
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
 
         {/* Legal Links */}
@@ -88,6 +122,18 @@ export default function LandingPage() {
           © {new Date().getFullYear()} KJB Reader · Last updated: {LAST_UPDATED}
         </p>
       </div>
+
+      {/* First Load Prompt — install + notification setup */}
+      {showPrompt && (
+        <FirstLoadPrompt
+          isInstallable={isInstallable}
+          isInstalled={isPWAInstalled}
+          notifPermission={notifPermission}
+          onInstall={handleInstall}
+          onEnableNotif={handleEnableNotif}
+          onDismiss={handleDismissPrompt}
+        />
+      )}
     </div>
   );
 }
