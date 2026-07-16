@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Wrench, Mail, Lock, Loader2, ShieldCheck } from 'lucide-react';
@@ -21,10 +22,7 @@ export default function DevToolsSignIn() {
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email, password);
-      // Preserve the ?key= param so the page still renders after the reload.
-      const key = new URLSearchParams(window.location.search).get('key');
-      const qs = key ? `?key=${key}` : '';
-      window.location.href = `/dev-tools${qs}`;
+      window.location.href = '/dev-tools';
     } catch (err) {
       setError(err.message || 'Invalid email or password');
       setLoading(false);
@@ -32,9 +30,7 @@ export default function DevToolsSignIn() {
   };
 
   const handleGoogle = () => {
-    const key = new URLSearchParams(window.location.search).get('key');
-    const qs = key ? `?key=${key}` : '';
-    base44.auth.loginWithProvider('google', `/dev-tools${qs}`);
+    base44.auth.loginWithProvider('google', '/dev-tools');
   };
 
   return (

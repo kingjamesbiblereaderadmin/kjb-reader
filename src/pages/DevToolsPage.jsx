@@ -9,12 +9,8 @@ import ManifestEditor from '@/components/dev/ManifestEditor';
 import DevToolErrorBoundary from '@/components/dev/DevToolErrorBoundary';
 import DevToolsSignIn from '@/components/dev/DevToolsSignIn';
 
-// Secret key required in the URL: /dev-tools?key=KJB-DEV-2026
-// Wrong or missing key renders a plain 404-style page so the tools stay hidden.
-// NOTE: this key only hides the page — backend saves require a real admin
-// session (base44.auth.me() + role === 'admin').
-const SECRET_KEY = 'KJB-DEV-2026';
-
+// NOTE: The page is protected by admin authentication (base44.auth.me() +
+// role === 'admin'). Backend saves also require a real admin session.
 const TABS = [
   { id: 'image', label: 'Verse Image', icon: Image },
   { id: 'schedule', label: 'Daily Verses', icon: CalendarDays },
@@ -24,7 +20,6 @@ const TABS = [
 ];
 
 export default function DevToolsPage() {
-  const key = new URLSearchParams(window.location.search).get('key');
   const [tab, setTab] = useState('image');
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -36,15 +31,6 @@ export default function DevToolsPage() {
       .catch(() => { if (!done) { setUser(null); setAuthLoading(false); } });
     return () => { done = true; };
   }, []);
-
-  // Wrong/missing URL key → 404-style page.
-  if (key !== SECRET_KEY) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="font-sans text-sm text-muted-foreground">Page not found.</p>
-      </div>
-    );
-  }
 
   // Checking auth session.
   if (authLoading) {
@@ -61,9 +47,7 @@ export default function DevToolsPage() {
   }
 
   const handleLogout = () => {
-    const keyParam = new URLSearchParams(window.location.search).get('key');
-    const qs = keyParam ? `?key=${keyParam}` : '';
-    base44.auth.logout(`/dev-tools${qs}`);
+    base44.auth.logout('/dev-tools');
   };
 
   return (
