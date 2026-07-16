@@ -43,6 +43,16 @@ export default function PrivacyPolicyPage() {
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
 
+        <div className="text-center mb-6">
+        <Link
+        to="/landing"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
+        >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Landing
+        </Link>
+        </div>
+
         <AIDisclaimer />
 
         <Section title="Overview">
