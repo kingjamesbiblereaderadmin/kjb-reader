@@ -161,16 +161,15 @@ export async function syncSettingsFromCloud() {
       window.dispatchEvent(new Event('kjb-settings-synced'));
     }
 
-    if (!_pushListenerStarted) {
-      _pushListenerStarted = true;
-      _startPushListener();
-    }
+    _startPushListener();
   } catch (err) {
     console.error('[settingsSync] Cloud sync failed:', err);
   }
 }
 
 function _startPushListener() {
+  if (_pushListenerStarted) return;
+  _pushListenerStarted = true;
   window.addEventListener('storage', _debouncedPush);
   window.addEventListener('kjb-fonts-changed', _debouncedPush);
   // Safety-net: periodically check if local settings have drifted from the
