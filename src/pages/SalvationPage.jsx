@@ -17,15 +17,6 @@ export default function SalvationPage() {
           </Link>
         </div>
 
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-lg shadow-rose-500/30 mb-4">
-            <Heart className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">How to Be Saved</h1>
-          <p className="font-sans text-sm text-muted-foreground">The Gospel of Jesus Christ</p>
-          <div className="mt-4 w-16 h-px bg-accent mx-auto" />
-        </div>
-
         <GospelContent />
       </div>
     </div>
