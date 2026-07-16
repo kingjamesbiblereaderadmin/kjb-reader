@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn, Heart } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn, Heart, MonitorSmartphone } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -113,6 +113,20 @@ export default function LandingPage() {
             <div className="flex-1 min-w-0">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Terms of Service</p>
               <p className="font-sans text-xs text-muted-foreground">Rules for using this app</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+          </Link>
+
+          <Link
+            to="/legacy"
+            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-slate-500 to-slate-700">
+              <MonitorSmartphone className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Legacy Reader</p>
+              <p className="font-sans text-xs text-muted-foreground">For old browsers (IE 11)</p>
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </Link>
