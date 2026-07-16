@@ -1,6 +1,11 @@
 import { base44 } from '@/api/base44Client';
 
 const SAVED_KEY = 'kjb-saved-verses';
+// Snapshot of the verse keys that were in the cloud the last time we synced.
+// Lets us distinguish a local-only verse that's genuinely new (never been in
+// cloud → push up) from one that was deleted on another device (was in cloud
+// before, not now → remove locally instead of re-pushing).
+const CLOUD_SNAPSHOT_KEY = 'kjb-saved-cloud-snapshot';
 
 // ── Local (localStorage) operations — synchronous, work for all users ──
 
@@ -60,21 +65,76 @@ export async function syncFromCloud() {
 
     const cloudKeys = new Set(cloudVerses.map(v => `${v.abbr}:${v.chapter}:${v.verse}`));
 
-    // Merged list: cloud verses (already sorted newest-first) + local-only verses prepended
-    const localOnly = localVerses.filter(v => !cloudKeys.has(`${v.abbr}:${v.chapter}:${v.verse}`));
-    const merged = [
-      ...localOnly,
-      ...cloudVerses.map(v => ({
-        abbr: v.abbr,
-        chapter: v.chapter,
-        verse: v.verse,
-        ref: v.ref,
-        text: v.text,
-        folder: v.folder || 'Favorites',
-      })),
-    ];
+    // Load the previous cloud snapshot — the verse keys that were in the cloud
+    // last time we synced. Without this, a verse deleted on Device A would be
+    // re-pushed by Device B (which still has it locally and sees it as "new").
+    let prevCloudKeys = new Set();
+    try {
+      prevCloudKeys = new Set(JSON.parse(localStorage.getItem(CLOUD_SNAPSHOT_KEY) || '[]'));
+    } catch {}
+
+    // Split local-only verses into two groups:
+    //  - genuinelyNew: never been in the cloud → push up
+    //  - deletedRemotely: was in cloud before, not now → remove locally
+    const genuinelyNew = [];
+    const deletedRemotely = new Set();
+    localVerses.forEach(v => {
+      const key = `${v.abbr}:${v.chapter}:${v.verse}`;
+      if (!cloudKeys.has(key)) {
+        if (prevCloudKeys.has(key)) {
+          deletedRemotely.add(key);
+        } else {
+          genuinelyNew.push(v);
+        }
+      }
+    });
+
+    // Build the merged list: keep local verses that are still in cloud (or
+    // genuinely new), drop the remotely-deleted ones, and add cloud-only verses.
+    const merged = localVerses
+      .filter(v => {
+        const key = `${v.abbr}:${v.chapter}:${v.verse}`;
+        return !deletedRemotely.has(key);
+      })
+      .map(v => {
+        const key = `${v.abbr}:${v.chapter}:${v.verse}`;
+        const cloudV = cloudVerses.find(cv => `${cv.abbr}:${cv.chapter}:${cv.verse}` === key);
+        // Prefer cloud data for shared verses (folder changes from other devices win)
+        if (cloudV) {
+          return {
+            abbr: cloudV.abbr,
+            chapter: cloudV.chapter,
+            verse: cloudV.verse,
+            ref: cloudV.ref,
+            text: cloudV.text,
+            folder: cloudV.folder || 'Favorites',
+          };
+        }
+        return v;
+      });
+
+    // Add cloud verses that aren't in local yet
+    const mergedKeys = new Set(merged.map(v => `${v.abbr}:${v.chapter}:${v.verse}`));
+    cloudVerses.forEach(v => {
+      const key = `${v.abbr}:${v.chapter}:${v.verse}`;
+      if (!mergedKeys.has(key)) {
+        merged.push({
+          abbr: v.abbr,
+          chapter: v.chapter,
+          verse: v.verse,
+          ref: v.ref,
+          text: v.text,
+          folder: v.folder || 'Favorites',
+        });
+      }
+    });
 
     localStorage.setItem(SAVED_KEY, JSON.stringify(merged));
+
+    // Save the new cloud snapshot (includes verses we're about to push, so the
+    // next sync knows they've been seen in the cloud).
+    const newSnapshot = new Set([...cloudKeys, ...genuinelyNew.map(v => `${v.abbr}:${v.chapter}:${v.verse}`)]);
+    localStorage.setItem(CLOUD_SNAPSHOT_KEY, JSON.stringify([...newSnapshot]));
 
     // Merge folders from cloud into local folder list
     const cloudFolders = [...new Set(cloudVerses.map(v => v.folder || 'Favorites'))];
@@ -83,10 +143,10 @@ export async function syncFromCloud() {
     if (!mergedFolders.includes('Favorites')) mergedFolders.unshift('Favorites');
     localStorage.setItem('kjb-saved-folders', JSON.stringify(mergedFolders));
 
-    // Push local-only verses to the cloud
-    if (localOnly.length > 0) {
+    // Push genuinely-new local-only verses to the cloud
+    if (genuinelyNew.length > 0) {
       await base44.entities.SavedVerse.bulkCreate(
-        localOnly.map(v => ({
+        genuinelyNew.map(v => ({
           abbr: v.abbr,
           chapter: v.chapter,
           verse: v.verse,
@@ -113,6 +173,7 @@ export function resetCloudSync() {}
 export function clearLocalSavedVerses() {
   localStorage.removeItem(SAVED_KEY);
   localStorage.removeItem('kjb-saved-folders');
+  localStorage.removeItem(CLOUD_SNAPSHOT_KEY);
 }
 
 // ── Write operations — update localStorage synchronously, then sync to cloud ──
