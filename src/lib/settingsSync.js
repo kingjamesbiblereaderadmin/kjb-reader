@@ -20,6 +20,14 @@ const SYNC_KEYS = [
   'kjb-notif-time',
   'kjb-theme-1611',
   'kjb-position',
+  // Indicators — daily/random verse, search, gospel
+  'kjb-last-reading',
+  'kjb-search-term',
+  'kjb-search-index',
+  'kjb-search-total',
+  'kjb-gospel-results',
+  'kjb-gospel-index',
+  'kjb-reader-toolbar-state',
 ];
 
 let _synced = false;
