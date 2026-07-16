@@ -1611,8 +1611,15 @@ export default function BibleReader() {
               onSelectAll={selectAllVerses} onCancel={() => {
                 if (searchTerm) { clearSearchContext(); return; }
                 if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); return; }
-                setFilterMode(false); setSelectedVerses(new Set()); setHighlightVerse(null);
-                try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
+                // Exit select mode but PRESERVE the existing filter/selection
+                // so the user returns to their filtered view, not full chapter.
+                setSelectMode(false);
+                if (selectedVerses.size > 0) {
+                  setFilterMode(true);
+                  setHighlightVerse(Math.min(...selectedVerses));
+                } else {
+                  setFilterMode(false); setHighlightVerse(null);
+                }
               }}
               onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink}
               onReadSelected={handleReadSelected} onShowFull={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
