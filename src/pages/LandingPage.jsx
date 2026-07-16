@@ -1,11 +1,19 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn, Heart } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
+import { useAuth } from '@/lib/AuthContext';
 
 const LAST_UPDATED = 'July 16th, 2026';
 
 export default function LandingPage() {
+  const { isAuthenticated, isLoadingAuth } = useAuth();
+
+  // If already signed in (e.g. redirected back from OAuth), go straight to the app.
+  if (!isLoadingAuth && isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
       <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">

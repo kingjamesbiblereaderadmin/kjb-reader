@@ -156,7 +156,7 @@ const FadeIn = ({ children }) => {
 };
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, isAuthenticated } = useAuth();
   const location = useLocation();
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
@@ -237,7 +237,13 @@ const AuthenticatedApp = () => {
   if (!isInitializing && !authError && location.pathname === '/') {
     try {
       if (localStorage.getItem('kjb-has-visited-app') !== 'true') {
-        return <Navigate to="/landing" replace />;
+        // Authenticated users (e.g. just finished OAuth) go straight into the
+        // app — only unauthenticated first-time visitors see the landing page.
+        if (isAuthenticated) {
+          localStorage.setItem('kjb-has-visited-app', 'true');
+        } else {
+          return <Navigate to="/landing" replace />;
+        }
       }
     } catch {}
   }

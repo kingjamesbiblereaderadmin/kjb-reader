@@ -25,7 +25,7 @@ export default function Login() {
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email, password);
-      window.location.href = "/landing";
+      window.location.href = "/";
     } catch (err) {
       setError(err.message || "Invalid email or password");
     } finally {
@@ -34,19 +34,19 @@ export default function Login() {
   };
 
   const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/landing");
+    base44.auth.loginWithProvider("google", "/");
   };
 
   const handleFacebook = () => {
-    base44.auth.loginWithProvider("facebook", "/landing");
+    base44.auth.loginWithProvider("facebook", "/");
   };
 
   const handleApple = () => {
-    base44.auth.loginWithProvider("apple", "/landing");
+    base44.auth.loginWithProvider("apple", "/");
   };
 
   const handleMicrosoft = () => {
-    base44.auth.loginWithProvider("microsoft", "/landing");
+    base44.auth.loginWithProvider("microsoft", "/");
   };
 
   return (
