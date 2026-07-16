@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server, Globe, Mail } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server, Globe, Mail, UserCircle } from 'lucide-react';
 import ShortcutsList from '@/components/ShortcutsList';
 import ImageCropper from '@/components/bible/ImageCropper';
 import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
@@ -143,21 +143,17 @@ export default function SettingsPage() {
     contact: true,
     developer: false,
     danger: false,
+    account: true,
   });
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
   const { user, isAuthenticated } = useAuth();
   const [deletingAccount, setDeletingAccount] = useState(false);
 
   const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      '⚠️ Delete your account?\n\nThis will permanently erase all your saved verses, reading progress, and synced settings. This action CANNOT be undone.\n\nAre you sure you want to continue?'
-    );
-    if (!confirmed) return;
+    if (deleteInput !== 'DELETE') return;
     setDeletingAccount(true);
     try {
-      if (user?.id) {
-        await base44.entities.User.delete(user.id);
-      }
+      await base44.functions.invoke('deleteUserAccount', {});
       await base44.auth.logout('/');
     } catch (err) {
       setDeletingAccount(false);
@@ -481,6 +477,7 @@ export default function SettingsPage() {
       advanced: newState,
       contact: newState,
       developer: newState,
+      account: newState,
     });
   };
 
@@ -1653,35 +1650,81 @@ localStorage.removeItem('kjb-daily-verse-cache-v17');
         )}
       </div>
 
-      {/* Danger Zone — only for authenticated users */}
+      {/* Account — only for authenticated users */}
       {isAuthenticated && (
-        <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl mb-5 overflow-hidden">
+        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
           <button
-            onClick={() => toggleSection('danger')}
-            className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-red-500/5 transition-colors text-left"
+            onClick={() => toggleSection('account')}
+            className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
           >
             <div className="flex flex-col gap-1">
-              <h2 className="font-serif text-lg font-semibold text-red-700 dark:text-red-400">Danger Zone</h2>
-              <p className="font-sans text-xs text-red-600/70 dark:text-red-400/70">Permanently delete your account</p>
+              <h2 className="font-serif text-lg font-semibold text-foreground">Account</h2>
+              <p className="font-sans text-xs text-muted-foreground">Manage your account and data</p>
             </div>
-            <ChevronDown className={`w-5 h-5 text-red-500 transition-transform ${expandedSections.danger ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.account ? 'rotate-180' : ''}`} />
           </button>
-          {expandedSections.danger && (
-            <div className="px-5 pb-6 pt-2">
-              <p className="font-sans text-sm text-foreground/80 mb-4">
-                Deleting your account will permanently erase all your saved verses, reading progress, and synced settings. This action <strong>cannot be undone</strong>.
-              </p>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deletingAccount}
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive text-destructive-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed w-full"
-              >
-                {deletingAccount ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Deleting account...</>
+          {expandedSections.account && (
+            <div className="px-5 pb-6 pt-2 space-y-4">
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-secondary/50 border border-border">
+                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-primary to-accent">
+                  <UserCircle className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans font-medium text-sm text-foreground truncate">{user?.email || 'Signed in'}</p>
+                  <p className="font-sans text-xs text-muted-foreground capitalize">{user?.role || 'user'}</p>
+                </div>
+              </div>
+              <div className="rounded-xl border border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/5 p-4 space-y-3">
+                <div>
+                  <p className="font-sans text-sm font-semibold text-red-700 dark:text-red-400">Delete Account</p>
+                  <p className="font-sans text-xs text-red-600/70 dark:text-red-400/70 mt-1 leading-relaxed">
+                    Permanently erase all your saved verses, reading progress, and synced settings. This action <strong>cannot be undone</strong>.
+                  </p>
+                </div>
+                {showDeleteConfirm ? (
+                  <div className="space-y-3">
+                    <p className="font-sans text-xs text-foreground/80">
+                      Type <strong className="text-red-600 dark:text-red-400">DELETE</strong> to confirm:
+                    </p>
+                    <input
+                      type="text"
+                      value={deleteInput}
+                      onChange={(e) => setDeleteInput(e.target.value)}
+                      placeholder="DELETE"
+                      autoComplete="off"
+                      className="w-full px-4 py-2.5 rounded-xl bg-background border border-border font-sans text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { setDeleteInput(''); setShowDeleteConfirm(false); }}
+                        disabled={deletingAccount}
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:bg-secondary transition-all duration-200 disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleDeleteAccount}
+                        disabled={deletingAccount || deleteInput !== 'DELETE'}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        {deletingAccount ? (
+                          <><Loader2 className="w-4 h-4 animate-spin" /> Deleting...</>
+                        ) : (
+                          <><Trash2 className="w-4 h-4" /> Delete Forever</>
+                        )}
+                      </button>
+                    </div>
+                  </div>
                 ) : (
-                  <><Trash2 className="w-4 h-4" /> Delete Account</>
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-transparent border border-destructive text-destructive font-sans text-sm font-medium hover:bg-destructive/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] w-full"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete Account
+                  </button>
                 )}
-              </button>
+              </div>
             </div>
           )}
         </div>

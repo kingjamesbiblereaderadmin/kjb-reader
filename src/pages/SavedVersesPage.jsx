@@ -39,30 +39,36 @@ export default function SavedVersesPage() {
   }, []);
 
   const handleRemove = (abbr, chapter, verse) => {
+    setSaved(prev => prev.filter(v => !(v.abbr === abbr && v.chapter === chapter && v.verse === verse)));
     removeSavedVerse(abbr, chapter, verse);
-    loadData();
   };
 
   const handleCreateFolder = () => {
     const name = window.prompt("Enter new folder name:");
     if (name && name.trim()) {
-      createFolder(name.trim());
-      loadData();
-      setActiveFolder(name.trim());
+      const trimmed = name.trim();
+      setFolders(prev => prev.includes(trimmed) ? prev : [...prev, trimmed]);
+      createFolder(trimmed);
+      setActiveFolder(trimmed);
     }
   };
 
   const handleDeleteFolder = (name) => {
     if (window.confirm(`Are you sure you want to delete the folder "${name}"? Verses will be moved to Favorites.`)) {
+      setFolders(prev => prev.filter(f => f !== name));
+      setSaved(prev => prev.map(v => v.folder === name ? { ...v, folder: 'Favorites' } : v));
       deleteFolder(name);
-      loadData();
       setActiveFolder('All');
     }
   };
 
   const handleMoveVerse = (entry, newFolder) => {
+    setSaved(prev => prev.map(v =>
+      v.abbr === entry.abbr && v.chapter === entry.chapter && v.verse === entry.verse
+        ? { ...v, folder: newFolder }
+        : v
+    ));
     updateVerseFolder(entry.abbr, entry.chapter, entry.verse, newFolder);
-    loadData();
     toast.success(`Moved to ${newFolder}`);
   };
 

@@ -317,7 +317,11 @@ export default function AppLayout() {
                 onClick={(e) => {
                   e.stopPropagation();
                   setMenuOpen(false);
-                  navigate(-1);
+                  if (window.history.length > 1) {
+                    navigate(-1);
+                  } else {
+                    navigate('/');
+                  }
                 }}
                 className="flex items-center gap-1 pl-2 pr-2 sm:pr-3 h-12 rounded-xl hover:bg-secondary/50 active:bg-secondary transition-colors text-foreground touch-manipulation cursor-pointer"
                 title="Back"
@@ -646,7 +650,7 @@ function BottomNav({ pathname, navigate }) {
                     if (isScrolled) {
                       scrollMainToTop();
                     } else {
-                      navigate('/');
+                      navigate(tabHistoryRef.current[item.path] || item.path);
                     }
                   } else {
                     scrollMainToTop();
@@ -696,7 +700,7 @@ function BottomNav({ pathname, navigate }) {
                       if (isScrolled) {
                         scrollMainToTop();
                       } else {
-                        navigate('/');
+                        navigate(tabHistoryRef.current[item.path] || item.path);
                       }
                     } else {
                       scrollMainToTop();
