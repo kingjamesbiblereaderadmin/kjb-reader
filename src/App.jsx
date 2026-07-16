@@ -35,6 +35,8 @@ const loaders = {
   BibleTxt: () => import('@/pages/BibleTxt.jsx').catch((err) => { console.error('Failed to load BibleTxt:', err); throw err; }),
   DevTools: () => import('@/pages/DevToolsPage.jsx').catch((err) => { console.error('Failed to load DevToolsPage:', err); throw err; }),
   Login: () => import('@/pages/Login').catch((err) => { console.error('Failed to load Login:', err); throw err; }),
+  Landing: () => import('@/pages/LandingPage').catch((err) => { console.error('Failed to load LandingPage:', err); throw err; }),
+  Terms: () => import('@/pages/TermsOfServicePage').catch((err) => { console.error('Failed to load TermsOfServicePage:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -56,6 +58,8 @@ const DailyVerseTxt = lazy(loaders.DailyVerseTxt);
 const BibleTxt = lazy(loaders.BibleTxt);
 const DevToolsPage = lazy(loaders.DevTools);
 const Login = lazy(loaders.Login);
+const LandingPage = lazy(loaders.Landing);
+const TermsOfServicePage = lazy(loaders.Terms);
 
 
 const getLoaderForPath = (pathname) => {
@@ -240,6 +244,8 @@ const AuthenticatedApp = () => {
         <ChunkErrorBoundary>
           <Routes location={location}>
             <Route path="/login" element={<Suspense fallback={<RouteLoader />}><Login /></Suspense>} />
+            <Route path="/landing" element={<Suspense fallback={<RouteLoader />}><LandingPage /></Suspense>} />
+            <Route path="/terms" element={<Suspense fallback={<RouteLoader />}><TermsOfServicePage /></Suspense>} />
             <Route element={<AppLayout />}>
               <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
               <Route path="/read" element={<Suspense fallback={<RouteLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />

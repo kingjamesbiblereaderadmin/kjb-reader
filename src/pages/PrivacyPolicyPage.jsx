@@ -1,5 +1,6 @@
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Shield, ArrowLeft } from 'lucide-react';
 
 const LAST_UPDATED = 'June 9th, 2026';
 
@@ -111,6 +112,22 @@ export default function PrivacyPolicyPage() {
           </a>.
         </p>
       </Section>
+
+      <div className="flex items-center justify-center gap-4 mt-8">
+        <Link
+          to="/landing"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Landing
+        </Link>
+        <Link
+          to="/terms"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
+        >
+          Terms of Service
+        </Link>
+      </div>
     </div>
     </div>
   );
