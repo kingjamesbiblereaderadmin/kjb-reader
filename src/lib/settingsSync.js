@@ -30,7 +30,7 @@ const SYNC_KEYS = [
   'kjb-reader-toolbar-state',
 ];
 
-let _synced = false;
+let _pushListenerStarted = false;
 let _pushTimer = null;
 
 async function isAuthed() {
@@ -56,18 +56,7 @@ function collectLocalSettings() {
  * Called automatically when the user authenticates.
  */
 export async function syncSettingsFromCloud() {
-  if (_synced) return;
   if (!(await isAuthed())) return;
-
-  // Only pull cloud settings DOWN once per browser session. Without this, a
-  // service-worker update reload re-runs the sync and a stale cloud value
-  // (e.g. an old "light" theme) overwrites the user's current local setting
-  // (e.g. "dark") — making it look like the update reset their preferences.
-  // sessionStorage persists across same-tab reloads (exactly the SW update
-  // case) but is cleared when the tab/browser closes, so a fresh open still
-  // syncs from cloud as expected.
-  const SESSION_SYNCED_KEY = 'kjb-settings-cloud-synced';
-  const alreadySyncedThisSession = sessionStorage.getItem(SESSION_SYNCED_KEY) === 'true';
 
   try {
     const existing = await base44.entities.UserSetting.list('-updated_date', 1);
@@ -95,36 +84,34 @@ export async function syncSettingsFromCloud() {
         await base44.entities.UserSetting.update(recordId, { settings: mergedUp });
       }
 
-      // Only apply cloud settings DOWN on the first sync of the session.
-      // Subsequent reloads (e.g. after a SW update) skip this step so local
-      // changes the user just made are preserved.
-      if (!alreadySyncedThisSession) {
-        // Use the merged settings (cloud + local) so local values that were
-        // just pushed up are reflected, and cloud-only keys fill in gaps.
-        const effectiveSettings = hasLocalChanges
-          ? { ...cloudSettings, ...localSettings }
-          : cloudSettings;
-        let changed = false;
-        Object.entries(effectiveSettings).forEach(([key, val]) => {
-          if (SYNC_KEYS.includes(key)) {
-            if (localStorage.getItem(key) !== val) {
-              localStorage.setItem(key, val);
-              changed = true;
-            }
+      // Pull cloud settings DOWN every time. Because we pushed local UP first,
+      // local values are already in the cloud — so this only fills in keys
+      // that exist in cloud but not locally (cross-device sync). Local values
+      // are never overwritten by stale cloud data.
+      const effectiveSettings = hasLocalChanges
+        ? { ...cloudSettings, ...localSettings }
+        : cloudSettings;
+      let changed = false;
+      Object.entries(effectiveSettings).forEach(([key, val]) => {
+        if (SYNC_KEYS.includes(key)) {
+          if (localStorage.getItem(key) !== val) {
+            localStorage.setItem(key, val);
+            changed = true;
           }
-        });
-
-        if (changed) {
-          window.dispatchEvent(new Event('storage'));
-          window.dispatchEvent(new Event('kjb-fonts-changed'));
-          window.dispatchEvent(new Event('kjb-settings-synced'));
         }
+      });
+
+      if (changed) {
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new Event('kjb-fonts-changed'));
+        window.dispatchEvent(new Event('kjb-settings-synced'));
       }
     }
 
-    sessionStorage.setItem(SESSION_SYNCED_KEY, 'true');
-    _synced = true;
-    _startPushListener();
+    if (!_pushListenerStarted) {
+      _pushListenerStarted = true;
+      _startPushListener();
+    }
   } catch (err) {
     console.error('[settingsSync] Cloud sync failed:', err);
   }
@@ -161,7 +148,7 @@ async function _pushToCloud() {
 }
 
 export function resetSettingsSync() {
-  _synced = false;
+  _pushListenerStarted = false;
   _stopPushListener();
   if (_pushTimer) { clearTimeout(_pushTimer); _pushTimer = null; }
 }
@@ -173,5 +160,4 @@ export function resetSettingsSync() {
  */
 export function clearLocalSettings() {
   SYNC_KEYS.forEach(key => localStorage.removeItem(key));
-  sessionStorage.removeItem('kjb-settings-cloud-synced');
 }

@@ -90,7 +90,7 @@ export default function SyncStatus() {
         )}
       </div>
       <p className="font-sans text-xs text-muted-foreground mt-2 leading-relaxed">
-        Settings, reading progress, and saved verses sync automatically. No credits used — syncing is free.
+        Settings, reading progress, and saved verses sync automatically.
       </p>
     </div>
   );
