@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn } from 'lucide-react';
 import FirstLoadPrompt from '@/components/FirstLoadPrompt';
 import { useFirstLoadPrompt } from '@/hooks/useFirstLoadPrompt';
 
@@ -35,8 +35,12 @@ export default function LandingPage() {
       <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
         {/* Header */}
         <div className="text-center mb-10">
-          <Link to="/login" className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 mb-4 hover:scale-105 active:scale-95 transition-transform">
-            <BookOpen className="w-7 h-7 text-white" />
+          <Link to="/login" className="inline-flex items-center justify-center w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-blue-500/30 mb-4 hover:scale-105 active:scale-95 transition-transform">
+            <img
+              src="https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/1d77e5114_icon-512.png"
+              alt="KJB Reader Logo"
+              className="w-full h-full object-cover"
+            />
           </Link>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader</h1>
           <p className="font-sans text-sm text-muted-foreground">Read the King James Bible — anytime, anywhere, even offline.</p>
