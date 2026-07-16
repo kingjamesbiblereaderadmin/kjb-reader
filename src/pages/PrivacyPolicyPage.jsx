@@ -99,15 +99,31 @@ export default function PrivacyPolicyPage() {
 
       <Section title="Cloud Sync & Data Storage">
         <p>
-          When you sign in, your saved verses, reading progress, and app settings are synced to our
-          secure cloud backend (hosted by Base44). This data is associated with your account and is
-          only accessible by you. It is used solely to provide the cross-device sync feature — it is
-          not analysed, sold, or shared with third parties.
+          When you sign in, your saved verses, reading progress, app settings, and reading
+          indicators (such as daily verse or search context) are synced to our secure cloud backend
+          (hosted by Base44). This data is associated with your account and is only accessible by
+          you. It is used solely to provide the cross-device sync feature — it is not analysed, sold,
+          or shared with third parties.
         </p>
         <p>
           Your data is transmitted over encrypted (HTTPS) connections. You can request deletion of
           your synced data at any time by contacting us. Account authentication is handled by our
           platform provider; we do not store your password in plain text.
+        </p>
+      </Section>
+
+      <Section title="Account Visibility">
+        <p>
+          When you create an account, your email address and account role (user or admin) are
+          visible to the app administrator via the platform's management dashboard. This is a
+          standard function of the Base44 platform used solely for account administration (such as
+          managing user roles or sending invitations). Regular users cannot see other users' email
+          addresses or account information — each user can only view and manage their own profile.
+        </p>
+        <p>
+          No other personal information (such as your name, location, or device details) is shared
+          with the administrator. You can request deletion of your account at any time from the
+          Account page or by contacting us.
         </p>
       </Section>
 
