@@ -40,6 +40,14 @@ export default function LandingPage() {
                 Enter App
                 <ArrowRight className="w-4 h-4" />
               </Link>
+              <Link
+                to="/"
+                onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Open KJB Reader
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
         </div>
