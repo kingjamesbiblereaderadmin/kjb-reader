@@ -582,7 +582,7 @@ export default function SettingsPage() {
           </p>
         )}
         <div className="flex flex-col gap-2">
-        {[...VERSE_FONTS, ...A11Y_FONT_OPTIONS].map(font => {
+        {[...A11Y_FONT_OPTIONS, ...VERSE_FONTS].map(font => {
           const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
           const isActive = a11yFont !== 'default' ? a11yFont === font.value : readerFontFamily === font.value;
           const isDisabled = a11yFont !== 'default' && !isA11yChoice;
@@ -977,7 +977,7 @@ export default function SettingsPage() {
               </p>
             )}
             <div className="grid grid-cols-2 gap-2">
-              {[...VERSE_FONTS, ...A11Y_FONT_OPTIONS].map(font => {
+              {[...A11Y_FONT_OPTIONS, ...VERSE_FONTS].map(font => {
                 const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
                 const isActive = a11yFont !== 'default' ? a11yFont === font.value : verseFontFamily === font.value;
                 const isDisabled = a11yFont !== 'default' && !isA11yChoice;
