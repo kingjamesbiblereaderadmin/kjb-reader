@@ -16,8 +16,10 @@ const SYNC_KEYS = [
   'kjb-color-mode',
   'kjb-custom-accent',
   'kjb-footer-mode',
+  'kjb-footer-auto-hide-enabled',
+  'kjb-footer-hide-time',
   'kjb-notifications-enabled',
-  'kjb-notif-time',
+  'kjb-notification-time',
   'kjb-theme-1611',
   'kjb-position',
   // Indicators — daily/random verse, search, gospel
@@ -35,6 +37,11 @@ const SYNC_KEYS = [
 
 let _pushListenerStarted = false;
 let _pushTimer = null;
+let _periodicTimer = null;
+// Snapshot of the last settings we pushed to the cloud. Used to skip
+// unnecessary API calls when nothing has changed, and by the periodic
+// safety-net timer to detect writes that missed the storage event dispatch.
+let _lastPushedSnapshot = null;
 
 async function isAuthed() {
   try {
@@ -132,11 +139,19 @@ export async function syncSettingsFromCloud() {
 function _startPushListener() {
   window.addEventListener('storage', _debouncedPush);
   window.addEventListener('kjb-fonts-changed', _debouncedPush);
+  // Safety-net: periodically check if local settings have drifted from the
+  // last pushed snapshot. This catches any localStorage write that didn't
+  // dispatch a 'storage' event (same-tab writes don't fire one natively, and
+  // not every writer in the app dispatches it manually). The snapshot
+  // comparison in _pushToCloud makes this a no-op when nothing changed.
+  if (_periodicTimer) clearInterval(_periodicTimer);
+  _periodicTimer = setInterval(_debouncedPush, 10_000);
 }
 
 function _stopPushListener() {
   window.removeEventListener('storage', _debouncedPush);
   window.removeEventListener('kjb-fonts-changed', _debouncedPush);
+  if (_periodicTimer) { clearInterval(_periodicTimer); _periodicTimer = null; }
 }
 
 function _debouncedPush() {
@@ -148,6 +163,12 @@ async function _pushToCloud() {
   if (!(await isAuthed())) return;
   try {
     const localSettings = collectLocalSettings();
+    // Skip the API call entirely if nothing has changed since the last push.
+    // This makes the periodic safety-net timer essentially free when idle.
+    const snapshot = JSON.stringify(localSettings);
+    if (_lastPushedSnapshot !== null && snapshot === _lastPushedSnapshot) return;
+    _lastPushedSnapshot = snapshot;
+
     const existing = await base44.entities.UserSetting.list('-updated_date', 1);
     if (existing.length === 0) {
       await base44.entities.UserSetting.create({ settings: localSettings });
@@ -161,6 +182,7 @@ async function _pushToCloud() {
 
 export function resetSettingsSync() {
   _pushListenerStarted = false;
+  _lastPushedSnapshot = null;
   _stopPushListener();
   if (_pushTimer) { clearTimeout(_pushTimer); _pushTimer = null; }
 }
