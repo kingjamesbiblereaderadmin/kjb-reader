@@ -5,6 +5,7 @@ import { isVerseSaved, saveVerse, removeSavedVerse } from '@/lib/savedVerses';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { formatVerseShare, buildVerseUrl } from '@/lib/formatDailyVerse';
 import VersePopover from '@/components/bible/VersePopover';
+import SaveFolderPicker from '@/components/bible/SaveFolderPicker';
 
 export default function VerseText({ verse, highlight = false, id, bookName, abbr, chapter, isFirstVerse = false, paragraphMode = false, selectMode = false, isSelected = false, onSelect, onActivateSelect, totalVerses = 0, colophon = null, subscript = null, isCursive = false, fontFamilyValue = null, zoomLevel = 100, hasSubscript = false, searchTerm = null, dropCap = false, columnMode = false }) {
   const bookEntry = BIBLE_BOOKS.find(b => b.abbr === abbr);
@@ -21,6 +22,7 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [saved, setSaved] = useState(() => isVerseSaved(abbr, chapter, verse.verse));
   const [currentText, setCurrentText] = useState(verse.text);
+  const [showFolderPicker, setShowFolderPicker] = useState(false);
 
   useEffect(() => {
     setCurrentText(verse.text);
@@ -193,10 +195,18 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
     if (saved) {
       removeSavedVerse(abbr, chapter, verse.verse);
       setSaved(false);
+      setSelected(false);
     } else {
-      saveVerse({ abbr, chapter, verse: verse.verse, ref: verseRef, text: ct });
-      setSaved(true);
+      // Show the folder picker so the user can choose where to save
+      setShowFolderPicker(true);
     }
+  };
+
+  const handleSaveToFolder = (folder) => {
+    const ct = currentText.replace(/\[([^\]]+)\]/g, '$1').replace(/¶\s*/g, '').replace(/^<<[^>]*>>\s*/, '');
+    saveVerse({ abbr, chapter, verse: verse.verse, ref: verseRef, text: ct, folder });
+    setSaved(true);
+    setShowFolderPicker(false);
     setSelected(false);
   };
 
@@ -326,14 +336,22 @@ export default function VerseText({ verse, highlight = false, id, bookName, abbr
         >
           <Share2 className="w-3 h-3" /> Share
         </button>
-        <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleToggleSave(e); }}
-          onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleToggleSave(e); }}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
-        >
-          {saved ? <BookmarkCheck className="w-3 h-3 text-accent" /> : <Bookmark className="w-3 h-3" />}
-          {saved ? 'Saved' : 'Save'}
-        </button>
+        <div className="relative">
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleToggleSave(e); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); handleToggleSave(e); }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+          >
+            {saved ? <BookmarkCheck className="w-3 h-3 text-accent" /> : <Bookmark className="w-3 h-3" />}
+            {saved ? 'Saved' : 'Save'}
+          </button>
+          {showFolderPicker && (
+            <SaveFolderPicker
+              onSelect={handleSaveToFolder}
+              onCancel={() => { setShowFolderPicker(false); }}
+            />
+          )}
+        </div>
         {onActivateSelect && (
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setSelected(false); onActivateSelect(verse.verse); }}
