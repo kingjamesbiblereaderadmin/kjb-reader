@@ -576,6 +576,7 @@ export default function LandingSetupWizard() {
         {isLast ? (
           <Link
             to="/"
+            onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
             Enter KJB Reader <ChevronRight className="w-4 h-4" />
