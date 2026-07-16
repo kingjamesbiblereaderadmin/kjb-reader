@@ -22,8 +22,7 @@ export default function Login() {
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email, password);
-      try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
-      window.location.href = "/";
+      window.location.href = "/landing";
     } catch (err) {
       setError(err.message || "Invalid email or password");
     } finally {
@@ -32,18 +31,15 @@ export default function Login() {
   };
 
   const handleGoogle = () => {
-    try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
-    base44.auth.loginWithProvider("google", "/");
+    base44.auth.loginWithProvider("google", "/landing");
   };
 
   const handleFacebook = () => {
-    try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
-    base44.auth.loginWithProvider("facebook", "/");
+    base44.auth.loginWithProvider("facebook", "/landing");
   };
 
   const handleApple = () => {
-    try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {}
-    base44.auth.loginWithProvider("apple", "/");
+    base44.auth.loginWithProvider("apple", "/landing");
   };
 
   return (
