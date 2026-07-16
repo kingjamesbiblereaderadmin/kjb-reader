@@ -50,6 +50,8 @@ let _patched = false;
 // don't fire storage events natively, so without this the cloud push never
 // triggers for the 60+ places across the app that write synced keys. This
 // catches every write — current and future — in one place.
+// Applied at module load (not inside syncSettingsFromCloud) so the patch is
+// active even if the first cloud sync fails — otherwise no push would ever fire.
 function _patchLocalStorage() {
   if (_patched) return;
   _patched = true;
@@ -68,6 +70,12 @@ function _patchLocalStorage() {
     }
   };
 }
+// Apply immediately on module load — don't wait for a successful sync.
+_patchLocalStorage();
+// Register the push listener immediately too. _pushToCloud checks isAuthed()
+// internally, so it's safe even when the user isn't signed in yet — the push
+// just becomes a no-op until auth succeeds.
+_startPushListener();
 
 async function isAuthed() {
   try {
@@ -163,7 +171,6 @@ export async function syncSettingsFromCloud() {
 }
 
 function _startPushListener() {
-  _patchLocalStorage();
   window.addEventListener('storage', _debouncedPush);
   window.addEventListener('kjb-fonts-changed', _debouncedPush);
   // Safety-net: periodically check if local settings have drifted from the
