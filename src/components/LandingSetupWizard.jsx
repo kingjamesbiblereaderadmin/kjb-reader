@@ -426,6 +426,26 @@ export default function LandingSetupWizard() {
             <h3 className="font-serif text-lg font-bold text-foreground mb-1">Fonts</h3>
             <p className="font-sans text-xs text-muted-foreground mb-4">Pick fonts for reading and the daily verse</p>
 
+            <p className="font-sans text-xs font-medium text-foreground mb-2">Accessibility Font</p>
+            <div className="grid grid-cols-3 gap-2 max-w-sm mx-auto mb-5">
+              {A11Y_FONTS.map(font => (
+                <button
+                  key={font.value}
+                  type="button"
+                  onClick={() => { setA11yFont(font.value); setAccessibilityFont(font.value); markDone('fonts'); if (font.value !== 'default') markDone('a11y'); }}
+                  className={`px-2 py-3 rounded-xl border-2 font-sans text-xs font-bold transition-all flex flex-col items-center justify-center ${
+                    a11yFont === font.value ? 'bg-primary text-primary-foreground border-primary shadow-md scale-[1.02]'
+                    : 'bg-card text-foreground border-border hover:border-accent'
+                  }`}
+                  style={font.preview ? { fontFamily: font.preview } : undefined}
+                >
+                  {font.label}
+                  {font.value === 'dyslexic' && <span className="text-[8px] opacity-75 font-normal">Dyslexia</span>}
+                  {font.value === 'hyperlegible' && <span className="text-[8px] opacity-75 font-normal">Low Vision</span>}
+                </button>
+              ))}
+            </div>
+
             <p className="font-sans text-xs font-medium text-foreground mb-2">Reading Font</p>
             <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto mb-5">
               {VERSE_FONTS.map(font => {
