@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { Wrench, Image, CalendarDays, BookOpen, Tag, Smartphone, LogOut, Loader2 } from 'lucide-react';
 import VerseImageTester from '@/components/dev/VerseImageTester';
 import DailyVerseSchedule from '@/components/dev/DailyVerseSchedule';
@@ -21,19 +22,10 @@ const TABS = [
 
 export default function DevToolsPage() {
   const [tab, setTab] = useState('image');
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-
-  useEffect(() => {
-    let done = false;
-    base44.auth.me()
-      .then(u => { if (!done) { setUser(u); setAuthLoading(false); } })
-      .catch(() => { if (!done) { setUser(null); setAuthLoading(false); } });
-    return () => { done = true; };
-  }, []);
+  const { user, isLoadingAuth } = useAuth();
 
   // Checking auth session.
-  if (authLoading) {
+  if (isLoadingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-primary/70" />
