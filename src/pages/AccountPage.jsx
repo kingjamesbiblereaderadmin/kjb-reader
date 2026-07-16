@@ -4,6 +4,7 @@ import { UserCircle, Trash2, Loader2, LogOut, ChevronLeft, Shield, Bookmark, Tre
 import { useAuth } from '@/lib/AuthContext';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import SyncStatus from '@/components/SyncStatus';
 
 export default function AccountPage() {
   const navigate = useNavigate();
@@ -93,6 +94,9 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
+
+      {/* Sync status */}
+      <SyncStatus />
 
       {/* Sync info */}
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 p-5 shadow-lg shadow-black/[0.03]">
