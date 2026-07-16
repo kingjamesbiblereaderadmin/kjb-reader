@@ -9,7 +9,7 @@ export function useSearchAndGospelResults(
   setSearchTotalResults, resultViewRef, setFilterMode, setHighlightedVerses, 
   setSelectedVerses, setHighlightSection, setHighlightVerse, setPos, loadChapter, 
   returnToChapter, clearSearchNavFn, setGospelNavFn, setGospelIndexFn, clearGospelNavFn,
-  setSelectMode, setShowFilterOverlay
+  setSelectMode, setShowFilterOverlay, setLastReadingPos
 ) {
   const preSearchPosRef = useRef(null);
 
@@ -95,6 +95,13 @@ export function useSearchAndGospelResults(
     // whatever chapter it remembers (e.g. Home -> Read) silently restores the
     // very search context the user just explicitly cleared.
     try { localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
+    // Clear the daily-verse / random-chapter indicator too. If the search was
+    // started FROM a daily/random chapter, lastReadingPos still carries
+    // fromDaily/fromRandom=true. Without clearing it here, the indicator
+    // snaps back to "Daily Verse" / "Random Chapter" the moment the search
+    // is cleared — even though the user is now doing a normal read.
+    try { localStorage.removeItem('kjb-last-reading'); } catch {}
+    if (setLastReadingPos) setLastReadingPos(null);
 
     // Find the previous reading chapter the same way the daily-verse Clear does:
     // prefer kjb-prev-reading-session (the accurate last normal-reading chapter),

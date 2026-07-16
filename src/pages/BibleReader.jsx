@@ -1160,7 +1160,7 @@ export default function BibleReader() {
     posRef, loading, verses, topRef, searchTerm, gospelMode, setGospelMode, setGospelResultIndex, setGospelTotalResults,
     setSearchTerm, setSearchResultIndex, setSearchTotalResults, resultViewRef, setFilterMode, setHighlightedVerses, setSelectedVerses,
     setHighlightSection, setHighlightVerse, setPos, loadChapter, returnToChapter, clearSearchNav, setGospelNav, setGospelIndex, clearGospelNav,
-    setSelectMode, setShowFilterOverlay
+    setSelectMode, setShowFilterOverlay, setLastReadingPos
   );
   
   // Debug: log toolbar state on every render
