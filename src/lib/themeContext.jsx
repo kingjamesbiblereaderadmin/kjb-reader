@@ -282,6 +282,22 @@ export function ThemeProvider({ children }) {
     return () => window.removeEventListener('dyslexic-font-change', handleFontChange);
   }, []);
 
+  // Re-read theme settings from localStorage when cloud sync applies new values
+  useEffect(() => {
+    const onSettingsSynced = () => {
+      try {
+        const newMode = localStorage.getItem('kjb-theme-mode') || 'system';
+        const newColourId = localStorage.getItem('kjb-colour') || 'gold';
+        const newColorMode = localStorage.getItem('kjb-color-mode') || 'daily';
+        setMode(newMode);
+        setColourIdState(newColourId);
+        setColorModeState(newColorMode);
+      } catch {}
+    };
+    window.addEventListener('kjb-settings-synced', onSettingsSynced);
+    return () => window.removeEventListener('kjb-settings-synced', onSettingsSynced);
+  }, []);
+
   return (
     <ThemeContext.Provider value={{ isDark, mode, setMode, colourId, setColourId, colorMode, setColorMode, toggleTheme }}>
       {children}

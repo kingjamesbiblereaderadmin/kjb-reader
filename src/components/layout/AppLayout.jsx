@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Wifi, WifiOff } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, UserCircle } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -16,6 +16,7 @@ import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleFor
 import { toast } from 'sonner';
 import { useSoftReload } from '@/lib/SoftReloadContext';
 import { getAccessibilityFont, applyAccessibilityFont } from '@/lib/accessibilityFont';
+import { useAuth } from '@/lib/AuthContext';
 
 const scrollMainToTop = () => {
   const el = document.getElementById('kjb-scroll');
@@ -67,6 +68,7 @@ export default function AppLayout() {
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
   const { reloadKey, softReload, isReloading } = useSoftReload();
+  const { user, isAuthenticated } = useAuth();
   
   // Hide all layout chrome for legacy reader - it renders its own complete UI
   const isLegacy = pathname === '/legacy';
@@ -379,16 +381,15 @@ export default function AppLayout() {
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
             <button 
-              className={`w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isOnline ? 'border-border bg-secondary/30 text-green-600 dark:text-green-400 hover:bg-secondary/50' : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40'}`}
+              className={`w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation ${isAuthenticated ? 'text-primary' : 'text-muted-foreground'}`}
               onClick={(e) => { 
-                e.stopPropagation(); 
-                window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: isOnline ? 'You are online' : 'You are offline (reading from cache)', status: 'info' } }));
-                setTimeout(() => window.dispatchEvent(new Event('kjb-progress-clear')), 8000);
+                e.stopPropagation();
+                navigate(isAuthenticated ? '/settings' : '/login');
               }}
-              title={isOnline ? 'Online' : 'Offline'}
+              title={isAuthenticated ? `Signed in as ${user?.email || user?.full_name || 'user'}` : 'Sign in to sync across devices'}
               type="button"
             >
-              {isOnline ? <Wifi className="w-4 h-4 pointer-events-none" /> : <WifiOff className="w-4 h-4 pointer-events-none" />}
+              <UserCircle className="w-5 h-5 pointer-events-none" />
             </button>
             <button className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
