@@ -25,32 +25,6 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   const pause = (ms) => new Promise(r => setTimeout(r, ms));
 
-  // Check if the user is signed in. The actual sync runs inside runStep below
-  // so the "SYNCING YOUR DATA..." banner is visible while it works.
-  const isSignedIn = async () => {
-    try {
-      const base44 = (await import('@/api/base44Client')).base44;
-      return await base44.auth.isAuthenticated().catch(() => false);
-    } catch {
-      return false;
-    }
-  };
-
-  const doSync = async () => {
-    try {
-      const { syncSettingsFromCloud } = await import('@/lib/settingsSync');
-      const { syncFromCloud } = await import('@/lib/savedVerses');
-      const { syncReadingProgressFromCloud } = await import('@/lib/readingProgress');
-      await Promise.all([
-        syncSettingsFromCloud(),
-        syncFromCloud(),
-        syncReadingProgressFromCloud(),
-      ]);
-    } catch (err) {
-      console.warn('[Splash] Data sync failed:', err?.message);
-    }
-  };
-
   // Run a real async task while showing `label`. The banner stays visible for at
   // least MIN_VISIBLE_MS so it's readable, but it never advances before the real
   // work actually finishes — so every banner reflects real-time progress.
@@ -269,14 +243,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           });
         }
 
-        // 8. Sync cloud settings (skipped for guests — nothing to sync)
-        if (await isSignedIn()) {
-          await runStep('SYNCING YOUR DATA...', doSync);
-          setStep('DATA SYNCED.');
-          await pause(STEP_PAUSE_MS);
-        }
-
-        // 9. Welcome
+        // 8. Welcome
         if (detectedIncognito) {
           setStep('WELCOME TO KJB READER (GUEST MODE)');
           window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME TO KJB READER (GUEST MODE)', status: 'success' } }));
@@ -336,14 +303,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // 7. Sync cloud settings (skipped for guests — nothing to sync)
-        if (await isSignedIn()) {
-          await runStep('SYNCING YOUR DATA...', doSync);
-          setStep('DATA SYNCED.');
-          await pause(STEP_PAUSE_MS);
-        }
-
-        // 8. Welcome back
+        // 7. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
         window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME BACK TO KJB READER.', status: 'success' } }));
         await pause(STEP_PAUSE_MS);
@@ -446,14 +406,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           await pause(STEP_PAUSE_MS);
         }
 
-        // 5. Sync cloud settings (skipped for guests — nothing to sync)
-        if (await isSignedIn()) {
-          await runStep('SYNCING YOUR DATA...', doSync);
-          setStep('DATA SYNCED.');
-          await pause(STEP_PAUSE_MS);
-        }
-
-        // 6. Welcome back
+        // 5. Welcome back
         setStep('WELCOME BACK TO KJB READER.');
         window.dispatchEvent(new CustomEvent('kjb-progress', { detail: { message: 'WELCOME BACK TO KJB READER.', status: 'success' } }));
         await pause(STEP_PAUSE_MS);

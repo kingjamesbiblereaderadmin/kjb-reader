@@ -33,8 +33,6 @@ const loaders = {
   LegacyReader: () => import('@/pages/LegacyReader.jsx').catch((err) => { console.error('Failed to load LegacyReader:', err); throw err; }),
   BibleTxt: () => import('@/pages/BibleTxt.jsx').catch((err) => { console.error('Failed to load BibleTxt:', err); throw err; }),
   DevTools: () => import('@/pages/DevToolsPage.jsx').catch((err) => { console.error('Failed to load DevToolsPage:', err); throw err; }),
-  Account: () => import('@/pages/AccountPage.jsx').catch((err) => { console.error('Failed to load AccountPage:', err); throw err; }),
-  Login: () => import('@/pages/Login').catch((err) => { console.error('Failed to load Login:', err); throw err; }),
   Landing: () => import('@/pages/LandingPage').catch((err) => { console.error('Failed to load LandingPage:', err); throw err; }),
   Terms: () => import('@/pages/TermsOfServicePage').catch((err) => { console.error('Failed to load TermsOfServicePage:', err); throw err; }),
   Salvation: () => import('@/pages/SalvationPage').catch((err) => { console.error('Failed to load SalvationPage:', err); throw err; }),
@@ -57,8 +55,6 @@ const PrivacyPolicyPage = lazy(loaders.Privacy);
 const LegacyReader = lazy(loaders.LegacyReader);
 const BibleTxt = lazy(loaders.BibleTxt);
 const DevToolsPage = lazy(loaders.DevTools);
-const AccountPage = lazy(loaders.Account);
-const Login = lazy(loaders.Login);
 const LandingPage = lazy(loaders.Landing);
 const TermsOfServicePage = lazy(loaders.Terms);
 const SalvationPage = lazy(loaders.Salvation);
@@ -120,7 +116,6 @@ function preloadAllRoutes() {
 
 import { Loader2 } from 'lucide-react';
 import SplashScreen from '@/components/SplashScreen';
-import { syncAllFromCloud } from '@/lib/syncAll';
 
 const RouteLoader = () => (
   <div className="flex justify-center py-24">
@@ -157,7 +152,6 @@ const FadeIn = ({ children }) => {
 };
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
@@ -197,25 +191,6 @@ const AuthenticatedApp = () => {
   // future genuine chunk failure can auto-recover again.
   useEffect(() => { try { sessionStorage.removeItem('kjb-chunk-reloaded'); } catch {} }, []);
 
-  // Pull cloud data on every route / query-param change (covers search, daily
-  // verse, chapter changes, etc.) and when the tab regains focus — so changes
-  // from another device appear without needing a manual sync.
-  useEffect(() => {
-    syncAllFromCloud();
-  }, [location.pathname, location.search]);
-
-  useEffect(() => {
-    const onFocus = () => syncAllFromCloud();
-    window.addEventListener('focus', onFocus);
-    document.addEventListener('visibilitychange', onFocus);
-    return () => {
-      window.removeEventListener('focus', onFocus);
-      document.removeEventListener('visibilitychange', onFocus);
-    };
-  }, []);
-
-  const isInitializing = isLoadingPublicSettings || isLoadingAuth;
-  
   // Determine splash mode once on mount.
   // IMPORTANT: do NOT remove the 'kjb-splash-home-update' flag here. If a
   // background SW reload happens mid-flow, removing it early would drop us back
@@ -242,17 +217,8 @@ const AuthenticatedApp = () => {
     }, 500);
   };
 
-  if (authError && !isInitializing) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    }
-  }
-
   // First-time visitors are sent to the landing/setup page
-  if (!isInitializing && !authError && location.pathname === '/') {
+  if (location.pathname === '/') {
     try {
       if (localStorage.getItem('kjb-has-visited-app') !== 'true') {
         return <Navigate to="/landing" replace />;
@@ -269,10 +235,8 @@ const AuthenticatedApp = () => {
         mode={splashMode}
         isVisible={showSplash && location.pathname !== '/legacy' && location.pathname !== '/bible.txt'}
       />
-      {!isInitializing && !authError && (
-        <ChunkErrorBoundary>
-          <Routes location={location}>
-            <Route path="/login" element={<Suspense fallback={<RouteLoader />}><Login /></Suspense>} />
+      <ChunkErrorBoundary>
+        <Routes location={location}>
             <Route path="/landing" element={<Suspense fallback={<RouteLoader />}><LandingPage /></Suspense>} />
             <Route path="/terms" element={<Suspense fallback={<RouteLoader />}><TermsOfServicePage /></Suspense>} />
             <Route path="/privacy" element={<Suspense fallback={<RouteLoader />}><PrivacyPolicyPage /></Suspense>} />
@@ -293,13 +257,11 @@ const AuthenticatedApp = () => {
               <Route path="/manifest-screenshots" element={<Suspense fallback={<RouteLoader />}><FadeIn><ManifestScreenshots /></FadeIn></Suspense>} />
               <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
               <Route path="/dev-tools" element={<Suspense fallback={<RouteLoader />}><FadeIn><DevToolsPage /></FadeIn></Suspense>} />
-              <Route path="/account" element={<Suspense fallback={<RouteLoader />}><FadeIn><AccountPage /></FadeIn></Suspense>} />
             </Route>
             <Route path="/bible.txt" element={<Suspense fallback={null}><BibleTxt /></Suspense>} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
-        </ChunkErrorBoundary>
-      )}
+      </ChunkErrorBoundary>
     </>
   );
 };

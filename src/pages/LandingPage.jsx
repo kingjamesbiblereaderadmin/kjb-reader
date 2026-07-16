@@ -1,20 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn, Heart, MonitorSmartphone } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
-import { useAuth } from '@/lib/AuthContext';
 
 const LAST_UPDATED = 'July 16th, 2026';
 
 export default function LandingPage() {
-  const { isAuthenticated, isLoadingAuth } = useAuth();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
       <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
         {/* Header */}
         <div className="text-center mb-10">
-          <Link to="/login" className="inline-flex items-center justify-center w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-blue-500/30 mb-4 hover:scale-105 active:scale-95 transition-transform">
+          <Link to="/" className="inline-flex items-center justify-center w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-blue-500/30 mb-4 hover:scale-105 active:scale-95 transition-transform">
             <img
               src="https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/1d77e5114_icon-512.png"
               alt="KJB Reader Logo"
@@ -35,28 +32,14 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col items-center gap-3">
             <div className="flex items-center justify-center gap-3 flex-wrap">
-              {isLoadingAuth ? (
-                <div className="px-6 py-3 rounded-xl bg-secondary text-muted-foreground font-sans text-sm font-medium">
-                  Loading…
-                </div>
-              ) : isAuthenticated ? (
-                <Link
-                  to="/"
-                  onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  <ArrowRight className="w-4 h-4" />
-                  Enter App
-                </Link>
-              ) : (
-                <Link
-                  to="/login"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Sign In to Sync
-                </Link>
-              )}
+              <Link
+                to="/"
+                onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <ArrowRight className="w-4 h-4" />
+                Enter App
+              </Link>
               <Link
                 to="/"
                 onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
@@ -66,11 +49,6 @@ export default function LandingPage() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            {!isLoadingAuth && !isAuthenticated && (
-              <p className="font-sans text-[11px] text-muted-foreground max-w-sm text-center leading-relaxed">
-                Sign in to sync your saved verses, reading progress, and settings across all your devices. You can also use the app without an account.
-              </p>
-            )}
           </div>
         </div>
 

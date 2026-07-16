@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server, Globe, Mail, UserCircle } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server, Globe, Mail } from 'lucide-react';
 import ShortcutsList from '@/components/ShortcutsList';
 import ImageCropper from '@/components/bible/ImageCropper';
 import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
@@ -24,7 +24,6 @@ import { downloadBibleForOffline, downloadBibleForOfflineWithRetry, clearBibleCa
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { detectIncognito } from '@/lib/incognito';
 import { getLiveWorkerVersion, getDeployedWorkerVersion } from '@/lib/liveWorkerVersion';
-import { useAuth } from '@/lib/AuthContext';
 
 const A11Y_FONTS = [
   { value: 'dyslexic', label: 'OpenDyslexic', desc: 'Designed for readers with dyslexia', preview: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
@@ -56,7 +55,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'July 13th, 2026';
-const WORKER_VERSION = 'v20260716_2215';
+const WORKER_VERSION = 'v20260716_2220';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -143,24 +142,8 @@ export default function SettingsPage() {
     contact: true,
     developer: false,
     danger: false,
-    account: true,
   });
   const { isDark, mode, setMode, colourId, setColourId } = useTheme();
-  const { user, isAuthenticated } = useAuth();
-  const [deletingAccount, setDeletingAccount] = useState(false);
-
-  const handleDeleteAccount = async () => {
-    if (deleteInput !== 'DELETE') return;
-    setDeletingAccount(true);
-    try {
-      await base44.functions.invoke('deleteUserAccount', {});
-      await base44.auth.logout('/');
-    } catch (err) {
-      setDeletingAccount(false);
-      toast.error('Could not delete account: ' + (err?.message || 'Please contact support.'));
-    }
-  };
-  
   const [customBg, setCustomBg] = useState(() => {
     try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; }
   });
@@ -477,7 +460,6 @@ export default function SettingsPage() {
       advanced: newState,
       contact: newState,
       developer: newState,
-      account: newState,
     });
   };
 
@@ -1653,24 +1635,6 @@ localStorage.removeItem('kjb-daily-verse-cache-v17');
         )}
       </div>
 
-      {/* Account link — points to dedicated Account page */}
-      {isAuthenticated && (
-        <Link
-          to="/account"
-          className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03] flex items-center justify-between px-5 py-4 hover:border-accent/40 transition-all duration-200 group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-primary to-accent">
-              <UserCircle className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="font-serif text-lg font-semibold text-foreground group-hover:text-accent transition-colors">Account</h2>
-              <p className="font-sans text-xs text-muted-foreground truncate">{user?.email || 'Signed in'} · {user?.role || 'user'}</p>
-            </div>
-          </div>
-          <ExternalLink className="w-4 h-4 text-muted-foreground" />
-        </Link>
-      )}
     </div>
   );
 }
