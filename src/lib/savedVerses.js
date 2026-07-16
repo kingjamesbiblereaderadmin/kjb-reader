@@ -38,8 +38,6 @@ export function isVerseSaved(abbr, chapter, verse) {
 
 // ── Cloud sync (database) — only for signed-in users ──
 
-let _synced = false;
-
 async function isAuthed() {
   try {
     return await base44.auth.isAuthenticated();
@@ -54,7 +52,6 @@ async function isAuthed() {
  * Called automatically when the user authenticates.
  */
 export async function syncFromCloud() {
-  if (_synced) return;
   if (!(await isAuthed())) return;
 
   try {
@@ -100,16 +97,13 @@ export async function syncFromCloud() {
       );
     }
 
-    _synced = true;
     window.dispatchEvent(new Event('kjb-saved-synced'));
   } catch (err) {
     console.error('[savedVerses] Cloud sync failed:', err);
   }
 }
 
-export function resetCloudSync() {
-  _synced = false;
-}
+export function resetCloudSync() {}
 
 /**
  * Clears all locally-stored saved verses and folders.
