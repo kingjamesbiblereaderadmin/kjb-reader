@@ -39,9 +39,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   const doSync = async () => {
     try {
       const { syncSettingsFromCloud } = await import('@/lib/settingsSync');
-      await syncSettingsFromCloud();
+      const { syncFromCloud } = await import('@/lib/savedVerses');
+      const { syncReadingProgressFromCloud } = await import('@/lib/readingProgress');
+      await Promise.all([
+        syncSettingsFromCloud(),
+        syncFromCloud(),
+        syncReadingProgressFromCloud(),
+      ]);
     } catch (err) {
-      console.warn('[Splash] Settings sync failed:', err?.message);
+      console.warn('[Splash] Data sync failed:', err?.message);
     }
   };
 

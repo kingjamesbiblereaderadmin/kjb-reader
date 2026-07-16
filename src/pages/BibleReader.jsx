@@ -34,6 +34,7 @@ import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { useClosePopovers } from '@/lib/useClosePopovers';
 import { printChapterContents } from '@/lib/printHelpers';
 import { usePinchZoom } from '@/hooks/usePinchZoom';
+import { useReadingProgressTracker } from '@/hooks/useReadingProgressTracker';
 
 const isMobile = () => window.innerWidth < 640;
 const STORAGE_KEY = 'kjb-position';
@@ -183,6 +184,8 @@ export default function BibleReader() {
       return null;
     } catch { return null; }
   });
+
+  useReadingProgressTracker(pos, loading);
 
   const toggleFullscreen = async () => {
     try {

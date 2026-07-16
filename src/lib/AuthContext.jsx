@@ -4,6 +4,7 @@ import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
 import { syncFromCloud, resetCloudSync, clearLocalSavedVerses } from '@/lib/savedVerses';
 import { syncSettingsFromCloud, resetSettingsSync, clearLocalSettings } from '@/lib/settingsSync';
+import { syncReadingProgressFromCloud, resetReadingProgressSync, clearLocalReadingProgress } from '@/lib/readingProgress';
 
 const AuthContext = createContext();
 
@@ -124,9 +125,10 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
       setAuthChecked(true);
-      // Sync saved verses and settings from the cloud now that we have a valid session.
+      // Sync saved verses, settings, and reading progress from the cloud now that we have a valid session.
       syncFromCloud();
       syncSettingsFromCloud();
+      syncReadingProgressFromCloud();
     } catch (error) {
       console.error('User auth check failed:', error);
       setIsLoadingAuth(false);
@@ -148,10 +150,12 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     resetCloudSync();
     resetSettingsSync();
+    resetReadingProgressSync();
     // Clear user-specific localStorage data so a guest or next user on this
-    // device doesn't see the previous user's saved verses and settings.
+    // device doesn't see the previous user's saved verses, settings, and reading progress.
     clearLocalSavedVerses();
     clearLocalSettings();
+    clearLocalReadingProgress();
     
     if (shouldRedirect) {
       // Use the SDK's logout method which handles token cleanup and redirect
