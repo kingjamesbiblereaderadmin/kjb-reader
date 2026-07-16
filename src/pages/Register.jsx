@@ -10,6 +10,7 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import FacebookIcon from "@/components/FacebookIcon";
 import AppleIcon from "@/components/AppleIcon";
+import MicrosoftIcon from "@/components/MicrosoftIcon";
 import { toast } from "@/components/ui/use-toast";
 
 export default function Register() {
@@ -47,7 +48,7 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       }
-      window.location.href = "/";
+      window.location.href = "/landing";
     } catch (err) {
       setError(err.message || "Invalid verification code");
     } finally {
@@ -69,15 +70,19 @@ export default function Register() {
   };
 
   const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
+    base44.auth.loginWithProvider("google", "/landing");
   };
 
   const handleFacebook = () => {
-    base44.auth.loginWithProvider("facebook", "/");
+    base44.auth.loginWithProvider("facebook", "/landing");
   };
 
   const handleApple = () => {
-    base44.auth.loginWithProvider("apple", "/");
+    base44.auth.loginWithProvider("apple", "/landing");
+  };
+
+  const handleMicrosoft = () => {
+    base44.auth.loginWithProvider("microsoft", "/landing");
   };
 
   if (showOtp) {
@@ -168,11 +173,20 @@ export default function Register() {
 
       <Button
         variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
+        className="w-full h-12 text-sm font-medium mb-3"
         onClick={handleApple}
       >
         <AppleIcon className="w-5 h-5 mr-2" />
         Continue with Apple
+      </Button>
+
+      <Button
+        variant="outline"
+        className="w-full h-12 text-sm font-medium mb-6"
+        onClick={handleMicrosoft}
+      >
+        <MicrosoftIcon className="w-5 h-5 mr-2" />
+        Continue with Microsoft
       </Button>
 
       <div className="relative mb-6">

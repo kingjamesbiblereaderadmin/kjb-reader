@@ -9,6 +9,7 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import FacebookIcon from "@/components/FacebookIcon";
 import AppleIcon from "@/components/AppleIcon";
+import MicrosoftIcon from "@/components/MicrosoftIcon";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -40,6 +41,10 @@ export default function Login() {
 
   const handleApple = () => {
     base44.auth.loginWithProvider("apple", "/landing");
+  };
+
+  const handleMicrosoft = () => {
+    base44.auth.loginWithProvider("microsoft", "/landing");
   };
 
   return (
@@ -76,11 +81,20 @@ export default function Login() {
 
       <Button
         variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
+        className="w-full h-12 text-sm font-medium mb-3"
         onClick={handleApple}
       >
         <AppleIcon className="w-5 h-5 mr-2" />
         Continue with Apple
+      </Button>
+
+      <Button
+        variant="outline"
+        className="w-full h-12 text-sm font-medium mb-6"
+        onClick={handleMicrosoft}
+      >
+        <MicrosoftIcon className="w-5 h-5 mr-2" />
+        Continue with Microsoft
       </Button>
 
       <div className="relative mb-6">
