@@ -231,6 +231,15 @@ const AuthenticatedApp = () => {
     }
   }
 
+  // First-time visitors are sent to the landing/setup page
+  if (!isInitializing && !authError && location.pathname === '/') {
+    try {
+      if (localStorage.getItem('kjb-has-visited-app') !== 'true') {
+        return <Navigate to="/landing" replace />;
+      }
+    } catch {}
+  }
+
   return (
     <>
       {/* Splash screen ALWAYS renders on first paint to prevent flash — hidden via opacity, not removed */}

@@ -1,35 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, LogIn } from 'lucide-react';
-import FirstLoadPrompt from '@/components/FirstLoadPrompt';
-import { useFirstLoadPrompt } from '@/hooks/useFirstLoadPrompt';
+import LandingSetupWizard from '@/components/LandingSetupWizard';
 
 const LAST_UPDATED = 'July 16th, 2026';
 
 export default function LandingPage() {
-  const [isPWAInstalled, setIsPWAInstalled] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (window.self !== window.top) return;
-    } catch { return; }
-    const dmStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    const dmMinimal = window.matchMedia('(display-mode: minimal-ui)').matches;
-    const dmOverlay = window.matchMedia('(display-mode: window-controls-overlay)').matches;
-    const iOSStandalone = navigator.standalone === true;
-    setIsPWAInstalled(dmStandalone || dmMinimal || dmOverlay || iOSStandalone);
-  }, []);
-
-  const {
-    showPrompt,
-    isInstallable,
-    isInstalled,
-    notifPermission,
-    handleInstall,
-    handleEnableNotif,
-    handleDismissPrompt,
-  } = useFirstLoadPrompt(isPWAInstalled);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
       <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
@@ -70,6 +46,11 @@ export default function LandingPage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+        </div>
+
+        {/* Step-by-step setup wizard */}
+        <div className="mb-5">
+          <LandingSetupWizard />
         </div>
 
         {/* Legal Links */}
@@ -126,18 +107,6 @@ export default function LandingPage() {
           © {new Date().getFullYear()} KJB Reader · Last updated: {LAST_UPDATED}
         </p>
       </div>
-
-      {/* First Load Prompt — install + notification setup */}
-      {showPrompt && (
-        <FirstLoadPrompt
-          isInstallable={isInstallable}
-          isInstalled={isPWAInstalled}
-          notifPermission={notifPermission}
-          onInstall={handleInstall}
-          onEnableNotif={handleEnableNotif}
-          onDismiss={handleDismissPrompt}
-        />
-      )}
     </div>
   );
 }
