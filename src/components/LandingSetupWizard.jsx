@@ -137,6 +137,39 @@ export default function LandingSetupWizard() {
     checkNotif();
   }, []);
 
+  // Refresh wizard state when cloud sync delivers settings — the initial
+  // useState reads happen before the async sync completes, so without this
+  // the wizard shows defaults even though synced values just landed.
+  useEffect(() => {
+    const refreshFromSync = () => {
+      try {
+        const syncedReader = localStorage.getItem('kjb-reader-font-family');
+        const syncedVerse = localStorage.getItem('kjb-verse-font-family');
+        const syncedA11y = getAccessibilityFont();
+        const syncedBg = localStorage.getItem('kjb-daily-verse-bg') || '';
+        const syncedNotif = localStorage.getItem('kjb-notifications-enabled') === 'true';
+
+        if (syncedReader) setReaderFontFamily(syncedReader);
+        if (syncedVerse) setVerseFontFamily(syncedVerse);
+        setA11yFont(syncedA11y);
+        if (syncedBg) setCustomBg(syncedBg);
+
+        // Mark steps done when synced values are present (non-default)
+        if (syncedReader && syncedReader !== 'serif') markDone('fonts');
+        if (syncedVerse && syncedVerse !== 'serif') markDone('fonts');
+        if (syncedA11y !== 'default') markDone('a11y');
+        if (syncedBg) markDone('background');
+        if (syncedNotif && 'Notification' in window && Notification.permission === 'granted') markDone('notif');
+      } catch {}
+    };
+    window.addEventListener('kjb-settings-synced', refreshFromSync);
+    window.addEventListener('storage', refreshFromSync);
+    return () => {
+      window.removeEventListener('kjb-settings-synced', refreshFromSync);
+      window.removeEventListener('storage', refreshFromSync);
+    };
+  }, []);
+
   // If a custom background is already set (e.g. from cloud sync), mark it done.
   useEffect(() => {
     if (customBg) markDone('background');
