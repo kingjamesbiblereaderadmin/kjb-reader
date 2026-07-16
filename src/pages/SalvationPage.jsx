@@ -17,7 +17,7 @@ export default function SalvationPage() {
           </Link>
         </div>
 
-        <GospelContent />
+        <GospelContent showPreachers />
       </div>
     </div>
   );

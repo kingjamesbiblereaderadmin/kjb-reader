@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { setGospelNav } from '@/lib/searchNav';
 import { getGospelResults } from '@/lib/gospelVerses';
+import PreachersSection from '@/components/PreachersSection';
 
 function CopyButton({ text, className }) {
   const [copied, setCopied] = useState(false);
@@ -362,7 +363,7 @@ const NOT_SAVED_ITEMS = [
   'Lordship Salvation',
 ];
 
-export default function GospelContent({ collapsible = false }) {
+export default function GospelContent({ collapsible = false, showPreachers = false }) {
   return (
     <>
       {/* Header */}
@@ -535,6 +536,9 @@ export default function GospelContent({ collapsible = false }) {
           <CopyButton text="<https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq>" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
         </div>
       </div>
+
+      {/* Trusted KJB Preachers — landing/salvation page only */}
+      {showPreachers && <PreachersSection />}
     </>
   );
 }
