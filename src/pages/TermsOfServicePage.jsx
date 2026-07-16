@@ -4,6 +4,20 @@ import { FileText, ArrowLeft } from 'lucide-react';
 
 const LAST_UPDATED = 'July 16th, 2026';
 
+function AIDisclaimer() {
+  return (
+    <div className="bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 mb-6 flex items-start gap-3">
+      <span className="text-lg shrink-0 leading-none mt-0.5">⚠️</span>
+      <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+        <strong className="font-semibold">AI-Generated Notice:</strong> These Terms of Service were
+        generated with the assistance of artificial intelligence (AI) and may contain errors or
+        omissions. They are not a substitute for professional legal advice. If you have specific
+        legal concerns, please consult a qualified legal professional.
+      </p>
+    </div>
+  );
+}
+
 function Section({ title, children }) {
   return (
     <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03]">
@@ -28,6 +42,8 @@ export default function TermsOfServicePage() {
           <p className="font-sans text-sm text-muted-foreground">Last updated: {LAST_UPDATED}</p>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
+
+        <AIDisclaimer />
 
         <Section title="Acceptance of Terms">
           <p>
@@ -68,12 +84,24 @@ export default function TermsOfServicePage() {
           </ul>
         </Section>
 
-        <Section title="Accounts">
+        <Section title="Accounts & Cloud Sync">
           <p>
-            The App may offer optional account features (such as sign-in for cross-device syncing of
-            saved verses and settings). If you create an account, you are responsible for
-            maintaining the confidentiality of your credentials and for all activities that occur
-            under your account. The core reading functionality does not require an account.
+            The App offers optional account features. If you choose to sign in (via email/password or
+            a third-party provider such as Google, Facebook, or Apple), your saved verses, reading
+            progress, and app settings can be synced across your devices through our secure cloud
+            backend. This means your data is stored both on your device (for offline access) and on
+            our servers (so it appears on other devices where you sign in).
+          </p>
+          <p>
+            If you create an account, you are responsible for maintaining the confidentiality of your
+            credentials and for all activities that occur under your account. The core reading
+            functionality does not require an account — you can use the App fully without signing in,
+            in which case your data stays only on your device.
+          </p>
+          <p>
+            You can delete your synced data at any time by removing saved verses within the App or by
+            contacting us. Deleting your local data (via "Clear Cache") does not delete data already
+            synced to the cloud.
           </p>
         </Section>
 

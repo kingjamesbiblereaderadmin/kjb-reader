@@ -2,7 +2,21 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, ArrowLeft } from 'lucide-react';
 
-const LAST_UPDATED = 'June 9th, 2026';
+const LAST_UPDATED = 'July 16th, 2026';
+
+function AIDisclaimer() {
+  return (
+    <div className="bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 mb-6 flex items-start gap-3">
+      <span className="text-lg shrink-0 leading-none mt-0.5">⚠️</span>
+      <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+        <strong className="font-semibold">AI-Generated Notice:</strong> This Privacy Policy was
+        generated with the assistance of artificial intelligence (AI) and may contain errors or
+        omissions. It is not a substitute for professional legal advice. If you have specific
+        privacy or legal concerns, please consult a qualified professional.
+      </p>
+    </div>
+  );
+}
 
 function Section({ title, children }) {
   return (
@@ -27,29 +41,37 @@ export default function PrivacyPolicyPage() {
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Privacy Policy</h1>
         <p className="font-sans text-sm text-muted-foreground">Last updated: {LAST_UPDATED}</p>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
-      </div>
+        </div>
 
-      <Section title="Overview">
+        <AIDisclaimer />
+
+        <Section title="Overview">
         <p>
           KJB Reader is a free, public-domain King James Bible reading app. Your privacy
-          matters to us. This app is built to work entirely on your own device — we do not
-          run user accounts, and we do not collect, sell, or share your personal information.
+          matters to us. The App works entirely on your own device by default — no account is
+          required. If you choose to sign in for cross-device syncing, a limited set of your data
+          is also stored securely in the cloud so it appears on your other devices. We do not sell
+          or share your personal information with third parties.
         </p>
       </Section>
 
-      <Section title="Information We Do Not Collect">
-        <p>We do not require you to create an account or provide any personal details to use the app. Specifically, we do not collect:</p>
+      <Section title="Information We Collect">
+        <p>If you choose to create an account and sign in, we collect:</p>
         <ul className="space-y-2 list-disc pl-5">
-          <li>Your name, email address, or contact details (unless you choose to email us).</li>
-          <li>Your reading history, saved verses, or settings — these are stored only on your device.</li>
-          <li>Your location, contacts, or any device files.</li>
+          <li>Your email address (used for authentication and account management).</li>
+          <li>Your saved verses, reading progress, and app settings (synced to the cloud so they appear on your other devices).</li>
         </ul>
+        <p>
+          If you use the App without signing in, no personal information is collected. Your data
+          stays only on your device. We do not collect your name, location, contacts, device files,
+          or any tracking identifiers.
+        </p>
       </Section>
 
       <Section title="Data Stored On Your Device">
         <p>
           To make the app work offline and remember your preferences, the following are stored
-          locally on your own device (using your browser's storage) and never sent to us:
+          locally on your own device (using your browser's storage):
         </p>
         <ul className="space-y-2 list-disc pl-5">
           <li>Your settings (theme, fonts, text size, daily verse style, custom background image).</li>
@@ -58,8 +80,24 @@ export default function PrivacyPolicyPage() {
           <li>Notification preferences for the daily verse reminder.</li>
         </ul>
         <p>
-          You can clear all of this at any time using the "Reset All Settings" or "Clear Cache"
-          options in Settings, or by clearing your browser data.
+          If you are signed in, this same data is also synced to your cloud account so it is
+          available on other devices. You can clear local data at any time using the "Reset All
+          Settings" or "Clear Cache" options in Settings, or by clearing your browser data.
+          Clearing local data does not delete data already synced to the cloud.
+        </p>
+      </Section>
+
+      <Section title="Cloud Sync & Data Storage">
+        <p>
+          When you sign in, your saved verses, reading progress, and app settings are synced to our
+          secure cloud backend (hosted by Base44). This data is associated with your account and is
+          only accessible by you. It is used solely to provide the cross-device sync feature — it is
+          not analysed, sold, or shared with third parties.
+        </p>
+        <p>
+          Your data is transmitted over encrypted (HTTPS) connections. You can request deletion of
+          your synced data at any time by contacting us. Account authentication is handled by our
+          platform provider; we do not store your password in plain text.
         </p>
       </Section>
 
