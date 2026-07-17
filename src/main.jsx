@@ -14,8 +14,17 @@ import { toast } from 'sonner'
 const isSwNotFoundError = (msg) => /Failed to (update|register) a ServiceWorker/i.test(msg || '');
 
 window.addEventListener('unhandledrejection', (event) => {
-  const msg = event?.reason?.message || String(event?.reason || '');
+  const reason = event?.reason;
+  const msg = reason?.message || String(reason || '');
   if (isSwNotFoundError(msg)) {
+    event.preventDefault();
+    return;
+  }
+  // The vite plugin's rejection handler calls .match() on reason.message.
+  // If the rejection is not an Error (no string .message), it crashes with
+  // "Cannot read properties of undefined (reading 'match')". preventDefault()
+  // on non-Error rejections so the plugin skips them.
+  if (!reason || typeof reason.message !== 'string') {
     event.preventDefault();
   }
 });
@@ -52,7 +61,7 @@ window.addEventListener('load', async () => {
 
   // Cache the splash logo as base64 in localStorage for offline use (the
   // cross-origin logo URL is unreliable to cache via SW alone).
-  cacheSplashLogo();
+  cacheSplashLogo().catch(() => {});
 
   // The preview sandbox occasionally can't serve /sw.js, making
   // registration.update() reject with "Failed to update a ServiceWorker ...
