@@ -89,7 +89,7 @@ export default function FullscreenMenu({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 top-14 z-50 bg-background overflow-y-auto" data-kjb-menu>
+    <div className="fixed inset-0 z-50 bg-background overflow-y-auto" style={{ top: 'calc(3.5rem + env(safe-area-inset-top))' }} data-kjb-menu>
       <div className="min-h-full flex flex-col">
         <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-4 flex-1">
 
