@@ -66,7 +66,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
     onGo(abbr, chapter, verse === '' ? null : Number(verse));
   };
 
-  const selectClass = 'w-full px-3 py-3 rounded-xl bg-background border border-border text-sm text-foreground appearance-none';
+  const selectClass = 'w-full px-3 py-3 rounded-xl bg-background border border-border text-base text-foreground appearance-none';
 
   return (
     <div className="space-y-3 p-1">
@@ -112,7 +112,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
         className="w-full flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
       >
         {loadingVerses ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-          <>Go to {book.name} {chapter}{verse !== '' ? `:${verse}` : ''} <ArrowRight className="w-4 h-4" /></>
+          <>Go to {book.shortName} {chapter}{verse !== '' ? `:${verse}` : ''} <ArrowRight className="w-4 h-4" /></>
         )}
       </button>
     </div>
