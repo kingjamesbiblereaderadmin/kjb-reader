@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Maximize2, Minimize2 } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Wifi, WifiOff } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -10,7 +10,6 @@ import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import ProgressBar from '@/components/ProgressBar';
-import FullscreenMenu from '@/components/layout/FullscreenMenu';
 
 import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
@@ -74,7 +73,6 @@ export default function AppLayout() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
-  const [isFullscreen, setIsFullscreen] = useState(() => typeof document !== 'undefined' && !!document.fullscreenElement);
   const isCheckingUpdatesRef = useRef(false);
   
   // Detect if running as installed PWA using display-mode (synchronous, no flicker)
@@ -139,26 +137,6 @@ export default function AppLayout() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
-
-  // Track real Fullscreen API state so the toggle icon stays in sync.
-  useEffect(() => {
-    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', onFsChange);
-    return () => document.removeEventListener('fullscreenchange', onFsChange);
-  }, []);
-
-  const toggleFullscreen = () => {
-    try {
-      if (!document.fullscreenElement) {
-        const el = document.documentElement;
-        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-      }
-    } catch {}
-  };
 
   // Keep prompt open across PWA install - only close on explicit dismiss
   useEffect(() => {
@@ -370,14 +348,9 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
-            <button className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
-              onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-              type="button"
-              aria-label="Toggle full screen"
-              title={isFullscreen ? 'Exit full screen' : 'Enter full screen'}
-            >
-              {isFullscreen ? <Minimize2 className="w-4 h-4 pointer-events-none text-emerald-500" /> : <Maximize2 className="w-4 h-4 pointer-events-none text-violet-500" />}
-            </button>
+            <div className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 flex items-center justify-center" title={isOnline ? 'Online' : 'Offline'}>
+              {isOnline ? <Wifi className="w-4 h-4 text-emerald-500" /> : <WifiOff className="w-4 h-4 text-muted-foreground" />}
+            </div>
             <button className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
@@ -396,7 +369,42 @@ export default function AppLayout() {
         </div>
         
         {menuOpen && (
-          <FullscreenMenu onClose={() => setMenuOpen(false)} />
+          <>
+            <div
+              className="fixed inset-0 top-14 z-40 bg-black/50 backdrop-blur-sm"
+              onClick={() => setMenuOpen(false)}
+            />
+            <div data-kjb-menu className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-xl border-b border-border/60 shadow-lg shadow-black/[0.05]">
+              <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {NAV_ITEMS.map(item => {
+                  const Icon = item.icon;
+                  const active = item.path === '/' ? pathname === '/' : pathname === item.path;
+                  const colors = NAV_COLORS[item.path] || NAV_COLORS['/'];
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        scrollMainToTop();
+                        navigate(item.path);
+                      }}
+                      className={`relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg border font-sans text-sm font-medium transition-all duration-200 hover:z-10 hover:shadow-md active:scale-95 ${
+                        active
+                          ? 'bg-gradient-to-br from-primary to-accent text-primary-foreground border-transparent shadow-md shadow-primary/20'
+                          : 'bg-card/60 text-foreground border-border hover:bg-secondary hover:border-accent/40'
+                      }`}
+                    >
+                      <span className={`flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-white shadow-sm bg-gradient-to-br ${colors.gradient}`}>
+                        <Icon className="w-4 h-4 transition-transform duration-200" />
+                      </span>
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </>
         )}
       </header>
 
