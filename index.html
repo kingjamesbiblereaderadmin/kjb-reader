@@ -2,6 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Pre-empt the vite plugin's unhandledrejection handler, which crashes
+         ("Cannot read properties of undefined (reading 'match')") when the
+         rejected value is not an Error object. This capturing-phase listener
+         runs before the plugin's handler and stops propagation for non-Error
+         rejections so the plugin never sees them. -->
+    <script>
+      (function () {
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event && event.reason;
+          var msg = (reason && typeof reason.message === 'string') ? reason.message : '';
+          // Swallow SW not-found rejections (preview sandbox can't serve /sw.js)
+          if (/Failed to (update|register) a ServiceWorker/i.test(msg)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+          }
+          // Non-Error rejections (no string .message) crash the vite plugin handler
+          if (!reason || typeof reason.message !== 'string') {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+          }
+        }, true);
+      })();
+    </script>
     <!-- Detect Internet Explorer / very old browsers and redirect to the legacy
          reader BEFORE any modern JS runs (the React app can't run on IE). -->
     <script>
