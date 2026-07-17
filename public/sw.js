@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260717_1924
+// KJB Reader Service Worker v20260717_1928
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260717_1924';
+const CACHE_NAME = 'kjb-reader-v20260717_1928';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -29,9 +29,15 @@ self.addEventListener('install', (event) => {
         console.warn('[SW] Some shell resources failed to cache:', err);
         return Promise.resolve();
       }).then(() => {
+        // Cross-origin images (e.g. the logo from media.base44.com) return
+        // "opaque" responses with no CORS headers. cache.add() defaults to
+        // cors mode and rejects these — so fetch in no-cors and cache.put
+        // the opaque response directly, which caches.match() can still serve.
         return Promise.all(
           PRECACHE_ASSETS.map(url =>
-            cache.add(url).catch(err => console.warn('[SW] Precache failed for', url, err))
+            fetch(url, { mode: 'no-cors' })
+              .then(response => cache.put(url, response))
+              .catch(err => console.warn('[SW] Precache failed for', url, err))
           )
         );
       });
@@ -244,9 +250,11 @@ self.addEventListener('message', (event) => {
         caches.open(CACHE_NAME).then((cache) => {
           return Promise.all(
             urls.map(url =>
-              fetch(url)
+              fetch(url, { mode: 'no-cors' })
                 .then(response => {
-                  if (response.ok) {
+                  // Opaque cross-origin responses have ok===false but are valid
+                  // and cacheable — same check as the fetch handler uses.
+                  if (response.ok || response.type === 'opaque') {
                     return cache.put(url, response.clone());
                   }
                 })
