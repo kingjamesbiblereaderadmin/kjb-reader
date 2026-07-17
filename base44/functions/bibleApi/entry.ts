@@ -50,6 +50,22 @@ async function loadBible() {
     const abbr = trimmed.slice(0, spaceIdx);
     const rest = trimmed.slice(spaceIdx + 1);
 
+    // Standalone colophon (epistle subscription) line: "<abbr> ¶ [text]"
+    // These have no chapter:verse — attach the colophon to the book's last
+    // chapter so the reader can show it at the end of that book.
+    const colophonLineMatch = rest.match(/^\ufffd\s*\[(.*)\]\s*$/);
+    if (colophonLineMatch) {
+      const cBook = ABBR_TO_NAME[abbr];
+      if (cBook && data[cBook]) {
+        const chs = Object.keys(data[cBook]).map(Number).filter(n => !isNaN(n));
+        if (chs.length) {
+          const lastCh = Math.max(...chs);
+          colophons[`${cBook}:${lastCh}`] = colophonLineMatch[1];
+        }
+      }
+      continue;
+    }
+
     const colonIdx = rest.indexOf(':');
     if (colonIdx === -1) continue;
 
