@@ -93,9 +93,9 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
           value={verse}
           options={[
             { value: '', label: 'Whole chapter' },
+            ...(hasSubscript ? [{ value: 'subscript', label: 'Subscript' }] : []),
             ...Array.from({ length: verseCount }, (_, i) => ({ value: i + 1, label: String(i + 1) })),
             ...(hasColophon ? [{ value: 'colophon', label: 'Colophon' }] : []),
-            ...(hasSubscript ? [{ value: 'subscript', label: 'Subscript' }] : []),
           ]}
           onSelect={(v) => setVerse(String(v))}
           disabled={loadingVerses || verseCount === 0}
