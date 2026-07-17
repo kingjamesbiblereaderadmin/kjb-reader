@@ -166,6 +166,13 @@ export function renderVerseText(text, searchTerm = null) {
   return result;
 }
 
+// Escape HTML special characters to prevent XSS when rendering entity-sourced
+// text. Applied after normalization but before the bracket-to-<em> transform,
+// so only known-safe tags (<em>, <mark>, <span>) appear in the output.
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+}
+
 // Highlight search terms inside an already-rendered HTML string, only touching
 // text nodes (never inside HTML tags).
 function highlightInHtml(html, searchTerm) {
@@ -190,6 +197,7 @@ export function renderColophonText(text, searchTerm = null) {
     .replace(/([A-Za-z])[\u00B6\uFFFD](?=[A-Za-z])/g, "$1'")
     .replace(/([A-Za-z])[\u00B6\uFFFD](?=[^A-Za-z]|$)/g, "$1'");
   normalized = mergeAdjacentBrackets(normalized);
+  normalized = escapeHtml(normalized);
   const parts = normalized.split(/\[([^\]]+)\]/g);
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part
@@ -209,6 +217,7 @@ export function renderSubscriptText(text, searchTerm = null) {
     .replace(/([A-Za-z])[\u00B6\uFFFD](?=[A-Za-z])/g, "$1'")
     .replace(/([A-Za-z])[\u00B6\uFFFD](?=[^A-Za-z]|$)/g, "$1'");
   normalized = mergeAdjacentBrackets(normalized);
+  normalized = escapeHtml(normalized);
   const parts = normalized.split(/\[([^\]]+)\]/g);
   const rendered = parts.map((part, i) =>
     i % 2 === 1 ? `<em>${part}</em>` : part

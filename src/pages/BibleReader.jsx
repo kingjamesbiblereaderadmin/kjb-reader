@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Colu
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText, resolveSubscript, resolveEndMarker } from '@/lib/bibleApi';
+import SubscriptContent from '@/components/bible/SubscriptContent';
 import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
@@ -1720,8 +1721,9 @@ export default function BibleReader() {
               onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor"
               className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
               style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem` }}
-              dangerouslySetInnerHTML={{ __html: renderSubscriptText(chapterSubscript, highlightSection === 'subscript' ? searchTerm : null) }}
-            />
+            >
+              <SubscriptContent text={chapterSubscript} searchTerm={highlightSection === 'subscript' ? searchTerm : null} />
+            </p>
           )}
         </div>
       )}
@@ -1753,7 +1755,7 @@ export default function BibleReader() {
           return (
           <div className={`${useColumns ? 'kjb-two-col text-left hyphens-auto' : 'text-left'} ${paragraphMode ? 'text-left px-2 sm:px-4' : ''}`} style={useColumns ? { fontSize: 'inherit', columnCount: 2, columnGap: '1.5rem', columnRule: '1px solid hsl(var(--border))' } : { fontSize: 'inherit' }}>
             {columnMode && !isViewingTitlePage && chapterSubscript && (
-              <p onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor" className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }} dangerouslySetInnerHTML={{ __html: renderSubscriptText(chapterSubscript, highlightSection === 'subscript' ? searchTerm : null) }} />
+              <p onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor" className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={chapterSubscript} searchTerm={highlightSection === 'subscript' ? searchTerm : null} /></p>
             )}
             {verses.filter(v => !activeFilter || verseInSelection(v)).map((v, idx) => (
               <VerseText
@@ -1771,7 +1773,7 @@ export default function BibleReader() {
         })()}
         {!loading && !error && colophon && (
           <div onClick={() => { setHighlightSection(highlightSection === 'colophon' ? null : 'colophon'); }} id="kjb-colophon-anchor" className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center transition-colors duration-500 rounded-lg cursor-pointer ${highlightSection === 'colophon' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}>
-            <p className={`kjb-colophon text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }} dangerouslySetInnerHTML={{ __html: renderColophonText(colophon, highlightSection === 'colophon' ? searchTerm : null) }} />
+            <p className={`kjb-colophon text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={colophon} searchTerm={highlightSection === 'colophon' ? searchTerm : null} /></p>
           </div>
         )}
       </div>
