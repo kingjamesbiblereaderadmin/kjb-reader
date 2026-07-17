@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import { BIBLE_BOOKS } from '@/lib/bibleData';
+import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { fetchVerseCount } from '@/lib/bibleApi';
 
 /**
- * Native <select> dropdown picker for Book → Chapter → Verse, styled like the
- * Dev Tools editor. Used on mobile in the reader and Contents so tapping opens
- * the device's native picker wheel instead of a grid popup.
+ * Native <select> dropdown picker for Testament → Book → Chapter → Verse, styled
+ * like the Dev Tools editor. Used on mobile in the reader and Contents so tapping
+ * opens the device's native picker wheel instead of a grid popup.
  *
  * onGo(abbr, chapter, verse|null) fires when the user confirms.
  * Verse is optional — leaving it on "Whole chapter" navigates to the chapter.
@@ -21,6 +21,16 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
   const book = BIBLE_BOOKS.find(b => b.abbr === abbr) || BIBLE_BOOKS[0];
   const maxChapters = book.chapters;
 
+  // Determine which testament the current book belongs to.
+  const initialTestament = useMemo(
+    () => (NEW_TESTAMENT.some(b => b.abbr === initialAbbr) ? 'new' : 'old'),
+    [initialAbbr]
+  );
+  const [testament, setTestament] = useState(initialTestament);
+
+  // Books for the currently selected testament.
+  const bookList = testament === 'new' ? NEW_TESTAMENT : OLD_TESTAMENT;
+
   // Fetch verse count whenever book/chapter changes so the verse dropdown fills.
   useEffect(() => {
     let cancelled = false;
@@ -32,6 +42,14 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
       .finally(() => { if (!cancelled) setLoadingVerses(false); });
     return () => { cancelled = true; };
   }, [book.apiName, chapter]);
+
+  const handleTestament = (newTestament) => {
+    setTestament(newTestament);
+    const firstBook = newTestament === 'new' ? NEW_TESTAMENT[0] : OLD_TESTAMENT[0];
+    setAbbr(firstBook.abbr);
+    setChapter(1);
+    setVerse('');
+  };
 
   const handleBook = (newAbbr) => {
     setAbbr(newAbbr);
@@ -53,9 +71,17 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
   return (
     <div className="space-y-3 p-1">
       <div>
+        <label className="block font-sans text-xs text-muted-foreground mb-1.5">Testament</label>
+        <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={testament} onChange={(e) => handleTestament(e.target.value)} className={selectClass}>
+          <option value="old">Old Testament</option>
+          <option value="new">New Testament</option>
+        </select>
+      </div>
+
+      <div>
         <label className="block font-sans text-xs text-muted-foreground mb-1.5">Book</label>
         <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={abbr} onChange={(e) => handleBook(e.target.value)} className={selectClass}>
-          {BIBLE_BOOKS.map(b => (
+          {bookList.map(b => (
             <option key={b.abbr} value={b.abbr}>{b.shortName}</option>
           ))}
         </select>
