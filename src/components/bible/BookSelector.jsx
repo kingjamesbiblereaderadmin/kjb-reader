@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
 import { OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 
 export default function BookSelector({ currentAbbr, onSelect, onClose, initialTestament }) {
@@ -30,16 +29,6 @@ export default function BookSelector({ currentAbbr, onSelect, onClose, initialTe
 
   return (
     <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col relative">
-      <div className="flex items-center justify-between p-3 border-b border-border">
-        <span className="font-sans text-sm font-semibold">Select Book</span>
-        <button
-          onClick={onClose}
-          className="p-1 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
       {/* Testament tabs */}
       <div className="grid grid-cols-2 gap-1 p-2 border-b border-border">
         <button
