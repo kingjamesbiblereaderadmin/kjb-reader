@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { List, ChevronDown } from 'lucide-react';
+import { List, ChevronDown, X } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { fetchVerseCount } from '@/lib/bibleApi';
 import BookSelector from '@/components/bible/BookSelector';
@@ -36,6 +36,8 @@ function formatVerses(verses) {
 
 export default function ContentsPage() {
   const navigate = useNavigate();
+  const [showTestamentSelector, setShowTestamentSelector] = useState(false);
+  const [selectedTestament, setSelectedTestament] = useState(null);
   const [showBookSelector, setShowBookSelector] = useState(false);
   const [showChapterSelector, setShowChapterSelector] = useState(false);
   const [showVerseSelector, setShowVerseSelector] = useState(false);
@@ -119,7 +121,7 @@ export default function ContentsPage() {
       {/* Selection Button */}
       <div className="mb-8">
         <button
-          onClick={() => setShowBookSelector(true)}
+          onClick={() => setShowTestamentSelector(true)}
           className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-sans font-semibold text-sm hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-between"
         >
           <span>
@@ -131,6 +133,50 @@ export default function ContentsPage() {
         </button>
       </div>
 
+      {/* Testament Selector Popup — asks Old or New before showing books */}
+      {showTestamentSelector && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowTestamentSelector(false)}
+        >
+          <div className="relative w-full max-w-sm bg-card border border-border rounded-2xl shadow-2xl p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="font-serif text-lg font-semibold text-foreground text-center flex-1">Choose Testament</p>
+              <button
+                onClick={() => setShowTestamentSelector(false)}
+                className="p-1 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors -mr-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              <button
+                onClick={() => {
+                  setSelectedTestament('old');
+                  setShowTestamentSelector(false);
+                  setShowBookSelector(true);
+                }}
+                className="w-full py-4 px-4 rounded-xl bg-secondary/50 border border-border hover:border-accent hover:bg-accent/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left"
+              >
+                <p className="font-serif text-base font-bold text-foreground">Old Testament</p>
+                <p className="font-sans text-xs text-muted-foreground mt-0.5">39 books · Genesis → Malachi</p>
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedTestament('new');
+                  setShowTestamentSelector(false);
+                  setShowBookSelector(true);
+                }}
+                className="w-full py-4 px-4 rounded-xl bg-secondary/50 border border-border hover:border-accent hover:bg-accent/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-left"
+              >
+                <p className="font-serif text-base font-bold text-foreground">New Testament</p>
+                <p className="font-sans text-xs text-muted-foreground mt-0.5">27 books · Matthew → Revelation</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Book Selector Popup — native dropdowns on mobile, grid popup on desktop */}
       {showBookSelector && isMobile() && (
         <div
@@ -140,7 +186,7 @@ export default function ContentsPage() {
           <div className="relative w-full max-w-sm bg-card border border-border rounded-2xl shadow-2xl p-5">
             <p className="font-serif text-lg font-semibold text-foreground text-center mb-4">Go to Passage</p>
             <NativeSelector
-              initialAbbr={selectedBook || 'GEN'}
+              initialAbbr={selectedBook || (selectedTestament === 'new' ? 'MAT' : 'GEN')}
               initialChapter={selectedChapter && selectedChapter > 0 ? selectedChapter : 1}
               onGo={(abbr, chapter, verse) => {
                 setShowBookSelector(false);
@@ -160,6 +206,7 @@ export default function ContentsPage() {
               currentAbbr={selectedBook}
               onSelect={handleSelectBook}
               onClose={() => setShowBookSelector(false)}
+              initialTestament={selectedTestament}
             />
           </div>
         </div>

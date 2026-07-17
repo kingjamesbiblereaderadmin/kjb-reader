@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import { OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 
-export default function BookSelector({ currentAbbr, onSelect, onClose }) {
-  const [oldOpen, setOldOpen] = useState(false);
-  const [newOpen, setNewOpen] = useState(false);
+export default function BookSelector({ currentAbbr, onSelect, onClose, initialTestament }) {
+  const [oldOpen, setOldOpen] = useState(initialTestament === 'old');
+  const [newOpen, setNewOpen] = useState(initialTestament === 'new');
 
   const renderBook = (book) => {
     const active = book.abbr === currentAbbr;
