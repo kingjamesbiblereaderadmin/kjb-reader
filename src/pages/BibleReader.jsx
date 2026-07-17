@@ -8,7 +8,7 @@ import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
-import { FieldDropdownList } from '@/components/bible/FieldDropdown';
+import VerseGrid from '@/components/bible/VerseGrid';
 import VerseText from '@/components/bible/VerseText';
 import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
@@ -1384,22 +1384,26 @@ export default function BibleReader() {
                   {selectMode ? <CheckSquare className="w-3.5 h-3.5 opacity-70 flex-shrink-0 transition-transform duration-200" /> : <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showVersePicker ? 'rotate-90' : ''}`} />}
                 </button>
                 {showVersePicker && verseCount > 0 && !isMobile() && (
-                  <div className="kjb-popover-panel absolute top-full left-0 mt-1 z-[100] w-44">
-                    <FieldDropdownList
-                      options={verseOptions}
-                      value={highlightVerse ?? ''}
+                  <div className="kjb-popover-panel absolute top-full left-0 mt-1 z-[100]">
+                    <VerseGrid
+                      verseCount={verseCount}
+                      currentVerse={highlightVerse}
+                      currentSection={highlightSection}
+                      hasSubscript={!!chapterSubscript}
+                      hasColophon={!!colophon}
                       onSelect={handleVersePick}
                     />
                   </div>
                 )}
                 <SelectorSheet open={showVersePicker && verseCount > 0 && isMobile()} onClose={() => setShowVersePicker(false)} title="Select Verse">
-                  <div className="p-1">
-                    <FieldDropdownList
-                      options={verseOptions}
-                      value={highlightVerse ?? ''}
-                      onSelect={handleVersePick}
-                    />
-                  </div>
+                  <VerseGrid
+                    verseCount={verseCount}
+                    currentVerse={highlightVerse}
+                    currentSection={highlightSection}
+                    hasSubscript={!!chapterSubscript}
+                    hasColophon={!!colophon}
+                    onSelect={handleVersePick}
+                  />
                 </SelectorSheet>
               </div>
 
