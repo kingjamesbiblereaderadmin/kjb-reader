@@ -11,13 +11,49 @@ import { fetchVerseCount } from '@/lib/bibleApi';
  * onGo(abbr, chapter, verse|null) fires when the user confirms.
  * Verse is optional — leaving it on "Whole chapter" navigates to the chapter.
  */
+function FieldDropdown({ label, value, options, onSelect, disabled, small }) {
+  const [open, setOpen] = useState(false);
+  const current = options.find(o => String(o.value) === String(value));
+  return (
+    <div>
+      <label className="block font-sans text-xs text-muted-foreground mb-1.5">{label}</label>
+      <button
+        type="button"
+        data-vaul-no-drag
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={() => { if (!disabled) setOpen(o => !o); }}
+        disabled={disabled}
+        className={`w-full px-3 py-3 rounded-xl bg-secondary text-secondary-foreground border border-border ${small ? 'text-sm' : 'text-base'} font-medium text-left flex items-center justify-between gap-2 disabled:opacity-50`}
+      >
+        <span className="text-left leading-snug truncate">{current ? current.label : '—'}</span>
+        <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && !disabled && (
+        <div className="mt-1 max-h-56 overflow-y-auto rounded-xl bg-background border border-border shadow-lg">
+          {options.map(o => (
+            <button
+              key={String(o.value)}
+              type="button"
+              onClick={() => { onSelect(o.value); setOpen(false); }}
+              className={`w-full text-left px-3 py-2 ${small ? 'text-xs leading-snug' : 'text-sm'} border-b border-border/60 last:border-b-0 transition-colors ${
+                String(o.value) === String(value) ? 'bg-secondary font-medium' : 'hover:bg-accent/10'
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1, onGo }) {
   const [abbr, setAbbr] = useState(initialAbbr);
   const [chapter, setChapter] = useState(initialChapter || 1);
   const [verse, setVerse] = useState(''); // '' = whole chapter
   const [verseCount, setVerseCount] = useState(0);
   const [loadingVerses, setLoadingVerses] = useState(false);
-  const [bookOpen, setBookOpen] = useState(false);
 
   const book = BIBLE_BOOKS.find(b => b.abbr === abbr) || BIBLE_BOOKS[0];
   const maxChapters = book.chapters;
@@ -67,66 +103,37 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
     onGo(abbr, chapter, verse === '' ? null : Number(verse));
   };
 
-  const selectClass = 'w-full px-3 py-3 rounded-xl bg-secondary text-secondary-foreground border border-border text-base font-medium appearance-none';
-
   return (
     <div className="space-y-3 p-1">
-      <div>
-        <label className="block font-sans text-xs text-muted-foreground mb-1.5">Testament</label>
-        <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={testament} onChange={(e) => handleTestament(e.target.value)} className={selectClass}>
-          <option value="old">Old Testament</option>
-          <option value="new">New Testament</option>
-        </select>
-      </div>
+      <FieldDropdown
+        label="Testament"
+        value={testament}
+        options={[{ value: 'old', label: 'Old Testament' }, { value: 'new', label: 'New Testament' }]}
+        onSelect={handleTestament}
+      />
 
-      <div>
-        <label className="block font-sans text-xs text-muted-foreground mb-1.5">Book</label>
-        <button
-          type="button"
-          data-vaul-no-drag
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => setBookOpen(o => !o)}
-          className="w-full px-3 py-3 rounded-xl bg-secondary text-secondary-foreground border border-border text-sm font-medium text-left flex items-center justify-between gap-2"
-        >
-          <span className="text-left leading-snug">{book.name}</span>
-          <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${bookOpen ? 'rotate-180' : ''}`} />
-        </button>
-        {bookOpen && (
-          <div className="mt-1 max-h-56 overflow-y-auto rounded-xl bg-background border border-border shadow-lg">
-            {bookList.map(b => (
-              <button
-                key={b.abbr}
-                type="button"
-                onClick={() => { handleBook(b.abbr); setBookOpen(false); }}
-                className={`w-full text-left px-3 py-2 text-xs leading-snug border-b border-border/60 last:border-b-0 transition-colors ${
-                  b.abbr === abbr ? 'bg-secondary font-medium' : 'hover:bg-accent/10'
-                }`}
-              >
-                {b.name}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      <FieldDropdown
+        label="Book"
+        value={abbr}
+        options={bookList.map(b => ({ value: b.abbr, label: b.name }))}
+        onSelect={handleBook}
+        small
+      />
 
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block font-sans text-xs text-muted-foreground mb-1.5">Chapter</label>
-          <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={chapter} onChange={(e) => handleChapter(e.target.value)} className={selectClass}>
-            {Array.from({ length: maxChapters }, (_, i) => i + 1).map(ch => (
-              <option key={ch} value={ch}>{ch}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block font-sans text-xs text-muted-foreground mb-1.5">Verse</label>
-          <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={verse} onChange={(e) => setVerse(e.target.value)} disabled={loadingVerses || verseCount === 0} className={`${selectClass} disabled:opacity-50`}>
-            <option value="">Whole chapter</option>
-            {Array.from({ length: verseCount }, (_, i) => i + 1).map(v => (
-              <option key={v} value={v}>{v}</option>
-            ))}
-          </select>
-        </div>
+        <FieldDropdown
+          label="Chapter"
+          value={chapter}
+          options={Array.from({ length: maxChapters }, (_, i) => ({ value: i + 1, label: String(i + 1) }))}
+          onSelect={handleChapter}
+        />
+        <FieldDropdown
+          label="Verse"
+          value={verse}
+          options={[{ value: '', label: 'Whole chapter' }, ...Array.from({ length: verseCount }, (_, i) => ({ value: i + 1, label: String(i + 1) }))]}
+          onSelect={(v) => setVerse(String(v))}
+          disabled={loadingVerses || verseCount === 0}
+        />
       </div>
 
       <button
