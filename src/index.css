@@ -1,6 +1,6 @@
 /* Fonts are loaded directly in index.html for faster rendering to prevent FOUT (Flash of Unstyled Text) */
 /* Atkinson Hyperlegible — high-legibility font for low-vision readers */
-@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=block');
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 /* OpenDyslexic — accessible font designed for readers with dyslexia */
 @font-face {
@@ -8,21 +8,21 @@
   src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff') format('woff');
   font-weight: 400;
   font-style: normal;
-  font-display: block;
+  font-display: swap;
 }
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
-  font-display: block;
+  font-display: swap;
 }
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Italic.woff') format('woff');
   font-weight: 400;
   font-style: italic;
-  font-display: block;
+  font-display: swap;
 }
 
 @tailwind base;
