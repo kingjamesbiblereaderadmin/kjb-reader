@@ -14,6 +14,14 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   const doneRef = useRef(false);
   const stepsLog = useRef([]);
 
+  // The static HTML boot splash lives outside #root so React doesn't remove it
+  // on mount (which caused a logo flash). Hide it once the React splash has
+  // rendered — they look identical, so the swap is seamless.
+  useEffect(() => {
+    const el = document.getElementById('kjb-boot-splash');
+    if (el) requestAnimationFrame(() => { el.style.display = 'none'; });
+  }, []);
+
 
 
   const setStep = (message) => {
