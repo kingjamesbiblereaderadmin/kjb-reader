@@ -66,7 +66,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
     onGo(abbr, chapter, verse === '' ? null : Number(verse));
   };
 
-  const selectClass = 'w-full px-3 py-3 rounded-xl bg-background border border-border text-base text-foreground appearance-none';
+  const selectClass = 'w-full px-3 py-3 rounded-xl bg-primary/10 border border-primary/30 text-base text-foreground appearance-none';
 
   return (
     <div className="space-y-3 p-1">
@@ -82,7 +82,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
         <label className="block font-sans text-xs text-muted-foreground mb-1.5">Book</label>
         <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={abbr} onChange={(e) => handleBook(e.target.value)} className={selectClass}>
           {bookList.map(b => (
-            <option key={b.abbr} value={b.abbr}>{b.name}</option>
+            <option key={b.abbr} value={b.abbr}>{b.shortName}</option>
           ))}
         </select>
       </div>
