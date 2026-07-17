@@ -25,6 +25,18 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
     onClose();
   };
 
+  // Special section buttons (colophon/subscript) flow inline after the last
+  // verse, filling the remaining row cells — mirrors the VerseGrid layout.
+  const COLS = 6;
+  const specials = [];
+  if (hasSubscript) specials.push({ key: 'subscript', label: 'Subscript', title: 'Go to the superscription (before verse 1)' });
+  if (hasColophon) specials.push({ key: 'colophon', label: 'Colophon', title: 'Go to the colophon (after the last verse)' });
+  const lastRowVerses = totalVerses % COLS;
+  const remaining = lastRowVerses === 0 ? COLS : COLS - lastRowVerses;
+  const baseSpan = Math.floor(remaining / Math.max(specials.length, 1));
+  const extra = remaining - baseSpan * Math.max(specials.length, 1);
+  const spans = specials.map((_, idx) => Math.max(1, idx < extra ? baseSpan + 1 : baseSpan));
+
   return (
     <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col">
       <div className="px-4 py-3 border-b border-border flex items-center justify-between">
@@ -48,29 +60,7 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
         </div>
       </div>
       <div className="overflow-y-auto flex-1 p-3">
-        {(hasSubscript || hasColophon) && (
-          <div className="flex flex-wrap gap-2 mb-3">
-            {hasSubscript && (
-              <button
-                onClick={() => { onSelect({ section: 'subscript' }); onClose(); }}
-                className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary border border-border hover:bg-accent/20 text-foreground transition-colors"
-                title="Go to the superscription (before verse 1)"
-              >
-                Subscript
-              </button>
-            )}
-            {hasColophon && (
-              <button
-                onClick={() => { onSelect({ section: 'colophon' }); onClose(); }}
-                className="px-3 h-9 rounded text-xs font-sans font-medium bg-secondary border border-border hover:bg-accent/20 text-foreground transition-colors"
-                title="Go to the colophon (after the last verse)"
-              >
-                Colophon
-              </button>
-            )}
-          </div>
-        )}
-        <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
+        <div className="grid grid-cols-6 gap-2">
           {Array.from({ length: totalVerses }, (_, i) => i + 1).map(v => {
             const isActive = selected.has(v);
             return (
@@ -89,6 +79,19 @@ export default function VerseSelector({ totalVerses, currentVerse, onSelect, onC
               </button>
             );
           })}
+          {specials.map((s, idx) => (
+            <button
+              key={s.key}
+              data-vaul-no-drag
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={() => { onSelect({ section: s.key }); onClose(); }}
+              style={{ gridColumn: `span ${spans[idx]}` }}
+              className="h-9 w-full rounded text-sm font-sans font-medium border transition-colors bg-secondary hover:bg-accent/20 text-foreground border-border"
+              title={s.title}
+            >
+              {s.label}
+            </button>
+          ))}
         </div>
       </div>
       {onGoToChapter && (

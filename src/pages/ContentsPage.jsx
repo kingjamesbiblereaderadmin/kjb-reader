@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { List, ChevronDown } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
-import { fetchVerseCount } from '@/lib/bibleApi';
+import { fetchVerseCount, resolveColophon, resolveSubscript } from '@/lib/bibleApi';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
 import VerseSelector from '@/components/bible/VerseSelector';
@@ -89,6 +89,15 @@ export default function ContentsPage() {
   };
 
   const handleSelectVerse = (verses) => {
+    // Special section picks (colophon/subscript) from the verse picker —
+    // land on the last verse (colophon sits below it) or verse 1 (subscript
+    // sits above it); the reader renders the full chapter either way.
+    if (verses && typeof verses === 'object' && !Array.isArray(verses) && verses.section) {
+      const v = verses.section === 'colophon' ? verseCount : 1;
+      setShowVerseSelector(false);
+      setTimeout(() => goTo(selectedBook, selectedChapter, [v]), 150);
+      return;
+    }
     const verseArray = Array.isArray(verses) ? verses : [verses];
     setSelectedVerses(verseArray);
     setShowVerseSelector(false);
@@ -207,6 +216,8 @@ export default function ContentsPage() {
                 goTo(selectedBook, selectedChapter, null);
               }}
               multiSelect={true}
+              hasSubscript={currentBook ? !!resolveSubscript(currentBook.apiName, selectedChapter) : false}
+              hasColophon={currentBook ? !!resolveColophon(currentBook.apiName, selectedChapter) : false}
             />
           </div>
         </div>
