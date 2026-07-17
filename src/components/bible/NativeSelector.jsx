@@ -107,7 +107,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
         className="w-full flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
       >
         {loadingVerses ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-          <>Go to {book.shortName} {chapter}{verse === 'colophon' ? ':Colophon' : verse === 'subscript' ? ':Subscript' : verse !== '' ? `:${verse}` : ''} <ArrowRight className="w-4 h-4" /></>
+          <>Go to {book.shortName} {chapter}{verse === 'colophon' ? "'s Colophon" : verse === 'subscript' ? "'s Subscript" : verse !== '' ? `:${verse}` : ''} <ArrowRight className="w-4 h-4" /></>
         )}
       </button>
     </div>
