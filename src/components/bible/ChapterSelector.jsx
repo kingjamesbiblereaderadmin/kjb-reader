@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 
-export default function ChapterSelector({ totalChapters, currentChapter, onSelect, onClose }) {
+export default function ChapterSelector({ totalChapters, currentChapter, onSelect, onClose, bare }) {
   const [selectedChapter, setSelectedChapter] = useState(currentChapter);
 
   return (
-    <div className="bg-card rounded-2xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col relative">
-      <div className="overflow-y-auto flex-1 p-3">
+    <div className={bare ? 'flex flex-col' : 'bg-card rounded-2xl overflow-hidden w-[90vw] max-w-sm max-h-[70vh] flex flex-col relative'}>
+      <div className={bare ? 'p-1' : 'overflow-y-auto flex-1 p-3'}>
         <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
           {Array.from({ length: totalChapters }, (_, i) => i + 1).map(ch => (
             <button

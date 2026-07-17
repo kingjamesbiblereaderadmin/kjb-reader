@@ -1366,6 +1366,7 @@ export default function BibleReader() {
                     currentChapter={pos.chapter}
                     onSelect={(ch, showVerse) => { navigate(pos.abbr, ch); setShowChapterPicker(false); if (showVerse) setShowVersePicker(true); }}
                     onClose={() => setShowChapterPicker(false)}
+                    bare
                   />
                 </SelectorSheet>
               </div>
@@ -1403,6 +1404,7 @@ export default function BibleReader() {
                     hasSubscript={!!chapterSubscript}
                     hasColophon={!!colophon}
                     onSelect={handleVersePick}
+                    bare
                   />
                 </SelectorSheet>
               </div>
