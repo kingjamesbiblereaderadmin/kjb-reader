@@ -15,14 +15,34 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
     if (user.role !== 'admin') return Response.json({ error: 'Admin only' }, { status: 403 });
 
+    // Strict input validation for all service-role writes to prevent injection
+    // of oversized or malformed data that could corrupt global Bible text.
+    const isValidId = (v) => typeof v === 'string' && v.length > 0 && v.length <= 100;
+    const isValidText = (v) => typeof v === 'string' && v.length > 0 && v.length <= 10000;
+    const isValidNote = (v) => v === undefined || (typeof v === 'string' && v.length <= 500);
+
     if (op === 'create') {
       const { book, chapter, verse, text, note } = body;
       // verse may be 0 (subscript) or -1 (colophon), so check for null/undefined
       // rather than falsiness.
-      if (!book || !chapter || verse == null || text == null) {
-        return Response.json({ error: 'book, chapter, verse, text required' }, { status: 400 });
+      if (typeof book !== 'string' || book.length === 0 || book.length > 50) {
+        return Response.json({ error: 'Invalid book' }, { status: 400 });
       }
-      const payload = { book, chapter: Number(chapter), verse: Number(verse), text };
+      const chNum = Number(chapter);
+      if (!Number.isInteger(chNum) || chNum < 1 || chNum > 200) {
+        return Response.json({ error: 'Invalid chapter' }, { status: 400 });
+      }
+      const vNum = Number(verse);
+      if (!Number.isInteger(vNum) || vNum < -1 || vNum > 200) {
+        return Response.json({ error: 'Invalid verse' }, { status: 400 });
+      }
+      if (!isValidText(text)) {
+        return Response.json({ error: 'Invalid text' }, { status: 400 });
+      }
+      if (!isValidNote(note)) {
+        return Response.json({ error: 'Invalid note' }, { status: 400 });
+      }
+      const payload = { book, chapter: chNum, verse: vNum, text };
       if (note) payload.note = note;
       const saved = await base44.asServiceRole.entities.BibleTextOverride.create(payload);
       return Response.json({ success: true, record: saved });
@@ -30,14 +50,15 @@ Deno.serve(async (req) => {
 
     if (op === 'update') {
       const { id, text } = body;
-      if (!id || text == null) return Response.json({ error: 'id and text required' }, { status: 400 });
+      if (!isValidId(id)) return Response.json({ error: 'Invalid id' }, { status: 400 });
+      if (!isValidText(text)) return Response.json({ error: 'Invalid text' }, { status: 400 });
       const saved = await base44.asServiceRole.entities.BibleTextOverride.update(id, { text });
       return Response.json({ success: true, record: saved });
     }
 
     if (op === 'delete') {
       const { id } = body;
-      if (!id) return Response.json({ error: 'id required' }, { status: 400 });
+      if (!isValidId(id)) return Response.json({ error: 'Invalid id' }, { status: 400 });
       await base44.asServiceRole.entities.BibleTextOverride.delete(id);
       return Response.json({ success: true });
     }
