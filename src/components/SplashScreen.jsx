@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { detectIncognito } from '@/lib/incognito';
+import { getSplashLogo } from '@/lib/splashLogo';
 
 const STEP_PAUSE_MS = 1500;
 
@@ -443,6 +444,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   // matching the boot placeholder in index.html so there's no flash/white box.
   const isDarkSplash = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
   const splashBg = isDarkSplash ? '#0f1117' : '#fef9f3';
+  const logoSrc = getSplashLogo();
   const trackBg = isDarkSplash ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
   const textColor = isDarkSplash ? '#c8cdd8' : '#5a6472';
 
@@ -455,7 +457,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
     >
       <div className="flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
         <img
-          src="https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png"
+          src={logoSrc}
           alt="KJB Reader Logo"
           className="w-44 h-44 object-contain rounded-2xl p-3"
           style={{ background: splashBg }}

@@ -4,6 +4,7 @@ import App from '@/App.jsx'
 import '@/index.css'
 import { initNotifications } from '@/lib/notifications'
 import { getDailyVerse } from '@/lib/dailyVerse'
+import { cacheSplashLogo } from '@/lib/splashLogo'
 import { toast } from 'sonner'
 
 // Swallow the harmless, transient "Failed to update a ServiceWorker ... Not
@@ -48,7 +49,11 @@ window.addEventListener('load', async () => {
     }
     return;
   }
-  
+
+  // Cache the splash logo as base64 in localStorage for offline use (the
+  // cross-origin logo URL is unreliable to cache via SW alone).
+  cacheSplashLogo();
+
   // The preview sandbox occasionally can't serve /sw.js, making
   // registration.update() reject with "Failed to update a ServiceWorker ...
   // Not found". Wrap update() so any such transient rejection is fully

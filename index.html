@@ -239,7 +239,6 @@
         <div style="display:flex;flex-direction:column;align-items:center;margin-top:-4rem;gap:48px;">
           <img
             id="kjb-boot-logo"
-            src="https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png"
             alt="KJB Reader Logo"
             style="width:11rem;height:11rem;object-fit:contain;border-radius:1rem;padding:0.75rem;background:#0f1117;"
           />
@@ -254,10 +253,15 @@
       <script>
         (function () {
           try {
+            // Use the base64-cached logo from localStorage if available (works
+            // offline without SW). Falls back to the cross-origin URL online.
+            var logoEl = document.getElementById('kjb-boot-logo');
+            var cachedLogo = localStorage.getItem('kjb-splash-logo-dataurl');
+            logoEl.src = cachedLogo || 'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png';
             if (!document.documentElement.classList.contains('dark')) {
               var bg = '#fef9f3';
               document.getElementById('kjb-boot-splash').style.background = bg;
-              document.getElementById('kjb-boot-logo').style.background = bg;
+              logoEl.style.background = bg;
               document.getElementById('kjb-boot-track').style.background = 'rgba(0,0,0,0.08)';
               document.getElementById('kjb-boot-text').style.color = '#5a6472';
             }
