@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, BookOpen, Heart, Library, Info, List, Settings, Bookmark, ChevronRight, Shuffle, X } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
@@ -88,7 +89,7 @@ export default function FullscreenMenu({ onClose }) {
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[60] bg-background overflow-y-auto" data-kjb-menu>
       <div className="min-h-full flex flex-col">
         <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-4 flex-1">
@@ -176,6 +177,7 @@ export default function FullscreenMenu({ onClose }) {
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
