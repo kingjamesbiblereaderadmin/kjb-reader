@@ -82,7 +82,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
         <label className="block font-sans text-xs text-muted-foreground mb-1.5">Book</label>
         <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={abbr} onChange={(e) => handleBook(e.target.value)} className={selectClass}>
           {bookList.map(b => (
-            <option key={b.abbr} value={b.abbr}>{b.shortName}</option>
+            <option key={b.abbr} value={b.abbr}>{b.name}</option>
           ))}
         </select>
       </div>
@@ -112,7 +112,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
         className="w-full flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-opacity"
       >
         {loadingVerses ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-          <>Go to {book.shortName} {chapter}{verse !== '' ? `:${verse}` : ''} <ArrowRight className="w-4 h-4" /></>
+          <>Go to {book.name} {chapter}{verse !== '' ? `:${verse}` : ''} <ArrowRight className="w-4 h-4" /></>
         )}
       </button>
     </div>
