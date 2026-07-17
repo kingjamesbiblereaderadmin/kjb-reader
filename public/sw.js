@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260716_2247
+// KJB Reader Service Worker v20260716_2248
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260716_2247';
+const CACHE_NAME = 'kjb-reader-v20260716_2248';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -12,14 +12,28 @@ const APP_SHELL_FILES = [
   '/manifest.json',
 ];
 
+// Cross-origin assets to precache separately from the app shell (addAll is
+// atomic — one failure rejects the whole batch, so these go in individually).
+const PRECACHE_ASSETS = [
+  'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png',
+];
+
 // Install event - cache app shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching app shell');
+      // Cache the app shell first; then precache cross-origin assets
+      // individually so a single failure doesn't reject the whole batch.
       return cache.addAll(APP_SHELL_FILES).catch(err => {
-        console.warn('[SW] Some resources failed to cache:', err);
+        console.warn('[SW] Some shell resources failed to cache:', err);
         return Promise.resolve();
+      }).then(() => {
+        return Promise.all(
+          PRECACHE_ASSETS.map(url =>
+            cache.add(url).catch(err => console.warn('[SW] Precache failed for', url, err))
+          )
+        );
       });
     })
   );
