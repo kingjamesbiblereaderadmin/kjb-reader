@@ -22,7 +22,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose, initialTe
             : 'hover:bg-accent/10 text-foreground'
         }`}
       >
-        <span>{book.shortName}</span>
+        <span>{book.name}</span>
         <span className="ml-2 text-xs text-muted-foreground">{book.chapters} ch.</span>
       </button>
     );
@@ -30,7 +30,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose, initialTe
 
   return (
     <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col relative">
-      <div className="flex items-center justify-between p-3 border-b border-border bg-muted/30">
+      <div className="flex items-center justify-between p-3 border-b border-border">
         <span className="font-sans text-sm font-semibold">Select Book</span>
         <button
           onClick={onClose}
@@ -41,7 +41,7 @@ export default function BookSelector({ currentAbbr, onSelect, onClose, initialTe
       </div>
 
       {/* Testament tabs */}
-      <div className="grid grid-cols-2 gap-1 p-2 bg-muted/20 border-b border-border">
+      <div className="grid grid-cols-2 gap-1 p-2 border-b border-border">
         <button
           onClick={() => setTab('old')}
           className={`py-2 rounded-lg font-sans text-sm font-semibold transition-colors ${
