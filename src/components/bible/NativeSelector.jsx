@@ -17,33 +17,35 @@ function FieldDropdown({ label, value, options, onSelect, disabled, small }) {
   return (
     <div>
       <label className="block font-sans text-xs text-muted-foreground mb-1.5">{label}</label>
-      <button
-        type="button"
-        data-vaul-no-drag
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={() => { if (!disabled) setOpen(o => !o); }}
-        disabled={disabled}
-        className={`w-full px-3 py-3 rounded-xl bg-secondary text-secondary-foreground border border-border ${small ? 'text-sm' : 'text-base'} font-medium text-left flex items-center justify-between gap-2 disabled:opacity-50`}
-      >
-        <span className="text-left leading-snug">{current ? current.label : '—'}</span>
-        <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
-      </button>
-      {open && !disabled && (
-        <div className="mt-1 max-h-56 overflow-y-auto rounded-xl bg-background border border-border shadow-lg">
-          {options.map(o => (
-            <button
-              key={String(o.value)}
-              type="button"
-              onClick={() => { onSelect(o.value); setOpen(false); }}
-              className={`w-full text-left px-3 py-2 ${small ? 'text-xs leading-snug' : 'text-sm'} border-b border-border/60 last:border-b-0 transition-colors ${
-                String(o.value) === String(value) ? 'bg-secondary font-medium' : 'hover:bg-accent/10'
-              }`}
-            >
-              {o.label}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="relative">
+        <button
+          type="button"
+          data-vaul-no-drag
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => { if (!disabled) setOpen(o => !o); }}
+          disabled={disabled}
+          className={`w-full px-3 py-3 rounded-xl bg-secondary text-secondary-foreground border border-border ${small ? 'text-sm' : 'text-base'} font-medium text-left flex items-center justify-between gap-2 disabled:opacity-50`}
+        >
+          <span className="text-left leading-snug">{current ? current.label : '—'}</span>
+          <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
+        {open && !disabled && (
+          <div className="absolute left-0 right-0 top-full mt-1 z-20 max-h-56 overflow-y-auto rounded-xl bg-background border border-border shadow-lg">
+            {options.map(o => (
+              <button
+                key={String(o.value)}
+                type="button"
+                onClick={() => { onSelect(o.value); setOpen(false); }}
+                className={`w-full text-left px-3 py-2 ${small ? 'text-xs leading-snug' : 'text-sm'} border-b border-border/60 last:border-b-0 transition-colors ${
+                  String(o.value) === String(value) ? 'bg-secondary font-medium' : 'hover:bg-accent/10'
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
