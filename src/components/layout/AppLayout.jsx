@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Wifi, WifiOff } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Maximize2, Minimize2 } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -72,7 +72,7 @@ export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const isCheckingUpdatesRef = useRef(false);
   
   // Detect if running as installed PWA using display-mode (synchronous, no flicker)
@@ -128,15 +128,18 @@ export default function AppLayout() {
   }, [isPWAInstalled, isCheckingInstall]);
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    handler();
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
   }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) { await document.documentElement.requestFullscreen?.(); }
+      else { await document.exitFullscreen?.(); }
+    } catch {}
+  };
 
   // Keep prompt open across PWA install - only close on explicit dismiss
   useEffect(() => {
@@ -348,9 +351,15 @@ export default function AppLayout() {
 
           {/* Actions - responsive button sizes with visible square touch targets */}
           <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
-            <div className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 flex items-center justify-center" title={isOnline ? 'Online' : 'Offline'}>
-              {isOnline ? <Wifi className="w-4 h-4 text-emerald-500" /> : <WifiOff className="w-4 h-4 text-muted-foreground" />}
-            </div>
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+              aria-label="Toggle fullscreen"
+              className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
+            >
+              {isFullscreen ? <Minimize2 className="w-4 h-4 pointer-events-none text-violet-500" /> : <Maximize2 className="w-4 h-4 pointer-events-none text-violet-500" />}
+            </button>
             <button className="w-9 h-9 xs:w-11 xs:h-11 sm:w-10 sm:h-10 shrink-0 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-all duration-200 flex items-center justify-center cursor-pointer touch-manipulation"
               onClick={(e) => { e.stopPropagation(); try { window.dispatchEvent(new Event('kjb-close-popovers')); } catch {} toggleTheme(); }}
               type="button"
@@ -371,7 +380,8 @@ export default function AppLayout() {
         {menuOpen && (
           <>
             <div
-              className="fixed inset-0 top-14 z-40 bg-black/50 backdrop-blur-sm"
+              className="fixed inset-x-0 bottom-0 z-40 bg-black/50 backdrop-blur-sm"
+              style={{ top: 'calc(3.5rem + env(safe-area-inset-top))' }}
               onClick={() => setMenuOpen(false)}
             />
             <div data-kjb-menu className="absolute top-full right-0 left-0 z-50 bg-card backdrop-blur-xl border-b border-border/60 shadow-lg shadow-black/[0.05]">
