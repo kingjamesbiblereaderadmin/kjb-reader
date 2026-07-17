@@ -1,54 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowRight, Loader2, ChevronDown } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { fetchVerseCount } from '@/lib/bibleApi';
-
-/**
- * Native <select> dropdown picker for Testament → Book → Chapter → Verse, styled
- * like the Dev Tools editor. Used on mobile in the reader and Contents so tapping
- * opens the device's native picker wheel instead of a grid popup.
- *
- * onGo(abbr, chapter, verse|null) fires when the user confirms.
- * Verse is optional — leaving it on "Whole chapter" navigates to the chapter.
- */
-function FieldDropdown({ label, value, options, onSelect, disabled, small }) {
-  const [open, setOpen] = useState(false);
-  const current = options.find(o => String(o.value) === String(value));
-  return (
-    <div>
-      <label className="block font-sans text-xs text-muted-foreground mb-1.5">{label}</label>
-      <div className="relative">
-        <button
-          type="button"
-          data-vaul-no-drag
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => { if (!disabled) setOpen(o => !o); }}
-          disabled={disabled}
-          className={`w-full px-3 ${small ? 'py-3' : 'h-12'} rounded-xl bg-secondary text-secondary-foreground border border-border ${small ? 'text-sm' : 'text-base'} font-medium text-left flex items-center justify-between gap-2 disabled:opacity-50`}
-        >
-          <span className={`text-left leading-snug ${small ? '' : 'whitespace-nowrap'}`}>{current ? current.label : '—'}</span>
-          <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
-        </button>
-        {open && !disabled && (
-          <div className="absolute left-0 right-0 top-full mt-1 z-20 max-h-56 overflow-y-auto rounded-xl bg-background border border-border shadow-lg">
-            {options.map(o => (
-              <button
-                key={String(o.value)}
-                type="button"
-                onClick={() => { onSelect(o.value); setOpen(false); }}
-                className={`w-full text-left px-3 py-2 ${small ? 'text-xs leading-snug' : 'text-sm'} border-b border-border/60 last:border-b-0 transition-colors ${
-                  String(o.value) === String(value) ? 'bg-secondary font-medium' : 'hover:bg-accent/10'
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+import FieldDropdown from '@/components/bible/FieldDropdown';
 
 export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1, onGo }) {
   const [abbr, setAbbr] = useState(initialAbbr);

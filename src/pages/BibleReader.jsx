@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, Printer } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
@@ -8,7 +8,7 @@ import { getBibleData } from '@/lib/bibleCache';
 import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
-import VerseSelector from '@/components/bible/VerseSelector';
+import { FieldDropdownList } from '@/components/bible/FieldDropdown';
 import VerseText from '@/components/bible/VerseText';
 import TitlePage from '@/components/bible/TitlePage';
 import SelectorSheet from '@/components/bible/SelectorSheet';
@@ -1220,6 +1220,25 @@ export default function BibleReader() {
     try { localStorage.removeItem('kjb-last-reading'); localStorage.removeItem('kjb-reader-toolbar-state'); } catch {}
   };
 
+  // Verse picker options for the custom dropdown: Whole chapter, each verse,
+  // plus the chapter's subscript/colophon sections when present.
+  const verseOptions = useMemo(() => {
+    const opts = [{ value: '', label: 'Whole chapter' }];
+    for (let i = 1; i <= verseCount; i++) opts.push({ value: i, label: `Verse ${i}` });
+    if (chapterSubscript) opts.push({ value: 'sub', label: 'Subscript' });
+    if (colophon) opts.push({ value: 'col', label: 'Colophon' });
+    return opts;
+  }, [verseCount, chapterSubscript, colophon]);
+
+  const handleVersePick = (v) => {
+    setShowVersePicker(false);
+    if (v === 'sub') { clearSpecialModes(); navigate(pos.abbr, pos.chapter, null, false, false, false, 'subscript'); return; }
+    if (v === 'col') { clearSpecialModes(); navigate(pos.abbr, pos.chapter, null, false, false, false, 'colophon'); return; }
+    if (v === '' || v === undefined) { clearSpecialModes(); navigate(pos.abbr, pos.chapter, null); return; }
+    clearSpecialModes();
+    navigate(pos.abbr, pos.chapter, Number(v));
+  };
+
   const goNext = (isAutoAdvance = false) => {
     if (pos.chapter < book.chapters) { navigate(pos.abbr, pos.chapter + 1, null, false, false, isAutoAdvance); }
     else { const next = getNextBook(pos.abbr); if (next) navigate(next.abbr, 1, null, false, false, isAutoAdvance); }
@@ -1365,40 +1384,22 @@ export default function BibleReader() {
                   {selectMode ? <CheckSquare className="w-3.5 h-3.5 opacity-70 flex-shrink-0 transition-transform duration-200" /> : <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showVersePicker ? 'rotate-90' : ''}`} />}
                 </button>
                 {showVersePicker && verseCount > 0 && !isMobile() && (
-                  <div className="kjb-popover-panel absolute top-full left-0 mt-1 z-[100]">
-                    <VerseSelector
-                      totalVerses={verseCount}
-                      currentVerse={highlightVerse}
-                      multiSelect={true}
-                      hasSubscript={!!chapterSubscript}
-                      hasColophon={!!colophon}
-                      onSelect={(v) => {
-                        if (v && v.section) { clearSpecialModes(); navigate(pos.abbr, pos.chapter, null, false, false, false, v.section); setShowVersePicker(false); return; }
-                        const first = Array.isArray(v) ? v[0] : v;
-                        if (Array.isArray(v) && v.length > 1) { const range = new Set(v); setSelectedVerses(range); setHighlightedVerses(range); setSelectMode(false); setFilterMode(true); }
-                        else { clearSpecialModes(); }
-                        navigate(pos.abbr, pos.chapter, first); setShowVersePicker(false);
-                      }}
-                      onClose={() => setShowVersePicker(false)}
+                  <div className="kjb-popover-panel absolute top-full left-0 mt-1 z-[100] w-44">
+                    <FieldDropdownList
+                      options={verseOptions}
+                      value={highlightVerse ?? ''}
+                      onSelect={handleVersePick}
                     />
                   </div>
                 )}
                 <SelectorSheet open={showVersePicker && verseCount > 0 && isMobile()} onClose={() => setShowVersePicker(false)} title="Select Verse">
-                  <VerseSelector
-                    totalVerses={verseCount}
-                    currentVerse={highlightVerse}
-                    multiSelect={true}
-                    hasSubscript={!!chapterSubscript}
-                    hasColophon={!!colophon}
-                    onSelect={(v) => {
-                      if (v && v.section) { clearSpecialModes(); navigate(pos.abbr, pos.chapter, null, false, false, false, v.section); setShowVersePicker(false); return; }
-                      const first = Array.isArray(v) ? v[0] : v;
-                      if (Array.isArray(v) && v.length > 1) { const range = new Set(v); setSelectedVerses(range); setHighlightedVerses(range); setSelectMode(false); setFilterMode(true); }
-                      else { clearSpecialModes(); }
-                      navigate(pos.abbr, pos.chapter, first); setShowVersePicker(false);
-                    }}
-                    onClose={() => setShowVersePicker(false)}
-                  />
+                  <div className="p-1">
+                    <FieldDropdownList
+                      options={verseOptions}
+                      value={highlightVerse ?? ''}
+                      onSelect={handleVersePick}
+                    />
+                  </div>
                 </SelectorSheet>
               </div>
 
