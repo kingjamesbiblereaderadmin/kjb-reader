@@ -8,8 +8,13 @@ Deno.serve(async (req) => {
     if (!origin) return Response.json({ error: 'Missing origin' }, { status: 400 });
 
     // Only fetch from trusted Base44 domains to prevent SSRF.
+    // Use a strict regex (not endsWith) so lookalike domains like
+    // "fakebase44.app" can't bypass the check.
     const url = new URL(origin + '/sw.js');
-    if (!url.hostname.endsWith('.base44.app') && !url.hostname.endsWith('.base44.com')) {
+    if (url.protocol !== 'https:') {
+      return Response.json({ error: 'Untrusted origin' }, { status: 403 });
+    }
+    if (!/^(.+\.)?base44\.(app|com)$/i.test(url.hostname)) {
       return Response.json({ error: 'Untrusted origin' }, { status: 403 });
     }
 
