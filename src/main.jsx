@@ -146,7 +146,9 @@ window.addEventListener('load', async () => {
         'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/f69363ad9_generated_image.png',
         // PWA icon (favicon, apple-touch-icon, boot splash image).
         'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png',
-      ];
+        // Landing page logo icon (a different file from the splash/favicon icon).
+        'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/1d77e5114_icon-512.png',
+        ];
 
       const prewarmAssets = async () => {
         try {
