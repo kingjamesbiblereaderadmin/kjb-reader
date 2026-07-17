@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     private fun isAllowedHost(host: String): Boolean {
-        if (host.endsWith("kingjamesbiblereader.com")) return true
+        if (host == "kingjamesbiblereader.com" || host.endsWith(".kingjamesbiblereader.com")) return true
         return authHosts.any { host == it || host.endsWith(".$it") }
     }
 
