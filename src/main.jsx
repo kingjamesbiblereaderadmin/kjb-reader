@@ -138,12 +138,17 @@ window.addEventListener('load', async () => {
         'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff',
         'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Italic.woff',
         'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=block',
+        // Main scripture/UI fonts (Google Fonts CSS). The actual woff2 files it
+        // references are extracted and prewarmed in prewarmAssets() below.
+        'https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Dancing+Script:wght@300;400;500;600;700&family=Great+Vibes&family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=block',
         // App logo/icon used on the splash screen, daily card, and PWA.
         'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png',
         'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/f69363ad9_generated_image.png',
+        // PWA icon (favicon, apple-touch-icon, boot splash image).
+        'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png',
       ];
 
-      const prewarmAssets = () => {
+      const prewarmAssets = async () => {
         try {
           const urls = new Set(CRITICAL_FONT_ASSETS);
           document.querySelectorAll('script[src]').forEach(s => {
@@ -152,6 +157,23 @@ window.addEventListener('load', async () => {
           document.querySelectorAll('link[rel="stylesheet"], link[rel="modulepreload"], link[rel="preload"]').forEach(l => {
             try { if (l.href) urls.add(new URL(l.href, location.href).href); } catch {}
           });
+          // Fetch each stylesheet and extract @font-face url() references so the
+          // actual font files (woff2) are cached — not just the CSS that points at
+          // them. Without this, a font face never rendered while online (e.g.
+          // italic Merriweather) would be missing offline.
+          const cssUrls = [...urls].filter(u => u.includes('fonts.googleapis.com/css') || u.endsWith('.css'));
+          await Promise.all(cssUrls.map(async (cssUrl) => {
+            try {
+              const res = await fetch(cssUrl, { cache: 'no-store' });
+              const text = await res.text();
+              const re = /url\(([^)]+)\)/g;
+              let m;
+              while ((m = re.exec(text)) !== null) {
+                const u = m[1].replace(/["']/g, '');
+                if (u.startsWith('http')) urls.add(u);
+              }
+            } catch {}
+          }));
           const list = Array.from(urls);
           if (list.length && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({ type: 'PREWARM_ASSETS', urls: list });
