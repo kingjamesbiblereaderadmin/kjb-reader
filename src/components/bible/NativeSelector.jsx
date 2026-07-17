@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2, ChevronDown } from 'lucide-react';
 import { BIBLE_BOOKS, OLD_TESTAMENT, NEW_TESTAMENT } from '@/lib/bibleData';
 import { fetchVerseCount } from '@/lib/bibleApi';
 
@@ -17,6 +17,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
   const [verse, setVerse] = useState(''); // '' = whole chapter
   const [verseCount, setVerseCount] = useState(0);
   const [loadingVerses, setLoadingVerses] = useState(false);
+  const [bookOpen, setBookOpen] = useState(false);
 
   const book = BIBLE_BOOKS.find(b => b.abbr === abbr) || BIBLE_BOOKS[0];
   const maxChapters = book.chapters;
@@ -66,7 +67,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
     onGo(abbr, chapter, verse === '' ? null : Number(verse));
   };
 
-  const selectClass = 'w-full px-3 py-3 rounded-xl bg-primary text-primary-foreground text-base font-medium appearance-none';
+  const selectClass = 'w-full px-3 py-3 rounded-xl bg-secondary text-secondary-foreground border border-border text-base font-medium appearance-none';
 
   return (
     <div className="space-y-3 p-1">
@@ -80,11 +81,32 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
 
       <div>
         <label className="block font-sans text-xs text-muted-foreground mb-1.5">Book</label>
-        <select data-vaul-no-drag onPointerDown={(e) => e.stopPropagation()} value={abbr} onChange={(e) => handleBook(e.target.value)} className={selectClass}>
-          {bookList.map(b => (
-            <option key={b.abbr} value={b.abbr}>{b.name}</option>
-          ))}
-        </select>
+        <button
+          type="button"
+          data-vaul-no-drag
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => setBookOpen(o => !o)}
+          className="w-full px-3 py-3 rounded-xl bg-secondary text-secondary-foreground border border-border text-sm font-medium text-left flex items-center justify-between gap-2"
+        >
+          <span className="text-left leading-snug">{book.name}</span>
+          <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${bookOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {bookOpen && (
+          <div className="mt-1 max-h-56 overflow-y-auto rounded-xl bg-background border border-border shadow-lg">
+            {bookList.map(b => (
+              <button
+                key={b.abbr}
+                type="button"
+                onClick={() => { handleBook(b.abbr); setBookOpen(false); }}
+                className={`w-full text-left px-3 py-2 text-xs leading-snug border-b border-border/60 last:border-b-0 transition-colors ${
+                  b.abbr === abbr ? 'bg-secondary font-medium' : 'hover:bg-accent/10'
+                }`}
+              >
+                {b.name}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
