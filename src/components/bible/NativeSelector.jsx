@@ -66,7 +66,7 @@ export default function NativeSelector({ initialAbbr = 'GEN', initialChapter = 1
     onGo(abbr, chapter, verse === '' ? null : Number(verse));
   };
 
-  const selectClass = 'w-full px-3 py-3 rounded-xl bg-secondary border border-border text-base text-foreground appearance-none';
+  const selectClass = 'w-full px-3 py-3 rounded-xl bg-background border border-border text-sm text-foreground appearance-none';
 
   return (
     <div className="space-y-3 p-1">
