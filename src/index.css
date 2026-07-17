@@ -2,27 +2,31 @@
 /* Atkinson Hyperlegible — high-legibility font for low-vision readers */
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-/* OpenDyslexic — accessible font designed for readers with dyslexia */
+/* OpenDyslexic — accessible font designed for readers with dyslexia.
+   font-display: block — the font is preloaded in <head> and only 16KB, so it
+   loads near-instantly. 'block' keeps text invisible briefly until OpenDyslexic
+   is ready, preventing a flash of the Comic Sans fallback ('swap' was showing
+   Comic Sans during the load window). */
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff') format('woff');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Italic.woff') format('woff');
   font-weight: 400;
   font-style: italic;
-  font-display: swap;
+  font-display: block;
 }
 
 @tailwind base;
