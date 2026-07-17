@@ -30,7 +30,8 @@ export default function VerseGrid({ verseCount, currentVerse, currentSection, ha
           Whole chapter
         </button>
 
-        {/* Verse numbers */}
+        {/* Verse numbers + Subscript/Colophon flow together in one grid,
+            so specials sit right next to the last verse, not on a separate line */}
         <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
           {Array.from({ length: verseCount }, (_, i) => i + 1).map(v => (
             <button
@@ -43,24 +44,18 @@ export default function VerseGrid({ verseCount, currentVerse, currentSection, ha
               {v}
             </button>
           ))}
+          {endSpecials.map(s => (
+            <button
+              key={s.key}
+              data-vaul-no-drag
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={() => onSelect(s.key)}
+              className={btnClass(s.active)}
+            >
+              {s.label}
+            </button>
+          ))}
         </div>
-
-        {/* Subscript / Colophon — at the end, filling the row */}
-        {endSpecials.length > 0 && (
-          <div className={`grid ${endSpecials.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-2`}>
-            {endSpecials.map(s => (
-              <button
-                key={s.key}
-                data-vaul-no-drag
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={() => onSelect(s.key)}
-                className={btnClass(s.active)}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
