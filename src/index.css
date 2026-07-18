@@ -9,21 +9,21 @@
    Comic Sans during the load window). */
 @font-face {
   font-family: 'OpenDyslexic';
-  src: url('/functions/getFont?font=regular') format('woff');
+  src: url('/fonts/OpenDyslexic-regular.woff') format('woff');
   font-weight: 400;
   font-style: normal;
   font-display: block;
 }
 @font-face {
   font-family: 'OpenDyslexic';
-  src: url('/functions/getFont?font=bold') format('woff');
+  src: url('/fonts/OpenDyslexic-bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: block;
 }
 @font-face {
   font-family: 'OpenDyslexic';
-  src: url('/functions/getFont?font=italic') format('woff');
+  src: url('/fonts/OpenDyslexic-italic.woff') format('woff');
   font-weight: 400;
   font-style: italic;
   font-display: block;

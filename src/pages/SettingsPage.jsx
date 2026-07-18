@@ -55,7 +55,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'July 13th, 2026';
-const WORKER_VERSION = 'v20260718_1935';
+const WORKER_VERSION = 'v20260718_1936';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -956,17 +956,35 @@ export default function SettingsPage() {
                 An accessibility font is on and overrides reading fonts. Pick another accessibility font, or disable it in the Accessibility section.
               </p>
             )}
-            <div className="grid grid-cols-2 gap-2">
+            <p className="font-sans text-xs text-muted-foreground">Standard</p>
+            <div className="grid grid-cols-3 gap-2">
               {VERSE_FONTS.map(font => (
                 <button
                   key={font.value}
                   onClick={() => pickVerseFont(font.value)}
-                  className={`px-4 py-3 rounded-xl font-sans text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                  className={`kjb-font-preview px-2 py-3 rounded-xl text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                     (a11yFont === 'default' && verseFontFamily === font.value)
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-secondary/50 backdrop-blur-sm text-foreground border-border hover:border-accent'
                   } ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}
                   style={{ fontFamily: font.cssFamily || font.value }}
+                >
+                  {font.label}
+                </button>
+              ))}
+            </div>
+            <p className="font-sans text-xs text-muted-foreground">Accessibility</p>
+            <div className="grid grid-cols-2 gap-2">
+              {A11Y_FONT_OPTIONS.map(font => (
+                <button
+                  key={font.value}
+                  onClick={() => pickVerseFont(font.value)}
+                  className={`kjb-font-preview px-4 py-3 rounded-xl text-sm font-medium border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                    a11yFont === font.value
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-secondary/50 backdrop-blur-sm text-foreground border-border hover:border-accent'
+                  }`}
+                  style={{ fontFamily: font.value === 'dyslexic' ? "'OpenDyslexic', 'Comic Sans MS', sans-serif" : "'Atkinson Hyperlegible', system-ui, sans-serif" }}
                 >
                   {font.label}
                 </button>

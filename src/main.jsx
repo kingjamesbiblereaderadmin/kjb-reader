@@ -148,9 +148,9 @@ window.addEventListener('load', async () => {
       // Explicitly prewarm them so the FULL app — including dyslexic/legible
       // fonts and all scripture fonts — works offline even if never triggered online.
       const CRITICAL_FONT_ASSETS = [
-        'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff',
-        'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Bold.woff',
-        'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Italic.woff',
+        '/fonts/OpenDyslexic-regular.woff',
+        '/fonts/OpenDyslexic-bold.woff',
+        '/fonts/OpenDyslexic-italic.woff',
         'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=block',
         // Main scripture/UI fonts (Google Fonts CSS). The actual woff2 files it
         // references are extracted and prewarmed in prewarmAssets() below.
