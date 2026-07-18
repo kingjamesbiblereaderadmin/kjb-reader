@@ -733,6 +733,9 @@ export default function SearchPage() {
       // New query typed → start fresh with all books.
       setSelectedBooks(new Set());
       lastQueryRef.current = kw;
+      // Scroll back to the top so the new results appear from the first verse,
+      // not wherever the user had scrolled to in the previous results.
+      window.scrollTo({ top: 0 });
       runSearch(kw);
     }
   };
