@@ -147,6 +147,7 @@ export default function StyleEditorPanel({
             { value: 'sans-serif', label: 'Sans' },
             { value: 'monospace', label: 'Mono' },
             { value: 'cursive', label: 'Cursive' },
+            { value: 'comic-sans', label: 'Comic' },
             { value: 'dyslexic', label: 'Dyslexic' },
             { value: 'hyperlegible', label: 'Legible' },
           ].map(font => {

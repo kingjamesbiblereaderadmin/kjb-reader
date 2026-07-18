@@ -37,6 +37,7 @@ function resolveVerseFontFamily(choice, a11yFont) {
   if (choice === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
   if (choice === 'monospace') return "'Courier New', monospace";
   if (choice === 'cursive') return "'Dancing Script', cursive";
+  if (choice === 'comic-sans') return "'Comic Sans MS', 'Comic Sans', cursive";
   if (choice === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
   if (choice === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
@@ -861,9 +862,10 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 { value: 'sans-serif', label: 'Sans' },
                 { value: 'monospace', label: 'Mono' },
                 { value: 'cursive', label: 'Cursive' },
+                { value: 'comic-sans', label: 'Comic' },
                 { value: 'dyslexic', label: 'Dyslexic' },
                 { value: 'hyperlegible', label: 'Legible' },
-              ].map(font => {
+                ].map(font => {
                 const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
                 const a11yActive = a11yFont !== 'default';
                 const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;

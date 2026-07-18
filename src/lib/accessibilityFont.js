@@ -11,7 +11,7 @@ const READER_FONT_KEY = 'kjb-reader-font-family';
 // mode (line/paragraph/column) picks it up consistently.
 export function applyReaderFont(font) {
   const root = document.documentElement;
-  const valid = ['serif', 'sans-serif', 'monospace', 'cursive'];
+  const valid = ['serif', 'sans-serif', 'monospace', 'cursive', 'comic-sans'];
   root.setAttribute('data-reader-font', valid.includes(font) ? font : 'serif');
 }
 

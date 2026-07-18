@@ -55,7 +55,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'July 13th, 2026';
-const WORKER_VERSION = 'v20260718_1753';
+const WORKER_VERSION = 'v20260718_1928';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -200,6 +200,7 @@ export default function SettingsPage() {
     { value: 'sans-serif', label: 'Sans Serif (Inter)' },
     { value: 'monospace', label: 'Mono' },
     { value: 'cursive', label: 'Cursive' },
+    { value: 'comic-sans', label: 'Comic Sans', cssFamily: "'Comic Sans MS', 'Comic Sans', cursive" },
   ];
 
   // Accessibility fonts that also appear in every font picker (reader, daily
@@ -576,7 +577,7 @@ export default function SettingsPage() {
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-secondary/50 backdrop-blur-sm text-foreground border-border hover:border-accent'
             } ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}
-            style={{ fontFamily: font.value }}
+            style={{ fontFamily: font.cssFamily || font.value }}
           >
             {font.label}
           </button>
@@ -965,7 +966,7 @@ export default function SettingsPage() {
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-secondary/50 backdrop-blur-sm text-foreground border-border hover:border-accent'
                   } ${a11yFont !== 'default' ? 'opacity-40 pointer-events-none' : ''}`}
-                  style={{ fontFamily: font.value }}
+                  style={{ fontFamily: font.cssFamily || font.value }}
                 >
                   {font.label}
                 </button>
