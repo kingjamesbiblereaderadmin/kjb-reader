@@ -304,10 +304,10 @@
   /* ── App-wide accessibility fonts ──
      Applied via data attribute on <html>. Overrides every font across the app
      (UI + scripture). Cursive scripture styling is intentionally left intact. */
-  html[data-a11y-font="dyslexic"] *:not(.cursive-em-style):not(.cursive-em-style *) {
+  html[data-a11y-font="dyslexic"] *:not(.cursive-em-style):not(.cursive-em-style *):not(.kjb-font-preview) {
     font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
   }
-  html[data-a11y-font="hyperlegible"] *:not(.cursive-em-style):not(.cursive-em-style *) {
+  html[data-a11y-font="hyperlegible"] *:not(.cursive-em-style):not(.cursive-em-style *):not(.kjb-font-preview) {
     font-family: 'Atkinson Hyperlegible', system-ui, sans-serif !important;
   }
   /* Atkinson Hyperlegible runs visually smaller — bump system-wide size up for legibility */
@@ -316,7 +316,7 @@
   }
   /* System: follow the device's own UI/reading font (incl. an OS-level
      dyslexic font the user may have set). */
-  html[data-a11y-font="system"] *:not(.cursive-em-style):not(.cursive-em-style *) {
+  html[data-a11y-font="system"] *:not(.cursive-em-style):not(.cursive-em-style *):not(.kjb-font-preview) {
     font-family: system-ui, -apple-system, sans-serif !important;
   }
 

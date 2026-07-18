@@ -141,20 +141,19 @@ export default function StyleEditorPanel({
             An accessibility font is active app-wide and overrides reading fonts. Pick another accessibility font, or disable it in Settings → Accessibility.
           </p>
         )}
-        <div className="grid grid-cols-3 gap-1">
+        {/* Standard fonts */}
+        <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mb-1">Standard</p>
+        <div className="grid grid-cols-3 gap-1 mb-2">
           {[
-            { value: 'serif', label: 'Serif' },
-            { value: 'sans-serif', label: 'Sans' },
-            { value: 'monospace', label: 'Mono' },
-            { value: 'cursive', label: 'Cursive' },
-            { value: 'comic-sans', label: 'Comic' },
-            { value: 'dyslexic', label: 'Dyslexic' },
-            { value: 'hyperlegible', label: 'Legible' },
+            { value: 'serif', label: 'Serif', cssFamily: "'Merriweather', 'Cormorant Garamond', Georgia, serif" },
+            { value: 'sans-serif', label: 'Sans', cssFamily: "'Inter', system-ui, sans-serif" },
+            { value: 'monospace', label: 'Mono', cssFamily: "'Courier New', monospace" },
+            { value: 'cursive', label: 'Cursive', cssFamily: "'Dancing Script', cursive" },
+            { value: 'comic-sans', label: 'Comic', cssFamily: "'Comic Sans MS', 'Comic Sans', cursive" },
           ].map(font => {
-            const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
             const a11yActive = a11yFont !== 'default';
-            const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;
-            const isDisabled = a11yActive && !isA11yChoice;
+            const isActive = !a11yActive && fontFamily === font.value;
+            const isDisabled = a11yActive;
             return (
             <button
               key={font.value}
@@ -181,11 +180,58 @@ export default function StyleEditorPanel({
                 e.nativeEvent.stopImmediatePropagation();
                 onFontFamilyChange(font.value);
               }}
-              className={`px-1.5 py-1.5 rounded-md font-sans text-[10px] font-medium transition-all ${
+              style={{ fontFamily: font.cssFamily }}
+              className={`kjb-font-preview px-1.5 py-1.5 rounded-md text-[10px] font-medium transition-all ${
                 isActive
                   ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
                   : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
+            >
+              {font.label}
+            </button>
+            );
+          })}
+        </div>
+        {/* Accessibility fonts */}
+        <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mb-1">Accessibility</p>
+        <div className="grid grid-cols-2 gap-1">
+          {[
+            { value: 'dyslexic', label: 'Dyslexic', cssFamily: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
+            { value: 'hyperlegible', label: 'Legible', cssFamily: "'Atkinson Hyperlegible', system-ui, sans-serif" },
+          ].map(font => {
+            const a11yActive = a11yFont !== 'default';
+            const isActive = a11yActive ? a11yFont === font.value : false;
+            return (
+            <button
+              key={font.value}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                onFontFamilyChange(font.value);
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                onFontFamilyChange(font.value);
+              }}
+              style={{ fontFamily: font.cssFamily }}
+              className={`kjb-font-preview px-1.5 py-1.5 rounded-md text-[10px] font-medium transition-all ${
+                isActive
+                  ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
+                  : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
             >
               {font.label}
             </button>
