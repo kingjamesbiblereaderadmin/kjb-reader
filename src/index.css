@@ -300,6 +300,10 @@
   html[data-reader-font="comic-sans"] .kjb-reader-content:not(.cursive-em-style) *:not(sup):not(.font-sans):not(svg):not(svg *) {
     font-family: 'Comic Sans MS', 'Comic Sans', cursive;
   }
+  html[data-reader-font="times"] .kjb-reader-content:not(.cursive-em-style),
+  html[data-reader-font="times"] .kjb-reader-content:not(.cursive-em-style) *:not(sup):not(.font-sans):not(svg):not(svg *) {
+    font-family: 'Times New Roman', Times, serif;
+  }
 
   /* ── App-wide accessibility fonts ──
      Applied via data attribute on <html>. Overrides every font across the app

@@ -55,7 +55,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'July 13th, 2026';
-const WORKER_VERSION = 'v20260718_1955';
+const WORKER_VERSION = 'v20260718_1956';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -201,6 +201,7 @@ export default function SettingsPage() {
     { value: 'monospace', label: 'Mono' },
     { value: 'cursive', label: 'Cursive' },
     { value: 'comic-sans', label: 'Comic Sans', cssFamily: "'Comic Sans MS', 'Comic Sans', cursive" },
+    { value: 'times', label: 'Times New Roman', cssFamily: "'Times New Roman', Times, serif" },
   ];
 
   // Accessibility fonts that also appear in every font picker (reader, daily
@@ -1466,6 +1467,7 @@ export default function SettingsPage() {
         <p>• <strong className="text-foreground">Inter:</strong> Google Fonts (SIL Open Font License)</p>
         <p>• <strong className="text-foreground">Merriweather:</strong> Google Fonts (SIL Open Font License)</p>
         <p>• <strong className="text-foreground">Dancing Script:</strong> Google Fonts (SIL Open Font License)</p>
+        <p>• <strong className="text-foreground">Times New Roman & Comic Sans MS:</strong> System fonts bundled with Windows/macOS; no attribution required.</p>
         <p className="pt-2 text-[10px] opacity-75">All fonts are open source and freely available under the SIL Open Font License.</p>
         <p>• <strong className="text-foreground">King James Bible Text:</strong> Public domain worldwide. In the United Kingdom, the KJB is protected by a perpetual Crown Copyright administered by the King's Printer. This app is for personal, non-commercial use only. For commercial use within the UK, a licence from Cambridge University Press or the King's Printer may be required. See <a href="https://www.cambridge.org/bibles/about/rights-and-permissions" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">cambridge.org/bibles/about/rights-and-permissions</a> for details.</p>
         <p className="pt-2 text-[11px] text-foreground/80">This app is public domain and freely shareable.</p>

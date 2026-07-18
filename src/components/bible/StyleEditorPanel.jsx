@@ -150,6 +150,7 @@ export default function StyleEditorPanel({
             { value: 'monospace', label: 'Mono', cssFamily: "'Courier New', monospace" },
             { value: 'cursive', label: 'Cursive', cssFamily: "'Dancing Script', cursive" },
             { value: 'comic-sans', label: 'Comic', cssFamily: "'Comic Sans MS', 'Comic Sans', cursive" },
+            { value: 'times', label: 'Times', cssFamily: "'Times New Roman', Times, serif" },
           ].map(font => {
             const a11yActive = a11yFont !== 'default';
             const isActive = !a11yActive && fontFamily === font.value;

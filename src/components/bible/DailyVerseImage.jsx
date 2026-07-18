@@ -38,6 +38,7 @@ function resolveVerseFontFamily(choice, a11yFont) {
   if (choice === 'monospace') return "'Courier New', monospace";
   if (choice === 'cursive') return "'Dancing Script', cursive";
   if (choice === 'comic-sans') return "'Comic Sans MS', 'Comic Sans', cursive";
+  if (choice === 'times') return "'Times New Roman', Times, serif";
   if (choice === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
   if (choice === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
   return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
