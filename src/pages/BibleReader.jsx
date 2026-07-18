@@ -1478,7 +1478,7 @@ export default function BibleReader() {
                         const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;
                         const isDisabled = a11yActive && !isA11yChoice;
                         return (
-                        <button key={font.value} disabled={isDisabled} onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }} className={`px-3 py-2 rounded-lg border font-sans text-xs font-medium transition-all ${ isActive ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20' } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`} style={{ fontFamily: getFontFamilyValue(font.value) }}>{font.label}</button>
+                        <button key={font.value} disabled={isDisabled} onClick={() => { handleFontChange(font.value); setShowFontPopover(false); }} className={`px-3 py-2 rounded-lg border font-sans text-xs font-medium transition-all ${ isActive ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-secondary-foreground border-border hover:bg-accent/20' } ${isDisabled ? 'opacity-40 pointer-events-none' : ''} ${font.value === 'hyperlegible' ? 'col-span-2' : ''}`} style={{ fontFamily: getFontFamilyValue(font.value) }}>{font.label}</button>
                         );
                       })}
                     </div>
