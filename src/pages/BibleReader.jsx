@@ -1678,14 +1678,17 @@ export default function BibleReader() {
               onSelectAll={selectAllVerses} onCancel={() => {
                 if (searchTerm) { clearSearchContext(); return; }
                 if (gospelMode) { clearGospelNav(); setGospelMode(false); setHighlightVerse(null); setLastReadingPos(null); try { localStorage.removeItem('kjb-last-reading'); } catch {} return; }
-                // Exit select mode but PRESERVE the existing filter/selection
-                // so the user returns to their filtered view, not full chapter.
+                // Exit select mode. Only PRESERVE the filter when one was
+                // already active before selecting (e.g. daily verse / random
+                // chapter) — so the user returns to that filtered view. When
+                // select mode was entered from a full chapter, Cancel clears
+                // the selection and returns to the full chapter instead of
+                // unexpectedly dropping into a filtered view.
                 setSelectMode(false);
-                if (selectedVerses.size > 0) {
-                  setFilterMode(true);
+                if (filterMode && selectedVerses.size > 0) {
                   setHighlightVerse(Math.min(...selectedVerses));
                 } else {
-                  setFilterMode(false); setHighlightVerse(null);
+                  setFilterMode(false); setSelectedVerses(new Set()); setHighlightVerse(null);
                 }
               }}
               onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink}
