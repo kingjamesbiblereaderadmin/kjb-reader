@@ -162,6 +162,7 @@ export default function BibleReader() {
     if (family === 'serif') return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
     if (family === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
     if (family === 'monospace') return "'Courier New', monospace";
+    if (family === 'comic-sans') return "'Comic Sans MS', 'Comic Sans', cursive";
     if (family === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
     if (family === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
     return family;
@@ -1463,7 +1464,7 @@ export default function BibleReader() {
                 className="flex items-center justify-center gap-1 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 whitespace-nowrap"
               >
                 <Type className="w-3.5 h-3.5 transition-transform duration-200 flex-shrink-0" />
-                <span className="hidden sm:inline">{(() => { const active = a11yActive ? a11yFont : fontFamily; return active === 'serif' ? 'Serif' : active === 'sans-serif' ? 'Sans' : active === 'monospace' ? 'Mono' : active === 'dyslexic' ? 'Dyslexic' : active === 'hyperlegible' ? 'Legible' : 'Cursive'; })()}</span>
+                <span className="hidden sm:inline">{(() => { const active = a11yActive ? a11yFont : fontFamily; return active === 'serif' ? 'Serif' : active === 'sans-serif' ? 'Sans' : active === 'monospace' ? 'Mono' : active === 'comic-sans' ? 'Comic' : active === 'dyslexic' ? 'Dyslexic' : active === 'hyperlegible' ? 'Legible' : 'Cursive'; })()}</span>
               </button>
               {showFontPopover && !isMobile() && (
                 <div className="kjb-popover-panel absolute top-full left-0 mt-1 z-[100]" onClick={(e) => e.stopPropagation()}>
@@ -1472,7 +1473,7 @@ export default function BibleReader() {
                     <button onClick={() => setShowFontPopover(false)} className="absolute top-3 right-3 p-1 rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"><X className="w-4 h-4" /></button>
                     {a11yActive && <p className="font-sans text-[11px] text-muted-foreground mb-2 leading-snug">An accessibility font is active app-wide and overrides reading fonts.</p>}
                     <div className="grid grid-cols-2 gap-2">
-                      {[ { value: 'serif', label: 'Serif' }, { value: 'sans-serif', label: 'Sans' }, { value: 'monospace', label: 'Mono' }, { value: 'cursive', label: 'Cursive' }, { value: 'dyslexic', label: 'Dyslexic' }, { value: 'hyperlegible', label: 'Legible' } ].map(font => {
+                      {[ { value: 'serif', label: 'Serif' }, { value: 'sans-serif', label: 'Sans' }, { value: 'monospace', label: 'Mono' }, { value: 'cursive', label: 'Cursive' }, { value: 'comic-sans', label: 'Comic' }, { value: 'dyslexic', label: 'Dyslexic' }, { value: 'hyperlegible', label: 'Legible' } ].map(font => {
                         const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
                         const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;
                         const isDisabled = a11yActive && !isA11yChoice;
@@ -1487,7 +1488,7 @@ export default function BibleReader() {
               <SelectorSheet open={showFontPopover && isMobile()} onClose={() => setShowFontPopover(false)} title="Font Family">
                 <div className="space-y-2 p-2">
                   {a11yActive && <p className="font-sans text-xs text-muted-foreground leading-snug mb-1">An accessibility font is active app-wide and overrides reading fonts.</p>}
-                  {[ { value: 'serif', label: 'Serif' }, { value: 'sans-serif', label: 'Sans' }, { value: 'monospace', label: 'Mono' }, { value: 'cursive', label: 'Cursive' }, { value: 'dyslexic', label: 'Dyslexic' }, { value: 'hyperlegible', label: 'Legible' } ].map(font => {
+                  {[ { value: 'serif', label: 'Serif' }, { value: 'sans-serif', label: 'Sans' }, { value: 'monospace', label: 'Mono' }, { value: 'cursive', label: 'Cursive' }, { value: 'comic-sans', label: 'Comic' }, { value: 'dyslexic', label: 'Dyslexic' }, { value: 'hyperlegible', label: 'Legible' } ].map(font => {
                     const isA11yChoice = font.value === 'dyslexic' || font.value === 'hyperlegible';
                     const isActive = a11yActive ? a11yFont === font.value : fontFamily === font.value;
                     const isDisabled = a11yActive && !isA11yChoice;
