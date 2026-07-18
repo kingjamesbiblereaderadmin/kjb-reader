@@ -908,7 +908,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
               })}
             </div>
             {/* Accessibility fonts */}
-            <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mb-1">Accessibility</p>
+            <p className="font-sans text-[10px] text-slate-500 dark:text-slate-400 mt-3 mb-1.5">Accessibility</p>
             <div className="grid grid-cols-2 gap-1">
               {[
                 { value: 'dyslexic', label: 'Dyslexic', cssFamily: "'OpenDyslexic', 'Comic Sans MS', sans-serif" },
