@@ -15,17 +15,17 @@ const isSwNotFoundError = (msg) => /Failed to (update|register) a ServiceWorker/
 
 window.addEventListener('unhandledrejection', (event) => {
   const reason = event?.reason;
-  const msg = reason?.message || String(reason || '');
-  if (isSwNotFoundError(msg)) {
+  // The vite plugin's handler accesses reason.stack.match(...). If the
+  // rejection is not a real Error (no string .stack), the plugin crashes.
+  // preventDefault() + stopImmediatePropagation() so the plugin never sees it.
+  if (!reason || typeof reason.stack !== 'string') {
     event.preventDefault();
+    event.stopImmediatePropagation();
     return;
   }
-  // The vite plugin's rejection handler calls .match() on reason.message.
-  // If the rejection is not an Error (no string .message), it crashes with
-  // "Cannot read properties of undefined (reading 'match')". preventDefault()
-  // on non-Error rejections so the plugin skips them.
-  if (!reason || typeof reason.message !== 'string') {
+  if (isSwNotFoundError(reason.message)) {
     event.preventDefault();
+    event.stopImmediatePropagation();
   }
 });
 

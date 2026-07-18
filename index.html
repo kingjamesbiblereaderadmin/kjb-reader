@@ -11,15 +11,18 @@
       (function () {
         window.addEventListener('unhandledrejection', function (event) {
           var reason = event && event.reason;
-          var msg = (reason && typeof reason.message === 'string') ? reason.message : '';
-          // Swallow SW not-found rejections (preview sandbox can't serve /sw.js)
-          if (/Failed to (update|register) a ServiceWorker/i.test(msg)) {
+          // The vite plugin's handler accesses reason.stack.match(...). If the
+          // rejection is not a real Error (no string .stack), the plugin crashes
+          // with "Cannot read properties of undefined (reading 'match')". Stop
+          // propagation for any non-Error rejection so the plugin never sees it.
+          if (!reason || typeof reason.stack !== 'string') {
             event.preventDefault();
             event.stopImmediatePropagation();
             return;
           }
-          // Non-Error rejections (no string .message) crash the vite plugin handler
-          if (!reason || typeof reason.message !== 'string') {
+          // Swallow SW not-found rejections (preview sandbox can't serve /sw.js)
+          var msg = (typeof reason.message === 'string') ? reason.message : '';
+          if (/Failed to (update|register) a ServiceWorker/i.test(msg)) {
             event.preventDefault();
             event.stopImmediatePropagation();
             return;
