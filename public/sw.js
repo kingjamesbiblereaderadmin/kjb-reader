@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260718_1936
+// KJB Reader Service Worker v20260718_1939
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260718_1936';
+const CACHE_NAME = 'kjb-reader-v20260718_1939';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -16,6 +16,11 @@ const APP_SHELL_FILES = [
 // atomic — one failure rejects the whole batch, so these go in individually).
 const PRECACHE_ASSETS = [
   'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png',
+  // Self-hosted OpenDyslexic fonts — precache at install so they're available
+  // offline immediately, not just after the first page that uses them.
+  '/fonts/OpenDyslexic-regular.woff',
+  '/fonts/OpenDyslexic-bold.woff',
+  '/fonts/OpenDyslexic-italic.woff',
 ];
 
 // Install event - cache app shell
