@@ -97,7 +97,9 @@ export default function BibleReader() {
       const v = localStorage.getItem('kjb-column');
       if (v === 'true') return true;
       if (v === 'false') return false;
-      return localStorage.getItem('kjb-layout') === 'column';
+      if (localStorage.getItem('kjb-layout') === 'column') return true;
+      // Default: two-column on desktop, single-column on mobile.
+      return window.matchMedia('(min-width: 1024px)').matches;
     } catch { return false; }
   });
   const paragraphMode = flowMode === 'paragraph';
