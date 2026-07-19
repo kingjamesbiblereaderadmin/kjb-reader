@@ -743,7 +743,7 @@ export default function ResourcesPage() {
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             <CopyButton 
-              text={`God is Gracious 1031 Ministries\nhttps://godisgracious1031ministriescom.odoo.com/\n\nYouTube\nhttps://youtube.com/@shawnr325av\n\nRumble\nhttps://rumble.com/user/Godisgracious1031\n\nLinktree\nhttps://linktr.ee/shawnr325av\n\nContact the Ministry\nKingjamesbiblereader.com@outlook.com`} 
+              text={`God is Gracious 1031 Ministries\nhttps://godisgracious1031ministriescom.odoo.com/\n\nYouTube\nhttps://youtube.com/@shawnr325av\n\nRumble\nhttps://rumble.com/user/Godisgracious1031\n\nLinktree\nhttps://linktr.ee/shawnr325av\n\nContact the Ministry\nkingjamesbiblereader@outlook.sg`} 
               className="p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 text-purple-600 dark:text-purple-400 transition-colors cursor-pointer" 
             />
             <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.ministry ? 'rotate-180' : ''}`} />
@@ -824,7 +824,7 @@ export default function ResourcesPage() {
             </div>
           </a>
           <a
-            href="mailto:Kingjamesbiblereader.com@outlook.com"
+            href="mailto:kingjamesbiblereader@outlook.sg"
             className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600">
@@ -832,9 +832,9 @@ export default function ResourcesPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Contact the Ministry</p>
-              <p className="font-sans text-xs text-muted-foreground">Kingjamesbiblereader.com@outlook.com</p>
+              <p className="font-sans text-xs text-muted-foreground">kingjamesbiblereader@outlook.sg</p>
             </div>
-            <CopyButton text="Kingjamesbiblereader.com@outlook.com" className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0" />
+            <CopyButton text="kingjamesbiblereader@outlook.sg" className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors flex-shrink-0" />
           </a>
         </div>
         )}
