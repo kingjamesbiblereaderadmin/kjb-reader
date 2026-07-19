@@ -2,9 +2,13 @@ import { useEffect, useRef } from 'react';
 import { getGospelNav } from '@/lib/searchNav';
 
 export function useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults, setGospelMode, setGospelResultIndex, setGospelTotalResults) {
+  // Prevents the save effect from overwriting persisted state with default
+  // values before the restore effect has had a chance to rehydrate it.
+  const hasRestoredRef = useRef(false);
+
   // Persist toolbar state with chapter + search/gospel context
   useEffect(() => {
-    if (loading) return;
+    if (loading || !hasRestoredRef.current) return;
     try {
       // Only save if we have an ACTIVE search/gospel context (don't save cleared state)
       const hasActiveContext = (searchTerm && !searchClearedRef.current) || gospelMode || selectedVerses.size > 0 || filterMode;
@@ -39,6 +43,11 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
   useEffect(() => {
     if (loading || verses.length === 0) return;
     const restoreToolbarState = () => {
+      // Mark as restored so the save effect can start persisting again.
+      // This prevents the save effect (which also fires when loading flips
+      // to false) from overwriting the saved state with default values
+      // before we've had a chance to rehydrate filterMode / selectedVerses.
+      hasRestoredRef.current = true;
       try {
         // Never rehydrate a stale search/gospel context when we've just
         // navigated here via Daily Verse or Random Chapter - those flows
@@ -55,8 +64,9 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
         // Restore search/gospel context if we're on the SAME chapter where it was saved
         if (state && state.abbr === pos.abbr && state.chapter === pos.chapter) {
           console.log('[ToolbarState] Chapter match - restoring');
-          if (state.filterMode === true) {
-            setFilterMode(true);
+          if (state.filterMode !== undefined) {
+            console.log('[ToolbarState] Setting filterMode:', state.filterMode);
+            setFilterMode(state.filterMode);
           }
           if (state.selectedVerses && state.selectedVerses.length > 0) {
             const newSet = new Set(state.selectedVerses);
@@ -94,5 +104,6 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
     const timer = setTimeout(restoreToolbarState, 100);
     window.addEventListener('focus', restoreToolbarState);
     return () => { clearTimeout(timer); window.removeEventListener('focus', restoreToolbarState); };
-  }, [loading, pos.abbr, pos.chapter, verses.length, setGospelMode, setGospelResultIndex, setGospelTotalResults]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, pos.abbr, pos.chapter, verses.length]);
 }
