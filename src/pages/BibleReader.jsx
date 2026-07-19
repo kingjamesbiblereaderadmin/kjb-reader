@@ -762,9 +762,6 @@ export default function BibleReader() {
                 // verse can be stale/null here even though a selection was restored.
                 restoredHighlightVerse = Math.min(...newSet);
               }
-              // Restore the "verse/chapter only" flag (Show Full Chapter vs Verses
-              // Only) so it matches what the user last had open on this chapter.
-              if (state.resultView) resultViewRef.current = state.resultView;
             }
           }
         } catch (err) {
@@ -1714,7 +1711,7 @@ export default function BibleReader() {
           
           {!selectMode && selectedVerses.size > 0 && (
             <ReadingRangeBar
-              label={searchTerm ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : lastReadingActive ? (lastReadingPos?.fromRandom ? 'Random Chapter' : 'Daily Verse') : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
+              label={searchTerm && new URLSearchParams(window.location.search).get('from') === 'search' ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : lastReadingActive ? (lastReadingPos?.fromRandom ? 'Random Chapter' : 'Daily Verse') : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
               filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink} onPrintPage={() => window.print()}
               onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
