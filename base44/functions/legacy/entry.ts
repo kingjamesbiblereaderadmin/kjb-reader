@@ -216,6 +216,10 @@ const COLOPHONS = {
 };
 
 let bibleData = null;
+// In-memory cache for pre-generated format exports (pdf, rtf, txt, doc).
+// First request generates; all subsequent requests serve the cached bytes
+// instantly — no re-generation needed.
+const formatCache = {};
 
 async function loadBible() {
   if (bibleData) return bibleData;
@@ -415,11 +419,60 @@ Deno.serve(async (req) => {
       : '/functions/legacy';
 
     // ── FORMAT EXPORT: ?format=txt|rtf|doc|pdf ──
-    // Generates the whole Bible in the requested format, server-side, so the
-    // legacy page (no JavaScript) can offer direct downloads for old browsers.
+    // Whole-Bible downloads matching the non-legacy export: two columns,
+    // subscripts, colophons, [bracketed] italics, pilcrows, full book names.
+    // Generated once on first request, then cached in memory — subsequent
+    // downloads serve the stored bytes instantly with no re-generation.
     const fmt = url.searchParams.get('format');
     if (fmt === 'txt' || fmt === 'rtf' || fmt === 'doc' || fmt === 'pdf') {
+      const CACHE_HDR = { 'Cache-Control': 'public, max-age=86400', 'Access-Control-Allow-Origin': '*' };
+
+      // Serve from in-memory cache if already generated
+      if (formatCache[fmt]) {
+        const c = formatCache[fmt];
+        return new Response(c.body, { headers: { ...c.headers, ...CACHE_HDR } });
+      }
+
       const bible = await loadBible();
+
+      // ── Shared text helpers ──
+      function normalize(raw) {
+        let t = String(raw)
+          .replace(/^<<[^>]*>>\s*/, '')
+          .replace(/\u2019/g, "'").replace(/\u2018/g, "'")
+          .replace(/\u201C/g, '"').replace(/\u201D/g, '"')
+          .replace(/\s*made\s+in\s+australia\.?\s*/gi, ' ')
+          .replace(/\s{2,}/g, ' ').trim();
+        return t;
+      }
+      function stripEndMarker(text) {
+        return String(text)
+          .replace(/\s*[\u00B6\uFFFD]?\s*THE END\.?\s*$/i, '')
+          .replace(/\s*[\u00B6\uFFFD]?\s*END OF THE PROPHETS\.?\s*$/i, '')
+          .trim();
+      }
+      function hasPilcrow(text) {
+        return String(text).indexOf('\u00B6') !== -1 || String(text).indexOf('\uFFFD') !== -1;
+      }
+      // Plain text for TXT: keep [brackets] for italics, pilcrows as ¶ prefix
+      function plainTxt(raw, keepBrackets) {
+        let s = normalize(raw);
+        s = s.replace(/(\w)[\u00B6\uFFFD](\w)/g, "$1'$2");
+        s = s.replace(/[\u00B6\uFFFD]\s*/g, '\u00B6 ');
+        if (!keepBrackets) s = s.replace(/\[([^\]]+)\]/g, '$1');
+        return s.trim();
+      }
+      // Split into {text, italic} segments for PDF italic rendering
+      function toSegments(raw) {
+        let s = normalize(raw);
+        s = s.replace(/(\w)[\u00B6\uFFFD](\w)/g, "$1'$2");
+        s = s.replace(/[\u00B6\uFFFD]\s*/g, '\u00B6 ');
+        const parts = s.split(/\[([^\]]+)\]/g);
+        const segs = [];
+        parts.forEach((part, i) => { if (part) segs.push({ text: part, italic: i % 2 === 1 }); });
+        return segs;
+      }
+      const isOld = (bName) => BOOK_ORDER.indexOf(bName) < 39;
 
       // Strip bracket markers, pilcrows and cleanup artefacts for plain formats
       function cleanVT(raw) {
@@ -433,146 +486,378 @@ Deno.serve(async (req) => {
       }
 
       if (fmt === 'txt') {
-        let txt = 'The King James Bible\r\nPure Cambridge Edition\r\n\r\n\r\n';
+        // TXT: single column, full book names, [brackets] kept for italics,
+        // Psalm superscriptions + epistle colophons included, pilcrows preserved.
+        let out = 'THE KING JAMES BIBLE\r\nPure Cambridge Edition\r\n\r\n\r\n';
+        out += 'CONTENTS\r\n\r\n';
+        let lastT = null, idx = 1;
+        BOOK_ORDER.forEach(bName => {
+          const t = isOld(bName) ? 'old' : 'new';
+          if (t !== lastT) { lastT = t; out += '\r\n' + (t === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT') + '\r\n\r\n'; }
+          out += '  ' + idx + '. ' + (FULL_BOOK_NAMES[bName] || bName) + '\r\n\r\n';
+          idx++;
+        });
+        out += '\r\n\r\n';
         for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
           const bName = BOOK_ORDER[bi];
           const bData = bible[bName];
           if (!bData) continue;
-          txt += (FULL_BOOK_NAMES[bName] || bName) + '\r\n\r\n';
+          out += '\r\n\r\n\r\n' + (FULL_BOOK_NAMES[bName] || bName) + '\r\n\r\n';
           const maxCh = CHAPTER_COUNTS[bName] || 1;
           for (let ch = 1; ch <= maxCh; ch++) {
-            const verses = bData[ch] || [];
-            txt += 'Chapter ' + ch + '\r\n\r\n';
-            for (let vi = 0; vi < verses.length; vi++) {
-              txt += verses[vi].verse + ' ' + cleanVT(verses[vi].text) + '\r\n';
+            let verses = bData[ch] || [];
+            if (!verses.length) continue;
+            const isOtEnd = bName === 'Malachi' && ch === maxCh;
+            const isNtEnd = bName === 'Revelation' && ch === maxCh;
+            if (isOtEnd || isNtEnd) {
+              const last = verses[verses.length - 1];
+              verses = verses.slice(0, -1).concat([{ ...last, text: stripEndMarker(last.text) }]);
             }
-            txt += '\r\n';
+            out += 'Chapter ' + ch + '\r\n\r\n';
+            const sub = SUBSCRIPTS[bName + ':' + ch];
+            if (sub) out += '\u00B6 ' + plainTxt(sub, true) + '\r\n\r\n';
+            for (let vi = 0; vi < verses.length; vi++) {
+              const v = verses[vi];
+              if (v.heading) { out += '\r\n' + v.heading + '\r\n\r\n'; }
+              else if (vi > 0 && hasPilcrow(v.text)) out += '\r\n';
+              out += v.verse + ' ' + plainTxt(v.text, true) + '\r\n';
+            }
+            const colo = COLOPHONS[bName + ':' + ch];
+            if (colo) out += '\r\n\u00B6 ' + plainTxt(colo, true) + '\r\n\r\n';
+            out += '\r\n';
           }
-          txt += '\r\n';
+          if (bName === 'Malachi') out += '\r\n\r\n' + (bi === BOOK_ORDER.length - 1 ? 'THE END.' : 'THE END OF THE PROPHETS.') + '\r\n\r\n';
+          if (bName === 'Revelation') out += '\r\n\r\nTHE END.\r\n\r\n';
         }
-        return new Response(txt, { headers: {
-          'Content-Type': 'text/plain;charset=UTF-8',
-          'Content-Disposition': 'attachment; filename="kjb-bible.txt"',
-          'Cache-Control': 'public, max-age=86400'
-        }});
+        const headers = { 'Content-Type': 'text/plain;charset=UTF-8', 'Content-Disposition': 'attachment; filename="kjb-bible-1col-full-names-subscripts-colophons.txt"' };
+        formatCache[fmt] = { body: out, headers };
+        return new Response(out, { headers: { ...headers, ...CACHE_HDR } });
       }
 
       if (fmt === 'rtf') {
-        const escR = (s) => String(s).replace(/\\/g, '\\\\').replace(/\{/g, '\\{').replace(/\}/g, '\\}');
-        let rtf = '{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0 Georgia;}{\\f1 Arial;}} \\f0\\fs24';
-        rtf += '\\qc\\b\\fs40 The King James Bible\\b0\\par\\par\\qc\\fs20 Pure Cambridge Edition\\par\\par\\par\\ql';
+        // RTF: two columns, [brackets]→\i italics, Psalm superscriptions +
+        // epistle colophons, running headers, pilcrows.
+        function rtfEsc(s) {
+          let o = '';
+          for (const ch of String(s)) {
+            const code = ch.codePointAt(0);
+            if (ch === '\\' || ch === '{' || ch === '}') o += '\\' + ch;
+            else if (code === 0xB6) o += '\\u182?';
+            else if (code > 127) o += '\\u' + (code > 32767 ? code - 65536 : code) + '?';
+            else o += ch;
+          }
+          return o;
+        }
+        function rtfInline(text) {
+          let s = normalize(text);
+          s = s.replace(/(\w)[\u00B6\uFFFD](\w)/g, "$1'$2");
+          s = s.replace(/[\u00B6\uFFFD]\s*/g, '\u00B6 ');
+          s = s.replace(/\]\s*\[/g, ' ');
+          const parts = s.split(/\[([^\]]+)\]/g);
+          return parts.map((p, i) => (i % 2 === 1 ? '{\\i ' + rtfEsc(p) + '}' : rtfEsc(p))).join('');
+        }
+        const lines = [];
+        const para = (rtf, opts) => {
+          opts = opts || {};
+          const center = opts.center ? '\\qc' : '\\ql';
+          const bold = opts.bold ? '\\b' : '';
+          const size = opts.size || 22;
+          const sb = opts.sb || 0;
+          const sa = opts.sa === undefined ? 80 : opts.sa;
+          const keepNext = opts.keepNext ? '\\keepn' : '';
+          lines.push('{\\pard' + center + keepNext + '\\sb' + sb + '\\sa' + sa + '\\fs' + size + bold + ' ' + rtf + (bold ? '\\b0' : '') + '\\par}');
+        };
+        lines.push('\\sectdFRONT ');
+        lines.push('{\\pard\\sa1800\\par}');
+        para(rtfEsc('THE KING JAMES BIBLE'), { center: true, bold: true, size: 48, sa: 200 });
+        para(rtfEsc('Pure Cambridge Edition'), { center: true, size: 24, sa: 200 });
+        lines.push('\\page ');
+        para(rtfEsc('CONTENTS'), { center: true, bold: true, size: 34, sa: 240 });
+        let lastT = null, idx = 1;
+        BOOK_ORDER.forEach(bName => {
+          const t = isOld(bName) ? 'old' : 'new';
+          if (t !== lastT) { lastT = t; para(rtfEsc(t === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT'), { bold: true, size: 26, sb: 160, sa: 80 }); }
+          lines.push('{\\pard\\fi-240\\li360\\sa40\\fs20 ' + idx + '.\\tab ' + rtfEsc(FULL_BOOK_NAMES[bName] || bName) + '\\par}');
+          idx++;
+        });
         for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
           const bName = BOOK_ORDER[bi];
           const bData = bible[bName];
           if (!bData) continue;
-          rtf += '\\par\\par\\b\\fs28 ' + escR(FULL_BOOK_NAMES[bName] || bName) + '\\b0\\par';
+          lines.push('\\sect ');
+          lines.push('\\sectd\\headery720 \\titlepg{\\headerf \\pard\\par}{\\header \\pard\\qc\\fs18\\i ' + rtfEsc(FULL_BOOK_NAMES[bName] || bName) + '\\i0\\par}');
+          para(rtfEsc(FULL_BOOK_NAMES[bName] || bName), { center: true, bold: true, size: 32, sb: 120, sa: 160 });
           const maxCh = CHAPTER_COUNTS[bName] || 1;
           for (let ch = 1; ch <= maxCh; ch++) {
-            const verses = bData[ch] || [];
-            rtf += '\\par\\b\\fs22 Chapter ' + ch + '\\b0\\par';
-            for (let vi = 0; vi < verses.length; vi++) {
-              rtf += escR(verses[vi].verse + ' ' + cleanVT(verses[vi].text)) + '\\par ';
+            let verses = bData[ch] || [];
+            if (!verses.length) continue;
+            const isOtEnd = bName === 'Malachi' && ch === maxCh;
+            const isNtEnd = bName === 'Revelation' && ch === maxCh;
+            if (isOtEnd || isNtEnd) {
+              const last = verses[verses.length - 1];
+              verses = verses.slice(0, -1).concat([{ ...last, text: stripEndMarker(last.text) }]);
             }
+            para('Chapter ' + ch, { center: true, bold: true, size: 22, sb: 240, sa: 120 });
+            const sub = SUBSCRIPTS[bName + ':' + ch];
+            if (sub) para('\\u182? ' + rtfInline(sub).replace(/^\\u182\?\s*/, ''), { center: true, size: 18, sa: 120 });
+            for (let vi = 0; vi < verses.length; vi++) {
+              const v = verses[vi];
+              if (v.heading) { para(rtfEsc(v.heading), { center: true, bold: true, size: 20, sb: 80, sa: 80 }); continue; }
+              const isPil = vi > 0 && hasPilcrow(v.text);
+              para('{\\b ' + v.verse + '} ' + rtfInline(v.text), { sb: isPil ? 120 : 0, keepNext: isPil });
+            }
+            const colo = COLOPHONS[bName + ':' + ch];
+            if (colo) para('\\u182? ' + rtfInline(colo).replace(/^\\u182\?\s*/, ''), { center: true, size: 18, sa: 120 });
           }
+          if (bName === 'Malachi') para(bi === BOOK_ORDER.length - 1 ? 'THE END.' : 'THE END OF THE PROPHETS.', { center: true, bold: true, size: 24 });
+          if (bName === 'Revelation') para('THE END.', { center: true, bold: true, size: 26 });
+          lines.push('\\sect \\sectd\\sbknone\\BALANCECOLS ');
         }
-        rtf += '}';
-        return new Response(rtf, { headers: {
-          'Content-Type': 'application/rtf;charset=UTF-8',
-          'Content-Disposition': 'attachment; filename="kjb-bible.rtf"',
-          'Cache-Control': 'public, max-age=86400'
-        }});
+        const colsHeader = '\\cols2\\colsx360';
+        const body = lines.join('\n')
+          .replace(/\\sectdFRONT/g, '\u0000FRONT\u0000')
+          .replace(/\\BALANCECOLS/g, colsHeader)
+          .replace(/\\sectd/g, '\\sectd' + colsHeader)
+          .replace(/\u0000FRONT\u0000/g, '\\sectd');
+        const rtf = '{\\rtf1\\ansi\\deff0\\fet0{\\fonttbl{\\f0 Georgia;}}\\f0\\fs20 ' + body + '}';
+        const headers = { 'Content-Type': 'application/rtf;charset=UTF-8', 'Content-Disposition': 'attachment; filename="kjb-bible-2col-full-names-subscripts-colophons.rtf"' };
+        formatCache[fmt] = { body: rtf, headers };
+        return new Response(rtf, { headers: { ...headers, ...CACHE_HDR } });
       }
 
       if (fmt === 'doc') {
-        let doc = '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><title>King James Bible</title><style>body{font-family:Georgia,serif;font-size:12pt;line-height:1.5;}h1{text-align:center;font-size:20pt;}h2{text-align:center;font-size:14pt;color:#2d2a6e;margin-top:24pt;}h3{font-size:12pt;color:#666;margin-top:12pt;margin-bottom:4pt;}p{margin:0 0 2pt 0;}</style></head><body>';
-        doc += '<h1>The King James Bible</h1><p style="text-align:center;">Pure Cambridge Edition</p>';
+        // DOC (Word HTML): two columns via CSS, <i> for [bracketed] italics,
+        // Psalm superscriptions + epistle colophons, running headers, pilcrows.
+        function escH(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function docxInline(text) {
+          let s = normalize(text);
+          s = s.replace(/(\w)[\u00B6\uFFFD](\w)/g, "$1'$2");
+          s = s.replace(/[\u00B6\uFFFD]\s*/g, '\u00B6 ');
+          const parts = s.split(/\[([^\]]+)\]/g);
+          return parts.map((p, i) => i % 2 === 1 ? '<i>' + escH(p) + '</i>' : escH(p)).join('');
+        }
+        let sectionCount = 0;
+        const out = [];
+        const headerDivs = [];
+        out.push('<div class="SectionFront">');
+        out.push('<p style="text-align:center;font-size:26pt;font-weight:bold;margin:6px 0">THE KING JAMES BIBLE</p>');
+        out.push('<p style="text-align:center;font-size:13pt;margin:4px 0">Pure Cambridge Edition</p>');
+        out.push('<br style="page-break-after:always" />');
+        out.push('<p style="text-align:center;font-size:20pt;font-weight:bold;margin:6px 0">CONTENTS</p>');
+        let lastT = null, idx = 1;
+        BOOK_ORDER.forEach(bName => {
+          const t = isOld(bName) ? 'old' : 'new';
+          if (t !== lastT) { lastT = t; out.push('<p style="margin:8px 0 2px"><b>' + (t === 'old' ? 'THE OLD TESTAMENT' : 'THE NEW TESTAMENT') + '</b></p>'); }
+          out.push('<p style="margin:1px 0 1px 28px;text-indent:-20px">' + idx + '.&nbsp;&nbsp;' + escH(FULL_BOOK_NAMES[bName] || bName) + '</p>');
+          idx++;
+        });
+        out.push('<br style="page-break-after:always" />');
         for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
           const bName = BOOK_ORDER[bi];
           const bData = bible[bName];
           if (!bData) continue;
-          doc += '<h2>' + esc(FULL_BOOK_NAMES[bName] || bName) + '</h2>';
+          sectionCount++;
+          const sid = 'Section' + sectionCount;
+          const hid = 'h' + sectionCount;
+          headerDivs.push('<div style="mso-element:header" id="' + hid + '"><p class=MsoHeader style="text-align:center"><i>' + escH(FULL_BOOK_NAMES[bName] || bName) + '</i></p></div>');
+          out.push('</div><div class="' + sid + '" style="page-break-before:always"><h2 style="text-align:center">' + escH(FULL_BOOK_NAMES[bName] || bName) + '</h2>');
           const maxCh = CHAPTER_COUNTS[bName] || 1;
           for (let ch = 1; ch <= maxCh; ch++) {
-            const verses = bData[ch] || [];
-            doc += '<h3>Chapter ' + ch + '</h3>';
-            for (let vi = 0; vi < verses.length; vi++) {
-              doc += '<p><b>' + verses[vi].verse + '</b> ' + esc(cleanVT(verses[vi].text)) + '</p>';
+            let verses = bData[ch] || [];
+            if (!verses.length) continue;
+            const isOtEnd = bName === 'Malachi' && ch === maxCh;
+            const isNtEnd = bName === 'Revelation' && ch === maxCh;
+            if (isOtEnd || isNtEnd) {
+              const last = verses[verses.length - 1];
+              verses = verses.slice(0, -1).concat([{ ...last, text: stripEndMarker(last.text) }]);
             }
+            out.push('<p style="text-align:center;margin-top:18px"><b>Chapter ' + ch + '</b></p>');
+            const sub = SUBSCRIPTS[bName + ':' + ch];
+            if (sub) out.push('<p style="text-align:center;font-size:10pt;color:#555;font-style:italic">\u00B6 ' + docxInline(sub) + '</p>');
+            for (let vi = 0; vi < verses.length; vi++) {
+              const v = verses[vi];
+              if (v.heading) { out.push('<p style="text-align:center;margin-top:14px"><b>' + escH(v.heading) + '</b></p>'); continue; }
+              if (vi > 0 && hasPilcrow(v.text)) out.push('<p style="margin:0;line-height:6pt">&nbsp;</p>');
+              out.push('<p style="page-break-inside:avoid;page-break-after:avoid"><b>' + v.verse + '</b> ' + docxInline(v.text) + '</p>');
+            }
+            const colo = COLOPHONS[bName + ':' + ch];
+            if (colo) out.push('<p style="text-align:center;font-size:10pt;color:#555;font-style:italic">\u00B6 ' + docxInline(colo) + '</p>');
           }
+          if (bName === 'Malachi') {
+            out.push('<p style="text-align:center;margin-top:14px"><b>' + (bi === BOOK_ORDER.length - 1 ? 'THE END.' : 'THE END OF THE PROPHETS.') + '</b></p>');
+            out.push('<br style="page-break-after:always" />');
+          }
+          if (bName === 'Revelation') out.push('<p style="text-align:center;margin-top:14px"><b>THE END.</b></p>');
         }
-        doc += '</body></html>';
-        return new Response(doc, { headers: {
-          'Content-Type': 'application/msword;charset=UTF-8',
-          'Content-Disposition': 'attachment; filename="kjb-bible.doc"',
-          'Cache-Control': 'public, max-age=86400'
-        }});
+        out.push('</div>');
+        const colDecl = 'columns:2;column-gap:24px;';
+        let pageRules = '@page SectionFront { mso-header-margin:0.5in; } div.SectionFront { }';
+        for (let i = 1; i <= sectionCount; i++) {
+          pageRules += '@page Section' + i + ' { mso-title-page:yes; mso-header: url("#h' + i + '") h' + i + '; mso-header-margin:0.5in; ' + colDecl + ' } div.Section' + i + ' { -webkit-column-count:2;column-count:2;column-gap:24px; }';
+        }
+        const bodyHtml = out.join('\n') + '\n' + headerDivs.join('\n');
+        const html = '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>KJB</title><style>' + pageRules + ' p.MsoHeader{margin:0;}</style></head><body style="font-family:Georgia,serif;font-size:11pt;">' + bodyHtml + '</body></html>';
+        const headers = { 'Content-Type': 'application/msword;charset=UTF-8', 'Content-Disposition': 'attachment; filename="kjb-bible-2col-full-names-subscripts-colophons.doc"' };
+        formatCache[fmt] = { body: html, headers };
+        return new Response(html, { headers: { ...headers, ...CACHE_HDR } });
       }
 
-      // PDF — uses jsPDF to render the whole Bible as a printable document
+      // PDF: two columns, italic font for [brackets], Psalm superscriptions +
+      // epistle colophons, running headers, title page, pilcrows.
       if (fmt === 'pdf') {
         const { jsPDF } = await import('npm:jspdf@4.2.1');
-        const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
+        const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
         const pageW = pdf.internal.pageSize.getWidth();
         const pageH = pdf.internal.pageSize.getHeight();
-        const margin = 50;
-        const maxW = pageW - margin * 2;
-        let y = margin;
+        const margin = 40, gutter = 18;
+        const twoColW = (pageW - margin * 2 - gutter) / 2;
+        const bodySize = 9;
+        const headerGap = 16;
+        let col = 0, y = margin;
+        let runningHead = '';
+        function stampHeader() {
+          if (!runningHead) return;
+          pdf.setFont('times', 'italic'); pdf.setFontSize(9);
+          pdf.text(runningHead, pageW / 2, margin - 6, { align: 'center', baseline: 'top' });
+        }
+        function newPage() { pdf.addPage(); col = 0; y = runningHead ? margin + headerGap : margin; stampHeader(); }
+        function ensureSpace(needed) {
+          needed = needed || bodySize + 4;
+          if (y + needed <= pageH - margin) return;
+          if (col === 0) { col = 1; y = runningHead ? margin + headerGap : margin; } else newPage();
+        }
+        const atPageTop = () => col === 0 && y === (runningHead ? margin + headerGap : margin);
+        const cWidth = () => twoColW;
+        const cX = () => margin + (col === 1 ? twoColW + gutter : 0);
+
+        function writeCenteredMixed(rawText, size) {
+          size = size || 8;
+          pdf.setFontSize(size);
+          const segs = toSegments(rawText);
+          const spaceW = () => { pdf.setFont('times', 'normal'); return pdf.getTextWidth(' '); };
+          const words = [];
+          segs.forEach(s => { s.text.split(/(\s+)/).filter(w => w.length).forEach(w => { if (!/^\s+$/.test(w)) words.push({ w, italic: s.italic }); }); });
+          const linesArr = [];
+          let line = [], lineW = 0;
+          words.forEach(word => {
+            pdf.setFont('times', word.italic ? 'italic' : 'normal');
+            const ww = pdf.getTextWidth(word.w);
+            const add = (line.length ? spaceW() : 0) + ww;
+            if (line.length && lineW + add > cWidth()) { linesArr.push({ words: line, width: lineW }); line = []; lineW = 0; }
+            line.push(word); lineW += (line.length > 1 ? spaceW() : 0) + ww;
+          });
+          if (line.length) linesArr.push({ words: line, width: lineW });
+          linesArr.forEach(ln => {
+            ensureSpace(size + 4);
+            let x = cX() + (cWidth() - ln.width) / 2;
+            ln.words.forEach((word, i) => {
+              if (i > 0) { pdf.setFont('times', 'normal'); x += spaceW(); }
+              pdf.setFont('times', word.italic ? 'italic' : 'normal');
+              pdf.text(word.w, x, y, { baseline: 'top' }); x += pdf.getTextWidth(word.w);
+            });
+            y += size + 3.5;
+          });
+          y += 4;
+        }
 
         // Title page
-        pdf.setFont('times', 'bold');
-        pdf.setFontSize(22);
-        pdf.text('The King James Bible', pageW / 2, y + 80, { align: 'center' });
-        pdf.setFontSize(12);
-        pdf.setFont('times', 'normal');
-        pdf.text('Pure Cambridge Edition', pageW / 2, y + 110, { align: 'center' });
-
+        runningHead = '';
+        y = pageH / 4;
+        pdf.setFont('times', 'bold'); pdf.setFontSize(28);
+        pdf.text('THE KING JAMES BIBLE', pageW / 2, y, { align: 'center' }); y += 30;
+        pdf.setFont('times', 'normal'); pdf.setFontSize(14);
+        pdf.text('Pure Cambridge Edition', pageW / 2, y, { align: 'center' }); y += 24;
+        pdf.setFontSize(10);
+        const tpLines = pdf.splitTextToSize('Containing the Old and New Testaments — Translated out of the Original Tongues and with the Former Translations Diligently Compared and Revised', pageW - margin * 2);
+        tpLines.forEach(ln => { pdf.text(ln, pageW / 2, y, { align: 'center' }); y += 14; });
         pdf.addPage();
         y = margin;
-        pdf.setFontSize(9);
-        pdf.setFont('times', 'normal');
 
         for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
           const bName = BOOK_ORDER[bi];
           const bData = bible[bName];
           if (!bData) continue;
           const fullName = FULL_BOOK_NAMES[bName] || bName;
-
-          if (y + 30 > pageH - margin) { pdf.addPage(); y = margin; }
-          pdf.setFont('times', 'bold');
-          pdf.setFontSize(12);
-          pdf.text(fullName, pageW / 2, y, { align: 'center' });
-          y += 18;
-          pdf.setFont('times', 'normal');
-          pdf.setFontSize(9);
-
+          runningHead = '';
+          if (!atPageTop()) newPage();
+          pdf.setFont('times', 'bold'); pdf.setFontSize(15);
+          const tLines = pdf.splitTextToSize(fullName, cWidth());
+          tLines.forEach(ln => { pdf.text(ln, cX() + cWidth() / 2, y, { align: 'center' }); y += 18; });
+          y += 8;
+          runningHead = fullName;
           const maxCh = CHAPTER_COUNTS[bName] || 1;
           for (let ch = 1; ch <= maxCh; ch++) {
-            const verses = bData[ch] || [];
-            if (y + 14 > pageH - margin) { pdf.addPage(); y = margin; }
-            pdf.setFont('times', 'bold');
-            pdf.text('Chapter ' + ch, margin, y);
-            y += 13;
-            pdf.setFont('times', 'normal');
-
-            for (let vi = 0; vi < verses.length; vi++) {
-              const vText = verses[vi].verse + ' ' + cleanVT(verses[vi].text);
-              const lines = pdf.splitTextToSize(vText, maxW);
-              for (let li = 0; li < lines.length; li++) {
-                if (y + 11 > pageH - margin) { pdf.addPage(); y = margin; }
-                pdf.text(lines[li], margin, y);
-                y += 11;
-              }
+            let verses = bData[ch] || [];
+            if (!verses.length) continue;
+            const isOtEnd = bName === 'Malachi' && ch === maxCh;
+            const isNtEnd = bName === 'Revelation' && ch === maxCh;
+            if (isOtEnd || isNtEnd) {
+              const last = verses[verses.length - 1];
+              verses = verses.slice(0, -1).concat([{ ...last, text: stripEndMarker(last.text) }]);
             }
-            y += 4;
+            ensureSpace(34 + bodySize + 8);
+            if (ch > 1 && !atPageTop()) y += 12;
+            pdf.setFont('times', 'bold'); pdf.setFontSize(11);
+            pdf.text('Chapter ' + ch, cX() + cWidth() / 2, y, { align: 'center' });
+            y += 22;
+            const sub = SUBSCRIPTS[bName + ':' + ch];
+            if (sub) writeCenteredMixed(sub, 8);
+            for (let vi = 0; vi < verses.length; vi++) {
+              const v = verses[vi];
+              if (v.heading) {
+                y += 8;
+                pdf.setFont('times', 'bold'); pdf.setFontSize(10);
+                const hLines = pdf.splitTextToSize(v.heading, cWidth());
+                hLines.forEach(ln => { ensureSpace(14); pdf.text(ln, cX() + cWidth() / 2, y, { align: 'center' }); y += 14; });
+                y += 6; pdf.setFontSize(bodySize);
+              } else if (vi > 0 && hasPilcrow(v.text)) {
+                y += 6; ensureSpace((bodySize + 3.5) * 2 + 6);
+              }
+              // Write verse with italic segments
+              const segs = toSegments(v.text);
+              pdf.setFontSize(bodySize);
+              let x = cX(), startX = cX();
+              let lineHasContent = false;
+              const spaceW = () => { pdf.setFont('times', 'normal'); return pdf.getTextWidth(' '); };
+              const wrap = () => { y += bodySize + 3.5; ensureSpace(bodySize + 4); x = cX(); startX = cX(); lineHasContent = false; };
+              pdf.setFont('times', 'bold');
+              pdf.text(String(v.verse), x, y, { baseline: 'top' });
+              x += pdf.getTextWidth(String(v.verse) + ' ');
+              pdf.setFont('times', 'normal'); lineHasContent = true;
+              segs.forEach(seg => {
+                pdf.setFont('times', seg.italic ? 'italic' : 'normal');
+                const words = seg.text.split(/(\s+)/).filter(w => w.length);
+                words.forEach(w => {
+                  if (/^\s+$/.test(w)) { if (lineHasContent) x += spaceW(); return; }
+                  const ww = pdf.getTextWidth(w);
+                  if (x + ww > startX + cWidth() && lineHasContent) wrap();
+                  pdf.setFont('times', seg.italic ? 'italic' : 'normal');
+                  pdf.text(w, x, y, { baseline: 'top' }); x += ww; lineHasContent = true;
+                });
+              });
+              y += bodySize + 3.5;
+            }
+            const colo = COLOPHONS[bName + ':' + ch];
+            if (colo) { y += 3; writeCenteredMixed('\u00B6 ' + normalize(colo).replace(/^\u00B6\s*/, ''), 8); pdf.setFontSize(bodySize); }
+          }
+          if (bName === 'Malachi') {
+            y += 10;
+            pdf.setFont('times', 'bold'); pdf.setFontSize(11);
+            const endT = bi === BOOK_ORDER.length - 1 ? 'THE END.' : 'THE END OF THE PROPHETS.';
+            const ew = pdf.getTextWidth(endT);
+            pdf.text(endT, cX() + (cWidth() - ew) / 2, y); y += 16;
+          }
+          if (bName === 'Revelation') {
+            y += 10;
+            pdf.setFont('times', 'bold'); pdf.setFontSize(12);
+            const ew = pdf.getTextWidth('THE END.');
+            pdf.text('THE END.', cX() + (cWidth() - ew) / 2, y); y += 16;
           }
         }
-
         const pdfBytes = pdf.output('arraybuffer');
-        return new Response(pdfBytes, { headers: {
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename="kjb-bible.pdf"',
-          'Cache-Control': 'public, max-age=86400'
-        }});
+        const headers = { 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="kjb-bible-2col-full-names-subscripts-colophons.pdf"' };
+        formatCache[fmt] = { body: pdfBytes, headers };
+        return new Response(pdfBytes, { headers: { ...headers, ...CACHE_HDR } });
       }
     }
     const theme = url.searchParams.get('theme') === 'dark' ? 'dark' : 'light';
@@ -884,12 +1169,12 @@ Deno.serve(async (req) => {
       const downloadBox = '<div class="dl-box"><b>&#128190; Download this Bible as a single file</b>' +
         '<p>Save the entire King James Bible (all 66 books, plus Gospel, Resources and About) as one self-contained HTML file. It needs no internet and no app &mdash; ideal for very old computers, or for keeping your own offline copy.</p>' +
         '<p><a class="dl-btn" href="' + HTML_FILE_URL + '" download="kjb-bible.html">Download HTML File (about 6 MB)</a></p>' +
-        '<p class="dl-formats"><a href="' + TXT_URL + '" download="kjb-bible.txt">TXT</a>' +
-        '<a href="' + RTF_URL + '" download="kjb-bible.rtf">RTF</a>' +
-        '<a href="' + DOC_URL + '" download="kjb-bible.doc">Word</a>' +
-        '<a href="' + PDF_URL + '" download="kjb-bible.pdf">PDF</a>' +
+        '<p class="dl-formats"><a href="' + TXT_URL + '" download="kjb-bible-1col-full-names-subscripts-colophons.txt">TXT (1 column)</a>' +
+        '<a href="' + RTF_URL + '" download="kjb-bible-2col-full-names-subscripts-colophons.rtf">RTF (2 columns)</a>' +
+        '<a href="' + DOC_URL + '" download="kjb-bible-2col-full-names-subscripts-colophons.doc">Word (2 columns)</a>' +
+        '<a href="' + PDF_URL + '" download="kjb-bible-2col-full-names-subscripts-colophons.pdf">PDF (2 columns)</a>' +
         '</p>' +
-        '<p class="dl-how"><b>How to use it:</b> Tap the link above to save the file, then open it by double-tapping &mdash; it works in any browser, even offline. Bookmark it or save it to your Home Screen for quick access. The TXT, RTF, Word and PDF files contain the Bible text only (no Gospel/Resources/About sections).</p>' +
+        '<p class="dl-how"><b>How to use it:</b> Tap the link above to save the file, then open it by double-tapping &mdash; it works in any browser, even offline. The TXT, RTF, Word and PDF files contain the full Bible text with full book names, Psalm superscriptions and epistle colophons. The RTF, Word and PDF versions use a two-column layout; TXT is single-column.</p>' +
         '</div>';
 
       bodyInner = '<a name="top" id="top"></a>' +
