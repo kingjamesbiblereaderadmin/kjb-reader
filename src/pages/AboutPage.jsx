@@ -340,7 +340,7 @@ export default function AboutPage() {
           </a>
 
           <a
-            href="https://discord.gg/kjbreader"
+            href="https://discord.com/users/shawn_faithinhisbloodr325av"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
@@ -350,7 +350,7 @@ export default function AboutPage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Discord</p>
-              <p className="font-sans text-xs text-muted-foreground truncate">discord.gg/kjbreader</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">shawn_faithinhisbloodr325av</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
