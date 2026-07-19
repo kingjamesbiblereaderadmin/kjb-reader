@@ -681,6 +681,10 @@ export default function SearchPage() {
         // New query → forget the previous pre-search position so the next
         // result click captures the current reading chapter fresh.
         try { localStorage.removeItem('kjb-pre-search'); } catch {}
+        // New query from the header search bar → scroll results to the top
+        // (the app scrolls inside #kjb-scroll, not the window).
+        const scroller = document.getElementById('kjb-scroll');
+        if (scroller) scroller.scrollTo({ top: 0 });
       }
       runSearch(q);
     }
@@ -734,8 +738,11 @@ export default function SearchPage() {
       setSelectedBooks(new Set());
       lastQueryRef.current = kw;
       // Scroll back to the top so the new results appear from the first verse,
-      // not wherever the user had scrolled to in the previous results.
-      window.scrollTo({ top: 0 });
+      // not wherever the user had scrolled to in the previous results. The app
+      // scrolls inside the #kjb-scroll <main>, not the window, so scroll that
+      // element (window.scrollTo is a no-op here and left the list scrolled down).
+      const scroller = document.getElementById('kjb-scroll');
+      if (scroller) scroller.scrollTo({ top: 0 });
       runSearch(kw);
     }
   };
