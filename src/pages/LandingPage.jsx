@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2 } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
 
 const LAST_UPDATED = 'July 16th, 2026';
@@ -124,6 +124,14 @@ export default function LandingPage() {
             <a href="https://youtube.com/@shawnr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
               <Youtube className="w-4 h-4 text-muted-foreground" />
               @shawnr325av
+            </a>
+            <a href="https://rumble.com/user/Godisgracious1031" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+              <PlayCircle className="w-4 h-4 text-muted-foreground" />
+              Rumble · Godisgracious1031
+            </a>
+            <a href="https://linktr.ee/shawnr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+              <Link2 className="w-4 h-4 text-muted-foreground" />
+              linktr.ee/shawnr325av
             </a>
           </div>
         </div>

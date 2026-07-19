@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Info, Mail, MessageSquare, ExternalLink, BookOpen, Globe, ChevronDown, ChevronRight, Youtube } from 'lucide-react';
+import { Info, Mail, MessageSquare, ExternalLink, BookOpen, Globe, ChevronDown, ChevronRight, Youtube, PlayCircle, Link2 } from 'lucide-react';
 
 function AccordionSection({ title, children }) {
   const [open, setOpen] = useState(false);
@@ -18,6 +18,15 @@ function AccordionSection({ title, children }) {
         </div>
       )}
     </div>
+  );
+}
+
+// Linktree icon SVG
+function LinktreeIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M13.736 5.853l4.005-4.117 2.325 2.381-4.2 4.005h5.908v3.288h-5.937l4.229 4.108-2.325 2.339-5.74-5.794-5.741 5.794-2.325-2.339 4.229-4.108H7.436V8.122h5.909l-4.2-4.005 2.324-2.381 4.005 4.117V0h3.062v5.853zm-3.062 9.479h3.062V24h-3.062v-8.668z"/>
+    </svg>
   );
 }
 
@@ -243,6 +252,38 @@ export default function AboutPage() {
             <div className="min-w-0 flex-1">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">YouTube</p>
               <p className="font-sans text-xs text-muted-foreground truncate">@shawnr325av</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
+          </a>
+
+          <a
+            href="https://rumble.com/user/Godisgracious1031"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-green-600">
+              <PlayCircle className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Rumble</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">Godisgracious1031</p>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
+          </a>
+
+          <a
+            href="https://linktr.ee/shawnr325av"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-green-500 to-emerald-600">
+              <LinktreeIcon className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Linktree</p>
+              <p className="font-sans text-xs text-muted-foreground truncate">linktr.ee/shawnr325av</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
           </a>
