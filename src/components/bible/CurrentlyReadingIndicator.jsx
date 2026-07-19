@@ -96,7 +96,27 @@ export default function CurrentlyReadingIndicator({
     clearLabel = (selectedVerses && selectedVerses.size > 0) || filterMode ? 'Show Full Chapter' : 'Clear search';
   } else if (isFilterMode) {
     typeLabel = 'Reading';
-    reference = `${book.shortName} ${pos.chapter}`;
+    // Use the position's verse range from localStorage (kjb-position), NOT
+    // selectedVerses — selectedVerses changes when the user picks verses in
+    // select mode, which would make the indicator jump around. The stored
+    // position only updates when "Read Selected" is actually applied, so the
+    // indicator stays stable during verse selection.
+    let vStart = verseNum;
+    let vEnd = null;
+    try {
+      const p = JSON.parse(localStorage.getItem('kjb-position') || '{}');
+      if (p.abbr === book.abbr && p.chapter === pos.chapter) {
+        vStart = p.verse || vStart;
+        vEnd = p.verseEnd;
+      }
+    } catch {}
+    if (vStart && vEnd && vEnd > vStart) {
+      reference = `${book.shortName} ${pos.chapter}:${vStart}-${vEnd}`;
+    } else if (vStart) {
+      reference = `${book.shortName} ${pos.chapter}:${vStart}`;
+    } else {
+      reference = `${book.shortName} ${pos.chapter}`;
+    }
     clearLabel = 'Show Full Chapter';
   } else if (isDaily) {
     const v = (lastReadingPos && lastReadingPos.verse) || verseNum || '1';
