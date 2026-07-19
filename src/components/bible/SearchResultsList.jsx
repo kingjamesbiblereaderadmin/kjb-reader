@@ -275,7 +275,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, hig
 
             {/* Per-book dropdown header + its verses (hidden if testament collapsed) */}
             {!sectionCollapsed && (
-              <div className="rounded-xl border border-border/60 overflow-hidden print:border-none print:rounded-none print:overflow-visible print:mt-2">
+              <div className="rounded-xl overflow-hidden print:border-none print:rounded-none print:overflow-visible print:mt-2">
                 <button
                   ref={(el) => setHeaderRef(group.book, el)}
                   onClick={() => toggleBook(group.book)}
