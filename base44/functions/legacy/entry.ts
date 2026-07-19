@@ -413,14 +413,176 @@ Deno.serve(async (req) => {
     const basePath = (!isCustomHost && appId)
       ? '/api/apps/' + encodeURIComponent(appId) + '/functions/legacy'
       : '/functions/legacy';
+
+    // ── FORMAT EXPORT: ?format=txt|rtf|doc|pdf ──
+    // Generates the whole Bible in the requested format, server-side, so the
+    // legacy page (no JavaScript) can offer direct downloads for old browsers.
+    const fmt = url.searchParams.get('format');
+    if (fmt === 'txt' || fmt === 'rtf' || fmt === 'doc' || fmt === 'pdf') {
+      const bible = await loadBible();
+
+      // Strip bracket markers, pilcrows and cleanup artefacts for plain formats
+      function cleanVT(raw) {
+        let t = raw.replace(/\u2019/g, "'").replace(/\u2018/g, "'").replace(/\u201C/g, '"').replace(/\u201D/g, '"');
+        t = t.replace(/\s*\u00B6\s*\[.*?\]\s*$/, '').trim();
+        t = t.replace(/\s*made\s+in\s+australia\.?\s*$/i, '').trim();
+        t = t.replace(/\s*[\u00B6\uFFFD]\s*THE END\.?\s*$/i, '').trim();
+        t = t.replace(/[\u00B6\uFFFD]/g, '');
+        t = t.replace(/\[([^\]]+)\]/g, '$1');
+        return t;
+      }
+
+      if (fmt === 'txt') {
+        let txt = 'The King James Bible\r\nPure Cambridge Edition\r\n\r\n\r\n';
+        for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
+          const bName = BOOK_ORDER[bi];
+          const bData = bible[bName];
+          if (!bData) continue;
+          txt += (FULL_BOOK_NAMES[bName] || bName) + '\r\n\r\n';
+          const maxCh = CHAPTER_COUNTS[bName] || 1;
+          for (let ch = 1; ch <= maxCh; ch++) {
+            const verses = bData[ch] || [];
+            txt += 'Chapter ' + ch + '\r\n\r\n';
+            for (let vi = 0; vi < verses.length; vi++) {
+              txt += verses[vi].verse + ' ' + cleanVT(verses[vi].text) + '\r\n';
+            }
+            txt += '\r\n';
+          }
+          txt += '\r\n';
+        }
+        return new Response(txt, { headers: {
+          'Content-Type': 'text/plain;charset=UTF-8',
+          'Content-Disposition': 'attachment; filename="kjb-bible.txt"',
+          'Cache-Control': 'public, max-age=86400'
+        }});
+      }
+
+      if (fmt === 'rtf') {
+        const escR = (s) => String(s).replace(/\\/g, '\\\\').replace(/\{/g, '\\{').replace(/\}/g, '\\}');
+        let rtf = '{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0 Georgia;}{\\f1 Arial;}} \\f0\\fs24';
+        rtf += '\\qc\\b\\fs40 The King James Bible\\b0\\par\\par\\qc\\fs20 Pure Cambridge Edition\\par\\par\\par\\ql';
+        for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
+          const bName = BOOK_ORDER[bi];
+          const bData = bible[bName];
+          if (!bData) continue;
+          rtf += '\\par\\par\\b\\fs28 ' + escR(FULL_BOOK_NAMES[bName] || bName) + '\\b0\\par';
+          const maxCh = CHAPTER_COUNTS[bName] || 1;
+          for (let ch = 1; ch <= maxCh; ch++) {
+            const verses = bData[ch] || [];
+            rtf += '\\par\\b\\fs22 Chapter ' + ch + '\\b0\\par';
+            for (let vi = 0; vi < verses.length; vi++) {
+              rtf += escR(verses[vi].verse + ' ' + cleanVT(verses[vi].text)) + '\\par ';
+            }
+          }
+        }
+        rtf += '}';
+        return new Response(rtf, { headers: {
+          'Content-Type': 'application/rtf;charset=UTF-8',
+          'Content-Disposition': 'attachment; filename="kjb-bible.rtf"',
+          'Cache-Control': 'public, max-age=86400'
+        }});
+      }
+
+      if (fmt === 'doc') {
+        let doc = '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><title>King James Bible</title><style>body{font-family:Georgia,serif;font-size:12pt;line-height:1.5;}h1{text-align:center;font-size:20pt;}h2{text-align:center;font-size:14pt;color:#2d2a6e;margin-top:24pt;}h3{font-size:12pt;color:#666;margin-top:12pt;margin-bottom:4pt;}p{margin:0 0 2pt 0;}</style></head><body>';
+        doc += '<h1>The King James Bible</h1><p style="text-align:center;">Pure Cambridge Edition</p>';
+        for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
+          const bName = BOOK_ORDER[bi];
+          const bData = bible[bName];
+          if (!bData) continue;
+          doc += '<h2>' + esc(FULL_BOOK_NAMES[bName] || bName) + '</h2>';
+          const maxCh = CHAPTER_COUNTS[bName] || 1;
+          for (let ch = 1; ch <= maxCh; ch++) {
+            const verses = bData[ch] || [];
+            doc += '<h3>Chapter ' + ch + '</h3>';
+            for (let vi = 0; vi < verses.length; vi++) {
+              doc += '<p><b>' + verses[vi].verse + '</b> ' + esc(cleanVT(verses[vi].text)) + '</p>';
+            }
+          }
+        }
+        doc += '</body></html>';
+        return new Response(doc, { headers: {
+          'Content-Type': 'application/msword;charset=UTF-8',
+          'Content-Disposition': 'attachment; filename="kjb-bible.doc"',
+          'Cache-Control': 'public, max-age=86400'
+        }});
+      }
+
+      // PDF — uses jsPDF to render the whole Bible as a printable document
+      if (fmt === 'pdf') {
+        const { jsPDF } = await import('npm:jspdf@4.2.1');
+        const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const margin = 50;
+        const maxW = pageW - margin * 2;
+        let y = margin;
+
+        // Title page
+        pdf.setFont('times', 'bold');
+        pdf.setFontSize(22);
+        pdf.text('The King James Bible', pageW / 2, y + 80, { align: 'center' });
+        pdf.setFontSize(12);
+        pdf.setFont('times', 'normal');
+        pdf.text('Pure Cambridge Edition', pageW / 2, y + 110, { align: 'center' });
+
+        pdf.addPage();
+        y = margin;
+        pdf.setFontSize(9);
+        pdf.setFont('times', 'normal');
+
+        for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
+          const bName = BOOK_ORDER[bi];
+          const bData = bible[bName];
+          if (!bData) continue;
+          const fullName = FULL_BOOK_NAMES[bName] || bName;
+
+          if (y + 30 > pageH - margin) { pdf.addPage(); y = margin; }
+          pdf.setFont('times', 'bold');
+          pdf.setFontSize(12);
+          pdf.text(fullName, pageW / 2, y, { align: 'center' });
+          y += 18;
+          pdf.setFont('times', 'normal');
+          pdf.setFontSize(9);
+
+          const maxCh = CHAPTER_COUNTS[bName] || 1;
+          for (let ch = 1; ch <= maxCh; ch++) {
+            const verses = bData[ch] || [];
+            if (y + 14 > pageH - margin) { pdf.addPage(); y = margin; }
+            pdf.setFont('times', 'bold');
+            pdf.text('Chapter ' + ch, margin, y);
+            y += 13;
+            pdf.setFont('times', 'normal');
+
+            for (let vi = 0; vi < verses.length; vi++) {
+              const vText = verses[vi].verse + ' ' + cleanVT(verses[vi].text);
+              const lines = pdf.splitTextToSize(vText, maxW);
+              for (let li = 0; li < lines.length; li++) {
+                if (y + 11 > pageH - margin) { pdf.addPage(); y = margin; }
+                pdf.text(lines[li], margin, y);
+                y += 11;
+              }
+            }
+            y += 4;
+          }
+        }
+
+        const pdfBytes = pdf.output('arraybuffer');
+        return new Response(pdfBytes, { headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': 'attachment; filename="kjb-bible.pdf"',
+          'Cache-Control': 'public, max-age=86400'
+        }});
+      }
+    }
     const theme = url.searchParams.get('theme') === 'dark' ? 'dark' : 'light';
     const isDark = theme === 'dark';
     // Carry the app_id forward on every navigation so the absolute function
     // path keeps resolving correctly.
     const idSuffix = (appId ? '&app_id=' + encodeURIComponent(appId) : '') + (isDark ? '&theme=dark' : '');
 
-    const STYLE = '*{margin:0;padding:0;box-sizing:border-box;}body{background:#f5f5f7;color:#1a1a1a;font-family:Georgia,serif;font-size:16px;line-height:1.6;}.hdr{background:#2d2a6e;color:#fff;padding:16px;text-align:center;}.hdr h1{font-size:22px;}.hdr p{font-size:12px;color:#cfcfe8;}.tabs{width:100%;background:#3d3a80;font-size:0;}.tabs a{display:inline-block;width:20%;padding:12px 2px;text-align:center;color:#cfcfe8;text-decoration:none;font-size:12px;font-family:Arial,sans-serif;}.tabs a.on{background:#5b59a0;color:#fff;font-weight:bold;}.wrap{max-width:760px;margin:0 auto;padding:16px;}.box{background:#fff;padding:16px;margin-bottom:16px;border:1px solid #e0e0ec;}.ctl{margin-bottom:12px;}.ctl label{display:block;font-size:14px;font-weight:bold;color:#333;margin-bottom:5px;font-family:Arial,sans-serif;}.ctl select{width:100%;padding:9px;font-size:16px;border:1px solid #ccc;font-family:Arial,sans-serif;}.read-btn{background:#2d2a6e;color:#fff;padding:11px;border:none;cursor:pointer;font-size:16px;font-weight:bold;font-family:Arial,sans-serif;width:100%;}.chead{text-align:center;margin:20px 0 16px;}.cbook{font-size:22px;font-weight:bold;color:#2d2a6e;display:block;}.cnum{font-size:13px;color:#666;display:block;margin-top:4px;}.verse{display:block;margin:20px 0 10px 0;line-height:1.5;}.vn{font-weight:bold;color:#2d2a6e;font-size:11px;margin-right:4px;}.subscript{text-align:center;color:#555;font-size:14px;margin:0 0 16px;}.colophon{text-align:center;color:#555;font-size:14px;margin:18px 0 0;padding-top:12px;border-top:1px solid #e0e0ec;}.pil{color:#888;display:inline;white-space:nowrap;}em{font-style:italic;}.nav{text-align:center;margin:20px 0;}.nav a{display:inline-block;padding:10px 18px;margin:0 4px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;}.box h3{color:#2d2a6e;margin-bottom:10px;font-size:16px;}.box blockquote{background:#f7f7fb;padding:12px;margin:8px 0;border-left:3px solid #2d2a6e;font-style:italic;}.box a{color:#2d2a6e;}.sec-title{font-size:20px;color:#2d2a6e;font-weight:bold;margin:24px 0 10px;text-align:center;}.sec-sub{font-size:14px;color:#666;text-align:center;margin-bottom:16px;}.step{background:#fff;border:1px solid #e0e0ec;border-left:4px solid #2d2a6e;padding:14px 16px;margin-bottom:14px;}.step h4{color:#2d2a6e;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.step .ref{display:block;margin-top:8px;font-size:13px;color:#444;font-family:Arial,sans-serif;}.warn{background:#fdf0f0;border:1px solid #e9c4c4;padding:14px 16px;margin-bottom:14px;}.warn h4{color:#b02525;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.warn ul{margin:6px 0 0 18px;}.warn li{font-size:14px;margin-bottom:3px;}.lnk{display:block;padding:10px 12px;margin-bottom:8px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;font-size:14px;font-family:Arial,sans-serif;}.lnk b{display:block;color:#1a1a1a;margin-bottom:2px;}.lnk span{display:block;color:#666;font-size:12px;}.res-cat{font-size:16px;color:#2d2a6e;font-weight:bold;margin:18px 0 8px;font-family:Arial,sans-serif;border-bottom:2px solid #e0e0ec;padding-bottom:5px;}.about-list{margin:8px 0 0 18px;}.about-list li{font-size:14px;margin-bottom:8px;line-height:1.5;}.doc{max-width:760px;margin:0 auto;}.doc h1{font-size:26px;color:#2d2a6e;margin:12px 0 24px;text-align:center;}.doc h2{font-size:19px;color:#2d2a6e;margin:44px 0 18px;padding-bottom:8px;border-bottom:1px solid #e0e0ec;}.doc h3{font-size:16px;color:#444;margin:30px 0 14px;}.doc p{margin:0 0 22px;line-height:1.85;}.doc p.lead{color:#555;font-size:17px;margin-bottom:36px;}.doc p.note{color:#777;font-size:13px;margin:32px 0;}.doc ul{margin:0 0 28px 28px;list-style-type:disc;}.doc li{margin-bottom:16px;line-height:1.75;padding-left:6px;}.doc blockquote{margin:0 0 22px;padding-left:18px;border-left:3px solid #c9c7e0;color:#444;font-style:italic;line-height:1.85;}.doc a{color:#2d2a6e;}.doc p.rlnk{margin:0 0 16px;}.doc p.rlnk span{color:#666;font-style:normal;}.banner{background:#fdf0f0;border-bottom:2px solid #e9c4c4;color:#7a1f1f;padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;text-align:center;}.banner>b{display:block;font-size:14px;margin-bottom:4px;}.banner li b{display:inline;}.banner ul{margin:6px auto 0;padding:0;list-style-position:inside;display:inline-block;text-align:left;}.banner li{margin-bottom:3px;}.banner a{color:#7a1f1f;font-weight:bold;}.fb-intro{font-size:15px;color:#555;margin-bottom:16px;line-height:1.6;}.fb-index{background:#fff;border:1px solid #e0e0ec;padding:14px 16px;margin-bottom:24px;}.fb-index-title{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}.fb-testament{font-size:15px;font-weight:bold;color:#2d2a6e;margin:12px 0 6px;}.fb-books{line-height:2.2;}.fb-books a{display:inline-block;padding:3px 9px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-book{margin-bottom:32px;border-top:2px solid #e0e0ec;padding-top:8px;}.fb-bookname{font-size:21px;color:#2d2a6e;text-align:center;margin:16px 0 4px;}.fb-top{text-align:center;margin-bottom:12px;}.fb-top a{font-size:12px;color:#888;text-decoration:none;font-family:Arial,sans-serif;}.fb-chap{font-size:15px;color:#666;font-weight:bold;margin:20px 0 8px;font-family:Arial,sans-serif;border-bottom:1px solid #eee;padding-bottom:4px;}.fb-chaplinks{margin:0 0 16px;line-height:2.2;}.fb-chaplinks-label{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-right:6px;}.fb-chaplinks a{display:inline-block;min-width:24px;text-align:center;padding:3px 7px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-chaptop{font-size:11px;font-weight:normal;color:#888;text-decoration:none;font-family:Arial,sans-serif;margin-left:8px;}.dl-box{background:#eef0fb;border:1px solid #c9c7e0;padding:16px;margin-bottom:24px;}.dl-box b{display:block;font-size:15px;color:#2d2a6e;margin-bottom:8px;}.dl-box p{font-size:14px;color:#444;margin:0 0 10px;line-height:1.6;}.dl-box .dl-how{font-size:13px;color:#555;margin-bottom:0;}.dl-btn{display:inline-block;background:#2d2a6e;color:#fff;text-decoration:none;padding:11px 18px;font-size:15px;font-weight:bold;font-family:Arial,sans-serif;}';
-    const DARK_STYLE = 'body{background:#1a1a1e;color:#e5e5e5;}.hdr{background:#1e1b4d;}.tabs{background:#2d2a6e;}.tabs a{color:#a5a5d0;}.tabs a.on{background:#3d3a80;color:#fff;}.box{background:#252830;border-color:#3a3d4a;color:#e5e5e5;}.ctl label{color:#e5e5e5;}.ctl select{background:#1a1a1e;border-color:#4a4d5a;color:#e5e5e5;}.read-btn{background:#3d3a80;}.cbook{color:#7c7ceb;}.vn{color:#7c7ceb;}.subscript,.colophon{color:#aaa;}.pil{color:#666;}.nav a{background:#3d3a80;}.box blockquote{background:#1e1b4d;border-left-color:#7c7ceb;}.box a{color:#7c7ceb;}.sec-title{color:#7c7ceb;}.sec-sub{color:#aaa;}.step{background:#252830;border-color:#3a3d4a;border-left-color:#7c7ceb;}.step h4{color:#7c7ceb;}.step .ref{color:#aaa;}.warn{background:#2a1a1a;border-color:#4a2a2a;}.warn h4{color:#f56565;}.lnk{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.lnk b{color:#e5e5e5;}.lnk span{color:#aaa;}.res-cat{color:#7c7ceb;border-bottom-color:#3a3d4a;}.about-list li{color:#e5e5e5;}.banner{background:#2a1a1a;border-bottom-color:#4a2a2a;color:#f0b8b8;}.banner a{color:#f0b8b8;}.fb-intro{color:#aaa;}.fb-index{background:#252830;border-color:#3a3d4a;}.fb-index-title{color:#e5e5e5;}.fb-testament{color:#7c7ceb;}.fb-books a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-book{border-top-color:#3a3d4a;}.fb-bookname{color:#7c7ceb;}.fb-chap{color:#aaa;border-bottom-color:#3a3d4a;}.fb-chaplinks-label{color:#e5e5e5;}.fb-chaplinks a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-chaptop{color:#888;}.dl-box{background:#1e1b4d;border-color:#3a3d4a;}.dl-box b{color:#7c7ceb;}.dl-box p{color:#ccc;}.dl-box .dl-how{color:#aaa;}.dl-btn{background:#3d3a80;color:#fff;}';
+    const STYLE = '*{margin:0;padding:0;box-sizing:border-box;}body{background:#f5f5f7;color:#1a1a1a;font-family:Georgia,serif;font-size:16px;line-height:1.6;}.hdr{background:#2d2a6e;color:#fff;padding:16px;text-align:center;}.hdr h1{font-size:22px;}.hdr p{font-size:12px;color:#cfcfe8;}.tabs{width:100%;background:#3d3a80;font-size:0;}.tabs a{display:inline-block;width:20%;padding:12px 2px;text-align:center;color:#cfcfe8;text-decoration:none;font-size:12px;font-family:Arial,sans-serif;}.tabs a.on{background:#5b59a0;color:#fff;font-weight:bold;}.wrap{max-width:760px;margin:0 auto;padding:16px;}.box{background:#fff;padding:16px;margin-bottom:16px;border:1px solid #e0e0ec;}.ctl{margin-bottom:12px;}.ctl label{display:block;font-size:14px;font-weight:bold;color:#333;margin-bottom:5px;font-family:Arial,sans-serif;}.ctl select{width:100%;padding:9px;font-size:16px;border:1px solid #ccc;font-family:Arial,sans-serif;}.read-btn{background:#2d2a6e;color:#fff;padding:11px;border:none;cursor:pointer;font-size:16px;font-weight:bold;font-family:Arial,sans-serif;width:100%;}.chead{text-align:center;margin:20px 0 16px;}.cbook{font-size:22px;font-weight:bold;color:#2d2a6e;display:block;}.cnum{font-size:13px;color:#666;display:block;margin-top:4px;}.verse{display:block;margin:20px 0 10px 0;line-height:1.5;}.vn{font-weight:bold;color:#2d2a6e;font-size:11px;margin-right:4px;}.subscript{text-align:center;color:#555;font-size:14px;margin:0 0 16px;}.colophon{text-align:center;color:#555;font-size:14px;margin:18px 0 0;padding-top:12px;border-top:1px solid #e0e0ec;}.pil{color:#888;display:inline;white-space:nowrap;}em{font-style:italic;}.nav{text-align:center;margin:20px 0;}.nav a{display:inline-block;padding:10px 18px;margin:0 4px;background:#2d2a6e;color:#fff;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;}.box h3{color:#2d2a6e;margin-bottom:10px;font-size:16px;}.box blockquote{background:#f7f7fb;padding:12px;margin:8px 0;border-left:3px solid #2d2a6e;font-style:italic;}.box a{color:#2d2a6e;}.sec-title{font-size:20px;color:#2d2a6e;font-weight:bold;margin:24px 0 10px;text-align:center;}.sec-sub{font-size:14px;color:#666;text-align:center;margin-bottom:16px;}.step{background:#fff;border:1px solid #e0e0ec;border-left:4px solid #2d2a6e;padding:14px 16px;margin-bottom:14px;}.step h4{color:#2d2a6e;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.step .ref{display:block;margin-top:8px;font-size:13px;color:#444;font-family:Arial,sans-serif;}.warn{background:#fdf0f0;border:1px solid #e9c4c4;padding:14px 16px;margin-bottom:14px;}.warn h4{color:#b02525;font-size:15px;margin-bottom:8px;font-family:Arial,sans-serif;}.warn ul{margin:6px 0 0 18px;}.warn li{font-size:14px;margin-bottom:3px;}.lnk{display:block;padding:10px 12px;margin-bottom:8px;background:#f7f7fb;border:1px solid #e0e0ec;text-decoration:none;color:#2d2a6e;font-size:14px;font-family:Arial,sans-serif;}.lnk b{display:block;color:#1a1a1a;margin-bottom:2px;}.lnk span{display:block;color:#666;font-size:12px;}.res-cat{font-size:16px;color:#2d2a6e;font-weight:bold;margin:18px 0 8px;font-family:Arial,sans-serif;border-bottom:2px solid #e0e0ec;padding-bottom:5px;}.about-list{margin:8px 0 0 18px;}.about-list li{font-size:14px;margin-bottom:8px;line-height:1.5;}.doc{max-width:760px;margin:0 auto;}.doc h1{font-size:26px;color:#2d2a6e;margin:12px 0 24px;text-align:center;}.doc h2{font-size:19px;color:#2d2a6e;margin:44px 0 18px;padding-bottom:8px;border-bottom:1px solid #e0e0ec;}.doc h3{font-size:16px;color:#444;margin:30px 0 14px;}.doc p{margin:0 0 22px;line-height:1.85;}.doc p.lead{color:#555;font-size:17px;margin-bottom:36px;}.doc p.note{color:#777;font-size:13px;margin:32px 0;}.doc ul{margin:0 0 28px 28px;list-style-type:disc;}.doc li{margin-bottom:16px;line-height:1.75;padding-left:6px;}.doc blockquote{margin:0 0 22px;padding-left:18px;border-left:3px solid #c9c7e0;color:#444;font-style:italic;line-height:1.85;}.doc a{color:#2d2a6e;}.doc p.rlnk{margin:0 0 16px;}.doc p.rlnk span{color:#666;font-style:normal;}.banner{background:#fdf0f0;border-bottom:2px solid #e9c4c4;color:#7a1f1f;padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;text-align:center;}.banner>b{display:block;font-size:14px;margin-bottom:4px;}.banner li b{display:inline;}.banner ul{margin:6px auto 0;padding:0;list-style-position:inside;display:inline-block;text-align:left;}.banner li{margin-bottom:3px;}.banner a{color:#7a1f1f;font-weight:bold;}.fb-intro{font-size:15px;color:#555;margin-bottom:16px;line-height:1.6;}.fb-index{background:#fff;border:1px solid #e0e0ec;padding:14px 16px;margin-bottom:24px;}.fb-index-title{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}.fb-testament{font-size:15px;font-weight:bold;color:#2d2a6e;margin:12px 0 6px;}.fb-books{line-height:2.2;}.fb-books a{display:inline-block;padding:3px 9px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-book{margin-bottom:32px;border-top:2px solid #e0e0ec;padding-top:8px;}.fb-bookname{font-size:21px;color:#2d2a6e;text-align:center;margin:16px 0 4px;}.fb-top{text-align:center;margin-bottom:12px;}.fb-top a{font-size:12px;color:#888;text-decoration:none;font-family:Arial,sans-serif;}.fb-chap{font-size:15px;color:#666;font-weight:bold;margin:20px 0 8px;font-family:Arial,sans-serif;border-bottom:1px solid #eee;padding-bottom:4px;}.fb-chaplinks{margin:0 0 16px;line-height:2.2;}.fb-chaplinks-label{font-size:13px;font-weight:bold;color:#333;font-family:Arial,sans-serif;margin-right:6px;}.fb-chaplinks a{display:inline-block;min-width:24px;text-align:center;padding:3px 7px;margin:2px;background:#f7f7fb;border:1px solid #e0e0ec;color:#2d2a6e;text-decoration:none;font-size:13px;font-family:Arial,sans-serif;}.fb-chaptop{font-size:11px;font-weight:normal;color:#888;text-decoration:none;font-family:Arial,sans-serif;margin-left:8px;}.dl-box{background:#eef0fb;border:1px solid #c9c7e0;padding:16px;margin-bottom:24px;}.dl-box b{display:block;font-size:15px;color:#2d2a6e;margin-bottom:8px;}.dl-box p{font-size:14px;color:#444;margin:0 0 10px;line-height:1.6;}.dl-box .dl-how{font-size:13px;color:#555;margin-bottom:0;}.dl-btn{display:inline-block;background:#2d2a6e;color:#fff;text-decoration:none;padding:11px 18px;font-size:15px;font-weight:bold;font-family:Arial,sans-serif;}.dl-formats{margin:10px 0;}.dl-formats a{display:inline-block;padding:7px 14px;margin:3px 4px 3px 0;background:#f7f7fb;border:1px solid #c9c7e0;color:#2d2a6e;text-decoration:none;font-size:13px;font-weight:bold;font-family:Arial,sans-serif;}';
+    const DARK_STYLE = 'body{background:#1a1a1e;color:#e5e5e5;}.hdr{background:#1e1b4d;}.tabs{background:#2d2a6e;}.tabs a{color:#a5a5d0;}.tabs a.on{background:#3d3a80;color:#fff;}.box{background:#252830;border-color:#3a3d4a;color:#e5e5e5;}.ctl label{color:#e5e5e5;}.ctl select{background:#1a1a1e;border-color:#4a4d5a;color:#e5e5e5;}.read-btn{background:#3d3a80;}.cbook{color:#7c7ceb;}.vn{color:#7c7ceb;}.subscript,.colophon{color:#aaa;}.pil{color:#666;}.nav a{background:#3d3a80;}.box blockquote{background:#1e1b4d;border-left-color:#7c7ceb;}.box a{color:#7c7ceb;}.sec-title{color:#7c7ceb;}.sec-sub{color:#aaa;}.step{background:#252830;border-color:#3a3d4a;border-left-color:#7c7ceb;}.step h4{color:#7c7ceb;}.step .ref{color:#aaa;}.warn{background:#2a1a1a;border-color:#4a2a2a;}.warn h4{color:#f56565;}.lnk{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.lnk b{color:#e5e5e5;}.lnk span{color:#aaa;}.res-cat{color:#7c7ceb;border-bottom-color:#3a3d4a;}.about-list li{color:#e5e5e5;}.banner{background:#2a1a1a;border-bottom-color:#4a2a2a;color:#f0b8b8;}.banner a{color:#f0b8b8;}.fb-intro{color:#aaa;}.fb-index{background:#252830;border-color:#3a3d4a;}.fb-index-title{color:#e5e5e5;}.fb-testament{color:#7c7ceb;}.fb-books a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-book{border-top-color:#3a3d4a;}.fb-bookname{color:#7c7ceb;}.fb-chap{color:#aaa;border-bottom-color:#3a3d4a;}.fb-chaplinks-label{color:#e5e5e5;}.fb-chaplinks a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}.fb-chaptop{color:#888;}.dl-box{background:#1e1b4d;border-color:#3a3d4a;}.dl-box b{color:#7c7ceb;}.dl-box p{color:#ccc;}.dl-box .dl-how{color:#aaa;}.dl-btn{background:#3d3a80;color:#fff;}.dl-formats a{background:#1e1b4d;border-color:#3a3d4a;color:#7c7ceb;}';
 
     let bodyInner = '';
 
@@ -713,11 +875,21 @@ Deno.serve(async (req) => {
       // Serve the download THROUGH this same function (?download=1) so it stays
       // on the Cloudflare TLS-1.0 origin — reachable by IE9. (base44.app is
       // TLS-1.2-only and would fail on IE9.)
-      const HTML_FILE_URL = basePath + '?download=1' + (!isCustomHost && appId ? '&app_id=' + encodeURIComponent(appId) : '');
+      const appIdQs = (!isCustomHost && appId ? '&app_id=' + encodeURIComponent(appId) : '');
+      const HTML_FILE_URL = basePath + '?download=1' + appIdQs;
+      const TXT_URL = basePath + '?format=txt' + appIdQs;
+      const RTF_URL = basePath + '?format=rtf' + appIdQs;
+      const DOC_URL = basePath + '?format=doc' + appIdQs;
+      const PDF_URL = basePath + '?format=pdf' + appIdQs;
       const downloadBox = '<div class="dl-box"><b>&#128190; Download this Bible as a single file</b>' +
         '<p>Save the entire King James Bible (all 66 books, plus Gospel, Resources and About) as one self-contained HTML file. It needs no internet and no app &mdash; ideal for very old computers, or for keeping your own offline copy.</p>' +
         '<p><a class="dl-btn" href="' + HTML_FILE_URL + '" download="kjb-bible.html">Download HTML File (about 6 MB)</a></p>' +
-        '<p class="dl-how"><b>How to use it:</b> Tap the link above to save the file, then open it by double-tapping &mdash; it works in any browser, even offline. Bookmark it or save it to your Home Screen for quick access. </p>' +
+        '<p class="dl-formats"><a href="' + TXT_URL + '" download="kjb-bible.txt">TXT</a>' +
+        '<a href="' + RTF_URL + '" download="kjb-bible.rtf">RTF</a>' +
+        '<a href="' + DOC_URL + '" download="kjb-bible.doc">Word</a>' +
+        '<a href="' + PDF_URL + '" download="kjb-bible.pdf">PDF</a>' +
+        '</p>' +
+        '<p class="dl-how"><b>How to use it:</b> Tap the link above to save the file, then open it by double-tapping &mdash; it works in any browser, even offline. Bookmark it or save it to your Home Screen for quick access. The TXT, RTF, Word and PDF files contain the Bible text only (no Gospel/Resources/About sections).</p>' +
         '</div>';
 
       bodyInner = '<a name="top" id="top"></a>' +
