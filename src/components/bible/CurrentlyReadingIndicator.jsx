@@ -58,11 +58,6 @@ export default function CurrentlyReadingIndicator({
   if (isDaily || isRandom) {
     // Force clear search term for daily/random - don't show search toolbar
     effectiveSearchTerm = null;
-  } else if (!isFromSearch) {
-    // When returning from Home (no from=search in URL), don't show the search
-    // label even if searchTerm was restored from localStorage — the user is
-    // just reading, so the "Reading" label is more appropriate.
-    effectiveSearchTerm = null;
   } else if (!effectiveSearchTerm && !gospelMode && urlParams) {
     if (isFromSearch) {
       effectiveSearchTerm = urlParams.get('q') || localStorage.getItem('kjb-search-term') || null;
@@ -99,7 +94,7 @@ export default function CurrentlyReadingIndicator({
     reference = `${book.shortName} ${pos.chapter}${searchVerses}${sectionSuffix}`;
     clearLabel = (selectedVerses && selectedVerses.size > 0) || filterMode ? 'Show Full Chapter' : 'Clear search';
   } else if (isFilterMode) {
-    typeLabel = 'Currently Reading';
+    typeLabel = 'Reading';
     reference = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
     clearLabel = 'Show Full Chapter';
   } else if (isDaily) {

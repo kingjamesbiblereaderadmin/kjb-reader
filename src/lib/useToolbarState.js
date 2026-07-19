@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getGospelNav } from '@/lib/searchNav';
 
 export function useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults, setGospelMode, setGospelResultIndex, setGospelTotalResults, setHighlightVerse) {
@@ -44,12 +44,8 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
     }
   }, [filterMode, selectedVerses, searchTerm, searchClearedRef.current, gospelMode, searchResultIndex, searchTotalResults, pos.abbr, pos.chapter, loading, restoreTick]);
 
-  // Restore toolbar state after chapter loads.
-  // useLayoutEffect (not useEffect) so the restore runs synchronously after
-  // the DOM is updated but BEFORE the browser paints — this prevents the
-  // "flash" where all verses are briefly shown unfiltered before filterMode
-  // is applied.
-  useLayoutEffect(() => {
+  // Restore toolbar state after chapter loads
+  useEffect(() => {
     if (loading || verses.length === 0) return;
 
     const restoreToolbarState = () => {
@@ -99,11 +95,8 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
             console.log('[ToolbarState] Restoring resultView:', state.resultView);
             resultViewRef.current = state.resultView;
           }
-          // Restore search context — ONLY during an active search session
-          // (from=search in URL). When returning from Home, skip so the yellow
-          // "Search" indicator doesn't appear.
-          const isFromSearchRestore = new URLSearchParams(window.location.search).get('from') === 'search';
-          if (isFromSearchRestore && state.hasSearchContext && state.searchTerm) {
+          // Always restore search context if it exists and hasn't been cleared
+          if (state.hasSearchContext && state.searchTerm) {
             console.log('[ToolbarState] Restoring search:', state.searchTerm);
             searchClearedRef.current = false;
             setSearchTerm(state.searchTerm);

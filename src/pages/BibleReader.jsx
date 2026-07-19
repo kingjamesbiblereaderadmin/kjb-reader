@@ -430,17 +430,12 @@ export default function BibleReader() {
 
   useEffect(() => {
     getBibleData().catch(err => console.error('[BibleReader] Cache preload failed:', err));
-    // Only restore search context during an ACTIVE search session (URL has
-    // from=search). When returning from Home, searchTerm must NOT be restored
-    // — otherwise the yellow "Search" indicator appears even though the user
-    // is just reading a chapter.
-    const isFromSearchMount = new URLSearchParams(window.location.search).get('from') === 'search';
     // Restore toolbar state from localStorage on mount (persists across app restarts)
     try {
       const savedState = localStorage.getItem('kjb-reader-toolbar-state');
       if (savedState) {
         const state = JSON.parse(savedState);
-        if (isFromSearchMount && state && state.hasSearchContext && state.searchTerm) {
+        if (state && state.hasSearchContext && state.searchTerm) {
           searchClearedRef.current = false;
           setSearchTerm(state.searchTerm);
           setSearchResultIndex(state.searchResultIndex || 0);
@@ -461,7 +456,7 @@ export default function BibleReader() {
       const term = localStorage.getItem('kjb-search-term');
       const resultsRaw = localStorage.getItem('kjb-search-results');
       const index = localStorage.getItem('kjb-search-index');
-      if (isFromSearchMount && term && resultsRaw && !searchTerm) {
+      if (term && resultsRaw && !searchTerm) {
         const results = JSON.parse(resultsRaw);
         if (results.length > 0) {
           searchClearedRef.current = false;
@@ -631,10 +626,13 @@ export default function BibleReader() {
           try {
             const state = JSON.parse(savedState);
             if (state.abbr === urlBookObj?.abbr && state.chapter === chapterNum && wasInitialNavMount) {
-              // Restore filter mode and selected verses from toolbar state.
-              // NOTE: searchTerm is NOT restored here — this branch only runs
-              // when isFromSearch is false, so restoring it would show the
-              // yellow "Search" indicator when the user is just reading.
+              // Restore search context with persisted data
+              if (state.hasSearchContext && state.searchTerm) {
+                searchClearedRef.current = false;
+                setSearchTerm(state.searchTerm);
+                setSearchResultIndex(state.searchResultIndex || 0);
+                setSearchTotalResults(state.searchTotalResults || 0);
+              }
               // Restore gospel context
               if (state.hasGospelContext) {
                 const g = getGospelNav();
@@ -737,10 +735,8 @@ export default function BibleReader() {
             const state = JSON.parse(savedState);
             console.log('[BibleReader] Fallback restore - parsed state:', state);
             if (state && state.abbr === p.abbr && state.chapter === p.chapter) {
-              // Restore search context — ONLY during an active search session
-              // (from=search in URL). When returning from Home, skip this so
-              // the yellow "Search" indicator doesn't appear.
-              if (isFromSearch && state.hasSearchContext && state.searchTerm) {
+              // Restore search context
+              if (state.hasSearchContext && state.searchTerm) {
                 searchClearedRef.current = false;
                 setSearchTerm(state.searchTerm);
                 setSearchResultIndex(state.searchResultIndex || 0);
@@ -766,6 +762,9 @@ export default function BibleReader() {
                 // verse can be stale/null here even though a selection was restored.
                 restoredHighlightVerse = Math.min(...newSet);
               }
+              // Restore the "verse/chapter only" flag (Show Full Chapter vs Verses
+              // Only) so it matches what the user last had open on this chapter.
+              if (state.resultView) resultViewRef.current = state.resultView;
             }
           }
         } catch (err) {
@@ -1052,21 +1051,17 @@ export default function BibleReader() {
       try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
       try { const f = localStorage.getItem('kjb-reader-font-family') || 'serif'; setFontFamily(f); applyReaderFont(f); } catch {}
       try { setA11yFont(getAccessibilityFont()); } catch {}
-      // Re-read search context — ONLY during an active search session
-      // (from=search in URL). Otherwise don't restore searchTerm, so the
-      // yellow indicator doesn't appear when just reading.
+      // Re-read search context and last reading position so the indicator reappears on focus/storage change
       try {
-        if (new URLSearchParams(window.location.search).get('from') === 'search') {
-          const term = localStorage.getItem('kjb-search-term');
-          const resultsRaw = localStorage.getItem('kjb-search-results');
-          const index = localStorage.getItem('kjb-search-index');
-          if (term && resultsRaw) {
-            const results = JSON.parse(resultsRaw);
-            if (results.length > 0) {
-              setSearchTerm(term);
-              setSearchResultIndex(index ? parseInt(index, 10) : 0);
-              setSearchTotalResults(results.length);
-            }
+        const term = localStorage.getItem('kjb-search-term');
+        const resultsRaw = localStorage.getItem('kjb-search-results');
+        const index = localStorage.getItem('kjb-search-index');
+        if (term && resultsRaw) {
+          const results = JSON.parse(resultsRaw);
+          if (results.length > 0) {
+            setSearchTerm(term);
+            setSearchResultIndex(index ? parseInt(index, 10) : 0);
+            setSearchTotalResults(results.length);
           }
         }
       } catch {}
@@ -1104,9 +1099,6 @@ export default function BibleReader() {
       try {
         const { term, index, results } = getSearchNav();
         if (searchClearedRef.current && !term) return;
-        // Only restore searchTerm during an active search session
-        const isFromSearchCtx = new URLSearchParams(window.location.search).get('from') === 'search';
-        if (!isFromSearchCtx) return;
         if (term) searchClearedRef.current = false;
         setSearchTerm(term || null); setSearchResultIndex(index); setSearchTotalResults(results.length);
         if (lastReadingClearedRef.current) { setLastReadingPos(null); return; }
@@ -1722,7 +1714,7 @@ export default function BibleReader() {
           
           {!selectMode && selectedVerses.size > 0 && (
             <ReadingRangeBar
-              label={searchTerm && new URLSearchParams(window.location.search).get('from') === 'search' ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : lastReadingActive ? (lastReadingPos?.fromRandom ? 'Random Chapter' : 'Daily Verse') : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
+              label={searchTerm ? `Search: "${searchTerm}"` : gospelMode ? 'Gospel' : lastReadingActive ? (lastReadingPos?.fromRandom ? 'Random Chapter' : 'Daily Verse') : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
               filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback}
               onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink} onPrintPage={() => window.print()}
               onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}

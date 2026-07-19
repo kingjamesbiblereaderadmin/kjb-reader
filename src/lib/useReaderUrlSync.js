@@ -20,6 +20,13 @@ export function useReaderUrlSync(pos, loading, a11yFont, navigate, searchTerm, g
       if ((from === 'daily' || from === 'random') && (searchTerm || gospelMode)) {
         from = gospelMode ? 'gospel' : 'search';
       }
+      // When returning to /read from Home (URL has no `from` param), an active
+      // search/gospel context must be flagged in the URL so the reader's
+      // routerLocation.search effect runs the isFromSearch branch, calls
+      // stepToResult, and restores filterMode + selectedVerses + highlight.
+      if (!from && (searchTerm || gospelMode)) {
+        from = gospelMode ? 'gospel' : 'search';
+      }
       let url;
       if (pos.chapter === 0) {
         url = `/read?titlePage=${pos.abbr === 'MAT' ? 'new' : 'old'}`;
