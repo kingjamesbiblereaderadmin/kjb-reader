@@ -22,7 +22,8 @@ export function useBrowserZoom() {
       // 100% zoom is treated as zoom=1, not zoom=2.
       const nativeDpr = Math.round(dpr) || 1;
       const zoom = dpr / nativeDpr;
-      document.documentElement.style.setProperty('--kjb-zoom-scale', String(zoom));
+      // Invert: zoom OUT (zoom < 1) grows the layout, zoom IN (zoom > 1) shrinks it.
+      document.documentElement.style.setProperty('--kjb-zoom-scale', String(1 / zoom));
     };
     apply();
     window.addEventListener('resize', apply);
