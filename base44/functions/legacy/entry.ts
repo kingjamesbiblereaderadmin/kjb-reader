@@ -471,9 +471,12 @@ Deno.serve(async (req) => {
         lnk('https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg', 'CPR Missions', 'Church Planting and Revival Missions. YouTube, TikTok, Facebook, Instagram') +
         lnk('https://youtube.com/@jamesbrayall3?si=nXkuHAhyVvC_0KVg', 'James Bray', 'KJB preacher and Bible teacher on YouTube.') +
 
-        '<h2>Ministry Links</h2>' +
+        '<h2>Personal Ministry Links</h2>' +
         lnk('https://godisgracious1031ministriescom.odoo.com/', 'God is Gracious 1031 Ministries', 'Ministry website') +
-        lnk('mailto:Kingjamesbiblereader.com@outlook.com', 'Contact the Ministry', 'Kingjamesbiblereader.com@outlook.com') +
+        lnk('https://youtube.com/@shawnr325av', 'YouTube', '@shawnr325av') +
+        lnk('https://rumble.com/user/Godisgracious1031', 'Rumble', 'Godisgracious1031') +
+        lnk('https://linktr.ee/shawnr325av', 'Linktree', 'linktr.ee/shawnr325av') +
+        lnk('mailto:kingjamesbiblereader@outlook.sg', 'Contact the Ministry', 'kingjamesbiblereader@outlook.sg') +
 
         '<p class="note"><em>Note: The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.</em></p>' +
 
@@ -584,11 +587,10 @@ Deno.serve(async (req) => {
         '<h2 style="margin-bottom:12px;">Links & Contact</h2>' +
         '<ul style="line-height:1.8;">' +
         '<li><a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a></li>' +
-        '<li><a href="https://youtube.com/@shawnr325av?si=zC_gQm4I2S_xj-NS" target="_blank">YouTube: @shawnr325av</a></li>' +
-        '<li><a href="https://www.tiktok.com/@svdbyfaithinr325av?_r=1&_t=ZS-96WRhWSLUoe" target="_blank">TikTok: @svdbyfaithinr325av</a></li>' +
-        '<li><a href="https://www.instagram.com/svdbyfaithinhisbloodr325av?igsh=NTl0NmM1NWoyb2F0" target="_blank">Instagram: @svdbyfaithinhisbloodr325av</a></li>' +
+        '<li><a href="https://youtube.com/@shawnr325av" target="_blank">YouTube: @shawnr325av</a></li>' +
+        '<li><a href="https://rumble.com/user/Godisgracious1031" target="_blank">Rumble: Godisgracious1031</a></li>' +
+        '<li><a href="https://linktr.ee/shawnr325av" target="_blank">Linktree: linktr.ee/shawnr325av</a></li>' +
         '<li><a href="mailto:kingjamesbiblereader@outlook.sg">Email: kingjamesbiblereader@outlook.sg</a></li>' +
-        '<li><a href="https://discord.com/" target="_blank">Discord: shawn_svdbyfaithinhisbloodr325av</a></li>' +
         '</ul>' +
         '</div>' +
         '</div>';
