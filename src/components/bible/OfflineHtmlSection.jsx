@@ -1,10 +1,13 @@
 import React from 'react';
 import { Download, FileCode, HardDrive } from 'lucide-react';
+import { appParams } from '@/lib/app-params';
 
 // The standalone, single-file HTML version of the entire KJB (all 66 books +
 // Gospel, Resources, About). 100% self-contained, no JavaScript, works on any
-// host and on very old browsers.
-const HTML_FILE_URL = 'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/efdf106f1_kjb-legacy-reader.html';
+// host and on very old browsers. Served LIVE by the legacy backend function
+// (?download=1) so it always reflects the latest links and content — no need
+// to manually regenerate and re-upload a static snapshot.
+const HTML_FILE_URL = `/api/apps/${appParams.appId}/functions/legacy?download=1`;
 
 export default function OfflineHtmlSection() {
   return (
