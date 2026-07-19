@@ -1,11 +1,15 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getGospelNav } from '@/lib/searchNav';
 
 export function useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults, setGospelMode, setGospelResultIndex, setGospelTotalResults) {
-  // Tracks whether we've already restored from localStorage for the current
-  // chapter load. Prevents the save effect from overwriting persisted state
-  // with default values before the restore has had a chance to rehydrate it.
+  // Prevents the save effect from overwriting persisted state with default
+  // values before the restore has had a chance to rehydrate it.
   const hasRestoredRef = useRef(false);
+  // Forces the save effect to fire once after restore completes — even when
+  // nothing was restored (e.g. toolbar state was cleared by goMulti). Without
+  // this, the save effect would never fire and the current filterMode/selection
+  // would never be persisted.
+  const [restoreTick, setRestoreTick] = useState(0);
 
   // Persist toolbar state with chapter + search/gospel context
   useEffect(() => {
@@ -38,7 +42,7 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
     } catch (err) {
       console.error('[ToolbarState] Save error:', err);
     }
-  }, [filterMode, selectedVerses, searchTerm, searchClearedRef.current, gospelMode, searchResultIndex, searchTotalResults, pos.abbr, pos.chapter, loading]);
+  }, [filterMode, selectedVerses, searchTerm, searchClearedRef.current, gospelMode, searchResultIndex, searchTotalResults, pos.abbr, pos.chapter, loading, restoreTick]);
 
   // Restore toolbar state after chapter loads
   useEffect(() => {
@@ -46,9 +50,6 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
 
     const restoreToolbarState = () => {
       // Mark as restored so the save effect can start persisting again.
-      // This prevents the save effect (which also fires when loading flips
-      // to false) from overwriting the saved state with default values
-      // before we've had a chance to rehydrate filterMode / selectedVerses.
       hasRestoredRef.current = true;
       try {
         // Never rehydrate a stale search/gospel context when we've just
@@ -57,10 +58,18 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
         // triggered on window focus) shouldn't undo that.
         const navUrlParams = new URLSearchParams(window.location.search);
         const navFrom = navUrlParams.get('from');
-        if (navFrom === 'daily' || navFrom === 'random') return;
+        if (navFrom === 'daily' || navFrom === 'random') {
+          setRestoreTick(t => t + 1);
+          return;
+        }
         const saved = localStorage.getItem('kjb-reader-toolbar-state');
         console.log('[ToolbarState] Restore attempt - saved:', saved);
-        if (!saved) return;
+        if (!saved) {
+          // Nothing to restore — still force a save so the current state
+          // (e.g. filterMode set by stepToResult) gets persisted.
+          setRestoreTick(t => t + 1);
+          return;
+        }
         const state = JSON.parse(saved);
         console.log('[ToolbarState] Parsed state:', state);
         // Restore search/gospel context if we're on the SAME chapter where it was saved
@@ -101,6 +110,8 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
       } catch (err) {
         console.error('[ToolbarState] Restore error:', err);
       }
+      // Force the save effect to fire with the (possibly) restored state.
+      setRestoreTick(t => t + 1);
     };
     restoreToolbarState();
     const timer = setTimeout(restoreToolbarState, 100);
