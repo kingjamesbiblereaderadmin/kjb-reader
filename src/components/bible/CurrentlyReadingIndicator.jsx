@@ -120,54 +120,58 @@ export default function CurrentlyReadingIndicator({
   const showNavigation = !isDaily && !isRandom && (effectiveSearchTerm || gospelMode) && totalResults > 1 && onPrevResult && onNextResult;
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium h-11 min-w-0 flex-shrink-0">
-      <div className="flex flex-col leading-tight min-w-0">
+    <div className="flex items-stretch gap-2 px-3 py-2 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium min-w-0 flex-shrink-0">
+      <div className="flex flex-col leading-snug gap-0.5 min-w-0 justify-center">
         {typeLabel ? (
           <>
             <span className="font-semibold text-[10px] uppercase tracking-wide opacity-75 truncate max-w-full block">{typeLabel}</span>
             {searchedRefs && (
               <span className="text-[10px] opacity-60 truncate max-w-full block">Searched: {searchedRefs}</span>
             )}
-            <span className="font-bold text-xs truncate max-w-full block">{reference}</span>
+            <span className="font-bold text-sm truncate max-w-full block">{reference}</span>
           </>
         ) : (
-          <span className="font-bold text-xs truncate max-w-full block">{reference}</span>
+          <span className="font-bold text-sm truncate max-w-full block">{reference}</span>
         )}
       </div>
-      {showNavigation && (
-        <>
-          <span className="ml-1 text-[10px] font-semibold opacity-70">{currentResultIndex + 1}/{totalResults}</span>
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
-            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
-            title="Previous result (wraps to last)"
-            className="p-0.5 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
-          >
-            <ChevronUp className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
-            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
-            title="Next result (wraps to first)"
-            className="p-0.5 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
-          >
-            <ChevronDown className="w-3.5 h-3.5" />
-          </button>
-        </>
-      )}
-      {onClear && (
-       <button
-         id="kjb-currently-reading-clear-btn"
-         onClick={(e) => {
-           e.preventDefault();
-           e.stopPropagation();
-           onClear();
-         }}
-         title={clearLabel}
-         className="ml-0.5 p-0.5 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
-       >
-         <X className="w-3.5 h-3.5" />
-       </button>
+      {(showNavigation || onClear) && (
+        <div className="flex items-center gap-1 flex-shrink-0 border-l border-black/20 pl-2">
+          {showNavigation && (
+            <>
+              <span className="text-[10px] font-semibold opacity-70">{currentResultIndex + 1}/{totalResults}</span>
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
+                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
+                title="Previous result (wraps to last)"
+                className="p-1 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+              >
+                <ChevronUp className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
+                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
+                title="Next result (wraps to first)"
+                className="p-1 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </>
+          )}
+          {onClear && (
+            <button
+              id="kjb-currently-reading-clear-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClear();
+              }}
+              title={clearLabel}
+              className="p-1 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
