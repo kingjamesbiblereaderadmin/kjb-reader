@@ -99,8 +99,11 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
             console.log('[ToolbarState] Restoring resultView:', state.resultView);
             resultViewRef.current = state.resultView;
           }
-          // Always restore search context if it exists and hasn't been cleared
-          if (state.hasSearchContext && state.searchTerm) {
+          // Restore search context — ONLY during an active search session
+          // (from=search in URL). When returning from Home, skip so the yellow
+          // "Search" indicator doesn't appear.
+          const isFromSearchRestore = new URLSearchParams(window.location.search).get('from') === 'search';
+          if (isFromSearchRestore && state.hasSearchContext && state.searchTerm) {
             console.log('[ToolbarState] Restoring search:', state.searchTerm);
             searchClearedRef.current = false;
             setSearchTerm(state.searchTerm);
