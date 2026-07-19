@@ -56,7 +56,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'July 13th, 2026';
-const WORKER_VERSION = 'v20260719_1735';
+const WORKER_VERSION = 'v20260719_1736';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -570,7 +570,7 @@ export default function SettingsPage() {
           </p>
         )}
         <div className="flex flex-col gap-2">
-        {VERSE_FONTS.map(font => (
+        {VERSE_FONTS.filter(f => f.value !== 'comic-sans' || (typeof window !== 'undefined' && window.innerWidth >= 640)).map(font => (
           <button
             key={font.value}
             onClick={() => pickReaderFont(font.value)}
@@ -960,7 +960,7 @@ export default function SettingsPage() {
             )}
             <p className="font-sans text-xs text-muted-foreground">Standard</p>
             <div className="grid grid-cols-3 gap-2">
-              {VERSE_FONTS.map(font => (
+              {VERSE_FONTS.filter(f => f.value !== 'comic-sans' || (typeof window !== 'undefined' && window.innerWidth >= 640)).map(font => (
                 <button
                   key={font.value}
                   onClick={() => pickVerseFont(font.value)}

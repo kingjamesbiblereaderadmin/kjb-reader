@@ -96,7 +96,7 @@ export default function CurrentlyReadingIndicator({
     clearLabel = (selectedVerses && selectedVerses.size > 0) || filterMode ? 'Show Full Chapter' : 'Clear search';
   } else if (isFilterMode) {
     typeLabel = 'Reading';
-    reference = `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`;
+    reference = `${book.shortName} ${pos.chapter}`;
     clearLabel = 'Show Full Chapter';
   } else if (isDaily) {
     const v = (lastReadingPos && lastReadingPos.verse) || verseNum || '1';

@@ -866,7 +866,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 { value: 'monospace', label: 'Mono', cssFamily: "'Courier New', monospace" },
                 { value: 'cursive', label: 'Cursive', cssFamily: "'Dancing Script', cursive" },
                 { value: 'comic-sans', label: 'Comic', cssFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', system-ui, sans-serif" },
-              ].map(font => {
+              ].filter(f => f.value !== 'comic-sans' || (typeof window !== 'undefined' && window.innerWidth >= 640)).map(font => {
                 const a11yActive = a11yFont !== 'default';
                 const isActive = !a11yActive && fontFamily === font.value;
                 const isDisabled = a11yActive;
