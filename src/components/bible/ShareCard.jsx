@@ -93,6 +93,18 @@ const ShareCard = React.forwardRef(function ShareCard(
   const verseColor = textColor || '#ffffff';
   const verseOpacity = textOpacity != null ? textOpacity : 1;
 
+  // html2canvas mis-renders the inline <span>/<em> HTML that renderVerseText
+  // produces (it drops/collapses spaces between inline elements inside a
+  // centered wrapping block, producing garbled, overlapping text in the
+  // captured image). For the share card we render the verse as a single
+  // plain text node instead — stripping the HTML tags while keeping the
+  // actual words and pilcrows (¶) — which html2canvas renders reliably.
+  const plainVerseText = renderVerseText(cleanVerseText(verse?.text || ''))
+    .replace(/<span class="pilcrow">¶<\/span>/g, '¶')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
   const [fitSize, setFitSize] = useState(60);
 
   // Calculates the largest font size that makes the verse + reference + date
@@ -345,7 +357,7 @@ const ShareCard = React.forwardRef(function ShareCard(
             }}
           >
             <style>{`.kjb-sharecard-verse em { font-style: ${isDyslexic ? 'normal' : 'italic'} !important; font-weight: inherit; vertical-align: baseline !important; line-height: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
-            "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)).replace(/<span class="pilcrow">¶<\/span>/g, `<span class="pilcrow" style="color: ${verseColor}; opacity: ${verseOpacity};">¶</span>`) }} />"
+            "<span>{plainVerseText}</span>"
             <span
               style={{
                 display: 'block',
