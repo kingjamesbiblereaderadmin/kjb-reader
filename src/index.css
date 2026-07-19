@@ -38,6 +38,11 @@
     --font-serif: 'Merriweather', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
+    /* Root font-size scales with browser zoom (Ctrl±) via --kjb-zoom-scale,
+       set by useBrowserZoom hook. This makes all rem-based layout shrink when
+       zoomed out and grow when zoomed in — "layout shrinks with text". */
+    font-size: calc(100% * var(--kjb-zoom-scale, 1));
+
     /* Vibrant blue→indigo→purple theme (matches Verse of the Day style) */
     --background: 240 30% 99%;
     --foreground: 248 55% 8%;
@@ -316,7 +321,7 @@
   }
   /* Atkinson Hyperlegible runs visually smaller — bump system-wide size up for legibility */
   html[data-a11y-font="hyperlegible"] {
-    font-size: 112.5%;
+    font-size: calc(112.5% * var(--kjb-zoom-scale, 1));
   }
   /* System: follow the device's own UI/reading font (incl. an OS-level
      dyslexic font the user may have set). */

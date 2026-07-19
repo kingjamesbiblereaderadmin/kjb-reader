@@ -4,6 +4,7 @@ import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Men
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { useBrowserZoom } from '@/hooks/useBrowserZoom';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
 import ShortcutsModal from '@/components/ShortcutsModal';
@@ -66,6 +67,7 @@ export default function AppLayout() {
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
   const { reloadKey, softReload, isReloading } = useSoftReload();
+  useBrowserZoom();
   
   // Hide all layout chrome for legacy reader - it renders its own complete UI
   const isLegacy = pathname === '/legacy';

@@ -7,7 +7,7 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
     if (loading) return;
     try {
       // Only save if we have an ACTIVE search/gospel context (don't save cleared state)
-      const hasActiveContext = (searchTerm && !searchClearedRef.current) || gospelMode || selectedVerses.size > 0;
+      const hasActiveContext = (searchTerm && !searchClearedRef.current) || gospelMode || selectedVerses.size > 0 || filterMode;
       if (!hasActiveContext) {
         // Clear persisted state when there's no active context
         localStorage.removeItem('kjb-reader-toolbar-state');
@@ -55,9 +55,8 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
         // Restore search/gospel context if we're on the SAME chapter where it was saved
         if (state && state.abbr === pos.abbr && state.chapter === pos.chapter) {
           console.log('[ToolbarState] Chapter match - restoring');
-          if (state.filterMode !== undefined) {
-            console.log('[ToolbarState] Setting filterMode:', state.filterMode);
-            setFilterMode(state.filterMode);
+          if (state.filterMode === true) {
+            setFilterMode(true);
           }
           if (state.selectedVerses && state.selectedVerses.length > 0) {
             const newSet = new Set(state.selectedVerses);
