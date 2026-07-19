@@ -584,6 +584,21 @@ Deno.serve(async (req) => {
         '</div>' +
         '</div>' +
         '<div style="margin-bottom:32px;">' +
+        '<h2 style="margin-bottom:16px;">Pagan Holidays &amp; Traditions</h2>' +
+        '<p style="margin-bottom:12px;">Many widely-observed holidays have roots in pagan customs that were later given a Christian veneer. Believers should study these origins for themselves.</p>' +
+        '<ul style="line-height:1.8;">' +
+        '<li>Easter &mdash; its name, timing and symbols (eggs, rabbits) trace back to pagan spring fertility festivals rather than scripture.</li>' +
+        '<li>Christmas &mdash; December 25th and many of its customs (trees, wreaths, yule logs) originate in pagan winter solstice celebrations, not the biblical account of Christ\'s birth.</li>' +
+        '<li>Halloween &mdash; descends from pagan harvest and death festivals (such as Samhain) later absorbed into the church calendar as &ldquo;All Hallows\' Eve.&rdquo;</li>' +
+        '</ul>' +
+        '<p style="margin-top:12px;"><a href="https://youtube.com/playlist?list=PLNGhZnJavRf183iEUeQHer5aKnlV3LWKP" target="_blank">Pagan Holidays Playlist on YouTube</a></p>' +
+        '</div>' +
+        '<div style="margin-bottom:32px;">' +
+        '<h2 style="margin-bottom:12px;">Why I Am Not... Series</h2>' +
+        '<p style="margin-bottom:12px;">I reject Catholicism, Calvinism, Pentecostalism, Church of God, Mormonism, Jehovah\'s Witnesses, etc. This video series by Robert Breaker examines why various religious movements depart from the truth of scripture.</p>' +
+        '<p style="margin-top:12px;"><a href="https://youtube.com/playlist?list=PLNGhZnJavRf293XCMldBgwRpQ4U1o8uEf" target="_blank">Why I Am Not... Series on YouTube</a></p>' +
+        '</div>' +
+        '<div style="margin-bottom:32px;">' +
         '<h2 style="margin-bottom:12px;">Links & Contact</h2>' +
         '<ul style="line-height:1.8;">' +
         '<li><a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank">God is Gracious 1031 Ministries</a></li>' +
