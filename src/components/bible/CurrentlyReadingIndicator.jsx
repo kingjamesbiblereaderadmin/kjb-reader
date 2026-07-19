@@ -74,6 +74,7 @@ export default function CurrentlyReadingIndicator({
   // Build label — no double colons
   let typeLabel = '';
   let reference = '';
+  let searchedRefs = null;
   let clearLabel = 'Clear';
 
   if (gospelMode) {
@@ -84,7 +85,9 @@ export default function CurrentlyReadingIndicator({
     reference = `${book.shortName} ${pos.chapter}${gospelVerses}`;
     clearLabel = 'Clear';
   } else if (effectiveSearchTerm) {
-    typeLabel = /\d+:\d+/.test(effectiveSearchTerm) ? `Currently Reading: ${effectiveSearchTerm}` : `Search: "${effectiveSearchTerm}"`;
+    const isRefSearch = /\d+:\d+/.test(effectiveSearchTerm);
+    typeLabel = isRefSearch ? 'Currently Reading' : `Search: "${effectiveSearchTerm}"`;
+    searchedRefs = isRefSearch ? effectiveSearchTerm : null;
     const isStanza = book.abbr === 'PSA' && pos.chapter === 119 && selectedVerses && selectedVerses.size > 1;
     const searchVerses = isStanza
       ? ` (Stanza)`
@@ -122,6 +125,9 @@ export default function CurrentlyReadingIndicator({
         {typeLabel ? (
           <>
             <span className="font-semibold text-[10px] uppercase tracking-wide opacity-75 truncate max-w-full block">{typeLabel}</span>
+            {searchedRefs && (
+              <span className="text-[10px] opacity-60 truncate max-w-full block">Searched: {searchedRefs}</span>
+            )}
             <span className="font-bold text-xs truncate max-w-full block">{reference}</span>
           </>
         ) : (
