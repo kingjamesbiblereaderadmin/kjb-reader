@@ -160,11 +160,11 @@ const ShareCard = React.forwardRef(function ShareCard(
       // below so the estimate never disagrees with the real layout.
       const lineHeightMult = isCursive ? 1.65 : 1.4;
       const verseBlockHeight = lines * size * lineHeightMult;
-      const refBlockHeight = size * 0.5 + size * 0.52 * 1.2; // margin-top + line height
-      // Date badge sits inside the blockquote: margin-top (1.05) + line height
+      const refBlockHeight = size * 0.95 + size * 0.52 * 1.2; // margin-top + line height
+      // Date badge sits inside the blockquote: margin-top (1.7) + line height
       // (0.42*1.15) + vertical padding (0.16*2 = 0.32), plus extra slack so the
       // pill is never clipped by the container's overflow:hidden.
-      const dateBlockHeight = size * 1.05 + size * 0.42 * 1.15 + size * 0.32 + size * 0.45;
+      const dateBlockHeight = size * 1.7 + size * 0.42 * 1.15 + size * 0.32 + size * 0.45;
       const total = (verseBlockHeight + refBlockHeight + dateBlockHeight) * HEIGHT_SAFETY_FACTOR;
 
       if (total <= availableHeight - safetyMargin) {
@@ -416,7 +416,7 @@ const ShareCard = React.forwardRef(function ShareCard(
             <span
               style={{
                 display: 'block',
-                marginTop: `${fitSize * 0.5}px`,
+                marginTop: `${fitSize * 0.95}px`,
                 fontFamily: verseFont,
                 fontWeight: 700,
                 fontSize: `${fitSize * 0.52}px`,
@@ -433,7 +433,7 @@ const ShareCard = React.forwardRef(function ShareCard(
                 alignItems: 'center',
                 justifyContent: 'center',
                 whiteSpace: 'nowrap',
-                marginTop: `${fitSize * 1.05}px`,
+                marginTop: `${fitSize * 1.7}px`,
                 background: dateBadgeBg,
                 borderRadius: '999px',
                 padding: `${fitSize * 0.16}px ${fitSize * 0.26}px`,
