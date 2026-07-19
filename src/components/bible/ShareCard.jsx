@@ -158,7 +158,7 @@ const ShareCard = React.forwardRef(function ShareCard(
       // nominal font-size, or ascenders/descenders get clipped between
       // lines. Applied identically here and in the actual rendered style
       // below so the estimate never disagrees with the real layout.
-      const lineHeightMult = isCursive ? 1.65 : 1.4;
+      const lineHeightMult = isCursive ? 1.85 : 1.6;
       const verseBlockHeight = lines * size * lineHeightMult;
       const refBlockHeight = size * 0.95 + size * 0.52 * 1.2; // margin-top + line height
       // Date badge sits inside the blockquote: margin-top (1.7) + line height
@@ -401,7 +401,7 @@ const ShareCard = React.forwardRef(function ShareCard(
               fontFamily: verseFont,
               fontWeight: 700,
               fontSize: `${fitSize}px`,
-              lineHeight: isCursive ? 1.65 : 1.4,
+              lineHeight: isCursive ? 1.85 : 1.6,
               color: verseColor,
               opacity: verseOpacity,
               textShadow: '0 3px 10px rgba(0,0,0,0.4)',
