@@ -770,14 +770,13 @@ export default function BibleReader() {
         // just restored (the bug that made the search & selection toolbars vanish
         // whenever you navigated away and back without an explicit verse range).
         if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
-          // Only apply the position's verse range if the toolbar state didn't
-          // already restore filterMode/selectedVerses — otherwise we'd override
-          // the user's "full chapter" (filterMode=false) choice back to true.
-          if (!restoredFilterMode && !restoredSelection) {
-            const range = new Set();
-            for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
-            setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
-          }
+          // kjb-position has a verse range — the user was viewing a filtered
+          // passage. Always restore filterMode=true and the selection, even if
+          // the toolbar state also restored (it may have saved filterMode=false
+          // during a race condition before the search session applied filter mode).
+          const range = new Set();
+          for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
+          setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
         } else if (!restoredSelection && !restoredFilterMode) {
           setFilterMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set());
         }
