@@ -149,7 +149,7 @@ export default function StyleEditorPanel({
             { value: 'sans-serif', label: 'Sans', cssFamily: "'Inter', system-ui, sans-serif" },
             { value: 'monospace', label: 'Mono', cssFamily: "'Courier New', monospace" },
             { value: 'cursive', label: 'Cursive', cssFamily: "'Dancing Script', cursive" },
-            { value: 'comic-sans', label: 'Comic', cssFamily: "'Comic Sans MS', 'Comic Sans', cursive" },
+            { value: 'comic-sans', label: 'Comic', cssFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', system-ui, sans-serif" },
             { value: 'times', label: 'Times', cssFamily: "'Times New Roman', Times, serif" },
           ].map(font => {
             const a11yActive = a11yFont !== 'default';

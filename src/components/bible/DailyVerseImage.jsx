@@ -37,7 +37,7 @@ function resolveVerseFontFamily(choice, a11yFont) {
   if (choice === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
   if (choice === 'monospace') return "'Courier New', monospace";
   if (choice === 'cursive') return "'Dancing Script', cursive";
-  if (choice === 'comic-sans') return "'Comic Sans MS', 'Comic Sans', cursive";
+  if (choice === 'comic-sans') return "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', system-ui, sans-serif";
   if (choice === 'times') return "'Times New Roman', Times, serif";
   if (choice === 'dyslexic') return "'OpenDyslexic', 'Comic Sans MS', sans-serif";
   if (choice === 'hyperlegible') return "'Atkinson Hyperlegible', system-ui, sans-serif";
@@ -865,7 +865,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 { value: 'sans-serif', label: 'Sans', cssFamily: "'Inter', system-ui, sans-serif" },
                 { value: 'monospace', label: 'Mono', cssFamily: "'Courier New', monospace" },
                 { value: 'cursive', label: 'Cursive', cssFamily: "'Dancing Script', cursive" },
-                { value: 'comic-sans', label: 'Comic', cssFamily: "'Comic Sans MS', 'Comic Sans', cursive" },
+                { value: 'comic-sans', label: 'Comic', cssFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', system-ui, sans-serif" },
               ].map(font => {
                 const a11yActive = a11yFont !== 'default';
                 const isActive = !a11yActive && fontFamily === font.value;

@@ -201,7 +201,7 @@ export default function SettingsPage() {
     { value: 'sans-serif', label: 'Sans Serif (Inter)' },
     { value: 'monospace', label: 'Mono' },
     { value: 'cursive', label: 'Cursive' },
-    { value: 'comic-sans', label: 'Comic Sans', cssFamily: "'Comic Sans MS', 'Comic Sans', cursive" },
+    { value: 'comic-sans', label: 'Comic Sans', cssFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', system-ui, sans-serif" },
     { value: 'times', label: 'Times New Roman', cssFamily: "'Times New Roman', Times, serif" },
   ];
 

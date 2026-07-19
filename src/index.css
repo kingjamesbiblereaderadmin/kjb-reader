@@ -303,7 +303,7 @@
   }
   html[data-reader-font="comic-sans"] .kjb-reader-content:not(.cursive-em-style),
   html[data-reader-font="comic-sans"] .kjb-reader-content:not(.cursive-em-style) *:not(sup):not(.font-sans):not(svg):not(svg *) {
-    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', system-ui, sans-serif;
   }
   html[data-reader-font="times"] .kjb-reader-content:not(.cursive-em-style),
   html[data-reader-font="times"] .kjb-reader-content:not(.cursive-em-style) *:not(sup):not(.font-sans):not(svg):not(svg *) {
