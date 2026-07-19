@@ -89,9 +89,7 @@ export default function CurrentlyReadingIndicator({
     const isStanza = book.abbr === 'PSA' && pos.chapter === 119 && selectedVerses && selectedVerses.size > 1;
     const searchVerses = isStanza
       ? ` (Stanza)`
-      : (selectedVerses && selectedVerses.size > 1
-        ? `:${formatVerseRange([...selectedVerses])}`
-        : verseNum ? `:${verseNum}${occurrenceLabel || ''}` : '');
+      : (verseNum ? `:${verseNum}${occurrenceLabel || ''}` : '');
     reference = `${book.shortName} ${pos.chapter}${searchVerses}${sectionSuffix}`;
     clearLabel = (selectedVerses && selectedVerses.size > 0) || filterMode ? 'Show Full Chapter' : 'Clear search';
   } else if (isFilterMode) {
