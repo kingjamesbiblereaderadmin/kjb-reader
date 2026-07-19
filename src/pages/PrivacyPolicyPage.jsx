@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Shield, ArrowLeft } from 'lucide-react';
 
 const LAST_UPDATED = 'July 16th, 2026';
@@ -30,6 +30,8 @@ function Section({ title, children }) {
 }
 
 export default function PrivacyPolicyPage() {
+  const navigate = useNavigate();
+  const goBack = () => navigate(-1);
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
     <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
@@ -44,13 +46,13 @@ export default function PrivacyPolicyPage() {
         </div>
 
         <div className="text-center mb-6">
-        <Link
-        to="/landing"
+        <button
+        onClick={goBack}
         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
         >
         <ArrowLeft className="w-4 h-4" />
-        Back to Landing
-        </Link>
+        Back
+        </button>
         </div>
 
         <AIDisclaimer />
@@ -149,13 +151,13 @@ export default function PrivacyPolicyPage() {
       </Section>
 
       <div className="text-center mt-8">
-        <Link
-          to="/landing"
+        <button
+          onClick={goBack}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Landing
-        </Link>
+          Back
+        </button>
       </div>
     </div>
     </div>
