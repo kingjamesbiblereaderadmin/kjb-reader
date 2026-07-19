@@ -788,7 +788,10 @@ export default function BibleReader() {
           setFilterMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set());
         }
         setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });
-        setHighlightVerse(p.verse || null);
+        // Prefer the verse restored from the toolbar-state selection (may be
+        // stale/null on kjb-position itself) so the reader highlights AND
+        // scrolls to where the user left off, not just the top of the chapter.
+        setHighlightVerse(restoredHighlightVerse || p.verse || null);
         loadChapter(p.abbr, p.chapter, p.verse || null);
       }
     } catch (err) {
