@@ -727,6 +727,7 @@ export default function BibleReader() {
         // Restore toolbar state from localStorage (search/gospel context persists across app restarts)
         let restoredSelection = false;
         let restoredFilterMode = false;
+        let restoredHighlightVerse = null;
         try {
           const savedState = localStorage.getItem('kjb-reader-toolbar-state');
           console.log('[BibleReader] Fallback restore - saved state:', savedState);
@@ -757,7 +758,13 @@ export default function BibleReader() {
                 setSelectedVerses(newSet);
                 setHighlightedVerses(newSet);
                 restoredSelection = true;
+                // Track the verse to highlight/scroll to below — kjb-position's own
+                // verse can be stale/null here even though a selection was restored.
+                restoredHighlightVerse = Math.min(...newSet);
               }
+              // Restore the "verse/chapter only" flag (Show Full Chapter vs Verses
+              // Only) so it matches what the user last had open on this chapter.
+              if (state.resultView) resultViewRef.current = state.resultView;
             }
           }
         } catch (err) {
