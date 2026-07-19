@@ -726,6 +726,7 @@ export default function BibleReader() {
         
         // Restore toolbar state from localStorage (search/gospel context persists across app restarts)
         let restoredSelection = false;
+        let restoredFilterMode = false;
         try {
           const savedState = localStorage.getItem('kjb-reader-toolbar-state');
           console.log('[BibleReader] Fallback restore - saved state:', savedState);
@@ -750,7 +751,7 @@ export default function BibleReader() {
                 }
               }
               // Restore filter mode and selected verses
-              if (state.filterMode !== undefined) setFilterMode(state.filterMode);
+              if (state.filterMode !== undefined) { setFilterMode(state.filterMode); restoredFilterMode = true; }
               if (state.selectedVerses && state.selectedVerses.length > 0) {
                 const newSet = new Set(state.selectedVerses);
                 setSelectedVerses(newSet);
@@ -769,10 +770,15 @@ export default function BibleReader() {
         // just restored (the bug that made the search & selection toolbars vanish
         // whenever you navigated away and back without an explicit verse range).
         if (p.verse && p.verseEnd && p.verseEnd > p.verse) {
-          const range = new Set();
-          for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
-          setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
-        } else if (!restoredSelection) {
+          // Only apply the position's verse range if the toolbar state didn't
+          // already restore filterMode/selectedVerses — otherwise we'd override
+          // the user's "full chapter" (filterMode=false) choice back to true.
+          if (!restoredFilterMode && !restoredSelection) {
+            const range = new Set();
+            for (let v = p.verse; v <= p.verseEnd; v++) range.add(v);
+            setSelectedVerses(range); setHighlightedVerses(range); setFilterMode(true);
+          }
+        } else if (!restoredSelection && !restoredFilterMode) {
           setFilterMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set());
         }
         setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });

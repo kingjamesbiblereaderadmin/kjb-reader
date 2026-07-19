@@ -2,8 +2,9 @@ import { useEffect, useRef } from 'react';
 import { getGospelNav } from '@/lib/searchNav';
 
 export function useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults, setGospelMode, setGospelResultIndex, setGospelTotalResults) {
-  // Prevents the save effect from overwriting persisted state with default
-  // values before the restore effect has had a chance to rehydrate it.
+  // Tracks whether we've already restored from localStorage for the current
+  // chapter load. Prevents the save effect from overwriting persisted state
+  // with default values before the restore has had a chance to rehydrate it.
   const hasRestoredRef = useRef(false);
 
   // Persist toolbar state with chapter + search/gospel context
@@ -42,6 +43,7 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
   // Restore toolbar state after chapter loads
   useEffect(() => {
     if (loading || verses.length === 0) return;
+
     const restoreToolbarState = () => {
       // Mark as restored so the save effect can start persisting again.
       // This prevents the save effect (which also fires when loading flips
