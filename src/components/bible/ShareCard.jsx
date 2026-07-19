@@ -16,8 +16,8 @@ const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e
 // inferring it from live DOM measurement.
 const CARD_SIZE = 1024;
 const HEADER_BLOCK_H = 76;   // title row + its margins
-const BLOCKQUOTE_MAX_W = 880; // 1024 - 2*72 outer padding
-const BLOCKQUOTE_PAD_H = 48;  // 24px each side
+const BLOCKQUOTE_MAX_W = 944; // 1024 - 2*40 outer padding
+const BLOCKQUOTE_PAD_H = 24;  // 12px each side
 
 const ShareCard = React.forwardRef(function ShareCard(
   { verse, logoSrc, fontFamily, uiFont, textColor, textOpacity, gradient, isOffline, backgroundImageUrl, showTextPanel, visible, dateKey },
@@ -353,7 +353,7 @@ const ShareCard = React.forwardRef(function ShareCard(
               width: '100%',
               maxWidth: '960px',
               boxSizing: 'border-box',
-              padding: '0 24px',
+              padding: '0 12px',
             }}
           >
             <style>{`.kjb-sharecard-verse em { font-style: ${isDyslexic ? 'normal' : 'italic'} !important; font-weight: inherit; vertical-align: baseline !important; line-height: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>

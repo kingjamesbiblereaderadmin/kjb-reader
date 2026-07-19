@@ -18,7 +18,7 @@ const PER_DAY_KEY = 'kjb-sharecard-settings-perday-v1';
 export const SHARECARD_DEFAULTS = {
   outerPadTop: 32,
   outerPadBottom: 40,
-  outerPadX: 72,
+  outerPadX: 40,
   headerDividerGap: 36,   // margin below the header divider
   footerGapTop: 16,       // margin above the footer curve
   footerGapBottom: 26,    // margin below the footer curve
