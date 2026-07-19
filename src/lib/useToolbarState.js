@@ -85,7 +85,10 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
             setSelectedVerses(newSet);
             setHighlightedVerses(newSet);
           }
-          if (state.resultView) resultViewRef.current = state.resultView;
+          // Do NOT restore resultViewRef — it controls the "Show Full Chapter"
+          // toggle within a search session. Restoring it from a stale save would
+          // make stepToResult set filterMode=false (useFilter=false), clearing
+          // the verse/chapter flag the user expects to see restored.
           // Always restore search context if it exists and hasn't been cleared
           if (state.hasSearchContext && state.searchTerm) {
             console.log('[ToolbarState] Restoring search:', state.searchTerm);
