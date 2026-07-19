@@ -565,7 +565,8 @@ Deno.serve(async (req) => {
           const sb = opts.sb || 0;
           const sa = opts.sa === undefined ? 80 : opts.sa;
           const keepNext = opts.keepNext ? '\\keepn' : '';
-          lines.push('{\\pard' + center + keepNext + '\\sb' + sb + '\\sa' + sa + '\\fs' + size + bold + ' ' + rtf + (bold ? '\\b0' : '') + '\\par}');
+          const style = opts.style ? '\\s' + opts.style : '';
+          lines.push('{\\pard' + center + keepNext + style + '\\sb' + sb + '\\sa' + sa + '\\fs' + size + bold + ' ' + rtf + (bold ? '\\b0' : '') + '\\par}');
         };
         lines.push('\\sectdFRONT ');
         lines.push('{\\pard\\sa1800\\par}');
@@ -586,7 +587,11 @@ Deno.serve(async (req) => {
           if (!bData) continue;
           lines.push('\\sect ');
           lines.push('\\sectd\\headery720 \\titlepg{\\headerf \\pard\\par}{\\header \\pard\\qc\\fs18\\i ' + rtfEsc(FULL_BOOK_NAMES[bName] || bName) + '\\i0\\par}');
-          para(rtfEsc(FULL_BOOK_NAMES[bName] || bName), { center: true, bold: true, size: 32, sb: 120, sa: 160 });
+          // Heading 1 for testament (shows in Word's navigation panel as collapsible group)
+          if (isOld(bName) && bi === 0) para(rtfEsc('THE OLD TESTAMENT'), { center: true, bold: true, size: 28, sb: 120, sa: 80, style: 1 });
+          if (!isOld(bName) && (bi === 0 || isOld(BOOK_ORDER[bi - 1]))) para(rtfEsc('THE NEW TESTAMENT'), { center: true, bold: true, size: 28, sb: 120, sa: 80, style: 1 });
+          // Heading 2 for book (nested under testament in the nav panel)
+          para(rtfEsc(FULL_BOOK_NAMES[bName] || bName), { center: true, bold: true, size: 32, sb: 120, sa: 160, style: 2 });
           const maxCh = CHAPTER_COUNTS[bName] || 1;
           for (let ch = 1; ch <= maxCh; ch++) {
             let verses = bData[ch] || [];
@@ -619,7 +624,7 @@ Deno.serve(async (req) => {
           .replace(/\\BALANCECOLS/g, colsHeader)
           .replace(/\\sectd/g, '\\sectd' + colsHeader)
           .replace(/\u0000FRONT\u0000/g, '\\sectd');
-        const rtf = '{\\rtf1\\ansi\\deff0\\fet0{\\fonttbl{\\f0 Georgia;}}\\f0\\fs20 ' + body + '}';
+        const rtf = '{\\rtf1\\ansi\\deff0\\fet0{\\fonttbl{\\f0 Georgia;}}{\\stylesheet{\\s1\\ql\\b\\fs28\\sb240\\sa120 The Old Testament;}{\\s2\\ql\\b\\fs24\\sb200\\sa100 Heading 2;}}\\f0\\fs20 ' + body + '}';
         const headers = { 'Content-Type': 'application/rtf;charset=UTF-8', 'Content-Disposition': 'attachment; filename="kjb-bible-2col-full-names-subscripts-colophons.rtf"' };
         formatCache[fmt] = { body: rtf, headers };
         return new Response(rtf, { headers: { ...headers, ...CACHE_HDR } });
@@ -660,7 +665,11 @@ Deno.serve(async (req) => {
           const sid = 'Section' + sectionCount;
           const hid = 'h' + sectionCount;
           headerDivs.push('<div style="mso-element:header" id="' + hid + '"><p class=MsoHeader style="text-align:center"><i>' + escH(FULL_BOOK_NAMES[bName] || bName) + '</i></p></div>');
-          out.push('</div><div class="' + sid + '" style="page-break-before:always"><h2 style="text-align:center">' + escH(FULL_BOOK_NAMES[bName] || bName) + '</h2>');
+          // Heading 1 for testament (collapsible group in Word's navigation panel)
+          let testamentH1 = '';
+          if (isOld(bName) && bi === 0) testamentH1 = '<h1 style="text-align:center">THE OLD TESTAMENT</h1>';
+          if (!isOld(bName) && (bi === 0 || isOld(BOOK_ORDER[bi - 1]))) testamentH1 = '<h1 style="text-align:center">THE NEW TESTAMENT</h1>';
+          out.push('</div><div class="' + sid + '" style="page-break-before:always">' + testamentH1 + '<h2 style="text-align:center">' + escH(FULL_BOOK_NAMES[bName] || bName) + '</h2>');
           const maxCh = CHAPTER_COUNTS[bName] || 1;
           for (let ch = 1; ch <= maxCh; ch++) {
             let verses = bData[ch] || [];
@@ -773,6 +782,7 @@ Deno.serve(async (req) => {
         pdf.addPage();
         y = margin;
 
+        const bookPages = []; // { book, page, testament } — for PDF outline bookmarks
         for (let bi = 0; bi < BOOK_ORDER.length; bi++) {
           const bName = BOOK_ORDER[bi];
           const bData = bible[bName];
@@ -780,6 +790,7 @@ Deno.serve(async (req) => {
           const fullName = FULL_BOOK_NAMES[bName] || bName;
           runningHead = '';
           if (!atPageTop()) newPage();
+          bookPages.push({ book: bName, page: pdf.internal.getNumberOfPages(), testament: isOld(bName) ? 'old' : 'new' });
           pdf.setFont('times', 'bold'); pdf.setFontSize(15);
           const tLines = pdf.splitTextToSize(fullName, cWidth());
           tLines.forEach(ln => { pdf.text(ln, cX() + cWidth() / 2, y, { align: 'center' }); y += 18; });
@@ -854,6 +865,22 @@ Deno.serve(async (req) => {
             pdf.text('THE END.', cX() + (cWidth() - ew) / 2, y); y += 16;
           }
         }
+        // ── Collapsible PDF outline bookmarks: Testament ▸ Book ──
+        // Appears as an expandable tree in the PDF reader's bookmarks/contents sidebar.
+        if (pdf.outline && pdf.outline.add) {
+          const otFirst = bookPages.find(b => b.testament === 'old');
+          const ntFirst = bookPages.find(b => b.testament === 'new');
+          let otNode = null, ntNode = null;
+          if (otFirst) otNode = pdf.outline.add(null, 'THE OLD TESTAMENT', { pageNumber: otFirst.page });
+          if (ntFirst) ntNode = pdf.outline.add(null, 'THE NEW TESTAMENT', { pageNumber: ntFirst.page });
+          bookPages.forEach(({ book, page, testament }) => {
+            const parent = testament === 'old' ? otNode : ntNode;
+            pdf.outline.add(parent, book, { pageNumber: page });
+          });
+          const lastPage = bookPages.length ? bookPages[bookPages.length - 1].page : pdf.internal.getNumberOfPages();
+          pdf.outline.add(null, 'The End', { pageNumber: lastPage });
+        }
+
         const pdfBytes = pdf.output('arraybuffer');
         const headers = { 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="kjb-bible-2col-full-names-subscripts-colophons.pdf"' };
         formatCache[fmt] = { body: pdfBytes, headers };
