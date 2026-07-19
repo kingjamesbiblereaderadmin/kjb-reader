@@ -82,14 +82,6 @@ const LINKS = [
     iconBg: "from-fuchsia-500 via-rose-500 to-amber-500",
   },
   {
-    href: "https://discord.com/users/shawn_faithinhisbloodr325av",
-    label: "Discord",
-    sub: "shawn_faithinhisbloodr325av",
-    external: true,
-    icon: <DiscordIcon className="w-5 h-5" />,
-    iconBg: "from-indigo-500 to-violet-600",
-  },
-  {
     href: "https://linktr.ee/shawnr325av",
     label: "Linktree",
     sub: "linktr.ee/shawnr325av",
