@@ -308,22 +308,6 @@ export default function AboutPage() {
           </a>
 
           <a
-            href="https://www.tiktok.com/@shawnr325av"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 p-4 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-          >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-slate-800 to-black">
-              <TikTokIcon className="w-5 h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">TikTok</p>
-              <p className="font-sans text-xs text-muted-foreground truncate">@shawnr325av</p>
-            </div>
-            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
-          </a>
-
-          <a
             href="https://www.tiktok.com/@svdbyfaithinr325av"
             target="_blank"
             rel="noopener noreferrer"
@@ -333,7 +317,7 @@ export default function AboutPage() {
               <TikTokIcon className="w-5 h-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">TikTok (Ministry)</p>
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">TikTok</p>
               <p className="font-sans text-xs text-muted-foreground truncate">@svdbyfaithinr325av</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
@@ -349,7 +333,7 @@ export default function AboutPage() {
               <InstagramIcon className="w-5 h-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Instagram (Ministry)</p>
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors truncate">Instagram</p>
               <p className="font-sans text-xs text-muted-foreground truncate">@svdbyfaithinhisbloodr325av</p>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground ml-auto flex-shrink-0" />
