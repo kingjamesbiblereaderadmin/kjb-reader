@@ -409,6 +409,8 @@ const ShareCard = React.forwardRef(function ShareCard(
               maxWidth: '960px',
               boxSizing: 'border-box',
               padding: '0 12px',
+              whiteSpace: 'pre-wrap',
+              wordSpacing: '0.01em',
             }}
           >
             <style>{`.kjb-sharecard-verse em { font-style: ${isDyslexic ? 'normal' : 'italic'} !important; font-weight: inherit; vertical-align: baseline !important; line-height: inherit;${isCursive ? ' color: rgba(255,255,255,0.6) !important;' : ''} }`}</style>
