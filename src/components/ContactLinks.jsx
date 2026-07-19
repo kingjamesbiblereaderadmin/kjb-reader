@@ -65,15 +65,7 @@ const LINKS = [
     icon: <PlayCircle className="w-5 h-5" />,
     iconBg: "from-emerald-500 to-green-600",
   },
-  {
-    href: "https://www.instagram.com/shawnr325av",
-    label: "Instagram",
-    sub: "@shawnr325av",
-    external: true,
-    icon: <InstagramIcon className="w-5 h-5" />,
-    iconBg: "from-fuchsia-500 via-rose-500 to-amber-500",
-  },
-  {
+{
     href: "https://www.tiktok.com/@svdbyfaithinr325av",
     label: "TikTok",
     sub: "@svdbyfaithinr325av",
@@ -104,14 +96,6 @@ const LINKS = [
     external: true,
     icon: <LinktreeIcon className="w-5 h-5" />,
     iconBg: "from-green-500 to-emerald-600",
-  },
-  {
-    to: "/terms",
-    label: "Terms of Service",
-    sub: "View our terms",
-    external: false,
-    icon: <FileText className="w-5 h-5" />,
-    iconBg: "from-primary to-accent",
   },
   {
     href: "mailto:kingjamesbiblereader@outlook.sg",
