@@ -85,9 +85,7 @@ export default function CurrentlyReadingIndicator({
     reference = `${book.shortName} ${pos.chapter}${gospelVerses}`;
     clearLabel = 'Clear';
   } else if (effectiveSearchTerm) {
-    const isRefSearch = /\d+:\d+/.test(effectiveSearchTerm);
-    typeLabel = isRefSearch ? 'Currently Reading' : `Search: "${effectiveSearchTerm}"`;
-    searchedRefs = isRefSearch ? effectiveSearchTerm : null;
+    typeLabel = `Search: "${effectiveSearchTerm}"`;
     const isStanza = book.abbr === 'PSA' && pos.chapter === 119 && selectedVerses && selectedVerses.size > 1;
     const searchVerses = isStanza
       ? ` (Stanza)`
