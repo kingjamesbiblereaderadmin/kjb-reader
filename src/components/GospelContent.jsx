@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check, Share2, Download, FileText, FileType, ChevronDown, Printer } from 'lucide-react';
+import { Heart, AlertCircle, CheckCircle, XCircle, Copy, Check, Share2, Download, FileText, FileType, ChevronDown, Printer, GraduationCap, ExternalLink } from 'lucide-react';
 import { printHtml } from '@/lib/printHelpers';
 import { jsPDF } from 'jspdf';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -534,6 +534,29 @@ export default function GospelContent({ collapsible = false, showPreachers = fal
             Watch Full Playlist on YouTube
           </a>
           <CopyButton text="<https://www.youtube.com/playlist?list=PLNGhZnJavRf3f2_NI79j5GigC6xK5_YYq>" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
+        </div>
+      </div>
+
+      {/* KJBI — Free Online Bible College */}
+      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-5 mb-6 shadow-lg shadow-black/[0.03]">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-purple-600">
+            <GraduationCap className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-serif text-xl font-semibold text-foreground mb-1">KJBI.org — Free Online Bible College</h3>
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
+              King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.
+            </p>
+            <a
+              href="https://kjbi.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Visit KJBI.org <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
       </div>
 

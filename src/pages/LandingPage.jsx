@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2 } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
 
 const LAST_UPDATED = 'July 16th, 2026';
@@ -58,6 +58,23 @@ export default function LandingPage() {
           </div>
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
         </Link>
+
+        {/* KJBI — Free Online Bible College */}
+        <a
+          href="https://kjbi.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
+        >
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-purple-600">
+            <GraduationCap className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJBI.org — Free Online Bible College</p>
+            <p className="font-sans text-xs text-muted-foreground">King James Bible Institute — go deeper in God's Word, for free.</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-muted-foreground" />
+        </a>
 
         {/* Step-by-step setup wizard */}
         <div className="mb-5">
