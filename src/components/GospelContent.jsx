@@ -363,7 +363,7 @@ const NOT_SAVED_ITEMS = [
   'Lordship Salvation',
 ];
 
-export default function GospelContent({ collapsible = false, showPreachers = false }) {
+export default function GospelContent({ collapsible = false, showPreachers = true }) {
   return (
     <>
       {/* Header */}
