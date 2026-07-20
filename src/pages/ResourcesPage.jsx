@@ -703,7 +703,7 @@ export default function ResourcesPage() {
           <div>
             <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJBI.org — Free Online Bible College</h2>
             <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
-              King James Bible Institute — a free online Bible college for those who want to go deeper in God's Word.
+              King James Bible Institute by Robert Breaker &amp; Robert Potthoff — a free online Bible college for those who want to go deeper in God's Word.
             </p>
             <div className="flex items-center gap-3 flex-wrap">
               <a
