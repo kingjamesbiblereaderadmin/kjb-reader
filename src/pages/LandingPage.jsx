@@ -150,13 +150,13 @@ export default function LandingPage() {
               <Youtube className="w-4 h-4 text-muted-foreground" />
               @shawnr325av
             </a>
-            <a href="https://www.tiktok.com/@shawnr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="https://www.tiktok.com/@svdbyfaithinr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
               <TikTokIcon className="w-4 h-4 text-muted-foreground" />
-              @shawnr325av
+              @svdbyfaithinr325av
             </a>
-            <a href="https://www.instagram.com/shawnr325av/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="https://www.instagram.com/svdbyfaithinhisbloodr325av/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
               <Instagram className="w-4 h-4 text-muted-foreground" />
-              @shawnr325av
+              @svdbyfaithinhisbloodr325av
             </a>
             <a href="https://rumble.com/user/Godisgracious1031" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
               <PlayCircle className="w-4 h-4 text-muted-foreground" />
