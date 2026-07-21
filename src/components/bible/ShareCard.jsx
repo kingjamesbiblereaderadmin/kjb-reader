@@ -128,7 +128,7 @@ const ShareCard = React.forwardRef(function ShareCard(
     const availableWidth = BLOCKQUOTE_MAX_W - BLOCKQUOTE_PAD_H - panelPad * 2;
     const availableHeight =
       CARD_SIZE - OUTER_PAD_TOP - OUTER_PAD_BOTTOM - HEADER_BLOCK_H - DIVIDER_BLOCK_H - FOOTER_DIVIDER_H - FOOTER_TEXT_H - panelPad * 2;
-    const safetyMargin = 12;
+    const safetyMargin = 4;
 
     const maxSize = settings.maxFontSize;
     const minSize = settings.minFontSize;
@@ -381,7 +381,7 @@ const ShareCard = React.forwardRef(function ShareCard(
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             width: '100%',
             overflow: 'hidden',
             ...(showTextPanel ? {
