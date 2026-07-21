@@ -239,7 +239,25 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, hig
                 )}
                 {ntCount > 0 && (
                   <button
-                    onClick={() => { setNtExpanded(true); setTimeout(() => ntRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}
+                    onClick={() => {
+                      setNtExpanded(true);
+                      setTimeout(() => {
+                        const container = document.getElementById('kjb-scroll');
+                        if (!container || !ntRef.current) return;
+                        const cRect = container.getBoundingClientRect();
+                        const elRect = ntRef.current.getBoundingClientRect();
+                        // Account for both the app's sticky header and the search
+                        // page's own sticky header block (the CSS var it sets) plus a
+                        // small margin, so the NT title lands just below them instead
+                        // of being hidden behind them.
+                        const appHeader = document.querySelector('[data-kjb-app-header]');
+                        const appHeaderH = appHeader ? appHeader.getBoundingClientRect().height : 0;
+                        const searchStickyH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--kjb-search-sticky-offset') || '0') || 0;
+                        const offset = appHeaderH + searchStickyH + 8;
+                        const delta = elRect.top - cRect.top - offset;
+                        container.scrollTo({ top: container.scrollTop + delta, behavior: 'smooth' });
+                      }, 50);
+                    }}
                     className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors print:hidden"
                   >
                     Jump to NT <ArrowDown className="w-3 h-3" />
@@ -264,7 +282,21 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, hig
                 )}
                 {otCount > 0 && (
                   <button
-                    onClick={() => { setOtExpanded(true); setTimeout(() => otRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}
+                    onClick={() => {
+                      setOtExpanded(true);
+                      setTimeout(() => {
+                        const container = document.getElementById('kjb-scroll');
+                        if (!container || !otRef.current) return;
+                        const cRect = container.getBoundingClientRect();
+                        const elRect = otRef.current.getBoundingClientRect();
+                        const appHeader = document.querySelector('[data-kjb-app-header]');
+                        const appHeaderH = appHeader ? appHeader.getBoundingClientRect().height : 0;
+                        const searchStickyH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--kjb-search-sticky-offset') || '0') || 0;
+                        const offset = appHeaderH + searchStickyH + 8;
+                        const delta = elRect.top - cRect.top - offset;
+                        container.scrollTo({ top: container.scrollTop + delta, behavior: 'smooth' });
+                      }, 50);
+                    }}
                     className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-colors print:hidden"
                   >
                     Jump to OT <ArrowDown className="w-3 h-3 rotate-180" />
