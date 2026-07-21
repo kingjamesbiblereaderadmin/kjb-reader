@@ -128,7 +128,7 @@ const ShareCard = React.forwardRef(function ShareCard(
     const availableWidth = BLOCKQUOTE_MAX_W - BLOCKQUOTE_PAD_H - panelPad * 2;
     const availableHeight =
       CARD_SIZE - OUTER_PAD_TOP - OUTER_PAD_BOTTOM - HEADER_BLOCK_H - DIVIDER_BLOCK_H - FOOTER_DIVIDER_H - FOOTER_TEXT_H - panelPad * 2;
-    const safetyMargin = 4;
+    const safetyMargin = 10;
 
     const maxSize = settings.maxFontSize;
     const minSize = settings.minFontSize;
@@ -353,7 +353,7 @@ const ShareCard = React.forwardRef(function ShareCard(
           src={logoSrc || LOGO_URL}
           alt="KJB Reader"
           crossOrigin="anonymous"
-          style={{ position: 'absolute', top: '16px', left: '16px', width: '80px', height: '80px', objectFit: 'contain', borderRadius: '18px' }}
+          style={{ position: 'absolute', top: '16px', left: '16px', width: '60px', height: '60px', objectFit: 'contain', borderRadius: '14px' }}
         />
 
         {/* Header row */}
@@ -381,7 +381,7 @@ const ShareCard = React.forwardRef(function ShareCard(
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             width: '100%',
             overflow: 'hidden',
             ...(showTextPanel ? {
@@ -463,7 +463,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         </div>
 
         <div style={{ width: '100%', textAlign: 'center', flexShrink: 0 }}>
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '38px', fontWeight: 700, color: '#ffffff', textShadow: '0 2px 6px rgba(0,0,0,0.35)' }}>
+          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '38px', fontWeight: 700, color: '#ffffff', textShadow: '0 2px 6px rgba(0,0,0,0.35)', whiteSpace: 'nowrap' }}>
             KingJamesBibleReader.com
           </span>
         </div>
