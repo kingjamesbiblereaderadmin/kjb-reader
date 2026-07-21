@@ -204,15 +204,17 @@ const ShareCard = React.forwardRef(function ShareCard(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline, showTextPanel, settings]);
 
-  // Real-DOM auto-fill: the canvas estimate above seeds a starting size, then
-  // this effect measures the ACTUAL rendered verse block against the invisible
-  // growable box (fitContainer, the flex:1 area between the two dividers) and
-  // nudges the font up when there's empty room or down when it would overflow,
-  // converging so the text fills the box without ever overlapping or clipping.
-  // The card renders off-screen via position:fixed + left:-9999px, but because
-  // it has a definite 1024×1024 size its layout is computed, so scrollHeight /
-  // clientHeight read accurately here. Self-terminates once it lands in the
-  // "filled but not overflowing" band, so it can't loop forever.
+  // Real-DOM auto-fill: the canvas estimate seeds a starting size, then this
+  // effect measures the ACTUAL rendered verse block against the growable box
+  // and nudges the font up/down so text fills the space without overflowing.
+  // CRITICAL: uses a ref (fitSizeRef) for the current size instead of depending
+  // on fitSize in the deps array. Depending on fitSize caused the effect to
+  // re-run on every setFitSize call, resetting the binary-search bounds (lo/hi)
+  // each time — the search oscillated between two sizes and never converged,
+  // leaving large empty gaps. With the ref, lo/hi persist across rAF steps
+  // within a single effect run, so the binary search converges properly.
+  const fitSizeRef = useRef(fitSize);
+  fitSizeRef.current = fitSize;
   useEffect(() => {
     let raf = 0;
     let cancelled = false;
@@ -223,37 +225,31 @@ const ShareCard = React.forwardRef(function ShareCard(
     const step = () => {
       if (cancelled) return;
       iterations += 1;
-      if (iterations > 24) return; // hard stop — converges well within this
+      if (iterations > 24) return;
 
       const block = blockRef.current;
       const container = fitContainerRef.current;
-      if (!block || !container) return;
+      if (!block || !container) { raf = requestAnimationFrame(step); return; }
 
       const availH = container.clientHeight;
-      if (availH <= 0) return; // box not laid out yet
+      if (availH <= 0) { raf = requestAnimationFrame(step); return; }
       const contentH = block.scrollHeight;
 
-      const current = fitSize;
+      const current = fitSizeRef.current;
       let next = current;
 
       if (contentH > availH - 6) {
-        // Overflowing (or within a hair of it) — shrink to remove overlap.
         hi = current;
         next = Math.max(lo, current - Math.max(1, Math.floor((current - lo) / 3)));
       } else if (contentH < availH * 0.85) {
-        // Lots of empty space below the text — grow to fill more.
-        // Threshold lowered from 0.93 to 0.85 so the grow branch actually
-        // fires after computeFit (which already targets ~95% fill), letting
-        // short verses expand to fill the card. Step size doubled (/2 not /3)
-        // for faster convergence before the capture snapshot.
         lo = current;
         next = Math.min(hi, current + Math.max(1, Math.floor((hi - current) / 2)));
       } else {
-        // Filled but not overflowing — done.
         return;
       }
 
       if (next === current) return;
+      fitSizeRef.current = next;
       setFitSize(next);
       raf = requestAnimationFrame(step);
     };
@@ -261,7 +257,7 @@ const ShareCard = React.forwardRef(function ShareCard(
     raf = requestAnimationFrame(step);
     return () => { cancelled = true; if (raf) cancelAnimationFrame(raf); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fitSize, verse?.text, verse?.ref, verseFont, isOffline, showTextPanel, settings]);
+  }, [verse?.text, verse?.ref, verseFont, isOffline, showTextPanel, settings]);
 
   // NOTE: a real-DOM-measurement "safety net" effect used to live here,
   // shrinking fitSize further if the rendered box appeared to overflow its
@@ -353,11 +349,11 @@ const ShareCard = React.forwardRef(function ShareCard(
           src={logoSrc || LOGO_URL}
           alt="KJB Reader"
           crossOrigin="anonymous"
-          style={{ position: 'absolute', top: '16px', left: '16px', width: '60px', height: '60px', objectFit: 'contain', borderRadius: '14px' }}
+          style={{ width: '52px', height: '52px', objectFit: 'contain', borderRadius: '12px', alignSelf: 'flex-start', flexShrink: 0, marginBottom: '4px' }}
         />
 
         {/* Header row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', marginTop: '20px', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', width: '100%', maxWidth: '960px', boxSizing: 'border-box', marginTop: '0', marginBottom: '12px' }}>
           <HeaderRule />
           <span style={{ flexShrink: 0, fontFamily: headerFont, fontSize: '30px', fontWeight: 800, letterSpacing: '0.16em', color: verseColor, textShadow: '0 2px 8px rgba(0,0,0,0.4)', whiteSpace: 'nowrap', textAlign: 'center' }}>
             {isOffline ? 'OFFLINE VERSE OF THE DAY' : 'VERSE OF THE DAY'}
@@ -463,7 +459,7 @@ const ShareCard = React.forwardRef(function ShareCard(
         </div>
 
         <div style={{ width: '100%', textAlign: 'center', flexShrink: 0 }}>
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: '38px', fontWeight: 700, color: '#ffffff', textShadow: '0 2px 6px rgba(0,0,0,0.35)', whiteSpace: 'nowrap' }}>
+          <span style={{ display: 'block', fontFamily: "'Inter', system-ui, sans-serif", fontSize: '38px', fontWeight: 700, color: '#ffffff', textShadow: '0 2px 6px rgba(0,0,0,0.35)', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
             KingJamesBibleReader.com
           </span>
         </div>
