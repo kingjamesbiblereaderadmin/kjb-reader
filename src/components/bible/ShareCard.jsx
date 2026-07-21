@@ -106,6 +106,10 @@ const ShareCard = React.forwardRef(function ShareCard(
     .trim();
 
   const [fitSize, setFitSize] = useState(60);
+  // Tracks whether the verse webfont has finished loading, so the auto-fill
+  // effect can re-run with accurate scrollHeight measurements (measuring
+  // before the font loads gives wrong line counts → wrong size).
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
   // Calculates the largest font size that makes the verse + reference + date
   // block actually fit the space between the two dividers, using real canvas
@@ -197,12 +201,21 @@ const ShareCard = React.forwardRef(function ShareCard(
     }
     if (loadPromises.length) {
       Promise.all(loadPromises).then(() => {
-        if (!cancelled) setFitSize(computeFit());
+        if (!cancelled) {
+          setFitSize(computeFit());
+          setFontsLoaded(true);
+        }
       });
+    } else {
+      setFontsLoaded(true);
     }
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verse?.text, verse?.ref, verse?.chapter, verse?.verse, verseFont, isOffline, showTextPanel, settings]);
+
+  // Reset fontsLoaded when the verse font changes, so the auto-fill re-runs
+  // after the new font finishes loading.
+  useEffect(() => { setFontsLoaded(false); }, [verseFont]);
 
   // Real-DOM auto-fill: the canvas estimate seeds a starting size, then this
   // effect measures the ACTUAL rendered verse block against the growable box
@@ -263,7 +276,7 @@ const ShareCard = React.forwardRef(function ShareCard(
     raf = requestAnimationFrame(step);
     return () => { cancelled = true; if (raf) cancelAnimationFrame(raf); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verse?.text, verse?.ref, verseFont, isOffline, showTextPanel, settings]);
+  }, [verse?.text, verse?.ref, verseFont, isOffline, showTextPanel, settings, fontsLoaded]);
 
   // NOTE: a real-DOM-measurement "safety net" effect used to live here,
   // shrinking fitSize further if the rendered box appeared to overflow its
