@@ -71,9 +71,15 @@ export default function AdvancedSearchPage() {
       const next = new Set(prev);
       const wasCollapsed = next.has(groupKey);
       if (wasCollapsed) next.delete(groupKey); else next.add(groupKey);
-      // On expand, jump the header into view.
+      // On expand, jump the header into view — accounting for the sticky app
+      // header so the Testament title isn't hidden behind it.
       if (wasCollapsed && el) {
-        requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        requestAnimationFrame(() => {
+          const headerEl = document.querySelector('[data-kjb-app-header]');
+          const headerH = headerEl ? headerEl.getBoundingClientRect().height : 0;
+          const top = el.getBoundingClientRect().top + window.scrollY - headerH - 8;
+          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        });
       }
       return next;
     });
