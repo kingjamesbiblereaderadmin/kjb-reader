@@ -241,7 +241,7 @@ const ShareCard = React.forwardRef(function ShareCard(
       if (contentH > availH - 6) {
         hi = current;
         next = Math.max(lo, current - Math.max(1, Math.floor((current - lo) / 3)));
-      } else if (contentH < availH * 0.85) {
+      } else if (contentH < availH * 0.92) {
         lo = current;
         next = Math.min(hi, current + Math.max(1, Math.floor((hi - current) / 2)));
       } else {
@@ -377,7 +377,7 @@ const ShareCard = React.forwardRef(function ShareCard(
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             width: '100%',
             overflow: 'hidden',
             ...(showTextPanel ? {
