@@ -161,10 +161,10 @@ const ShareCard = React.forwardRef(function ShareCard(
       const lineHeightMult = isCursive ? 1.85 : 1.6;
       const verseBlockHeight = lines * size * lineHeightMult;
       const refBlockHeight = size * 0.95 + size * 0.52 * 1.2; // margin-top + line height
-      // Date badge sits inside the blockquote: margin-top (1.7) + line height
-      // (0.42*1.15) + vertical padding (0.16*2 = 0.32), plus extra slack so the
-      // pill is never clipped by the container's overflow:hidden.
-      const dateBlockHeight = size * 1.7 + size * 0.42 * 1.15 + size * 0.32 + size * 0.45;
+      // Date badge: margin-top (1.7) + badge line height (0.42*1.15) + vertical
+      // padding (0.16*2 = 0.32). Removed the extra 0.45*size slack — it made
+      // computeFit ~20% too conservative, so short verses never filled the card.
+      const dateBlockHeight = size * 1.7 + size * 0.42 * 1.15 + size * 0.32;
       const total = (verseBlockHeight + refBlockHeight + dateBlockHeight) * HEIGHT_SAFETY_FACTOR;
 
       if (total <= availableHeight - safetyMargin) {
@@ -240,10 +240,14 @@ const ShareCard = React.forwardRef(function ShareCard(
         // Overflowing (or within a hair of it) — shrink to remove overlap.
         hi = current;
         next = Math.max(lo, current - Math.max(1, Math.floor((current - lo) / 3)));
-      } else if (contentH < availH * 0.93) {
+      } else if (contentH < availH * 0.85) {
         // Lots of empty space below the text — grow to fill more.
+        // Threshold lowered from 0.93 to 0.85 so the grow branch actually
+        // fires after computeFit (which already targets ~95% fill), letting
+        // short verses expand to fill the card. Step size doubled (/2 not /3)
+        // for faster convergence before the capture snapshot.
         lo = current;
-        next = Math.min(hi, current + Math.max(1, Math.floor((hi - current) / 3)));
+        next = Math.min(hi, current + Math.max(1, Math.floor((hi - current) / 2)));
       } else {
         // Filled but not overflowing — done.
         return;

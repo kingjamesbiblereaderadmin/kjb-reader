@@ -27,7 +27,7 @@ export const SHARECARD_DEFAULTS = {
   panelBorderWidth: 0,    // readability panel border thickness
   maxFontSize: 108,
   minFontSize: 15,
-  heightSafety: 1.1,      // fit inflation factor
+  heightSafety: 1.0,      // fit inflation factor (was 1.1 — too conservative for short verses)
 };
 
 // Format a JS Date (or today) as a local YYYY-MM-DD key.
