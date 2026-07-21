@@ -161,10 +161,10 @@ const ShareCard = React.forwardRef(function ShareCard(
       const lineHeightMult = isCursive ? 1.85 : 1.6;
       const verseBlockHeight = lines * size * lineHeightMult;
       const refBlockHeight = size * 0.95 + size * 0.52 * 1.2; // margin-top + line height
-      // Date badge: margin-top (1.7) + badge line height (0.42*1.15) + vertical
-      // padding (0.16*2 = 0.32). Removed the extra 0.45*size slack — it made
-      // computeFit ~20% too conservative, so short verses never filled the card.
-      const dateBlockHeight = size * 0.5 + size * 0.42 * 1.15 + size * 0.32;
+      // Date badge: margin-top (0.25) + badge line height (0.42*1.15) + vertical
+      // padding (0.16*2 = 0.32). Kept tight so the badge groups visually with
+      // the reference rather than floating far below it.
+      const dateBlockHeight = size * 0.25 + size * 0.42 * 1.15 + size * 0.32;
       const total = (verseBlockHeight + refBlockHeight + dateBlockHeight) * HEIGHT_SAFETY_FACTOR;
 
       if (total <= availableHeight - safetyMargin) {
@@ -435,7 +435,7 @@ const ShareCard = React.forwardRef(function ShareCard(
                 alignItems: 'center',
                 justifyContent: 'center',
                 whiteSpace: 'nowrap',
-                marginTop: `${fitSize * 0.5}px`,
+                marginTop: `${fitSize * 0.25}px`,
                 background: dateBadgeBg,
                 borderRadius: '999px',
                 padding: `${fitSize * 0.16}px ${fitSize * 0.26}px`,
