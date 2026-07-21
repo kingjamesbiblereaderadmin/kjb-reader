@@ -231,7 +231,13 @@ const ShareCard = React.forwardRef(function ShareCard(
       const container = fitContainerRef.current;
       if (!block || !container) { raf = requestAnimationFrame(step); return; }
 
-      const availH = container.clientHeight;
+      // Off-screen rendering (position:fixed; left:-9999px) can report
+      // clientHeight as 0. Fall back to the same calculated available height
+      // that computeFit uses, so the binary search still works for capture.
+      const panelPadFallback = showTextPanel ? PANEL_PAD : 0;
+      const calculatedAvailH =
+        CARD_SIZE - OUTER_PAD_TOP - OUTER_PAD_BOTTOM - HEADER_BLOCK_H - DIVIDER_BLOCK_H - FOOTER_DIVIDER_H - FOOTER_TEXT_H - panelPadFallback * 2;
+      const availH = container.clientHeight > 0 ? container.clientHeight : calculatedAvailH;
       if (availH <= 0) { raf = requestAnimationFrame(step); return; }
       const contentH = block.scrollHeight;
 
