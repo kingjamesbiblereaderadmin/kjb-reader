@@ -94,7 +94,7 @@ export default function LandingPage() {
 
         {/* KJB Discord Bot */}
         <a
-          href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&permissions=536871936&scope=bot+applications.commands&redirect_uri=https%3A%2F%2Fsolene-c1cbdd64.base44.app%2Ffunctions%2FdiscordGuildJoin&response_type=code"
+          href="https://kingjamesbiblereader.com/discord"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
