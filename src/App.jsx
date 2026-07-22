@@ -35,6 +35,7 @@ const loaders = {
   Landing: () => import('@/pages/LandingPage').catch((err) => { console.error('Failed to load LandingPage:', err); throw err; }),
   Terms: () => import('@/pages/TermsOfServicePage').catch((err) => { console.error('Failed to load TermsOfServicePage:', err); throw err; }),
   Salvation: () => import('@/pages/SalvationPage').catch((err) => { console.error('Failed to load SalvationPage:', err); throw err; }),
+  DiscordInvite: () => import('@/pages/DiscordInvitePage.jsx').catch((err) => { console.error('Failed to load DiscordInvitePage:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
