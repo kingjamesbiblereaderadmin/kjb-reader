@@ -1,6 +1,7 @@
 import { ABBR_TO_NAME, BOOK_ORDER, loadBible, buildFlatList, verseFromRef, normalizeDateKey, normalizePilcrows, extractSuperscription, processVerse } from "../../shared/bibleData.ts";
 
-let chapterCache = {};
+// NOTE: chapter-level caching was removed — it served stale responses
+// (without superscriptions/colophons) from warm isolates after code updates.
 
 const EXCLUDED_REFS = new Set([]);
 
@@ -60,11 +61,6 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'book and chapter required' }, { status: 400 });
       }
 
-      const cacheKey = `${book}:${chapter}`;
-      if (chapterCache[cacheKey]) {
-        return Response.json(chapterCache[cacheKey]);
-      }
-
       const rawVerses = bible[book]?.[chapter];
       if (!rawVerses || rawVerses.length === 0) {
         return Response.json({ error: `No verses found for ${book} ${chapter}` }, { status: 404 });
@@ -74,7 +70,6 @@ Deno.serve(async (req) => {
       const rawColophon = bible.__colophons?.[`${book}:${chapter}`];
       const colophon = rawColophon ? normalizePilcrows(rawColophon) : undefined;
       const result = { verses, colophon };
-      chapterCache[cacheKey] = result;
       return Response.json(result);
     }
 
