@@ -46,6 +46,17 @@ function pickForSeed(flat, seed, extraExcluded) {
   return flat[((seed * 2654435761) % len + len) % len];
 }
 
+// Wrap every response with no-cache + CORS headers so external bots always
+// get fresh data (no stale edge-cached responses without superscriptions).
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-cache, no-store, must-revalidate',
+  'Access-Control-Allow-Origin': '*',
+};
+function json(data, statusOrOpts = 200) {
+  const status = typeof statusOrOpts === 'number' ? statusOrOpts : (statusOrOpts?.status || 200);
+  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...NO_CACHE_HEADERS } });
+}
+
 Deno.serve(async (req) => {
   try {
     const { createClientFromRequest } = await import('npm:@base44/sdk@0.8.38');
@@ -58,27 +69,27 @@ Deno.serve(async (req) => {
 
     if (action === 'getChapter') {
       if (!book || !chapter) {
-        return Response.json({ error: 'book and chapter required' }, { status: 400 });
+        return json({ error: 'book and chapter required' }, { status: 400 });
       }
 
       const rawVerses = bible[book]?.[chapter];
       if (!rawVerses || rawVerses.length === 0) {
-        return Response.json({ error: `No verses found for ${book} ${chapter}` }, { status: 404 });
+        return json({ error: `No verses found for ${book} ${chapter}` }, { status: 404 });
       }
 
       const verses = rawVerses.map(v => processVerse(v, { book, chapter: parseInt(chapter) }));
       const rawColophon = bible.__colophons?.[`${book}:${chapter}`];
       const colophon = rawColophon ? normalizePilcrows(rawColophon) : undefined;
       const result = { verses, colophon };
-      return Response.json(result);
+      return json(result);
     }
 
     if (action === 'getVerseCount') {
       if (!book || !chapter) {
-        return Response.json({ error: 'book and chapter required' }, { status: 400 });
+        return json({ error: 'book and chapter required' }, { status: 400 });
       }
       const count = bible[book]?.[chapter]?.length ?? 0;
-      return Response.json({ count });
+      return json({ count });
     }
 
     if (action === 'getAllColophons') {
@@ -86,7 +97,7 @@ Deno.serve(async (req) => {
       for (const [k, v] of Object.entries(bible.__colophons || {})) {
         colophons[k] = normalizePilcrows(v as string);
       }
-      return Response.json({ colophons });
+      return json({ colophons });
     }
 
 
@@ -145,7 +156,7 @@ Deno.serve(async (req) => {
       if (processed.superscription) verseResult.superscription = processed.superscription;
       if (rawColophon) verseResult.colophon = normalizePilcrows(rawColophon);
 
-      return Response.json({ verse: verseResult });
+      return json({ verse: verseResult });
     }
 
     if (action === 'daily_verse') {
@@ -162,7 +173,7 @@ Deno.serve(async (req) => {
 
       // Use biblical book order (matches legacy reader for consistent daily verse)
       if (!BOOK_ORDER.length) {
-        return Response.json({ error: 'No bible data' }, { status: 500 });
+        return json({ error: 'No bible data' }, { status: 500 });
       }
 
       const controls = await loadControls(b44);
@@ -172,7 +183,7 @@ Deno.serve(async (req) => {
       if (dateKey && controls.pins[dateKey]) {
         const pinned = verseFromRef(bible, controls.pins[dateKey]);
         if (pinned) {
-          return Response.json({ verse: pinned, _debug: { pinned: true, seed } });
+          return json({ verse: pinned, _debug: { pinned: true, seed } });
         }
       }
 
@@ -181,7 +192,7 @@ Deno.serve(async (req) => {
       // single flat list guarantees consecutive days land on different verses.
       const flat = buildFlatList(bible, controls.extraExcluded);
       if (!flat.length) {
-        return Response.json({ error: 'No eligible verses' }, { status: 500 });
+        return json({ error: 'No eligible verses' }, { status: 500 });
       }
 
       // Scatter consecutive days across the whole Bible: multiplying the date
@@ -190,7 +201,7 @@ Deno.serve(async (req) => {
       const picked = pickForSeed(flat, seed, controls.extraExcluded);
       const verse = verseFromRef(bible, `${picked.bookName} ${picked.chapterNum}:${picked.verseObj.verse}`);
 
-      return Response.json({
+      return json({
         verse,
         _debug: { seed, totalVerses: flat.length, modResult: seed % flat.length }
       });
@@ -201,11 +212,11 @@ Deno.serve(async (req) => {
     // match what the app actually shows (honours DB exclusions + pins).
     if (action === 'daily_schedule') {
       const dates = Array.isArray(body.dates) ? body.dates : [];
-      if (!dates.length) return Response.json({ error: 'dates[] required' }, { status: 400 });
+      if (!dates.length) return json({ error: 'dates[] required' }, { status: 400 });
 
       const controls = await loadControls(b44);
       const flat = buildFlatList(bible, controls.extraExcluded);
-      if (!flat.length) return Response.json({ error: 'No eligible verses' }, { status: 500 });
+      if (!flat.length) return json({ error: 'No eligible verses' }, { status: 500 });
 
       const out = dates.map((rawKey) => {
         const dateKey = normalizeDateKey(rawKey);
@@ -225,15 +236,18 @@ Deno.serve(async (req) => {
         return { date: dateKey, verse, pinned, pinId: pinned ? controls.pinIds[dateKey] : null };
       });
 
-      return Response.json({ schedule: out, totalVerses: flat.length });
+      return json({ schedule: out, totalVerses: flat.length });
     }
 
     // Resolve a list of "book chapter:verse" refs into full verse payloads.
     // Used by the exclusion list so it can show the full verse text.
     if (action === 'resolve_refs') {
       const refs = Array.isArray(body.refs) ? body.refs : [];
-      const verses = refs.map(ref => verseFromRef(bible, ref) || { ref, text: null });
-      return Response.json({ verses });
+      const verses = refs.map(ref => {
+        const v = verseFromRef(bible, ref);
+        return v || { ref, text: null, error: 'Verse not found' };
+      });
+      return json({ verses });
     }
 
     // Find eligible verses filtered by character count and/or word count of the
@@ -279,7 +293,7 @@ Deno.serve(async (req) => {
         return order === 'desc' ? bv - av : av - bv;
       });
 
-      return Response.json({ total: matches.length, results: matches.slice(0, limit) });
+      return json({ total: matches.length, results: matches.slice(0, limit) });
     }
 
     // Full-text keyword search across every verse in the Bible.
@@ -290,7 +304,7 @@ Deno.serve(async (req) => {
     if (action === 'search') {
       const query = String(body.query || '').trim();
       if (!query) {
-        return Response.json({ error: 'query required' }, { status: 400 });
+        return json({ error: 'query required' }, { status: 400 });
       }
 
       const caseSensitive = body.caseSensitive === true;
@@ -350,7 +364,7 @@ Deno.serve(async (req) => {
 
       const total = matches.length;
       const results = matches.slice(offset, offset + limit);
-      return Response.json({
+      return json({
         query,
         caseSensitive,
         wholeWord,
@@ -361,9 +375,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    return Response.json({ error: 'Unknown action' }, { status: 400 });
+    return json({ error: 'Unknown action' }, { status: 400 });
 
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return json({ error: error.message }, { status: 500 });
   }
 });
