@@ -275,13 +275,13 @@
     -webkit-user-select: auto;
   }
 
-  /* Colophon and subscript italics: only [bracketed] words (rendered as <em>)
-     are italic. The surrounding subscript/colophon text stays roman.
-     In cursive mode the .cursive-em-style em rule takes over (Dancing Script
-     italic), so we exclude cursive here. */
+  /* Colophon and subscript: all text is upright (roman), including the
+     [bracketed] words that are normally italic elsewhere. The pilcrow (¶)
+     prefix marks these as non-scripture metadata. In cursive mode the
+     .cursive-em-style em rule takes over, so we exclude it here. */
   .kjb-colophon:not(.cursive-em-style) em,
   .kjb-subscript:not(.cursive-em-style) em {
-    font-style: italic !important;
+    font-style: normal !important;
   }
 
   /* ── Reader reading-font ──
