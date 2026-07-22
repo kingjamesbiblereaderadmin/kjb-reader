@@ -287,6 +287,85 @@ Deno.serve(async (req) => {
       return Response.json({ total: matches.length, results: matches.slice(0, limit) });
     }
 
+    // Full-text keyword search across every verse in the Bible.
+    // Searching is done on the "visible" text (brackets/pilcrows/superscriptions
+    // stripped) so results match what a reader sees, but the returned `text`
+    // keeps [brackets] and ¶ for full context. Each result includes a
+    // `description` field (verse text + ref combined) for Discord embeds.
+    if (action === 'search') {
+      const query = String(body.query || '').trim();
+      if (!query) {
+        return Response.json({ error: 'query required' }, { status: 400 });
+      }
+
+      const caseSensitive = body.caseSensitive === true;
+      const wholeWord = body.wholeWord === true;
+      const limit = Number.isFinite(body.limit) ? Math.min(body.limit, 500) : 100;
+      const offset = Number.isFinite(body.offset) ? Math.max(0, body.offset) : 0;
+
+      const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      const matches = [];
+      for (const bookName of BOOK_ORDER) {
+        if (!bible[bookName]) continue;
+        for (const chapterNum of Object.keys(bible[bookName])) {
+          const verses = bible[bookName][chapterNum];
+          if (!verses || !verses.length) continue;
+          for (const vo of verses) {
+            // Strip markers to get the searchable visible text
+            const visibleText = String(vo.text)
+              .replace(/^<<[^>]*>>\s*/, '')
+              .replace(/\[/g, '')
+              .replace(/\]/g, '')
+              .replace(/¶/g, '')
+              .replace(/\uFFFD/g, "'");
+
+            let found = false;
+            if (wholeWord) {
+              const flags = caseSensitive ? 'g' : 'gi';
+              const re = new RegExp(`\\b${escapeRegex(query)}\\b`, flags);
+              found = re.test(visibleText);
+            } else {
+              const hay = caseSensitive ? visibleText : visibleText.toLowerCase();
+              const needle = caseSensitive ? query : query.toLowerCase();
+              found = hay.includes(needle);
+            }
+
+            if (!found) continue;
+
+            const processed = processVerse(vo);
+            const abbrEntry = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
+            const abbr = abbrEntry ? abbrEntry[0] : bookName.slice(0, 3).toUpperCase();
+            const cleanText = processed.text.replace(/^¶\s*/, '');
+            const result: any = {
+              abbr,
+              book: bookName,
+              chapter: parseInt(chapterNum),
+              verse: vo.verse,
+              ref: `${bookName} ${chapterNum}:${vo.verse}`,
+              text: processed.text,
+              description: `"${cleanText}"\n— ${bookName} ${chapterNum}:${vo.verse}`,
+            };
+            if (processed.superscription) result.superscription = processed.superscription;
+            if (processed.heading) result.heading = processed.heading;
+            matches.push(result);
+          }
+        }
+      }
+
+      const total = matches.length;
+      const results = matches.slice(offset, offset + limit);
+      return Response.json({
+        query,
+        caseSensitive,
+        wholeWord,
+        total,
+        count: results.length,
+        offset,
+        results,
+      });
+    }
+
     return Response.json({ error: 'Unknown action' }, { status: 400 });
 
   } catch (error) {
