@@ -359,7 +359,18 @@ export default function BibleSearchBar({ onClose }) {
     setOpen(false);
     onClose?.();
     const vEndParam = verse && verseEnd && verseEnd > verse ? `&verseEnd=${verseEnd}` : '';
-    const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}${vEndParam}` : `/read?book=${abbr}&chapter=${chapter}`;
+    // Route verse-level jumps through the same single-result "search nav" path
+    // that goPassage/goMulti already use (from=search + setSearchNav). That path
+    // is what reliably sets the highlight and clears any stale one — the old
+    // "no from param" fallback here is what let a typed reference land on a
+    // chapter without highlighting, or drag along a previous chapter's stale
+    // highlight/selection.
+    if (verse) {
+      const b = BIBLE_BOOKS.find(bk => bk.abbr === abbr);
+      const label = `${b ? b.shortName : abbr} ${chapter}:${verse}`;
+      setSearchNav([{ abbr, chapter, verse, verseEnd: verseEnd || null }], 0, label);
+    }
+    const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}${vEndParam}&from=search` : `/read?book=${abbr}&chapter=${chapter}`;
     navigate(url);
     // If already on /read with the same URL, notify the mounted reader to load it.
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
