@@ -346,9 +346,6 @@ function buildSVG(verse, gradientHex, dateStr, logoUri) {
   <text x="512" y="${headerTextY.toFixed(1)}" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="30" fill="#ffffff" text-anchor="middle" letter-spacing="4.8">VERSE OF THE DAY</text>
   <rect x="${OUTER_PAD_X + 256 + 24 + 384 + 24}" y="${headerRuleY.toFixed(1)}" width="256" height="3" rx="1.5" fill="url(#ruleRight)" />
 
-  <!-- Divider -->
-  <rect x="102" y="${(OUTER_PAD_TOP + HEADER_BLOCK_H).toFixed(1)}" width="820" height="5" rx="2.5" fill="url(#divider)" />
-
   <!-- Verse text -->
       ${verseLines}
 
