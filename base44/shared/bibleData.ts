@@ -24,6 +24,129 @@ export const ABBR_TO_NAME = {
 
 export const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
 
+// Psalm superscriptions (titles above verse 1). The Wharton PCE source text
+// does not encode these, so they're hardcoded here — matching the frontend's
+// bibleSubscripts.js. Key: "Psalms:chapter". Psalms without a superscription
+// are not listed (e.g. Psalms 1, 2, 10, 33, 43, 71).
+export const PSALM_SUPERSCRIPTIONS: Record<string, string> = {
+  'Psalms:3':   'A Psalm of David, when he fled from Absalom his son.',
+  'Psalms:4':   'To the chief Musician on Neginoth, A Psalm of David.',
+  'Psalms:5':   'To the chief Musician upon Nehiloth, A Psalm of David.',
+  'Psalms:6':   'To the chief Musician on Neginoth upon Sheminith, A Psalm of David.',
+  'Psalms:7':   'Shiggaion of David, which he sang unto the LORD, concerning the words of Cush the Benjamite.',
+  'Psalms:8':   'To the chief Musician upon Gittith, A Psalm of David.',
+  'Psalms:9':   'To the chief Musician upon Muth-labben, A Psalm of David.',
+  'Psalms:11':  'To the chief Musician, [A] [Psalm] of David.',
+  'Psalms:12':  'To the chief Musician upon Sheminith, A Psalm of David.',
+  'Psalms:13':  'To the chief Musician, A Psalm of David.',
+  'Psalms:14':  'To the chief Musician, [A] [Psalm] of David.',
+  'Psalms:15':  'A Psalm of David.',
+  'Psalms:16':  'Michtam of David.',
+  'Psalms:17':  'A Prayer of David.',
+  'Psalms:18':  'To the chief Musician, [A] [Psalm] of David, the servant of the LORD, who spake unto the LORD the words of this song in the day [that] the LORD delivered him from the hand of all his enemies, and from the hand of Saul: And he said,',
+  'Psalms:19':  'To the chief Musician, A Psalm of David.',
+  'Psalms:20':  'To the chief Musician, A Psalm of David.',
+  'Psalms:21':  'To the chief Musician, A Psalm of David.',
+  'Psalms:22':  'To the chief Musician upon Aijeleth Shahar, A Psalm of David.',
+  'Psalms:23':  'A Psalm of David.',
+  'Psalms:24':  'A Psalm of David.',
+  'Psalms:25':  '[A] [Psalm] of David.',
+  'Psalms:26':  '[A] [Psalm] of David.',
+  'Psalms:27':  '[A] [Psalm] of David.',
+  'Psalms:28':  '[A] [Psalm] of David.',
+  'Psalms:29':  'A Psalm of David.',
+  'Psalms:30':  'A Psalm [and] Song [at] the dedication of the house of David.',
+  'Psalms:31':  'To the chief Musician, A Psalm of David.',
+  'Psalms:32':  '[A] [Psalm] of David, Maschil.',
+  'Psalms:34':  '[A] [Psalm] of David, when he changed his behaviour before Abimelech; who drove him away, and he departed.',
+  'Psalms:35':  '[A] [Psalm] of David.',
+  'Psalms:36':  'To the chief Musician, [A] [Psalm] of David the servant of the LORD.',
+  'Psalms:37':  '[A] [Psalm] of David.',
+  'Psalms:38':  'A Psalm of David, to bring to remembrance.',
+  'Psalms:39':  'To the chief Musician, [even] to Jeduthun, A Psalm of David.',
+  'Psalms:40':  'To the chief Musician, A Psalm of David.',
+  'Psalms:41':  'To the chief Musician, A Psalm of David.',
+  'Psalms:42':  'To the chief Musician, Maschil, for the sons of Korah.',
+  'Psalms:44':  'To the chief Musician for the sons of Korah, Maschil.',
+  'Psalms:45':  'To the chief Musician upon Shoshannim, for the sons of Korah, Maschil, A Song of loves.',
+  'Psalms:46':  'To the chief Musician for the sons of Korah, A Song upon Alamoth.',
+  'Psalms:47':  'To the chief Musician, A Psalm for the sons of Korah.',
+  'Psalms:48':  'A Song [and] Psalm for the sons of Korah.',
+  'Psalms:49':  'To the chief Musician, A Psalm for the sons of Korah.',
+  'Psalms:50':  'A Psalm of Asaph.',
+  'Psalms:51':  'To the chief Musician, A Psalm of David, when Nathan the prophet came unto him, after he had gone in to Bath-sheba.',
+  'Psalms:52':  'To the chief Musician, Maschil, [A] [Psalm] of David, when Doeg the Edomite came and told Saul, and said unto him, David is come to the house of Ahimelech.',
+  'Psalms:53':  'To the chief Musician upon Mahalath, Maschil, [A] [Psalm] of David.',
+  'Psalms:54':  'To the chief Musician on Neginoth, Maschil, [A] [Psalm] of David, when the Ziphims came and said to Saul, Doth not David hide himself with us?',
+  'Psalms:55':  'To the chief Musician on Neginoth, Maschil, [A] [Psalm] of David.',
+  'Psalms:56':  'To the chief Musician upon Jonath-elem-rechokim, Michtam of David, when the Philistines took him in Gath.',
+  'Psalms:57':  'To the chief Musician, Al-taschith, Michtam of David, when he fled from Saul in the cave.',
+  'Psalms:58':  'To the chief Musician, Al-taschith, Michtam of David.',
+  'Psalms:59':  'To the chief Musician, Al-taschith, Michtam of David; when Saul sent, and they watched the house to kill him.',
+  'Psalms:60':  'To the chief Musician upon Shushan-eduth, Michtam of David, to teach; when he strove with Aram-naharaim and with Aram-zobah, when Joab returned, and smote of Edom in the valley of salt twelve thousand.',
+  'Psalms:61':  'To the chief Musician upon Neginah, [A] [Psalm] of David.',
+  'Psalms:62':  'To the chief Musician, to Jeduthun, A Psalm of David.',
+  'Psalms:63':  'A Psalm of David, when he was in the wilderness of Judah.',
+  'Psalms:64':  'To the chief Musician, A Psalm of David.',
+  'Psalms:65':  'To the chief Musician, A Psalm [and] Song of David.',
+  'Psalms:66':  'To the chief Musician, A Song [or] Psalm.',
+  'Psalms:67':  'To the chief Musician on Neginoth, A Psalm [or] Song.',
+  'Psalms:68':  'To the chief Musician, A Psalm [or] Song of David.',
+  'Psalms:69':  'To the chief Musician upon Shoshannim, [A] [Psalm] of David.',
+  'Psalms:70':  'To the chief Musician, [A] [Psalm] of David, to bring to remembrance.',
+  'Psalms:72':  '[A] [Psalm] for Solomon.',
+  'Psalms:73':  'A Psalm of Asaph.',
+  'Psalms:74':  'Maschil of Asaph.',
+  'Psalms:75':  'To the chief Musician, Al-taschith, A Psalm [or] Song of Asaph.',
+  'Psalms:76':  'To the chief Musician on Neginoth, A Psalm [or] Song of Asaph.',
+  'Psalms:77':  'To the chief Musician, to Jeduthun, A Psalm of Asaph.',
+  'Psalms:78':  'Maschil of Asaph.',
+  'Psalms:79':  'A Psalm of Asaph.',
+  'Psalms:80':  'To the chief Musician upon Shoshannim-Eduth, A Psalm of Asaph.',
+  'Psalms:81':  'To the chief Musician upon Gittith, [A] [Psalm] of Asaph.',
+  'Psalms:82':  'A Psalm of Asaph.',
+  'Psalms:83':  'A Song [or] Psalm of Asaph.',
+  'Psalms:84':  'To the chief Musician upon Gittith, A Psalm for the sons of Korah.',
+  'Psalms:85':  'To the chief Musician, A Psalm for the sons of Korah.',
+  'Psalms:86':  'A Prayer of David.',
+  'Psalms:87':  'A Psalm [or] Song for the sons of Korah.',
+  'Psalms:88':  'A Song [or] Psalm for the sons of Korah, to the chief Musician upon Mahalath Leannoth, Maschil of Heman the Ezrahite.',
+  'Psalms:89':  'Maschil of Ethan the Ezrahite.',
+  'Psalms:90':  'A Prayer of Moses the man of God.',
+  'Psalms:92':  'A Psalm [or] Song for the sabbath day.',
+  'Psalms:98':  'A Psalm.',
+  'Psalms:100': 'A Psalm of praise.',
+  'Psalms:101': 'A Psalm of David.',
+  'Psalms:102': 'A Prayer of the afflicted, when he is overwhelmed, and poureth out his complaint before the LORD.',
+  'Psalms:103': '[A] [Psalm] of David.',
+  'Psalms:108': 'A Song [or] Psalm of David.',
+  'Psalms:109': 'To the chief Musician, A Psalm of David.',
+  'Psalms:110': 'A Psalm of David.',
+  'Psalms:120': 'A Song of degrees.',
+  'Psalms:121': 'A Song of degrees.',
+  'Psalms:122': 'A Song of degrees of David.',
+  'Psalms:123': 'A Song of degrees.',
+  'Psalms:124': 'A Song of degrees of David.',
+  'Psalms:125': 'A Song of degrees.',
+  'Psalms:126': 'A Song of degrees.',
+  'Psalms:127': 'A Song of degrees for Solomon.',
+  'Psalms:128': 'A Song of degrees.',
+  'Psalms:129': 'A Song of degrees.',
+  'Psalms:130': 'A Song of degrees.',
+  'Psalms:131': 'A Song of degrees of David.',
+  'Psalms:132': 'A Song of degrees.',
+  'Psalms:133': 'A Song of degrees of David.',
+  'Psalms:134': 'A Song of degrees.',
+  'Psalms:138': '[A] [Psalm] of David.',
+  'Psalms:139': 'To the chief Musician, A Psalm of David.',
+  'Psalms:140': 'To the chief Musician, A Psalm of David.',
+  'Psalms:141': 'A Psalm of David.',
+  'Psalms:142': 'Maschil of David; A Prayer when he was in the cave.',
+  'Psalms:143': 'A Psalm of David.',
+  'Psalms:144': '[A] [Psalm] of David.',
+  'Psalms:145': 'David\'s [Psalm] of praise.',
+};
+
 export const TEXT_URL = 'https://media.base44.com/files/public/6a05d76723afe58d80c589e8/91ec9491e_WHARTON_PCE.txt';
 
 // In-memory cache (per-function isolate). Keyed without colophons so all
@@ -179,7 +302,7 @@ export function extractSuperscription(rawText: string): { text: string; superscr
 
 // Process a raw verse object from the bible data: extract superscription,
 // normalize pilcrows, and preserve heading. Brackets ([italics]) are kept.
-export function processVerse(vo: { verse: number; text: string; heading?: string }):
+export function processVerse(vo: { verse: number; text: string; heading?: string }, context?: { book: string; chapter: number }):
   { verse: number; text: string; heading?: string; superscription?: string } {
   const { text: textNoSup, superscription } = extractSuperscription(vo.text);
   const text = normalizePilcrows(textNoSup);
@@ -187,6 +310,12 @@ export function processVerse(vo: { verse: number; text: string; heading?: string
     { verse: vo.verse, text };
   if (vo.heading) result.heading = vo.heading;
   if (superscription) result.superscription = superscription;
+  // Psalm superscriptions are not in the Wharton PCE source text — look them
+  // up from the hardcoded map and attach to verse 1 of each Psalm.
+  if (!result.superscription && context && vo.verse === 1) {
+    const psSup = PSALM_SUPERSCRIPTIONS[`${context.book}:${context.chapter}`];
+    if (psSup) result.superscription = psSup;
+  }
   return result;
 }
 
@@ -210,6 +339,12 @@ export function verseFromRef(bible, ref) {
   const result: any = { abbr, book: bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
   if (vo.heading) result.heading = vo.heading;
   if (superscription) result.superscription = superscription;
+  // Psalm superscriptions are not in the Wharton PCE source text — look them
+  // up from the hardcoded map and attach to verse 1 of each Psalm.
+  if (!result.superscription && verseNum === 1) {
+    const psSup = PSALM_SUPERSCRIPTIONS[`${bookName}:${chapterNum}`];
+    if (psSup) result.superscription = psSup;
+  }
   const colophon = bible.__colophons?.[`${bookName}:${chapterNum}`];
   if (colophon) result.colophon = normalizePilcrows(colophon);
   return result;

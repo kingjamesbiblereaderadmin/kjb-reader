@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
         return Response.json({ error: `No verses found for ${book} ${chapter}` }, { status: 404 });
       }
 
-      const verses = rawVerses.map(v => processVerse(v));
+      const verses = rawVerses.map(v => processVerse(v, { book, chapter: parseInt(chapter) }));
       const rawColophon = bible.__colophons?.[`${book}:${chapter}`];
       const colophon = rawColophon ? normalizePilcrows(rawColophon) : undefined;
       const result = { verses, colophon };
@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
       }
 
       // Process: extract superscription, normalize pilcrows (¶), keep [brackets]
-      const processed = processVerse(verseObj);
+      const processed = processVerse(verseObj, { book: bookName, chapter: parseInt(chapterNum) });
 
       const abbrMatches = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
       const abbr = abbrMatches ? abbrMatches[0] : bookName.slice(0, 3).toUpperCase();
@@ -333,7 +333,7 @@ Deno.serve(async (req) => {
 
             if (!found) continue;
 
-            const processed = processVerse(vo);
+            const processed = processVerse(vo, { book: bookName, chapter: parseInt(chapterNum) });
             const abbrEntry = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
             const abbr = abbrEntry ? abbrEntry[0] : bookName.slice(0, 3).toUpperCase();
             const cleanText = processed.text.replace(/^¶\s*/, '');
