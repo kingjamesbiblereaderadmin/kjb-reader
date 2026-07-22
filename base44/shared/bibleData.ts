@@ -44,6 +44,15 @@ export async function loadBible() {
   const colophons = {};
   const lines = text.split('\n');
 
+  // Psalm 119 acrostic: the Wharton format has standalone "Ps ALEPH.", "Ps BETH."
+  // etc. lines before each 8-verse stanza. We capture the heading and stamp it
+  // onto the next verse parsed, so the API can return it like the frontend does.
+  const HEBREW_LETTERS = new Set([
+    'ALEPH','BETH','GIMEL','DALETH','HE','VAU','ZAIN','CHETH','TETH','JOD',
+    'CAPH','LAMED','MEM','NUN','SAMECH','AIN','PE','TZADDI','KOPH','RESH','SCHIN','TAU',
+  ]);
+  let pendingHeading: string | null = null;
+
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     if (!trimmed) continue;
@@ -52,6 +61,15 @@ export async function loadBible() {
     if (spaceIdx === -1) continue;
     const abbr = trimmed.slice(0, spaceIdx);
     const rest = trimmed.slice(spaceIdx + 1);
+
+    // Psalm 119 Hebrew letter acrostic heading: "Ps ALEPH." etc.
+    if (abbr === 'Ps') {
+      const letterMatch = rest.match(/^([A-Z]+)\.$/);
+      if (letterMatch && HEBREW_LETTERS.has(letterMatch[1])) {
+        pendingHeading = letterMatch[1];
+        continue;
+      }
+    }
 
     // Standalone colophon (epistle subscription) line: "<abbr> ¶ [text]"
     const colophonLineMatch = rest.match(/^\ufffd\s*\[(.*)\]\s*$/);
@@ -104,7 +122,12 @@ export async function loadBible() {
 
     if (!data[bookName]) data[bookName] = {};
     if (!data[bookName][chapter]) data[bookName][chapter] = [];
-    data[bookName][chapter].push({ verse, text: verseText });
+    const entry: { verse: number; text: string; heading?: string } = { verse, text: verseText };
+    if (pendingHeading) {
+      entry.heading = pendingHeading;
+      pendingHeading = null;
+    }
+    data[bookName][chapter].push(entry);
   }
 
   bibleData = data;
@@ -147,7 +170,10 @@ export function verseFromRef(bible, ref) {
   const text = vo.text.replace(/^<<[^>]*>>\s*/, '');
   const abbrEntry = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
   const abbr = abbrEntry ? abbrEntry[0] : bookName.slice(0, 3).toUpperCase();
-  return { abbr, book: bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
+  const result: { abbr: string; book: string; chapter: number; verse: number; text: string; ref: string; heading?: string } =
+    { abbr, book: bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
+  if (vo.heading) result.heading = vo.heading;
+  return result;
 }
 
 // Normalize a date key to zero-padded YYYY-MM-DD.
