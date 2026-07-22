@@ -90,14 +90,6 @@ const LINKS = [
     iconBg: "from-indigo-500 to-violet-600",
   },
   {
-    href: "https://discord.com/oauth2/authorize?client_id=1529303667348606996",
-    label: "KJB Discord Bot",
-    sub: "Add to your server",
-    external: true,
-    icon: <DiscordIcon className="w-5 h-5" />,
-    iconBg: "from-violet-500 to-purple-700",
-  },
-  {
     href: "https://linktr.ee/shawnr325av",
     label: "Linktree",
     sub: "linktr.ee/shawnr325av",

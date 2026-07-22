@@ -92,6 +92,23 @@ export default function LandingPage() {
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
         </a>
 
+        {/* KJB Discord Bot */}
+        <a
+          href="https://discord.com/oauth2/authorize?client_id=1529303667348606996"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
+        >
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
+            <DiscordIcon className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Discord Bot</p>
+            <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord server for daily verses, search, and share cards.</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-muted-foreground" />
+        </a>
+
         {/* Step-by-step setup wizard */}
         <div className="mb-5">
           <LandingSetupWizard />
