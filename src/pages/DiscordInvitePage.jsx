@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
-// Discord OAuth2 "Add to Server" URL for the KJB Reader Bot (client_id
+// Discord Discovery page for the KJB Reader Bot (application_id
 // 1529303667348606996). Kept in one place so kingjamesbiblereader.com/discord
 // is the single canonical short link people share/click, instead of the raw
-// discord.com OAuth URL living in multiple places across the site.
+// discord.com URL living in multiple places across the site.
 export const DISCORD_INVITE_URL =
-  'https://discord.com/oauth2/authorize?client_id=1529303667348606996&permissions=536871936&scope=bot+applications.commands&redirect_uri=https%3A%2F%2Fsolene-c1cbdd64.base44.app%2Ffunctions%2FdiscordGuildJoin&response_type=code';
+  'https://discord.com/discovery/applications/1529303667348606996';
 
 export default function DiscordInvitePage() {
   useEffect(() => {
