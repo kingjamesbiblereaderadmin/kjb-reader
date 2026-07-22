@@ -104,7 +104,7 @@ export default function LandingPage() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Discord Bot</p>
-            <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord server for daily verses, search, and share cards.</p>
+            <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord server for daily verses and verse search.</p>
           </div>
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
         </a>

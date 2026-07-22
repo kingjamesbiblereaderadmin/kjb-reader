@@ -737,7 +737,7 @@ export default function ResourcesPage() {
           <div>
             <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJB Discord Bot</h2>
             <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
-              Add the KJB Reader bot to your Discord server for daily verses, verse search, and share cards directly in Discord.
+              Add the KJB Reader bot to your Discord server for daily verses and verse search directly in Discord.
             </p>
             <div className="flex items-center gap-3 flex-wrap">
               <a
