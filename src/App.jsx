@@ -58,6 +58,7 @@ const DevToolsPage = lazy(loaders.DevTools);
 const LandingPage = lazy(loaders.Landing);
 const TermsOfServicePage = lazy(loaders.Terms);
 const SalvationPage = lazy(loaders.Salvation);
+const DiscordInvitePage = lazy(loaders.DiscordInvite);
 
 
 const getLoaderForPath = (pathname) => {
