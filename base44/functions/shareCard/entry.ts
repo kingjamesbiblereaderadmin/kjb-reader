@@ -430,18 +430,28 @@ Deno.serve(async (req) => {
     const baseFilename = `KJB_${verse.abbr}_${verse.chapter}_${verse.verse}`;
     const disposition = download ? 'attachment' : 'inline';
 
-    // JSON format: verse text + image URLs (for Discord bots)
-    // Keeps [brackets] for italics, pilcrows as ¶, and includes superscription
-    // and colophon when present — so bots have the full verse context.
+    // JSON format: verse text + image URLs (for Discord bots).
+    // `description` combines verse text + ref into a single ready-to-use
+    // string for the Discord embed body (the "box"), so bots can drop it
+    // straight into embed.description without reformatting. Leading pilcrows
+    // (¶) are stripped since they look odd in plain text context. [brackets]
+    // for italics are kept so the bot can convert to markdown if desired.
+    // imageWidth/imageHeight let the bot size the embed image correctly.
     if (format === 'json') {
       const baseUrl = `${url.origin}/functions/shareCard`;
       const qs = ref ? `?ref=${encodeURIComponent(ref)}` : (book ? `?book=${encodeURIComponent(book)}&chapter=${chapter}${verseNum ? `&verse=${verseNum}` : ''}` : '');
+      const cleanText = verse.text.replace(/^¶\s*/, '');
+      const description = `"${cleanText}"\n— ${verse.ref}`;
       const jsonResponse: any = {
         ref: verse.ref,
         text: verse.text,
+        description,
         date: dateStr,
         imageUrl: `${baseUrl}${qs}`,
         svgUrl: `${baseUrl}${qs}`,
+        imageFormat: 'svg',
+        imageWidth: CARD_SIZE,
+        imageHeight: CARD_SIZE,
       };
       if (verse.superscription) jsonResponse.superscription = verse.superscription;
       if (verse.colophon) jsonResponse.colophon = verse.colophon;
