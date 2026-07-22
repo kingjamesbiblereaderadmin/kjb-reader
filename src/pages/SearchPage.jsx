@@ -664,6 +664,11 @@ export default function SearchPage() {
     const q = (getQueryFromUrl() || query).trim();
     if (searched && q.length >= 2) {
       runSearch(q);
+      // Filter change → jump results back to the top, same as a brand-new
+      // query, so the new filtered set doesn't leave the user scrolled deep
+      // into a list that just changed under them.
+      const scroller = document.getElementById('kjb-scroll');
+      if (scroller) scroller.scrollTo({ top: 0 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [testamentFilter, wholeWord, caseSensitive, numberedBookFilter]);
