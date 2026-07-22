@@ -741,14 +741,14 @@ export default function ResourcesPage() {
             </p>
             <div className="flex items-center gap-3 flex-wrap">
               <a
-                href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&permissions=536871936&scope=bot+applications.commands&redirect_uri=https%3A%2F%2Fsolene-c1cbdd64.base44.app%2Ffunctions%2FdiscordGuildJoin&response_type=code"
+                href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&permissions=5630324705020928&response_type=code&redirect_uri=https%3A%2F%2Fsolene-c1cbdd64.base44.app%2Ffunctions%2FdiscordGuildJoin&integration_type=0&scope=messages.read+applications.commands+bot+webhook.incoming+applications.builds.read+guilds.join"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 Add to your server <ExternalLink className="w-3.5 h-3.5" />
               </a>
-              <CopyButton text="https://discord.com/oauth2/authorize?client_id=1529303667348606996&permissions=536871936&scope=bot+applications.commands&redirect_uri=https%3A%2F%2Fsolene-c1cbdd64.base44.app%2Ffunctions%2FdiscordGuildJoin&response_type=code" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
+              <CopyButton text="https://discord.com/oauth2/authorize?client_id=1529303667348606996&permissions=5630324705020928&response_type=code&redirect_uri=https%3A%2F%2Fsolene-c1cbdd64.base44.app%2Ffunctions%2FdiscordGuildJoin&integration_type=0&scope=messages.read+applications.commands+bot+webhook.incoming+applications.builds.read+guilds.join" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
             </div>
           </div>
         </div>
