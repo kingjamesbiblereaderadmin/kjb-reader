@@ -398,16 +398,9 @@ Deno.serve(async (req) => {
       verse = verseFromRef(bible, ref);
     } else if (book && chapter) {
       const verses = bible[book]?.[chapter];
-      if (verses) {
-        const v = verseNum ? verses.find(v => v.verse === parseInt(verseNum)) : verses[0];
-        if (v) {
-          const abbrEntry = Object.entries(ABBR_TO_NAME).find(([k, val]) => val === book);
-          verse = {
-            abbr: abbrEntry ? abbrEntry[0] : book.slice(0, 3).toUpperCase(),
-            book, chapter: parseInt(chapter), verse: v.verse,
-            text: v.text, ref: `${book} ${chapter}:${v.verse}`
-          };
-        }
+      if (verses && verses.length > 0) {
+        const vNum = verseNum || verses[0].verse;
+        verse = verseFromRef(bible, `${book} ${chapter}:${vNum}`);
       }
     } else {
       // Daily verse — use SDK to load admin controls (pins/exclusions)
@@ -438,16 +431,21 @@ Deno.serve(async (req) => {
     const disposition = download ? 'attachment' : 'inline';
 
     // JSON format: verse text + image URLs (for Discord bots)
+    // Keeps [brackets] for italics, pilcrows as ¶, and includes superscription
+    // and colophon when present — so bots have the full verse context.
     if (format === 'json') {
       const baseUrl = `${url.origin}/functions/shareCard`;
       const qs = ref ? `?ref=${encodeURIComponent(ref)}` : (book ? `?book=${encodeURIComponent(book)}&chapter=${chapter}${verseNum ? `&verse=${verseNum}` : ''}` : '');
-      return Response.json({
+      const jsonResponse: any = {
         ref: verse.ref,
-        text: plainVerseText(verse.text),
+        text: verse.text,
         date: dateStr,
         imageUrl: `${baseUrl}${qs}`,
         svgUrl: `${baseUrl}${qs}`,
-      }, {
+      };
+      if (verse.superscription) jsonResponse.superscription = verse.superscription;
+      if (verse.colophon) jsonResponse.colophon = verse.colophon;
+      return Response.json(jsonResponse, {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Cache-Control': 'public, max-age=3600',

@@ -1,4 +1,4 @@
-import { ABBR_TO_NAME, BOOK_ORDER, loadBible, buildFlatList, verseFromRef, normalizeDateKey } from "../../shared/bibleData.ts";
+import { ABBR_TO_NAME, BOOK_ORDER, loadBible, buildFlatList, verseFromRef, normalizeDateKey, normalizePilcrows, extractSuperscription, processVerse } from "../../shared/bibleData.ts";
 
 let chapterCache = {};
 
@@ -65,12 +65,14 @@ Deno.serve(async (req) => {
         return Response.json(chapterCache[cacheKey]);
       }
 
-      const verses = bible[book]?.[chapter];
-      if (!verses || verses.length === 0) {
+      const rawVerses = bible[book]?.[chapter];
+      if (!rawVerses || rawVerses.length === 0) {
         return Response.json({ error: `No verses found for ${book} ${chapter}` }, { status: 404 });
       }
 
-      const colophon = bible.__colophons?.[`${book}:${chapter}`];
+      const verses = rawVerses.map(v => processVerse(v));
+      const rawColophon = bible.__colophons?.[`${book}:${chapter}`];
+      const colophon = rawColophon ? normalizePilcrows(rawColophon) : undefined;
       const result = { verses, colophon };
       chapterCache[cacheKey] = result;
       return Response.json(result);
@@ -85,7 +87,11 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'getAllColophons') {
-      return Response.json({ colophons: bible.__colophons });
+      const colophons = {};
+      for (const [k, v] of Object.entries(bible.__colophons || {})) {
+        colophons[k] = normalizePilcrows(v as string);
+      }
+      return Response.json({ colophons });
     }
 
 
@@ -125,23 +131,26 @@ Deno.serve(async (req) => {
         currentSeed++;
       }
 
-      // Preserve [italics] brackets AND pilcrows; strip only superscription markers
-      const text = verseObj.text
-        .replace(/^<<[^>]*>>\s*/, '');
+      // Process: extract superscription, normalize pilcrows (¶), keep [brackets]
+      const processed = processVerse(verseObj);
 
       const abbrMatches = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
       const abbr = abbrMatches ? abbrMatches[0] : bookName.slice(0, 3).toUpperCase();
+      const rawColophon = bible.__colophons?.[`${bookName}:${chapterNum}`];
 
-      return Response.json({
-        verse: {
-          abbr,
-          book: bookName,
-          chapter: parseInt(chapterNum),
-          verse: verseObj.verse,
-          text,
-          ref: `${bookName} ${chapterNum}:${verseObj.verse}`
-        }
-      });
+      const verseResult: any = {
+        abbr,
+        book: bookName,
+        chapter: parseInt(chapterNum),
+        verse: verseObj.verse,
+        text: processed.text,
+        ref: `${bookName} ${chapterNum}:${verseObj.verse}`
+      };
+      if (processed.heading) verseResult.heading = processed.heading;
+      if (processed.superscription) verseResult.superscription = processed.superscription;
+      if (rawColophon) verseResult.colophon = normalizePilcrows(rawColophon);
+
+      return Response.json({ verse: verseResult });
     }
 
     if (action === 'daily_verse') {

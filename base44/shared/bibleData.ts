@@ -156,7 +156,43 @@ export function buildFlatList(bible) {
   return flat;
 }
 
+// Convert raw \uFFFD characters to proper glyphs: apostrophes after letters,
+// pilcrows (¶) everywhere else. This matches the frontend's cleanVerseText logic.
+export function normalizePilcrows(text: string): string {
+  return String(text)
+    .replace(/(\p{L})\uFFFD/gu, "$1'")
+    .replace(/\uFFFD/g, '¶');
+}
+
+// Extract a superscription (Psalm title) from <<text>> markers at the start
+// of a verse. Returns the cleaned text and the superscription separately.
+export function extractSuperscription(rawText: string): { text: string; superscription?: string } {
+  const match = rawText.match(/^<<(.+?)>>\s*/);
+  if (match) {
+    return {
+      text: rawText.replace(/^<<.+?>>\s*/, ''),
+      superscription: match[1],
+    };
+  }
+  return { text: rawText };
+}
+
+// Process a raw verse object from the bible data: extract superscription,
+// normalize pilcrows, and preserve heading. Brackets ([italics]) are kept.
+export function processVerse(vo: { verse: number; text: string; heading?: string }):
+  { verse: number; text: string; heading?: string; superscription?: string } {
+  const { text: textNoSup, superscription } = extractSuperscription(vo.text);
+  const text = normalizePilcrows(textNoSup);
+  const result: { verse: number; text: string; heading?: string; superscription?: string } =
+    { verse: vo.verse, text };
+  if (vo.heading) result.heading = vo.heading;
+  if (superscription) result.superscription = superscription;
+  return result;
+}
+
 // Resolve a "book chapter:verse" ref into a verse payload from the loaded bible.
+// Includes superscription (if any), colophon (if any), normalized pilcrows (¶),
+// and keeps [brackets] for italic words.
 export function verseFromRef(bible, ref) {
   const m = ref.match(/^(.*)\s+(\d+):(\d+)$/);
   if (!m) return null;
@@ -167,12 +203,15 @@ export function verseFromRef(bible, ref) {
   if (!verses) return null;
   const vo = verses.find(v => v.verse === verseNum);
   if (!vo) return null;
-  const text = vo.text.replace(/^<<[^>]*>>\s*/, '');
+  const { text: textNoSup, superscription } = extractSuperscription(vo.text);
+  const text = normalizePilcrows(textNoSup);
   const abbrEntry = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
   const abbr = abbrEntry ? abbrEntry[0] : bookName.slice(0, 3).toUpperCase();
-  const result: { abbr: string; book: string; chapter: number; verse: number; text: string; ref: string; heading?: string } =
-    { abbr, book: bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
+  const result: any = { abbr, book: bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
   if (vo.heading) result.heading = vo.heading;
+  if (superscription) result.superscription = superscription;
+  const colophon = bible.__colophons?.[`${bookName}:${chapterNum}`];
+  if (colophon) result.colophon = normalizePilcrows(colophon);
   return result;
 }
 
