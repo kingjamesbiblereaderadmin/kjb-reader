@@ -4,12 +4,19 @@
 // footer curve, and "KingJamesBibleReader.com" footer.
 //
 // Usage:
-//   GET /functions/shareCard                      → today's daily verse
+//   GET /functions/shareCard                      → today's daily verse (SVG)
 //   GET /functions/shareCard?ref=John 3:16        → specific verse by reference
 //   GET /functions/shareCard?book=John&chapter=3&verse=16
 //   GET /functions/shareCard?download=1            → force download (Content-Disposition: attachment)
+//   GET /functions/shareCard?format=json          → JSON { ref, text, date, imageUrl, svgUrl }
 //
-// Returns: image/svg+xml (1024×1024, ~20-40KB)
+// Returns: image/svg+xml (default) or application/json (format=json)
+//
+// Discord bot usage (Node.js with sharp):
+//   1. GET /functions/shareCard?format=json → { ref, text, imageUrl, svgUrl }
+//   2. Fetch the SVG from svgUrl
+//   3. Convert: sharp(Buffer.from(svg)).png().toBuffer()
+//   4. Send the PNG as a Discord attachment + text as message content
 
 // ── Bible data (same source as bibleApi / dailyVerseTxt) ──
 import { ABBR_TO_NAME, BOOK_ORDER, TEXT_URL, loadBible, buildFlatList, verseFromRef, normalizeDateKey } from "../../shared/bibleData.ts";
@@ -372,6 +379,7 @@ Deno.serve(async (req) => {
     let chapter = params.get('chapter');
     let verseNum = params.get('verse');
     const download = params.get('download') === '1';
+    let format = (params.get('format') || 'svg').toLowerCase();
 
     if (!ref && !book && req.method === 'POST') {
       try {
@@ -380,6 +388,7 @@ Deno.serve(async (req) => {
         book = body.book;
         chapter = body.chapter;
         verseNum = body.verse;
+        if (body.format && format === 'svg') format = String(body.format).toLowerCase();
       } catch {}
     }
 
@@ -428,14 +437,34 @@ Deno.serve(async (req) => {
     // Build SVG
     const svg = buildSVG(verse, gradient, dateStr, logoUri);
 
-    const filename = `KJB_${verse.abbr}_${verse.chapter}_${verse.verse}.svg`;
+    const baseFilename = `KJB_${verse.abbr}_${verse.chapter}_${verse.verse}`;
     const disposition = download ? 'attachment' : 'inline';
 
+    // JSON format: verse text + image URLs (for Discord bots)
+    if (format === 'json') {
+      const baseUrl = `${url.origin}/functions/shareCard`;
+      const qs = ref ? `?ref=${encodeURIComponent(ref)}` : (book ? `?book=${encodeURIComponent(book)}&chapter=${chapter}${verseNum ? `&verse=${verseNum}` : ''}` : '');
+      return Response.json({
+        ref: verse.ref,
+        text: plainVerseText(verse.text),
+        date: dateStr,
+        imageUrl: `${baseUrl}${qs}`,
+        svgUrl: `${baseUrl}${qs}`,
+      }, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'public, max-age=3600',
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
+    }
+
+    // SVG (default)
     return new Response(svg, {
       status: 200,
       headers: {
         'Content-Type': 'image/svg+xml; charset=utf-8',
-        'Content-Disposition': `${disposition}; filename="${filename}"`,
+        'Content-Disposition': `${disposition}; filename="${baseFilename}.svg"`,
         'Cache-Control': 'public, max-age=3600',
         'Access-Control-Allow-Origin': '*',
       }
