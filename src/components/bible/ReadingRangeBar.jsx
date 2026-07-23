@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Copy, Share2, AlignLeft, Filter, Printer, BookMarked, ChevronDown } from 'lucide-react';
+import { Copy, Share2, AlignLeft, Filter, Printer, BookMarked, ChevronDown, Bookmark } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Slim action bar shown when reading a verse range / search result.
 // `filterMode` controls whether the reader is filtered to only the selected
 // verses (true) or showing the full chapter with them highlighted (false).
-export default function ReadingRangeBar({ label, filterMode, copyFeedback, shareFeedback, shareLinkFeedback, onCopy, onShareText, onShareLink, onToggleView, onClear, onPrintPage, onPrintContents }) {
+export default function ReadingRangeBar({ label, filterMode, copyFeedback, shareFeedback, shareLinkFeedback, saveFeedback, onCopy, onShareText, onShareLink, onSave, onToggleView, onClear, onPrintPage, onPrintContents }) {
   const prevLabelRef = useRef(label);
 
   useEffect(() => {
@@ -36,6 +36,14 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
       >
         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
       </button>
+      {onSave && (
+        <button
+          onClick={onSave}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+        >
+          <Bookmark className="w-3.5 h-3.5" /> {saveFeedback ? 'Saved!' : 'Save'}
+        </button>
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
