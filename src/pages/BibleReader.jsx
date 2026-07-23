@@ -172,6 +172,7 @@ export default function BibleReader() {
   };
 
   const [copyFeedback, setCopyFeedback] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState(false);
   const [showFilterOverlay, setShowFilterOverlay] = useState(false);
   const [lastReadingPos, setLastReadingPos] = useState(() => {
     try {
