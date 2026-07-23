@@ -339,6 +339,17 @@ export default function BibleReader() {
     setTimeout(() => setCopyFeedback(false), 1800);
   };
 
+  const handleSaveSelected = () => {
+    if (!selectedVerses.size) return;
+    [...selectedVerses].sort((a, b) => a - b).forEach((vNum) => {
+      const v = verses.find(vv => vv.verse === vNum);
+      if (!v) return;
+      saveVerse({ abbr: pos.abbr, chapter: pos.chapter, verse: vNum, ref: `${book.shortName} ${pos.chapter}:${vNum}`, text: cleanVerseText(v.text), folder: 'Favorites' });
+    });
+    setSaveFeedback(true);
+    setTimeout(() => setSaveFeedback(false), 1800);
+  };
+
   const handleReadSelected = () => {
     setFilterMode(true);
     setSelectMode(false);
