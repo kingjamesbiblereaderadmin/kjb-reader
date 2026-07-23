@@ -34,6 +34,7 @@ import { useSearchAndGospelResults } from '@/lib/useSearchAndGospelResults';
 import { resolveBook, formatVerseRange } from '@/lib/readerHelpers';
 import { useClosePopovers } from '@/lib/useClosePopovers';
 import { printChapterContents } from '@/lib/printHelpers';
+import { saveVerse } from '@/lib/savedVerses';
 import { usePinchZoom } from '@/hooks/usePinchZoom';
 import { useReadingProgressTracker } from '@/hooks/useReadingProgressTracker';
 
