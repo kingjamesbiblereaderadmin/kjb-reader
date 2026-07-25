@@ -723,7 +723,12 @@ export default function BibleReader() {
         }
       }
       setPos({ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum });
-      // Force scroll-to-top so the subsequent scroll-to-verse works reliably
+      // Force scroll-to-top so the subsequent scroll-to-verse works reliably.
+      // For whole-chapter jumps (no verseNum) there's no scroll-to-verse effect
+      // to take over afterward, so without marking this a "fresh nav" the
+      // scroll-RESTORE effect further down re-applies whatever offset was last
+      // saved for this chapter a moment later, silently undoing this scrollTo.
+      if (!verseNum) freshNavRef.current = true;
       (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
       loadChapter(urlBookObj.abbr, chapterNum, verseNum);
       return;
