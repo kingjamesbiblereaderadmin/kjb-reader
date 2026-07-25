@@ -144,70 +144,73 @@ async function buildPdf(opts, bible, onProgress) {
   const twoColWidth = (pageW - margin * 2 - gutter) / 2;
   const bodySize = 9;
   const headerGap = 16; // vertical space reserved at the top of scripture pages for the running head
-  let col = 0, y = margin;
-  // Per-book override: short books render full-width (single column) even when
-  // two-column mode is on, so they don't leave an empty right column.
-  let forceSingleCol = false;
-  const isTwoCol = () => twoColumn && !forceSingleCol;
-  const colWidth = () => (isTwoCol() ? twoColWidth : fullWidth);
-  const colX = () => margin + (isTwoCol() && col === 1 ? twoColWidth + gutter : 0);
 
-  // Running header: the book name centered at the top of every scripture page.
-  // Disabled on title / contents pages by toggling runningHead.
-  let runningHead = '';
-  function stampHeader() {
-    if (!runningHead) return;
-    doc.setFont(F, 'italic');
-    doc.setFontSize(9);
-    doc.text(runningHead, pageW / 2, margin - 6, { align: 'center', baseline: 'top' });
-  }
-
-  function newPage() {
-    doc.addPage();
-    col = 0;
-    y = runningHead ? margin + headerGap : margin;
-    stampHeader();
-  }
-  function ensureSpace(needed = bodySize + 4) {
-    if (y + needed <= pageH - margin) return;
-    if (isTwoCol() && col === 0) { col = 1; y = runningHead ? margin + headerGap : margin; } else newPage();
-  }
+  // Column-layout engine, parameterized by a small mutable "ctx" object so the
+  // exact same wrap/measure/pagination math can run either for REAL (drawing to
+  // `doc`) or DRY (measuring only — no drawing, no page creation) purposes. Dry
+  // runs are used to pre-check whether a multi-chapter book would end its last
+  // page with column 2 empty in two-column mode (see forceSingleCol resolution
+  // below), without leaving any trace on the real document.
+  const isTwoCol = (ctx) => ctx.twoColumnEnabled && !ctx.forceSingleCol;
+  const colWidth = (ctx) => (isTwoCol(ctx) ? twoColWidth : fullWidth);
+  const colX = (ctx) => margin + (isTwoCol(ctx) && ctx.col === 1 ? twoColWidth + gutter : 0);
+  const baseY = (ctx) => (ctx.runningHead ? margin + headerGap : margin);
 
   // True when nothing has been drawn on the current page yet
-  const atPageTop = () => col === 0 && y === (runningHead ? margin + headerGap : margin);
+  const atPageTop = (ctx) => ctx.col === 0 && ctx.y === baseY(ctx);
+
+  function stampHeader(ctx) {
+    if (!ctx.runningHead || ctx.dry) return;
+    doc.setFont(F, 'italic');
+    doc.setFontSize(9);
+    doc.text(ctx.runningHead, pageW / 2, margin - 6, { align: 'center', baseline: 'top' });
+  }
+
+  function newPage(ctx) {
+    if (ctx.dry) ctx.virtualPage = (ctx.virtualPage || 1) + 1;
+    else doc.addPage();
+    ctx.col = 0;
+    ctx.y = baseY(ctx);
+    ctx.usedCol2OnPage = false;
+    stampHeader(ctx);
+  }
+  function ensureSpace(ctx, needed = bodySize + 4) {
+    if (ctx.y + needed <= pageH - margin) return;
+    if (isTwoCol(ctx) && ctx.col === 0) { ctx.col = 1; ctx.y = baseY(ctx); ctx.usedCol2OnPage = true; } else newPage(ctx);
+  }
 
   // Render a title page (centered, vertical middle-ish). No running header.
   // Leaves the cursor at the TOP of a fresh, header-LESS page so the caller can
   // write the next book straight onto it (no extra blank page, no stale header).
-  function titlePage(blocks) {
-    runningHead = '';
-    if (!atPageTop()) newPage();
-    y = pageH / 4;
+  function titlePage(ctx, blocks) {
+    ctx.runningHead = '';
+    if (!atPageTop(ctx)) newPage(ctx);
+    ctx.y = pageH / 4;
     blocks.forEach(b => {
       doc.setFont(F, b.bold ? 'bold' : 'normal');
       doc.setFontSize(b.size);
       const lines = doc.splitTextToSize(b.t, pageW - margin * 2);
-      lines.forEach(ln => { doc.text(ln, pageW / 2, y, { align: 'center', baseline: 'top' }); y += b.size + 6; });
-      y += b.gap || 10;
+      lines.forEach(ln => { doc.text(ln, pageW / 2, ctx.y, { align: 'center', baseline: 'top' }); ctx.y += b.size + 6; });
+      ctx.y += b.gap || 10;
     });
     // Move to a fresh page for whatever follows; keep runningHead empty so this
     // new page carries NO header. The cursor is now at page top.
-    newPage();
+    newPage(ctx);
   }
 
   // Word-wrap a list of {text,italic} segments within the active column.
-  function writeSegments(segments, { size = bodySize, indentFirst = 0 } = {}) {
+  function writeSegments(ctx, segments, { size = bodySize, indentFirst = 0 } = {}) {
     doc.setFontSize(size);
     const spaceW = () => { doc.setFont(F, 'normal'); return doc.getTextWidth(' '); };
     // Reserve space FIRST — this may switch to column 2, so capture x/startX
     // afterwards using the final column position (otherwise wrapping uses the
     // wrong column width and breaks one word per line).
-    ensureSpace(size + 4);
-    let x = colX() + indentFirst;
-    let startX = colX();
+    ensureSpace(ctx, size + 4);
+    let x = colX(ctx) + indentFirst;
+    let startX = colX(ctx);
     let lineHasContent = false;
 
-    const wrap = () => { y += size + 3.5; ensureSpace(size + 4); x = colX(); startX = colX(); lineHasContent = false; };
+    const wrap = () => { ctx.y += size + 3.5; ensureSpace(ctx, size + 4); x = colX(ctx); startX = colX(ctx); lineHasContent = false; };
 
     segments.forEach(seg => {
       doc.setFont(F, seg.italic ? 'italic' : 'normal');
@@ -215,29 +218,29 @@ async function buildPdf(opts, bible, onProgress) {
       words.forEach(w => {
         if (/^\s+$/.test(w)) { if (lineHasContent) x += spaceW(); return; }
         const wWidth = doc.getTextWidth(w);
-        if (x + wWidth > startX + colWidth() && lineHasContent) wrap();
+        if (x + wWidth > startX + colWidth(ctx) && lineHasContent) wrap();
         doc.setFont(F, seg.italic ? 'italic' : 'normal');
-        doc.text(w, x, y, { baseline: 'top' });
+        if (!ctx.dry) doc.text(w, x, ctx.y, { baseline: 'top' });
         x += wWidth;
         lineHasContent = true;
       });
     });
-    y += size + 3.5;
+    ctx.y += size + 3.5;
   }
 
-  function writeCentered(text, { size = bodySize, font = 'italic', gapAfter = 4 } = {}) {
+  function writeCentered(ctx, text, { size = bodySize, font = 'italic', gapAfter = 4 } = {}) {
     doc.setFont(F, font);
     doc.setFontSize(size);
-    const lines = doc.splitTextToSize(text, colWidth());
-    lines.forEach(ln => { ensureSpace(size + 4); doc.text(ln, colX() + colWidth() / 2, y, { align: 'center', baseline: 'top' }); y += size + 3.5; });
-    y += gapAfter;
+    const lines = doc.splitTextToSize(text, colWidth(ctx));
+    lines.forEach(ln => { ensureSpace(ctx, size + 4); if (!ctx.dry) doc.text(ln, colX(ctx) + colWidth(ctx) / 2, ctx.y, { align: 'center', baseline: 'top' }); ctx.y += size + 3.5; });
+    ctx.y += gapAfter;
   }
 
   // Centered, WRAPPED line where ONLY [bracketed] words are italic; rest roman.
   // Breaks the segments into words and lays them out line-by-line within the
   // column, centering each line. Prevents long colophons from overflowing the
   // column edge (e.g. the Titus / Romans subscriptions in two-column mode).
-  function writeCenteredMixed(rawText, { size = bodySize, gapAfter = 4 } = {}) {
+  function writeCenteredMixed(ctx, rawText, { size = bodySize, gapAfter = 4 } = {}) {
     doc.setFontSize(size);
     const segs = toSegments(rawText); // keeps brackets as italic segments
     const spaceW = () => { doc.setFont(F, 'normal'); return doc.getTextWidth(' '); };
@@ -259,7 +262,7 @@ async function buildPdf(opts, bible, onProgress) {
       doc.setFont(F, word.italic ? 'italic' : 'normal');
       const ww = doc.getTextWidth(word.w);
       const add = (line.length ? spaceW() : 0) + ww;
-      if (line.length && lineW + add > colWidth()) {
+      if (line.length && lineW + add > colWidth(ctx)) {
         lines.push({ words: line, width: lineW });
         line = []; lineW = 0;
       }
@@ -270,84 +273,32 @@ async function buildPdf(opts, bible, onProgress) {
 
     // Render each line centered within the column.
     lines.forEach(ln => {
-      ensureSpace(size + 4);
-      let x = colX() + (colWidth() - ln.width) / 2;
+      ensureSpace(ctx, size + 4);
+      let x = colX(ctx) + (colWidth(ctx) - ln.width) / 2;
       ln.words.forEach((word, i) => {
         if (i > 0) { doc.setFont(F, 'normal'); x += spaceW(); }
         doc.setFont(F, word.italic ? 'italic' : 'normal');
-        doc.text(word.w, x, y, { baseline: 'top' });
+        if (!ctx.dry) doc.text(word.w, x, ctx.y, { baseline: 'top' });
         x += doc.getTextWidth(word.w);
       });
-      y += size + 3.5;
+      ctx.y += size + 3.5;
     });
-    y += gapAfter;
+    ctx.y += gapAfter;
   }
 
-  // Track the page numbers of the front-matter title pages so they can be listed
-  // (and linked) inline in the Contents.
-  let ntTitlePageNum = 0;
-  let holyBiblePage = 0;
-
-  // Front title page: Holy Bible for whole/OT, New Testament for NT-only.
-  const frontTitlePage = doc.internal.getNumberOfPages();
-  if (scope === 'new') {
-    ntTitlePageNum = frontTitlePage;
-    titlePage(TITLE_NT);
-  } else {
-    holyBiblePage = frontTitlePage;
-    titlePage(TITLE_WHOLE);
-  }
-
-  const total = BOOKS.length;
-  const tocPagesNeeded = measureTocPages(doc, pageW, pageH, margin, F, BOOKS);
-  // titlePage() (above) already left us on a fresh blank page — use THAT as the
-  // first TOC listing page, and only add the REMAINING (tocPagesNeeded - 1)
-  // pages. This avoids an orphan blank page between the title page and Contents.
-  const tocStartPage = doc.internal.getNumberOfPages();
-  for (let i = 0; i < tocPagesNeeded - 1; i++) doc.addPage();
-  // Genesis must begin on a brand-new page right after the reserved TOC pages.
-  // Force atPageTop() === false so the first book adds exactly ONE new page.
-  runningHead = '';
-  col = 0;
-  y = pageH;
-
-  // Track where each book begins (+ each chapter) for the TOC + PDF outline bookmarks
-  const bookPages = []; // { book, page, chapters: [{ ch, page }] }
-
-  for (let bi = 0; bi < total; bi++) {
-    const book = BOOKS[bi];
-    const bookData = bible[book.apiName] || {};
-    // Single-chapter books (Obadiah, Philemon, 2/3 John, Jude) are too short to
-    // fill two columns — render them full-width (single column) so they don't
-    // leave an empty right column.
-    forceSingleCol = book.chapters === 1;
-
-    // NT title page before Matthew — only when both testaments are present
-    // (for NT-only export the front page already IS the NT title).
-    if (book.apiName === 'Matthew' && scope === 'whole') {
-      ntTitlePageNum = doc.internal.getNumberOfPages();
-      titlePage(TITLE_NT);
-    }
-
-    // Start the book on a fresh page WITHOUT a running head (the book title acts
-    // as the heading here). Enable the running head afterwards so it appears on
-    // every subsequent page of the book.
-    // titlePage() already leaves us at the top of a fresh, header-less page — in
-    // that case don't add ANOTHER page (which caused a blank page before Matthew
-    // that still carried the previous book's running header).
-    runningHead = '';
-    if (!atPageTop()) newPage();
-    const startPage = doc.internal.getNumberOfPages();
-    const chapterPages = [];
-    bookPages.push({ book, page: startPage, chapters: chapterPages });
-
+  // Renders one book's full content (title + all chapters + end-of-section
+  // markers) into the given ctx. Shared by the REAL render pass and the DRY
+  // measurement pass below so both use identical wrap/pagination math.
+  // `onChapterStart(ch)` is only supplied by the real pass (to record
+  // chapter → page links for the TOC/outline).
+  function renderBookBody(ctx, book, bookData, { onChapterStart } = {}) {
     doc.setFont(F, 'bold'); doc.setFontSize(15);
-    const titleLines = doc.splitTextToSize(nameOf(book), colWidth());
-    titleLines.forEach(ln => { doc.text(ln, colX() + colWidth() / 2, y, { align: 'center', baseline: 'top' }); y += 18; });
-    y += 8;
+    const titleLines = doc.splitTextToSize(nameOf(book), colWidth(ctx));
+    titleLines.forEach(ln => { if (!ctx.dry) doc.text(ln, colX(ctx) + colWidth(ctx) / 2, ctx.y, { align: 'center', baseline: 'top' }); ctx.y += 18; });
+    ctx.y += 8;
 
     // From now on, new pages within this book carry the book name header.
-    runningHead = nameOf(book);
+    ctx.runningHead = nameOf(book);
 
     for (let ch = 1; ch <= book.chapters; ch++) {
       let verses = bookData[ch] || [];
@@ -362,37 +313,37 @@ async function buildPdf(opts, bible, onProgress) {
       // Reserve room for the chapter heading PLUS its first verse line, so the
       // heading never gets orphaned at the very bottom of a page/column. (heading
       // 11pt + 22pt gap + first verse line ≈ 34 + bodySize + 4)
-      ensureSpace(34 + bodySize + 8);
-      if (ch > 1 && !atPageTop()) y += 12; // breathing room before each new chapter
-      chapterPages.push({ ch, page: doc.internal.getNumberOfPages() });
+      ensureSpace(ctx, 34 + bodySize + 8);
+      if (ch > 1 && !atPageTop(ctx)) ctx.y += 12; // breathing room before each new chapter
+      if (onChapterStart) onChapterStart(ch, ctx);
       doc.setFont(F, 'bold'); doc.setFontSize(11);
-      doc.text(`Chapter ${ch}`, colX() + colWidth() / 2, y, { align: 'center', baseline: 'top' });
-      y += 22; // gap below the chapter number before the first verse
+      if (!ctx.dry) doc.text(`Chapter ${ch}`, colX(ctx) + colWidth(ctx) / 2, ctx.y, { align: 'center', baseline: 'top' });
+      ctx.y += 22; // gap below the chapter number before the first verse
 
       if (subscripts) {
         const sub = SUBSCRIPTS[`${book.apiName}:${ch}`];
-        if (sub) writeCenteredMixed(sub, { size: 8 });
+        if (sub) writeCenteredMixed(ctx, sub, { size: 8 });
       }
 
       // Psalm 119 acrostic — Hebrew letter headings come from the PCE source
       // (v.heading), stamped by the parser, so we don't assume 8 verses/stanza.
       const writeStanzaHeading = (v, isFirst) => {
         if (!v.heading) return;
-        if (!isFirst) y += 8;
-        writeCentered(v.heading, { size: 10, font: 'bold', gapAfter: 6 });
+        if (!isFirst) ctx.y += 8;
+        writeCentered(ctx, v.heading, { size: 10, font: 'bold', gapAfter: 6 });
       };
 
       if (paragraph) {
         let buffer = [];
-        const flush = () => { if (buffer.length) { writeSegments(buffer, { indentFirst: 12 }); y += 3; } buffer = []; };
+        const flush = () => { if (buffer.length) { writeSegments(ctx, buffer, { indentFirst: 12 }); ctx.y += 3; } buffer = []; };
         verses.forEach((v, idx) => {
           if (v.heading) { flush(); writeStanzaHeading(v, idx === 0); }
           else if (idx > 0 && hasPilcrow(v.text)) {
             flush();
-            y += 6; // gap above new pilcrow paragraph
+            ctx.y += 6; // gap above new pilcrow paragraph
             // Don't let a new pilcrow paragraph start on the very last line of a
             // page/column — reserve room for 2 lines so it moves down with its text.
-            ensureSpace((bodySize + 3.5) * 2 + 6);
+            ensureSpace(ctx, (bodySize + 3.5) * 2 + 6);
           }
           buffer.push({ text: `${v.verse} `, italic: false });
           buffer.push(...toSegments(v.text));
@@ -403,31 +354,115 @@ async function buildPdf(opts, bible, onProgress) {
         verses.forEach((v, idx) => {
           if (v.heading) writeStanzaHeading(v, idx === 0);
           else if (idx > 0 && hasPilcrow(v.text)) {
-            y += 6; // gap above new-paragraph verses
+            ctx.y += 6; // gap above new-paragraph verses
             // Don't let a pilcrow (paragraph-starting) verse be the last line of
             // a page/column — reserve room for the heading-gap + 2 lines so it
             // moves to the next column/page together with its continuation.
-            ensureSpace((bodySize + 3.5) * 2 + 6);
+            ensureSpace(ctx, (bodySize + 3.5) * 2 + 6);
           }
-          writeSegments([{ text: `${v.verse} `, italic: false }, ...toSegments(v.text)]);
-          y += 1;
+          writeSegments(ctx, [{ text: `${v.verse} `, italic: false }, ...toSegments(v.text)]);
+          ctx.y += 1;
         });
       }
 
       if (colophons) {
         const colo = COLOPHONS[`${book.apiName}:${ch}`];
-        if (colo) { y += 3; writeCenteredMixed('¶ ' + normalise(colo).replace(/^¶\s*/, ''), { size: 8 }); }
+        if (colo) { ctx.y += 3; writeCenteredMixed(ctx, '¶ ' + normalise(colo).replace(/^¶\s*/, ''), { size: 8 }); }
       }
     }
     // End-of-section markers
     if (book.apiName === 'Malachi') {
-      y += 10;
-      writeCentered(scope === 'old' ? 'THE END.' : 'THE END OF THE PROPHETS.', { size: 11, font: 'bold', gapAfter: 6 });
+      ctx.y += 10;
+      writeCentered(ctx, scope === 'old' ? 'THE END.' : 'THE END OF THE PROPHETS.', { size: 11, font: 'bold', gapAfter: 6 });
     }
     if (book.apiName === 'Revelation') {
-      y += 10;
-      writeCentered('THE END.', { size: 12, font: 'bold', gapAfter: 6 });
+      ctx.y += 10;
+      writeCentered(ctx, 'THE END.', { size: 12, font: 'bold', gapAfter: 6 });
     }
+  }
+
+  // ── Per-book full-width fallback: for each multi-chapter book, run a DRY
+  // (non-drawing) pass of its layout in two-column mode to check whether it
+  // would leave the LAST page's second column empty. If so, that book renders
+  // full-width throughout — the same treatment single-chapter books already
+  // get — instead of ending on a half-empty final page. Costs nothing on the
+  // real document: dry runs never call doc.text()/doc.addPage(). ──
+  const measuredForceSingle = new Set();
+  if (twoColumn) {
+    BOOKS.forEach(book => {
+      if (book.chapters <= 1) return; // already forced single-col regardless
+      const bookData = bible[book.apiName] || {};
+      const dryCtx = { col: 0, y: margin, runningHead: '', forceSingleCol: false, twoColumnEnabled: true, dry: true, virtualPage: 1, usedCol2OnPage: false };
+      renderBookBody(dryCtx, book, bookData, {});
+      if (!dryCtx.usedCol2OnPage) measuredForceSingle.add(book.apiName);
+    });
+  }
+
+  // Real render context — replaces the old bare col/y/runningHead variables.
+  const ctx = { col: 0, y: margin, runningHead: '', forceSingleCol: false, twoColumnEnabled: twoColumn, dry: false };
+
+  // Track the page numbers of the front-matter title pages so they can be listed
+  // (and linked) inline in the Contents.
+  let ntTitlePageNum = 0;
+  let holyBiblePage = 0;
+
+  // Front title page: Holy Bible for whole/OT, New Testament for NT-only.
+  const frontTitlePage = doc.internal.getNumberOfPages();
+  if (scope === 'new') {
+    ntTitlePageNum = frontTitlePage;
+    titlePage(ctx, TITLE_NT);
+  } else {
+    holyBiblePage = frontTitlePage;
+    titlePage(ctx, TITLE_WHOLE);
+  }
+
+  const total = BOOKS.length;
+  const tocPagesNeeded = measureTocPages(doc, pageW, pageH, margin, F, BOOKS);
+  // titlePage() (above) already left us on a fresh blank page — use THAT as the
+  // first TOC listing page, and only add the REMAINING (tocPagesNeeded - 1)
+  // pages. This avoids an orphan blank page between the title page and Contents.
+  const tocStartPage = doc.internal.getNumberOfPages();
+  for (let i = 0; i < tocPagesNeeded - 1; i++) doc.addPage();
+  // Genesis must begin on a brand-new page right after the reserved TOC pages.
+  // Force atPageTop() === false so the first book adds exactly ONE new page.
+  ctx.runningHead = '';
+  ctx.col = 0;
+  ctx.y = pageH;
+
+  // Track where each book begins (+ each chapter) for the TOC + PDF outline bookmarks
+  const bookPages = []; // { book, page, chapters: [{ ch, page }] }
+
+  for (let bi = 0; bi < total; bi++) {
+    const book = BOOKS[bi];
+    const bookData = bible[book.apiName] || {};
+    // Single-chapter books (Obadiah, Philemon, 2/3 John, Jude) are too short to
+    // fill two columns, and any multi-chapter book whose last page would
+    // otherwise leave column 2 empty (per the dry-run measurement above) — both
+    // render full-width (single column) so they don't leave an empty right column.
+    ctx.forceSingleCol = book.chapters === 1 || measuredForceSingle.has(book.apiName);
+
+    // NT title page before Matthew — only when both testaments are present
+    // (for NT-only export the front page already IS the NT title).
+    if (book.apiName === 'Matthew' && scope === 'whole') {
+      ntTitlePageNum = doc.internal.getNumberOfPages();
+      titlePage(ctx, TITLE_NT);
+    }
+
+    // Start the book on a fresh page WITHOUT a running head (the book title acts
+    // as the heading here). Enable the running head afterwards so it appears on
+    // every subsequent page of the book.
+    // titlePage() already leaves us at the top of a fresh, header-less page — in
+    // that case don't add ANOTHER page (which caused a blank page before Matthew
+    // that still carried the previous book's running header).
+    ctx.runningHead = '';
+    if (!atPageTop(ctx)) newPage(ctx);
+    const startPage = doc.internal.getNumberOfPages();
+    const chapterPages = [];
+    bookPages.push({ book, page: startPage, chapters: chapterPages });
+
+    renderBookBody(ctx, book, bookData, {
+      onChapterStart: (ch) => chapterPages.push({ ch, page: doc.internal.getNumberOfPages() }),
+    });
 
     // Record the last page this book occupies (for per-book page footers)
     bookPages[bookPages.length - 1].endPage = doc.internal.getNumberOfPages();
