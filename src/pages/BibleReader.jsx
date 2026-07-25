@@ -839,6 +839,11 @@ export default function BibleReader() {
       if (urlBookObj && urlChapter && urlBookObj.abbr === p.abbr &&
           parseInt(urlChapter, 10) === p.chapter &&
           parseInt(urlVerse || '0', 10) === (p.verse || 0)) {
+        // Chapter-only jump landing on a URL that already matches (e.g. searching
+        // the same chapter reference twice in a row) — still needs the fresh-nav
+        // flag, otherwise the scroll-RESTORE effect below re-applies the last
+        // saved scroll offset for this chapter instead of landing at the top.
+        if (!p.verse) freshNavRef.current = true;
         setHighlightVerse(p.verse || null);
         return;
       }
