@@ -865,6 +865,14 @@ export default function BibleReader() {
       } else if (!lastReading) {
         setFilterMode(false); setSelectedVerses(new Set()); setHighlightedVerses(new Set());
       }
+      // Whole-chapter jumps (no verse) have no highlightVerse to drive a
+      // scroll-to-verse, and without this flag the scroll-RESTORE effect below
+      // (keyed on pos.abbr/pos.chapter) re-applies whatever offset was last
+      // saved for that chapter instead of landing at the top — this is the
+      // same flag BibleReader's own internal navigate() sets for Prev/Next and
+      // book/chapter-selector jumps; the kjb-navigate event path (used by
+      // search-bar reference jumps) never set it, which was the bug.
+      if (!p.verse) freshNavRef.current = true;
       setPos({ abbr: p.abbr, chapter: p.chapter, verse: p.verse || null });
       setHighlightVerse(p.verse || null);
       loadChapter(p.abbr, p.chapter, p.verse || null);
