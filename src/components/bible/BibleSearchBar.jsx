@@ -369,6 +369,14 @@ export default function BibleSearchBar({ onClose }) {
       const b = BIBLE_BOOKS.find(bk => bk.abbr === abbr);
       const label = `${b ? b.shortName : abbr} ${chapter}:${verse}`;
       setSearchNav([{ abbr, chapter, verse, verseEnd: verseEnd || null }], 0, label);
+    } else {
+      // Whole-chapter jumps (no verse) don't go through the highlightVerse
+      // scroll-to-verse effect, and the kjb-navigate listener in BibleReader
+      // doesn't reset scroll on its own — it falls through to the scroll-RESTORE
+      // logic, which either re-applies a stale saved offset for that chapter or
+      // (if none saved) leaves the page wherever it was already scrolled. Reset
+      // to top explicitly here, same as ContentsPage's goTo().
+      (document.getElementById('kjb-scroll') || window).scrollTo({ top: 0 });
     }
     const url = verse ? `/read?book=${abbr}&chapter=${chapter}&verse=${verse}${vEndParam}&from=search` : `/read?book=${abbr}&chapter=${chapter}`;
     navigate(url);
