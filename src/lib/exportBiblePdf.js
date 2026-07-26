@@ -779,8 +779,22 @@ async function buildText(opts, bible, onProgress, format) {
       // The closing of one Section div + opening of the next, combined with the
       // matching @page SectionN rules, is what makes Word treat each book as a
       // separate section with its own running header.
+      // In two-column mode, insert an extra empty CONTINUOUS section break (same
+      // column layout, no page-break-before) right before that hard page break —
+      // mirroring the RTF export's \BALANCECOLS — so Word balances the columns on
+      // the PREVIOUS book's final page instead of leaving column 2 empty.
+      let balanceMarkup = '';
+      if (opts.twoColumn && bi > 0) {
+        sectionCount += 1;
+        const balSid = `Section${sectionCount}`;
+        headerDivs.push(
+          `<div style="mso-element:header" id="h${sectionCount}"><p class=MsoHeader style="text-align:center"><i>${escapeHtml(nameOf(BOOKS[bi - 1]))}</i></p></div>`
+        );
+        balanceMarkup = `<div class="${balSid}"></div>`;
+      }
       out.push(
         `</div>` +
+        balanceMarkup +
         `<div class="${sid}" style="page-break-before:always">` +
         `${testamentHeading}` +
         `<a name="${anchorFor(book)}"></a>` +
@@ -894,8 +908,20 @@ async function buildText(opts, bible, onProgress, format) {
     // navigation pane has content below the last heading and can scroll all the
     // way down to it (otherwise the last entry stays cut off at the bottom).
     out.push('<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>');
-    // Close the final book's section div.
-    out.push('</div>');
+    // Close the final book's section div. In two-column mode, follow it with an
+    // empty CONTINUOUS section break (same column layout) so Word balances the
+    // columns on the very last book's final page too — matching the mid-document
+    // book-to-book balancing above and the RTF export's \BALANCECOLS behavior.
+    if (opts.twoColumn) {
+      sectionCount += 1;
+      const balSid = `Section${sectionCount}`;
+      headerDivs.push(
+        `<div style="mso-element:header" id="h${sectionCount}"><p class=MsoHeader style="text-align:center"><i>${escapeHtml(nameOf(BOOKS[BOOKS.length - 1]))}</i></p></div>`
+      );
+      out.push(`</div><div class="${balSid}"></div>`);
+    } else {
+      out.push('</div>');
+    }
 
     // Build per-section @page rules. Each book section references its own header
     // (mso-header) so Word shows the book name as the running head. Two-column
