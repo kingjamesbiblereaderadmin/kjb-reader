@@ -348,6 +348,7 @@ async function buildPdf(opts, bible, onProgress) {
         let buffer = [];
         const flush = () => { if (buffer.length) { writeSegments(ctx, buffer, { indentFirst: 12 }); ctx.y += 3; } buffer = []; };
         verses.forEach((v, idx) => {
+          ctx.verseSeq = (ctx.verseSeq || 0) + 1;
           if (v.heading) { flush(); writeStanzaHeading(v, idx === 0); }
           else if (idx > 0 && hasPilcrow(v.text)) {
             flush();
@@ -363,6 +364,7 @@ async function buildPdf(opts, bible, onProgress) {
         flush();
       } else {
         verses.forEach((v, idx) => {
+          ctx.verseSeq = (ctx.verseSeq || 0) + 1;
           if (v.heading) writeStanzaHeading(v, idx === 0);
           else if (idx > 0 && hasPilcrow(v.text)) {
             ctx.y += 6; // gap above new-paragraph verses
