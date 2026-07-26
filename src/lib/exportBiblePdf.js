@@ -172,6 +172,17 @@ async function buildPdf(opts, bible, onProgress) {
     ctx.col = 0;
     ctx.y = baseY(ctx);
     ctx.usedCol2OnPage = false;
+    // Record the verse-count position at which THIS page begins. In the dry
+    // pass, the value left here after the whole book finishes is the position
+    // where the book's LAST page began (see the dry-run measurement below).
+    ctx.lastPageStartMarker = ctx.verseSeq || 0;
+    // If this book's dry run found that its last page leaves column 2 empty,
+    // and real rendering has just reached that same verse position, switch to
+    // full-width from here through the end of the book. Pages already drawn
+    // before this point stay two-column — only the trailing page changes.
+    if (!ctx.dry && ctx.splitMarker != null && !ctx.forceSingleCol && ctx.lastPageStartMarker === ctx.splitMarker) {
+      ctx.forceSingleCol = true;
+    }
     stampHeader(ctx);
   }
   function ensureSpace(ctx, needed = bodySize + 4) {
