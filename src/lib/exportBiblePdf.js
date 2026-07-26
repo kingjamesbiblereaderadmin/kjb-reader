@@ -413,7 +413,7 @@ async function buildPdf(opts, bible, onProgress) {
   }
 
   // Real render context — replaces the old bare col/y/runningHead variables.
-  const ctx = { col: 0, y: margin, runningHead: '', forceSingleCol: false, twoColumnEnabled: twoColumn, dry: false };
+  const ctx = { col: 0, y: margin, runningHead: '', forceSingleCol: false, twoColumnEnabled: twoColumn, dry: false, splitMarker: null, verseSeq: 0 };
 
   // Track the page numbers of the front-matter title pages so they can be listed
   // (and linked) inline in the Contents.
@@ -450,10 +450,13 @@ async function buildPdf(opts, bible, onProgress) {
     const book = BOOKS[bi];
     const bookData = bible[book.apiName] || {};
     // Single-chapter books (Obadiah, Philemon, 2/3 John, Jude) are too short to
-    // fill two columns, and any multi-chapter book whose last page would
-    // otherwise leave column 2 empty (per the dry-run measurement above) — both
-    // render full-width (single column) so they don't leave an empty right column.
-    ctx.forceSingleCol = book.chapters === 1 || measuredForceSingle.has(book.apiName);
+    // fill two columns, so they render full-width (single column). Multi-chapter
+    // books stay two-column, but if the dry run found their last page would
+    // leave column 2 empty, ctx.splitMarker holds the verse position where that
+    // trailing page begins — newPage() switches to full-width only from there.
+    ctx.forceSingleCol = book.chapters === 1;
+    ctx.splitMarker = bookSplitMarker.has(book.apiName) ? bookSplitMarker.get(book.apiName) : null;
+    ctx.verseSeq = 0;
 
     // NT title page before Matthew — only when both testaments are present
     // (for NT-only export the front page already IS the NT title).
