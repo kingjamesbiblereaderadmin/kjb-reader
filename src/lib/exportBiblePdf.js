@@ -516,7 +516,7 @@ async function buildPdf(opts, bible, onProgress) {
   // ── Fill in the reserved Table of Contents pages: OT/NT headers, each book
   //    name (links to the book), and a grid of clickable chapter numbers. ──
   onProgress(96, 'Building contents…');
-  runningHead = ''; // no running header on contents pages
+  ctx.runningHead = ''; // no running header on contents pages
   let tocPage = tocStartPage;
   doc.setPage(tocPage);
   let ty = margin;
