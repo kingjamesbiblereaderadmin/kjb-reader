@@ -394,20 +394,21 @@ async function buildPdf(opts, bible, onProgress) {
     }
   }
 
-  // ── Per-book full-width fallback: for each multi-chapter book, run a DRY
-  // (non-drawing) pass of its layout in two-column mode to check whether it
-  // would leave the LAST page's second column empty. If so, that book renders
-  // full-width throughout — the same treatment single-chapter books already
-  // get — instead of ending on a half-empty final page. Costs nothing on the
-  // real document: dry runs never call doc.text()/doc.addPage(). ──
-  const measuredForceSingle = new Set();
+  // ── Per-book last-page full-width fallback: for each multi-chapter book, run
+  // a DRY (non-drawing) pass of its layout in two-column mode to find the
+  // verse-position where its LAST page begins. If that page's second column
+  // ends up unused, only THAT trailing page renders full-width when real
+  // rendering reaches the matching position (see newPage()) — every earlier
+  // page in the book stays two-column. Costs nothing on the real document:
+  // dry runs never call doc.text()/doc.addPage(). ──
+  const bookSplitMarker = new Map();
   if (twoColumn) {
     BOOKS.forEach(book => {
       if (book.chapters <= 1) return; // already forced single-col regardless
       const bookData = bible[book.apiName] || {};
-      const dryCtx = { col: 0, y: margin, runningHead: '', forceSingleCol: false, twoColumnEnabled: true, dry: true, virtualPage: 1, usedCol2OnPage: false };
+      const dryCtx = { col: 0, y: margin, runningHead: '', forceSingleCol: false, twoColumnEnabled: true, dry: true, virtualPage: 1, usedCol2OnPage: false, verseSeq: 0 };
       renderBookBody(dryCtx, book, bookData, {});
-      if (!dryCtx.usedCol2OnPage) measuredForceSingle.add(book.apiName);
+      if (!dryCtx.usedCol2OnPage) bookSplitMarker.set(book.apiName, dryCtx.lastPageStartMarker || 0);
     });
   }
 
