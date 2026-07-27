@@ -40,7 +40,7 @@ export default function DiscordInvitePage() {
             <DiscordIcon className="w-7 h-7 text-white" />
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader Bot</h1>
-          <p className="font-sans text-sm text-muted-foreground">Add the KJB Reader bot to show, search, and display the Daily Verse on your Discord server — powered by the BibleApi from KingJamesBibleReader.com.</p>
+          <p className="font-sans text-sm text-muted-foreground">KJB Reader Bot is for those who wish to use the BibleApi from KingJamesBibleReader.com to show, search, and display the Daily Verse on their Discord servers.</p>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
 
