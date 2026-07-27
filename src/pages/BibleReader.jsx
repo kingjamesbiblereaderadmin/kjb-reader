@@ -355,6 +355,7 @@ export default function BibleReader() {
 
   const handleCopyPerVerse = async () => {
     const lines = generatePerVerseText();
+    console.log('[KJB] Per-verse copy output:', JSON.stringify(lines));
 
     try {
       const textarea = document.createElement('textarea');
