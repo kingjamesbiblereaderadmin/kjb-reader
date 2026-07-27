@@ -40,7 +40,7 @@ export default function DiscordInvitePage() {
             <DiscordIcon className="w-7 h-7 text-white" />
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader Bot</h1>
-          <p className="font-sans text-sm text-muted-foreground">For random, search, daily, and gospel sharing on their Discord servers.</p>
+          <p className="font-sans text-sm text-muted-foreground">For random, search, daily, and gospel sharing.</p>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
 
