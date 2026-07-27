@@ -1,11 +1,11 @@
 import React from 'react';
-import { CheckSquare, X, Copy, Share2, BookMarked, AlignLeft, Printer } from 'lucide-react';
+import { CheckSquare, X, Copy, Share2, BookMarked, AlignLeft, List, Printer } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Action bar shown while in verse-select mode in the reader.
 export default function SelectActionBar({
   selectedCount, totalVerses, copyFeedback, shareFeedback, shareLinkFeedback,
-  onSelectAll, onCancel, onCopy, onShareText, onShareLink, onReadSelected, onShowFull, onPrintPage, onPrintContents
+  onSelectAll, onCancel, onCopy, onCopyPerVerse, onShareText, onShareLink, onReadSelected, onShowFull, onPrintPage, onPrintContents
 }) {
   return (
     <div className="mt-2 pt-2 border-t border-border flex items-center gap-2 overflow-x-auto scrollbar-hide">
@@ -27,12 +27,23 @@ export default function SelectActionBar({
       </button>
       {selectedCount > 0 && (
         <>
-          <button
-            onClick={onCopy}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
-          >
-            <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
+                <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem onClick={onCopy} className="cursor-pointer">
+                <AlignLeft className="w-4 h-4 mr-2" />
+                Copy (Passage)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onCopyPerVerse} className="cursor-pointer">
+                <List className="w-4 h-4 mr-2" />
+                Copy (Per Verse)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
