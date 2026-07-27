@@ -39,8 +39,8 @@ export default function DiscordInvitePage() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-indigo-500/30 mb-4 bg-gradient-to-br from-indigo-500 to-violet-600">
             <DiscordIcon className="w-7 h-7 text-white" />
           </div>
-          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Discord Bot</h1>
-          <p className="font-sans text-sm text-muted-foreground">Add the KJB Reader bot to get daily verses and verse search in Discord.</p>
+          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader Bot</h1>
+          <p className="font-sans text-sm text-muted-foreground">Add the KJB Reader bot to show, search, and display the Daily Verse on your Discord server — powered by the BibleApi from KingJamesBibleReader.com.</p>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
 
