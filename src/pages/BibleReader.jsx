@@ -340,27 +340,17 @@ export default function BibleReader() {
     setTimeout(() => setCopyFeedback(false), 1800);
   };
 
-  // Per-verse copy: each selected verse becomes its own block (text + ref),
-  // so verses land on separate lines instead of being merged into one passage.
+  // Per-verse copy: each selected verse's text on its own line, followed by a
+  // single combined reference at the end (not a ref per verse).
   const generatePerVerseText = () => {
     const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
     const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
 
-    const chapterSubscript = resolveSubscript(book.apiName, pos.chapter) || null;
-    const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
-
-    const blocks = selectedVersesList.map((v) => {
-      const includesV1 = v.verse === 1;
-      const includesLast = lastVerseNum != null && v.verse === lastVerseNum;
-      return formatVerseShare({
-        text: cleanVerseText(v.text),
-        subscript: includesV1 ? chapterSubscript : null,
-        colophon: includesLast ? colophon : null,
-        ref: `${book.shortName} ${pos.chapter}:${v.verse}`,
-        url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: v.verse, from: searchTerm ? 'search' : undefined }),
-      });
-    });
-    return blocks.join('\n\n');
+    const verseLines = selectedVersesList.map(v => cleanVerseText(v.text).replace(/^¶\s*/, ''));
+    const range = formatVerseRange(selectedVersesList.map(v => v.verse));
+    const ref = `${book.shortName} ${pos.chapter}:${range}`;
+    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: selectedVersesList[0]?.verse, verseEnd: selectedVersesList[selectedVersesList.length - 1]?.verse > selectedVersesList[0]?.verse ? selectedVersesList[selectedVersesList.length - 1]?.verse : undefined, from: searchTerm ? 'search' : undefined });
+    return `${verseLines.join('\n\n')}\n\n${ref} (KJB)\n\nRead more: <${url}>`;
   };
 
   const handleCopyPerVerse = async () => {
