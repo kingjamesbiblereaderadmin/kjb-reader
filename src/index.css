@@ -419,6 +419,37 @@
     border-top-color: rgba(255,255,255,0.14);
   }
 
+  /* Reader toolbar — leather-and-parchment strip (matches the open Bible) */
+  .kjb-toolbar-strip {
+    background-color: #ECE2CC;
+    background-image: radial-gradient(ellipse at 50% 40%, transparent 60%, rgba(150,135,108,0.20) 100%);
+    border-bottom: 2px solid #161616;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.14);
+  }
+  .dark .kjb-toolbar-strip {
+    background-color: #232321;
+    background-image: radial-gradient(ellipse at 50% 42%, transparent 64%, rgba(0,0,0,0.24) 100%);
+    border-bottom-color: #050505;
+  }
+  .kjb-toolbar-strip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0; right: 0;
+    height: 3rem;
+    background-color: #ECE2CC;
+    background-image: radial-gradient(ellipse at 50% 40%, transparent 60%, rgba(150,135,108,0.20) 100%);
+  }
+  .dark .kjb-toolbar-strip::before {
+    background-color: #232321;
+    background-image: radial-gradient(ellipse at 50% 42%, transparent 64%, rgba(0,0,0,0.24) 100%);
+  }
+  /* Book-like serif labels on reader toolbar buttons */
+  .kjb-reader-toolbar button {
+    font-family: 'EB Garamond','Cormorant Garamond','Merriweather',Georgia,serif;
+    letter-spacing: 0.015em;
+  }
+
   /* Mobile page-flip animation on chapter change */
   @keyframes kjb-flip-next {
     0%   { transform: perspective(1800px) rotateY(-78deg); transform-origin: left center; opacity: 0; }

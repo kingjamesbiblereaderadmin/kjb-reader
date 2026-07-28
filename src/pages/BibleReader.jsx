@@ -1393,7 +1393,7 @@ export default function BibleReader() {
   return (
     <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
       {!hideHeader && (
-        <div ref={topRef} className="print:hidden sticky top-0 z-[100] border-b border-border pb-4 pt-3 mb-8 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
+        <div ref={topRef} className="kjb-toolbar-strip print:hidden sticky top-0 z-[100] pb-4 pt-3 mb-8 relative -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12">
           <div
             onClickCapture={(e) => {
               // Tapping empty space inside the toolbar (the gaps/padding between
@@ -1406,7 +1406,7 @@ export default function BibleReader() {
             <div className="relative flex">
               <button
                 onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
-                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 touch-manipulation h-11 w-full"
+                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-[#3a2c1c] text-[#f3efe6] font-serif text-sm font-medium hover:opacity-90 transition-all duration-200 touch-manipulation h-11 w-full border border-[#5a4632]"
               >
                 <span className="truncate text-center">{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
                 <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showBookPicker ? 'rotate-90' : ''}`} />
