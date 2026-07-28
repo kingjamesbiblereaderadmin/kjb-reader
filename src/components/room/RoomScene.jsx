@@ -114,35 +114,24 @@ export default function RoomScene() {
       {/* Desk drawers (right side of desk) → Saved */}
       <Hotspot label="Saved Verses" to="/saved" style={{ right: '6%', bottom: '6%', width: '16%', height: '20%' }} />
 
-      {/* Daily verse — engraved wall plaque, brass picture light, cast shadow */}
-      <Hotspot label={verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'} onClick={openDailyVerse} style={{ left: '3%', top: '48%', width: '22%', height: '26%' }}>
-        <div className="absolute inset-0 flex flex-col items-center">
-          {/* brass picture light above the frame */}
-          <div className="absolute -top-[7%] left-1/2 -translate-x-1/2 w-[60%] h-[2px] rounded-full bg-[#b08d57]" />
-          <div className="absolute -top-[10%] left-1/2 -translate-x-1/2 w-[26%] h-[3%] rounded-b-[60%] bg-gradient-to-b from-[#c9a55c] to-[#8a6d3a]" />
-          {/* warm light wash falling on the frame */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[140%] rounded-md bg-amber-100/15 blur-xl pointer-events-none" />
-
-          {/* beveled walnut frame */}
-          <div className="relative mt-[2%] w-full flex-1 rounded-[3px] p-[5px] bg-gradient-to-br from-[#5b3d22] via-[#4a3018] to-[#2e1d11] shadow-[0_10px_22px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,220,170,0.18)]">
-            {/* inner gold bevel */}
-            <div className="w-full h-full rounded-[2px] p-[2px] bg-gradient-to-br from-[#caa45c] to-[#7a5a2e]">
-              {/* ivory mat with engraved verse */}
-              <div className="w-full h-full rounded-[1px] bg-gradient-to-b from-[#f6ecd2] to-[#e9dcbc] dark:from-[#2a2418] dark:to-[#211b12] px-2 py-1.5 text-left flex flex-col justify-center shadow-inner">
-                <p className="font-serif text-[9px] sm:text-[11px] leading-snug text-[#3a2e1f] dark:text-[#e3d6b8] line-clamp-4 italic">
-                  {verse?.text ? verse.text.slice(0, 120) : 'Loading today\u2019s verse\u2026'}
-                </p>
-                {/* brass reference plate */}
-                <div className="mt-1.5 self-center rounded-sm bg-gradient-to-b from-[#d9b65a] to-[#9a7430] px-2 py-[1px]">
-                  <span className="font-sans text-[8px] sm:text-[9px] font-bold tracking-[0.12em] text-[#2b1d0a]">
-                    {verse?.ref ? `${verse.ref.toUpperCase()} · KJB` : ''}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Hotspot>
+      {/* Daily verse — a floating UI card pinned in the corner (clearly an
+          overlay, not pretending to be part of the room photo) */}
+      <button
+        type="button"
+        onClick={openDailyVerse}
+        aria-label={verse?.ref ? `Today's verse: ${verse.ref}` : 'Daily verse'}
+        className="group absolute z-20 left-3 bottom-3 w-[min(58vw,15rem)] rounded-2xl bg-stone-900/55 backdrop-blur-md border border-white/15 px-4 py-3 text-left shadow-[0_8px_24px_rgba(0,0,0,0.45)] transition-transform duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer"
+      >
+        {/* pin */}
+        <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-amber-400 ring-2 ring-stone-900/40 shadow" />
+        <p className="font-sans text-[9px] font-bold uppercase tracking-[0.16em] text-amber-300/90 mb-1">Verse of the Day</p>
+        <p className="font-serif text-[11px] sm:text-xs leading-snug text-stone-100 line-clamp-3">
+          {verse?.text ? `\u201C${verse.text.slice(0, 110)}\u201D` : 'Loading today\u2019s verse\u2026'}
+        </p>
+        <p className="mt-1.5 font-sans text-[10px] font-semibold tracking-wide text-amber-200">
+          {verse?.ref ? `${verse.ref} · KJB` : ''}
+        </p>
+      </button>
 
       {/* ── title ── */}
       <div className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 text-center z-20">
