@@ -15,38 +15,38 @@ export default function BookSelector({ currentAbbr, onSelect, onClose, initialTe
       <button
         key={book.abbr}
         onClick={() => { onSelect(book, false, true); onClose(); }}
-        className={`w-full text-left px-5 py-2.5 font-serif text-[15px] transition-colors border-b border-[#c9bd9f]/70 last:border-b-0 ${
+        className={`w-full text-left px-4 py-2.5 text-sm font-sans transition-colors border-b border-border/60 last:border-b-0 ${
           active
-            ? 'bg-[#3a2c1c] text-[#f3efe6] font-semibold'
-            : 'hover:bg-[#e3d6b8] text-[#2D2622]'
+            ? 'bg-primary text-primary-foreground font-semibold'
+            : 'hover:bg-accent/10 text-foreground'
         }`}
       >
         <span>{book.name}</span>
-        <span className={`ml-2 text-xs ${active ? 'text-[#f3efe6]/70' : 'text-[#7a6f55]'}`}>{book.chapters} ch.</span>
+        <span className="ml-2 text-xs text-muted-foreground">{book.chapters} ch.</span>
       </button>
     );
   };
 
   return (
-    <div className="kjb-bible-page w-[95vw] max-w-md max-h-[78vh] flex flex-col relative !p-0">
+    <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[95vw] max-w-md max-h-[70vh] flex flex-col relative">
       {/* Testament tabs */}
-      <div className="grid grid-cols-2 border-b border-[#c9bd9f]">
+      <div className="grid grid-cols-2 gap-1 p-2 border-b border-border">
         <button
           onClick={() => setTab('old')}
-          className={`py-3 font-serif text-sm tracking-wide transition-colors ${
+          className={`py-2 rounded-lg font-sans text-sm font-semibold transition-colors ${
             tab === 'old'
-              ? 'bg-[#3a2c1c] text-[#f3efe6] font-semibold'
-              : 'text-[#2D2622] hover:bg-[#e3d6b8]'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground hover:bg-accent/10'
           }`}
         >
           Old Testament
         </button>
         <button
           onClick={() => setTab('new')}
-          className={`py-3 font-serif text-sm tracking-wide transition-colors border-l border-[#c9bd9f] ${
+          className={`py-2 rounded-lg font-sans text-sm font-semibold transition-colors ${
             tab === 'new'
-              ? 'bg-[#3a2c1c] text-[#f3efe6] font-semibold'
-              : 'text-[#2D2622] hover:bg-[#e3d6b8]'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground hover:bg-accent/10'
           }`}
         >
           New Testament
@@ -57,9 +57,9 @@ export default function BookSelector({ currentAbbr, onSelect, onClose, initialTe
         {/* Title Page for this testament */}
         <button
           onClick={() => { onSelect(titleBook, true, false); onClose(); }}
-          className="w-full text-left px-5 py-3.5 font-serif text-[15px] italic transition-colors hover:bg-[#e3d6b8] text-[#2D2622] border-b border-[#c9bd9f]"
+          className="w-full text-left px-4 py-3.5 text-sm font-serif transition-colors hover:bg-accent/10 font-medium text-foreground border-b border-border"
         >
-          <span>¶ Title Page</span>
+          <span>Title Page</span>
         </button>
         <div className="flex flex-col">
           {books.map((book) => renderBook(book))}

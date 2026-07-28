@@ -507,9 +507,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-black/10 rounded-2xl shadow-lg px-1 sm:px-3 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-4 pb-4'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer transition-all duration-300 hover:shadow-xl'}`} style={bgStyle}>
-      {/* Mute the bright gradient so the card blends with the home scene */}
-      {!hasCustomBg && <div className="absolute inset-0 bg-black/35 pointer-events-none rounded-2xl" aria-hidden="true" />}
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-1 sm:px-3 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-4 pb-4'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer transition-all duration-300 hover:shadow-xl'}`} style={bgStyle}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button
@@ -1003,7 +1001,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
           behind the content (for readability against a custom photo
           background) — the verse text, reference, and date always stay
           visible either way. */}
-      <div className="px-1 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full relative z-10">
+      <div className="px-1 pt-2 pb-2 text-center flex-1 flex flex-col w-full max-w-full">
         <div className={`flex-1 flex flex-col justify-center min-h-0 ${showVersePanel && hasCustomBg ? 'rounded-2xl bg-black/25 backdrop-blur-[2px] mx-1 xs:mx-3 px-2 xs:px-4 py-3' : ''}`}>
           <div className={`flex self-stretch items-center justify-center gap-3 xs:gap-6 mb-4 w-full px-2 xs:px-4 py-1.5 ${showButtons && !capturing ? 'mt-10' : 'mt-4'}`}>
             <span className="h-px flex-1 bg-current opacity-50" style={{ color: textColor }} />

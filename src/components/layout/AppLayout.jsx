@@ -7,8 +7,6 @@ import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { useBrowserZoom } from '@/hooks/useBrowserZoom';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
-import SceneBackground from '@/components/SceneBackground';
-import { sceneFor } from '@/lib/pageScenes';
 import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
@@ -64,8 +62,7 @@ const BOTTOM_NAV_SECONDARY = [
 ];
 
 export default function AppLayout() {
-  const location = useLocation();
-  const { pathname } = location;
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
@@ -299,7 +296,7 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-background via-accent/5 to-background">
+    <div className="h-screen bg-gradient-to-br from-background via-accent/5 to-background flex flex-col overflow-hidden">
       <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
           {/* Logo / Back Button */}
@@ -423,12 +420,9 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main id="kjb-scroll" className="flex-1 overflow-y-auto relative pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0">
-        <div key={reloadKey} className={`relative min-h-[70vh] ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
-          {sceneFor(pathname) && <SceneBackground image={sceneFor(pathname)} overlay={pathname === '/' ? 'bg-black/70' : undefined} />}
-          <div className="relative z-10">
-            <Outlet />
-          </div>
+      <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 relative">
+        <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
+          <Outlet />
         </div>
       </main>
 

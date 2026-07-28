@@ -99,8 +99,8 @@ export default function BibleReader() {
       if (v === 'true') return true;
       if (v === 'false') return false;
       if (localStorage.getItem('kjb-layout') === 'column') return true;
-      // Default: two-column (physical Bible look) on all screen sizes.
-      return true;
+      // Default: two-column on desktop, single-column on mobile.
+      return window.matchMedia('(min-width: 1024px)').matches;
     } catch { return false; }
   });
   const paragraphMode = flowMode === 'paragraph';
@@ -162,7 +162,7 @@ export default function BibleReader() {
 
   const getFontFamilyValue = (family) => {
     if (family === 'cursive') return "'Dancing Script', cursive";
-    if (family === 'serif') return "'EB Garamond', 'Crimson Text', 'Merriweather', 'Cormorant Garamond', Georgia, serif";
+    if (family === 'serif') return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
     if (family === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
     if (family === 'monospace') return "'Courier New', monospace";
     if (family === 'comic-sans') return "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', system-ui, sans-serif";
@@ -1176,25 +1176,6 @@ export default function BibleReader() {
 
   const resultViewRef = useRef('filter');
 
-  // Page-flip animation (mobile) — direction inferred from book/chapter order
-  const bookOrdinal = (abbr, chapter) => {
-    const idx = BIBLE_BOOKS.findIndex(b => b.abbr === abbr);
-    if (idx < 0) return 0;
-    let ord = 0;
-    for (let i = 0; i < idx; i++) ord += BIBLE_BOOKS[i].chapters;
-    return ord + (chapter || 0);
-  };
-  const [flipDir, setFlipDir] = useState('next');
-  const [flipKey, setFlipKey] = useState(0);
-  const [flipClass, setFlipClass] = useState('');
-  useEffect(() => {
-    if (flipKey === 0) return;
-    if (!isMobile()) return;
-    setFlipClass(flipDir === 'next' ? 'kjb-flip-next' : 'kjb-flip-prev');
-    const t = setTimeout(() => setFlipClass(''), 620);
-    return () => clearTimeout(t);
-  }, [flipKey, flipDir]);
-
   useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults, setGospelMode, setGospelResultIndex, setGospelTotalResults, setHighlightVerse);
 
   const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
@@ -1275,12 +1256,6 @@ export default function BibleReader() {
     const sameChapter = newAbbr === pos.abbr && newChapter === pos.chapter;
     const scroller = document.getElementById('kjb-scroll');
     const scrollY = scroller ? scroller.scrollTop : window.scrollY;
-    if (!sameChapter) {
-      const newOrd = bookOrdinal(newAbbr, newChapter);
-      const oldOrd = bookOrdinal(pos.abbr, pos.chapter);
-      setFlipDir(newOrd >= oldOrd ? 'next' : 'prev');
-      setFlipKey(k => k + 1);
-    }
     
     // ALWAYS save current reading position before ANY navigation
     // This is the key fix - we save BEFORE overwriting with special mode positions
@@ -1393,7 +1368,7 @@ export default function BibleReader() {
   return (
     <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
       {!hideHeader && (
-        <div ref={topRef} className="kjb-toolbar-strip print:hidden sticky top-0 z-[100] pb-4 pt-3 mb-8 relative -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12">
+        <div ref={topRef} className="print:hidden sticky top-0 z-[100] border-b border-border pb-4 pt-3 mb-8 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
           <div
             onClickCapture={(e) => {
               // Tapping empty space inside the toolbar (the gaps/padding between
@@ -1406,7 +1381,7 @@ export default function BibleReader() {
             <div className="relative flex">
               <button
                 onClick={() => { setShowBookPicker(p => !p); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
-                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-[#3a2c1c] text-[#f3efe6] font-serif text-sm font-medium hover:opacity-90 transition-all duration-200 touch-manipulation h-11 w-full border border-[#5a4632]"
+                className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 touch-manipulation h-11 w-full"
               >
                 <span className="truncate text-center">{isViewingTitlePage ? 'Title Page' : book.shortName}</span>
                 <ChevronRight className={`w-3 h-3 opacity-70 transition-transform duration-200 flex-shrink-0 ${showBookPicker ? 'rotate-90' : ''}`} />
@@ -1859,13 +1834,11 @@ export default function BibleReader() {
         </div>
       )}
 
-      <div className="kjb-bible-surface">
       <div 
         ref={readerContentRef}
-        className={`kjb-reader-content kjb-bible-page leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
+        className={`kjb-reader-content leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
         style={{ fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6', ...(fontFamily !== 'cursive' ? { fontFamily: getFontFamilyValue(fontFamily) } : {}) }}
       >
-        <div className={flipClass}>
         {loading && <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-accent" /></div>}
         {error && <div className="text-center py-16 text-destructive font-sans">{error}</div>}
         {!loading && !error && isViewingTitlePage && (
@@ -1909,11 +1882,6 @@ export default function BibleReader() {
             <p className={`kjb-colophon text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={colophon} searchTerm={highlightSection === 'colophon' ? searchTerm : null} /></p>
           </div>
         )}
-        </div>
-        {!loading && !error && verses.length > 0 && !isViewingTitlePage && (
-          <div className="kjb-page-number" style={{ fontSize: `${zoomLevel / 100 * 0.8}rem` }}>{pos.chapter}</div>
-        )}
-      </div>
       </div>
 
       {!loading && !error && ((pos.abbr === 'MAL' && pos.chapter === 4) || (pos.abbr === 'REV' && pos.chapter === 22)) && (
