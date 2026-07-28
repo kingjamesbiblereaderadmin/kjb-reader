@@ -18,7 +18,7 @@ export default function GospelPage() {
       <div className="fixed inset-0 bg-black/45" aria-hidden="true" />
 
       {/* whiteboard with the gospel layout on it */}
-      <div className="relative z-10 mx-auto max-w-3xl px-3 py-8">
+      <div className="relative z-10 mx-auto w-full max-w-[120rem] px-3 sm:px-6 py-8">
         <div className="rounded-2xl border-[6px] border-[#3a2c1c] bg-[#f3efe6] p-1.5 shadow-[0_18px_50px_rgba(0,0,0,0.6)]">
           <div
             className="rounded-lg bg-white/95 p-4 sm:p-7"
