@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, ChevronRight, FlaskConical, Armchair } from 'lucide-react';
+import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, ChevronRight, FlaskConical } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import QuickLinkCard from '@/components/home/QuickLinkCard';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import { detectIncognito } from '@/lib/incognito';
 
 const QUICK_LINKS = [
-  { path: '/room', icon: Armchair, label: 'The Study', desc: 'Step into the interactive room', iconGradient: 'from-amber-500 to-orange-600', fullSpan: true },
   { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', iconGradient: 'from-indigo-500 to-violet-600' },
   { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', iconGradient: 'from-blue-500 to-indigo-600' },
   { path: null, icon: Shuffle, label: '__RANDOM__', desc: 'Jump to a random chapter', iconGradient: 'from-violet-500 to-purple-600' },

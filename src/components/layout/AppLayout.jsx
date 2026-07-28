@@ -74,8 +74,6 @@ export default function AppLayout() {
   
   // Hide all layout chrome for legacy reader - it renders its own complete UI
   const isLegacy = pathname === '/legacy';
-  // The immersive study room is full-screen with no app shell
-  const isRoom = pathname === '/room';
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -229,7 +227,7 @@ export default function AppLayout() {
   // Reset the main scroll container to the top on every route change.
   // The reader (/read) manages its own scroll restoration, so skip it there.
   useEffect(() => {
-    if (pathname === '/read' || pathname === '/room') return;
+    if (pathname === '/read') return;
     const el = document.getElementById('kjb-scroll');
     if (el) el.scrollTo({ top: 0 });
   }, [pathname]);
@@ -302,7 +300,7 @@ export default function AppLayout() {
   return (
     <AutoUpdateHandler>
     <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-background via-accent/5 to-background">
-      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader || isRoom ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
           {/* Logo / Back Button */}
           {pathname === '/' ? (
@@ -425,33 +423,23 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main id="kjb-scroll" className={`flex-1 overflow-y-auto relative ${isRoom ? '' : 'pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0'}`}>
-        {isRoom ? (
-          <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
+      <main id="kjb-scroll" className="flex-1 overflow-y-auto relative pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0">
+        <div key={reloadKey} className={`relative min-h-[70vh] ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
+          {sceneFor(pathname) && <SceneBackground image={sceneFor(pathname)} />}
+          <div className="relative z-10">
             <Outlet />
           </div>
-        ) : (
-          <div key={reloadKey} className={`relative min-h-[70vh] ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
-            {sceneFor(pathname) && <SceneBackground image={sceneFor(pathname)} />}
-            <div className="relative z-10">
-              <Outlet />
-            </div>
-          </div>
-        )}
+        </div>
       </main>
 
-      {!isRoom && (
-        <>
-          <BottomNav pathname={pathname} navigate={navigate} />
+      <BottomNav pathname={pathname} navigate={navigate} />
 
-          {/* Scroll to top button - appears on all pages when scrolling */}
-          <ScrollToTop />
+      {/* Scroll to top button - appears on all pages when scrolling */}
+      <ScrollToTop />
 
-          <ProgressBar />
+      <ProgressBar />
 
-          <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
-        </>
-      )}
+      <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
 
       {showShortcuts && <ShortcutsModal onClose={() => setShowShortcuts(false)} />}
     </div>
