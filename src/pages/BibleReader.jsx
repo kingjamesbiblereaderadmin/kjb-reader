@@ -99,8 +99,8 @@ export default function BibleReader() {
       if (v === 'true') return true;
       if (v === 'false') return false;
       if (localStorage.getItem('kjb-layout') === 'column') return true;
-      // Default: two-column on desktop, single-column on mobile.
-      return window.matchMedia('(min-width: 1024px)').matches;
+      // Default: two-column (physical Bible look) on all screen sizes.
+      return true;
     } catch { return false; }
   });
   const paragraphMode = flowMode === 'paragraph';
@@ -162,7 +162,7 @@ export default function BibleReader() {
 
   const getFontFamilyValue = (family) => {
     if (family === 'cursive') return "'Dancing Script', cursive";
-    if (family === 'serif') return "'Merriweather', 'Cormorant Garamond', Georgia, serif";
+    if (family === 'serif') return "'EB Garamond', 'Crimson Text', 'Merriweather', 'Cormorant Garamond', Georgia, serif";
     if (family === 'sans-serif') return "'Inter', system-ui, -apple-system, sans-serif";
     if (family === 'monospace') return "'Courier New', monospace";
     if (family === 'comic-sans') return "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', system-ui, sans-serif";
@@ -1836,7 +1836,7 @@ export default function BibleReader() {
 
       <div 
         ref={readerContentRef}
-        className={`kjb-reader-content leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
+        className={`kjb-reader-content kjb-bible-page leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
         style={{ fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6', ...(fontFamily !== 'cursive' ? { fontFamily: getFontFamilyValue(fontFamily) } : {}) }}
       >
         {loading && <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-accent" /></div>}
