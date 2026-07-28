@@ -114,15 +114,21 @@ export default function RoomScene() {
       {/* Desk drawers (right side of desk) → Saved */}
       <Hotspot label="Saved Verses" to="/saved" style={{ right: '6%', bottom: '6%', width: '16%', height: '20%' }} />
 
-      {/* Daily-verse note pinned to the lower-left desk edge */}
-      <Hotspot label={verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'} onClick={openDailyVerse} style={{ left: '3%', bottom: '3%', width: '22%' }}>
-        <div className="absolute bottom-0 left-0 right-0 rounded-lg bg-[#fdf6e3]/95 dark:bg-[#2e281c]/95 border border-[#cdbfa0] shadow-xl px-3 py-2 text-left backdrop-blur-sm">
-          <p className="font-serif text-[11px] sm:text-xs leading-snug text-[#2b2620] dark:text-[#e8dfc9] line-clamp-3">
-            {verse?.text ? verse.text.slice(0, 110) : 'Loading today\u2019s verse\u2026'}
-          </p>
-          <p className="mt-1 font-sans text-[10px] font-semibold text-amber-700 dark:text-amber-400">
-            {verse?.ref ? `${verse.ref} (KJB)` : ''}
-          </p>
+      {/* Daily verse hung on the wall like a framed plaque */}
+      <Hotspot label={verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'} onClick={openDailyVerse} style={{ left: '4%', top: '50%', width: '21%', height: '24%' }}>
+        <div className="absolute inset-0 flex flex-col items-center">
+          {/* picture wire + nail */}
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-px h-3 bg-stone-100/50" />
+          <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-stone-200/70 shadow" />
+          {/* frame */}
+          <div className="mt-2 w-full flex-1 rounded-md border-[5px] border-[#6b4a2e] dark:border-[#3a2814] bg-[#fdf6e3] dark:bg-[#2e281c] shadow-[0_8px_20px_rgba(0,0,0,0.45)] p-2 text-left flex flex-col justify-center">
+            <p className="font-serif text-[10px] sm:text-[11px] leading-snug text-[#2b2620] dark:text-[#e8dfc9] line-clamp-4">
+              {verse?.text ? `\u201C${verse.text.slice(0, 120)}\u201D` : 'Loading today\u2019s verse\u2026'}
+            </p>
+            <p className="mt-1.5 font-sans text-[9px] sm:text-[10px] font-semibold tracking-wide text-amber-700 dark:text-amber-400">
+              {verse?.ref ? `\u2014 ${verse.ref} (KJB)` : ''}
+            </p>
+          </div>
         </div>
       </Hotspot>
 
