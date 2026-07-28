@@ -37,8 +37,8 @@ function Hotspot({ label, to, onClick, style, children }) {
       style={style}
       className="group absolute rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-1 transition-transform duration-200 hover:scale-[1.03] active:scale-95 cursor-pointer"
     >
-      {/* hover wash + ring so users know it's tappable */}
-      <span className="absolute inset-0 rounded-xl bg-amber-100/0 group-hover:bg-amber-100/10 ring-1 ring-inset ring-white/0 group-hover:ring-white/40 transition-all duration-200" />
+      {/* persistent faint hint + hover wash so users can tell objects are tappable */}
+      <span className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/15 group-hover:ring-white/60 group-hover:bg-amber-100/10 transition-all duration-200" />
       {children}
       <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 z-30 whitespace-nowrap rounded-md bg-stone-900/85 px-2.5 py-1 text-[11px] font-sans font-semibold tracking-wide text-amber-50 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 shadow-lg">
         {label}
@@ -87,31 +87,32 @@ export default function RoomScene() {
       {/* subtle vignette for depth */}
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(0,0,0,0.35) 100%)' }} />
 
-      {/* ── hotspots, positioned over the natural objects ── */}
+      {/* ── hotspots, positioned over the actual objects in the photo ── */}
 
-      {/* Stained-glass window → Gospel */}
-      <Hotspot label="Gospel" to="/gospel" style={{ left: '3%', top: '5%', width: '24%', height: '40%' }} />
+      {/* Stained-glass window (left-back wall) → Gospel */}
+      <Hotspot label="Gospel" to="/gospel" style={{ left: '3%', top: '7%', width: '22%', height: '40%' }} />
 
-      {/* Picture frames → Resources */}
-      <Hotspot label="Resources" to="/resources" style={{ left: '37%', top: '9%', width: '15%', height: '17%' }} />
+      {/* Two framed pictures (centre-back wall) → Resources */}
+      <Hotspot label="Resources" to="/resources" style={{ left: '28%', top: '12%', width: '12%', height: '16%' }} />
+      <Hotspot label="Resources" to="/resources" style={{ left: '41%', top: '14%', width: '9%', height: '13%' }} />
 
-      {/* Wall clock → Settings */}
-      <Hotspot label="Settings" to="/settings" style={{ left: '54%', top: '6%', width: '12%', height: '16%' }} />
+      {/* Wall clock (right of artwork, left of bookshelf) → Settings */}
+      <Hotspot label="Settings" to="/settings" style={{ left: '52%', top: '9%', width: '10%', height: '14%' }} />
 
-      {/* Bookshelf → Contents */}
-      <Hotspot label="Contents" to="/contents" style={{ right: '3%', top: '4%', width: '27%', height: '52%' }} />
+      {/* Tall bookshelf (right side) → Contents */}
+      <Hotspot label="Contents" to="/contents" style={{ right: '3%', top: '6%', width: '25%', height: '52%' }} />
 
-      {/* Notebook → About */}
-      <Hotspot label="About" to="/about" style={{ left: '14%', bottom: '20%', width: '13%', height: '18%' }} />
+      {/* Leather notebook (left of Bible on desk) → About */}
+      <Hotspot label="About" to="/about" style={{ left: '17%', bottom: '22%', width: '13%', height: '16%' }} />
 
-      {/* Open Bible → Read (centerpiece) */}
-      <Hotspot label="Read the Bible" to="/read" style={{ left: '30%', bottom: '16%', width: '32%', height: '26%' }} />
+      {/* Open Bible (centre of desk, centerpiece) → Read */}
+      <Hotspot label="Read the Bible" to="/read" style={{ left: '32%', bottom: '17%', width: '28%', height: '22%' }} />
 
-      {/* Desk lamp → toggle day/night */}
-      <Hotspot label={isDark ? 'Turn lamp on' : 'Turn lamp off'} onClick={toggleTheme} style={{ right: '38%', bottom: '18%', width: '14%', height: '24%' }} />
+      {/* Banker's lamp (right of Bible) → toggle day/night */}
+      <Hotspot label={isDark ? 'Turn lamp on' : 'Turn lamp off'} onClick={toggleTheme} style={{ left: '61%', bottom: '20%', width: '13%', height: '24%' }} />
 
-      {/* Drawer cabinet → Saved */}
-      <Hotspot label="Saved Verses" to="/saved" style={{ right: '4%', bottom: '2%', width: '17%', height: '18%' }} />
+      {/* Desk drawers (right side of desk) → Saved */}
+      <Hotspot label="Saved Verses" to="/saved" style={{ right: '6%', bottom: '6%', width: '16%', height: '20%' }} />
 
       {/* Daily-verse note pinned to the lower-left desk edge */}
       <Hotspot label={verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'} onClick={openDailyVerse} style={{ left: '3%', bottom: '3%', width: '22%' }}>
@@ -130,6 +131,17 @@ export default function RoomScene() {
         <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-wide text-stone-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">The Study</h1>
         <p className="font-sans text-[11px] sm:text-xs text-stone-200/90 mt-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]">Tap anything to begin</p>
       </div>
+
+      {/* floating exit — back to classic home, no full shell needed */}
+      <button
+        type="button"
+        onClick={() => navigate('/')}
+        aria-label="Exit the study"
+        title="Exit to Home"
+        className="absolute top-3 left-3 z-30 flex items-center justify-center w-9 h-9 rounded-full bg-stone-900/40 hover:bg-stone-900/60 backdrop-blur-sm border border-white/20 text-amber-50 transition-colors cursor-pointer"
+      >
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+      </button>
     </div>
   );
 }

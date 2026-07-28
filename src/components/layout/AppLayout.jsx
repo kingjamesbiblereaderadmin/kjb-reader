@@ -71,6 +71,8 @@ export default function AppLayout() {
   
   // Hide all layout chrome for legacy reader - it renders its own complete UI
   const isLegacy = pathname === '/legacy';
+  // The immersive study room is full-screen with no app shell
+  const isRoom = pathname === '/room';
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -297,7 +299,7 @@ export default function AppLayout() {
   return (
     <AutoUpdateHandler>
     <div className="h-screen bg-gradient-to-br from-background via-accent/5 to-background flex flex-col overflow-hidden">
-      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader || isRoom ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
           {/* Logo / Back Button */}
           {pathname === '/' ? (
@@ -420,7 +422,7 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 relative">
+      <main id="kjb-scroll" className={`flex-1 overflow-y-auto relative ${isRoom ? '' : 'pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0'}`}>
         {pathname === '/read' || pathname === '/room' ? (
           <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
             <Outlet />
@@ -434,14 +436,18 @@ export default function AppLayout() {
         )}
       </main>
 
-      <BottomNav pathname={pathname} navigate={navigate} />
+      {!isRoom && (
+        <>
+          <BottomNav pathname={pathname} navigate={navigate} />
 
-      {/* Scroll to top button - appears on all pages when scrolling */}
-      <ScrollToTop />
+          {/* Scroll to top button - appears on all pages when scrolling */}
+          <ScrollToTop />
 
-      <ProgressBar />
+          <ProgressBar />
 
-      <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
+          <DesktopFooter navigate={navigate} setMenuOpen={setMenuOpen} />
+        </>
+      )}
 
       {showShortcuts && <ShortcutsModal onClose={() => setShowShortcuts(false)} />}
     </div>
