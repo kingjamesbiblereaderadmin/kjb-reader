@@ -36,6 +36,7 @@ const loaders = {
   Terms: () => import('@/pages/TermsOfServicePage').catch((err) => { console.error('Failed to load TermsOfServicePage:', err); throw err; }),
   Salvation: () => import('@/pages/SalvationPage').catch((err) => { console.error('Failed to load SalvationPage:', err); throw err; }),
   DiscordInvite: () => import('@/pages/DiscordInvitePage.jsx').catch((err) => { console.error('Failed to load DiscordInvitePage:', err); throw err; }),
+  StudyRoom: () => import('@/pages/StudyRoom').catch((err) => { console.error('Failed to load StudyRoom:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -59,6 +60,7 @@ const LandingPage = lazy(loaders.Landing);
 const TermsOfServicePage = lazy(loaders.Terms);
 const SalvationPage = lazy(loaders.Salvation);
 const DiscordInvitePage = lazy(loaders.DiscordInvite);
+const StudyRoom = lazy(loaders.StudyRoom);
 
 
 const getLoaderForPath = (pathname) => {
@@ -259,6 +261,7 @@ const AuthenticatedApp = () => {
               <Route path="/manifest-screenshots" element={<Suspense fallback={<RouteLoader />}><FadeIn><ManifestScreenshots /></FadeIn></Suspense>} />
               <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
               <Route path="/dev-tools" element={<Suspense fallback={<RouteLoader />}><FadeIn><DevToolsPage /></FadeIn></Suspense>} />
+              <Route path="/room" element={<Suspense fallback={<RouteLoader />}><FadeIn><StudyRoom /></FadeIn></Suspense>} />
             </Route>
             <Route path="/bible.txt" element={<Suspense fallback={null}><BibleTxt /></Suspense>} />
             <Route path="*" element={<PageNotFound />} />

@@ -224,7 +224,7 @@ export default function AppLayout() {
   // Reset the main scroll container to the top on every route change.
   // The reader (/read) manages its own scroll restoration, so skip it there.
   useEffect(() => {
-    if (pathname === '/read') return;
+    if (pathname === '/read' || pathname === '/room') return;
     const el = document.getElementById('kjb-scroll');
     if (el) el.scrollTo({ top: 0 });
   }, [pathname]);
@@ -421,7 +421,7 @@ export default function AppLayout() {
       </header>
 
       <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 relative">
-        {pathname === '/read' ? (
+        {pathname === '/read' || pathname === '/room' ? (
           <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
             <Outlet />
           </div>
