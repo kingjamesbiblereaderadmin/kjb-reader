@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Heart, BookMarked, Library, Info, BookOpen, Settings, Bookmark, Lightbulb,
@@ -6,6 +6,7 @@ import {
 import { useTheme } from '@/lib/themeContext';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
+import RoomDailyVerseCard from './RoomDailyVerseCard';
 
 /**
  * Interactive cozy study-room scene. A photorealistic room image is the
@@ -51,8 +52,6 @@ export default function RoomScene() {
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const verse = useMemo(() => getDailyVerse(), []);
-  // The user's custom daily-verse background image, shown inside the painting.
-  const [bgImage] = useState(() => { try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; } });
 
   const openDailyVerse = () => {
     if (!verse || verse.ref === 'Offline Mode' || !verse.abbr) return;
@@ -113,21 +112,9 @@ export default function RoomScene() {
           className="pointer-events-none absolute inset-0 rounded-sm transition-shadow duration-200 group-hover:shadow-[0_2px_14px_rgba(0,0,0,0.7)]"
           style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.6), inset 0 0 0 3px rgba(176,136,60,0.6), inset 0 0 0 5px rgba(0,0,0,0.4), inset 0 0 0 6px rgba(176,136,60,0.35)' }}
         />
-        {/* painted canvas — the daily-verse image, treated like an oil painting */}
-        <span
-          className="pointer-events-none absolute inset-[14%] overflow-hidden"
-          style={bgImage
-            ? { backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'sepia(0.28) saturate(1.15) contrast(0.95) brightness(0.9)' }
-            : { background: 'linear-gradient(135deg, #3a2c1c 0%, #221710 60%, #120c08 100%)' }
-          }
-        />
-        {/* painted vignette */}
-        <span className="pointer-events-none absolute inset-[14%]" style={{ background: 'radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(10,6,4,0.5) 100%)' }} />
-        <span className="relative z-10 px-1 font-serif italic text-[8px] sm:text-[9px] leading-tight text-amber-50/95 line-clamp-4 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-          {verse?.text ? `\u201C${verse.text.slice(0, 110)}\u201D` : 'Loading\u2026'}
-        </span>
-        <span className="relative z-10 mt-1 font-sans text-[7px] sm:text-[8px] font-bold tracking-wide text-amber-300 drop-shadow">
-          {verse?.ref ? `${verse.ref} · KJB` : ''}
+        {/* the Verse-of-the-Day card portrait, clipped inside the frame */}
+        <span className="pointer-events-none absolute inset-[6px] overflow-hidden rounded-sm">
+          <RoomDailyVerseCard />
         </span>
         <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-stone-900/85 px-2.5 py-1 text-[11px] font-sans font-semibold tracking-wide text-amber-50 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 shadow-lg">
           {verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'}
