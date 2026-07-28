@@ -507,7 +507,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
   };
 
   return (
-    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-border rounded-2xl shadow-lg px-1 sm:px-3 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-4 pb-4'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer transition-all duration-300 hover:shadow-xl'}`} style={bgStyle}>
+    <div ref={verseRef} onClick={(e) => { if (!uploadingComplete && !showLightbox) onClick(e); }} className={`w-full min-h-[300px] ${gradientClass} border border-black/20 rounded-2xl shadow-2xl ring-1 ring-white/15 px-1 sm:px-3 text-center text-white relative flex flex-col ${capturing ? 'pt-20 pb-8' : 'pt-4 pb-4'} ${uploadingComplete ? 'cursor-default' : 'cursor-pointer transition-all duration-300 hover:shadow-xl'}`} style={bgStyle}>
       {/* Notification bell indicator button */}
       {showButtons && onToggleNotif && (
         <button

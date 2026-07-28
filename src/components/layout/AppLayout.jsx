@@ -425,7 +425,7 @@ export default function AppLayout() {
 
       <main id="kjb-scroll" className="flex-1 overflow-y-auto relative pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0">
         <div key={reloadKey} className={`relative min-h-[70vh] ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
-          {sceneFor(pathname) && <SceneBackground image={sceneFor(pathname)} />}
+          {sceneFor(pathname) && <SceneBackground image={sceneFor(pathname)} overlay={pathname === '/' ? 'bg-black/70' : undefined} />}
           <div className="relative z-10">
             <Outlet />
           </div>
