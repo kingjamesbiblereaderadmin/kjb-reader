@@ -421,9 +421,17 @@ export default function AppLayout() {
       </header>
 
       <main id="kjb-scroll" className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0 relative">
-        <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
-          <Outlet />
-        </div>
+        {pathname === '/read' ? (
+          <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
+            <Outlet />
+          </div>
+        ) : (
+          <div key={reloadKey} className={`kjb-bible-surface ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className="kjb-bible-page min-h-[70vh]">
+              <Outlet />
+            </div>
+          </div>
+        )}
       </main>
 
       <BottomNav pathname={pathname} navigate={navigate} />
