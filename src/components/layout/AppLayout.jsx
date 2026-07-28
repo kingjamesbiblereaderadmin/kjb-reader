@@ -74,10 +74,22 @@ export default function AppLayout() {
   const isLegacy = pathname === '/legacy';
   // The immersive study room is full-screen with no app shell
   const isRoom = pathname === '/room';
+  // The reader rebuilds its own URL on every position change (useReaderUrlSync),
+  // which drops location.state — so we also keep a session flag that survives
+  // those replace-navigations. Entering the room sets it; returning home clears it.
+  const [fromRoomFlag, setFromRoomFlag] = useState(() => {
+    try { return sessionStorage.getItem('kjb-from-room') === '1'; } catch { return false; }
+  });
+  useEffect(() => {
+    try {
+      if (pathname === '/room') { sessionStorage.setItem('kjb-from-room', '1'); setFromRoomFlag(true); }
+      else if (pathname === '/') { sessionStorage.removeItem('kjb-from-room'); setFromRoomFlag(false); }
+    } catch {}
+  }, [pathname]);
   // Pages opened from the Study Room render shell-less on the room's dark
   // ambient backdrop, so they feel like part of the study rather than the
   // regular app shell (header / footer / bottom nav).
-  const isFromRoom = !!location.state?.fromRoom && !isRoom;
+  const isFromRoom = !isRoom && (!!location.state?.fromRoom || fromRoomFlag);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);

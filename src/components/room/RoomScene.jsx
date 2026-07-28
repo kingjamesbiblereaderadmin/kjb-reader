@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Heart, BookMarked, Library, Info, BookOpen, Settings, Bookmark, Lightbulb, Sparkles,
+  Heart, BookMarked, Library, Info, BookOpen, Settings, Bookmark, Lightbulb,
 } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { getDailyVerse } from '@/lib/dailyVerse';
@@ -51,6 +51,8 @@ export default function RoomScene() {
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const verse = useMemo(() => getDailyVerse(), []);
+  // The user's custom daily-verse background image, shown inside the painting.
+  const [bgImage] = useState(() => { try { return localStorage.getItem('kjb-daily-verse-bg') || ''; } catch { return ''; } });
 
   const openDailyVerse = () => {
     if (!verse || verse.ref === 'Offline Mode' || !verse.abbr) return;
@@ -91,7 +93,7 @@ export default function RoomScene() {
       <Pin icon={Heart} label="Gospel" to="/gospel" state={{ fromRoom: true }} style={{ left: '13%', top: '24%' }} />
       <Pin icon={Settings} label="Settings" to="/settings" state={{ fromRoom: true }} style={{ left: '60%', top: '7%' }} />
       <Pin icon={Library} label="Contents" to="/contents" state={{ fromRoom: true }} style={{ left: '89%', top: '30%' }} />
-      <Pin icon={Info} label="About" to="/about" state={{ fromRoom: true }} style={{ left: '50%', bottom: '8%' }} />
+      <Pin icon={Info} label="About" to="/about" state={{ fromRoom: true }} style={{ left: '21%', bottom: '27%' }} />
       <Pin icon={BookOpen} label="Read" to="/read" state={{ fromRoom: true }} style={{ left: '46%', bottom: '23%' }} />
       <Pin icon={Lightbulb} label={isDark ? 'Lamp On' : 'Lamp Off'} onClick={toggleTheme} style={{ left: '67%', bottom: '25%' }} />
       <Pin icon={Bookmark} label="Saved" to="/saved" state={{ fromRoom: true }} style={{ left: '89%', bottom: '13%' }} />
@@ -104,21 +106,32 @@ export default function RoomScene() {
         aria-label={verse?.ref ? `Today's verse: ${verse.ref}` : 'Daily verse'}
         title={verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'}
         className="group absolute z-20 flex flex-col items-center justify-center text-center"
-        style={{ left: '37%', top: '9%', width: '17%', height: '21%' }}
+        style={{ left: '36%', top: '8%', width: '19%', height: '24%' }}
       >
-        <span className="absolute inset-0 rounded-md ring-1 ring-inset ring-amber-200/30 group-hover:ring-amber-200/80 transition" />
-        <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-stone-900/85 px-2.5 py-1 text-[11px] font-sans font-semibold tracking-wide text-amber-50 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 shadow-lg">
+        {/* ornate gold frame around the painting */}
+        <span
+          className="pointer-events-none absolute inset-0 rounded-sm transition-shadow duration-200 group-hover:shadow-[0_2px_14px_rgba(0,0,0,0.7)]"
+          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.6), inset 0 0 0 3px rgba(176,136,60,0.6), inset 0 0 0 5px rgba(0,0,0,0.4), inset 0 0 0 6px rgba(176,136,60,0.35)' }}
+        />
+        {/* painted canvas — the daily-verse image, treated like an oil painting */}
+        <span
+          className="pointer-events-none absolute inset-[14%] overflow-hidden"
+          style={bgImage
+            ? { backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'sepia(0.28) saturate(1.15) contrast(0.95) brightness(0.9)' }
+            : { background: 'linear-gradient(135deg, #3a2c1c 0%, #221710 60%, #120c08 100%)' }
+          }
+        />
+        {/* painted vignette */}
+        <span className="pointer-events-none absolute inset-[14%]" style={{ background: 'radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(10,6,4,0.5) 100%)' }} />
+        <span className="relative z-10 px-1 font-serif italic text-[8px] sm:text-[9px] leading-tight text-amber-50/95 line-clamp-4 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+          {verse?.text ? `\u201C${verse.text.slice(0, 110)}\u201D` : 'Loading\u2026'}
+        </span>
+        <span className="relative z-10 mt-1 font-sans text-[7px] sm:text-[8px] font-bold tracking-wide text-amber-300 drop-shadow">
+          {verse?.ref ? `${verse.ref} · KJB` : ''}
+        </span>
+        <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-stone-900/85 px-2.5 py-1 text-[11px] font-sans font-semibold tracking-wide text-amber-50 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 shadow-lg">
           {verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'}
         </span>
-        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-stone-900/55 backdrop-blur-md border border-amber-200/40 text-amber-50 shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-transform duration-200 group-hover:scale-110 group-hover:bg-amber-500/80 group-hover:text-stone-900">
-          <Sparkles className="w-3.5 h-3.5" />
-        </span>
-        <p className="mt-1 font-serif text-[9px] sm:text-[10px] leading-tight text-stone-100/95 line-clamp-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-          {verse?.text ? `\u201C${verse.text.slice(0, 90)}\u201D` : 'Loading\u2026'}
-        </p>
-        <p className="mt-0.5 font-sans text-[8px] sm:text-[9px] font-bold tracking-wide text-amber-200 drop-shadow">
-          {verse?.ref ? `${verse.ref} · KJB` : ''}
-        </p>
       </button>
 
       {/* ── title ── */}
