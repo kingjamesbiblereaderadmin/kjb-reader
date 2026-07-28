@@ -20,7 +20,7 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
  *  daily-verse note   → open today's verse in the reader
  */
 
-const ROOM_IMAGE = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/944ee7259_generated_image.png';
+const ROOM_IMAGE = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ca8b4dc41_generated_image.png';
 
 function Hotspot({ label, to, onClick, style, children }) {
   const navigate = useNavigate();
@@ -90,29 +90,28 @@ export default function RoomScene() {
       {/* ── hotspots, positioned over the actual objects in the photo ── */}
 
       {/* Stained-glass window (left-back wall) → Gospel */}
-      <Hotspot label="Gospel" to="/gospel" style={{ left: '3%', top: '7%', width: '22%', height: '40%' }} />
+      <Hotspot label="Gospel" to="/gospel" style={{ left: '2%', top: '6%', width: '22%', height: '42%' }} />
 
-      {/* Two framed pictures (centre-back wall) → Resources */}
-      <Hotspot label="Resources" to="/resources" style={{ left: '28%', top: '12%', width: '12%', height: '16%' }} />
-      <Hotspot label="Resources" to="/resources" style={{ left: '41%', top: '14%', width: '9%', height: '13%' }} />
+      {/* Framed picture (centre-back wall) → Resources */}
+      <Hotspot label="Resources" to="/resources" style={{ left: '36%', top: '10%', width: '16%', height: '20%' }} />
 
       {/* Wall clock (right of artwork, left of bookshelf) → Settings */}
-      <Hotspot label="Settings" to="/settings" style={{ left: '52%', top: '9%', width: '10%', height: '14%' }} />
+      <Hotspot label="Settings" to="/settings" style={{ left: '55%', top: '8%', width: '11%', height: '15%' }} />
 
       {/* Tall bookshelf (right side) → Contents */}
-      <Hotspot label="Contents" to="/contents" style={{ right: '3%', top: '6%', width: '25%', height: '52%' }} />
+      <Hotspot label="Contents" to="/contents" style={{ right: '2%', top: '5%', width: '24%', height: '55%' }} />
 
       {/* Leather notebook (left of Bible on desk) → About */}
-      <Hotspot label="About" to="/about" style={{ left: '17%', bottom: '22%', width: '13%', height: '16%' }} />
+      <Hotspot label="About" to="/about" style={{ left: '16%', bottom: '20%', width: '14%', height: '16%' }} />
 
       {/* Open Bible (centre of desk, centerpiece) → Read */}
-      <Hotspot label="Read the Bible" to="/read" style={{ left: '32%', bottom: '17%', width: '28%', height: '22%' }} />
+      <Hotspot label="Read the Bible" to="/read" style={{ left: '33%', bottom: '16%', width: '26%', height: '22%' }} />
 
       {/* Banker's lamp (right of Bible) → toggle day/night */}
-      <Hotspot label={isDark ? 'Turn lamp on' : 'Turn lamp off'} onClick={toggleTheme} style={{ left: '61%', bottom: '20%', width: '13%', height: '24%' }} />
+      <Hotspot label={isDark ? 'Turn lamp on' : 'Turn lamp off'} onClick={toggleTheme} style={{ left: '60%', bottom: '18%', width: '13%', height: '24%' }} />
 
       {/* Desk drawers (right side of desk) → Saved */}
-      <Hotspot label="Saved Verses" to="/saved" style={{ right: '6%', bottom: '6%', width: '16%', height: '20%' }} />
+      <Hotspot label="Saved Verses" to="/saved" style={{ right: '4%', bottom: '4%', width: '17%', height: '18%' }} />
 
       {/* Daily verse — a floating UI card pinned in the corner (clearly an
           overlay, not pretending to be part of the room photo) */}
