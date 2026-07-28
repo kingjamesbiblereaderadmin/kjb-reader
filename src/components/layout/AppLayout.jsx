@@ -61,6 +61,22 @@ const BOTTOM_NAV_SECONDARY = [
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
+function BackToStudyButton() {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      onClick={() => navigate('/room')}
+      aria-label="Back to the Study"
+      title="Back to the Study"
+      className="fixed top-3 left-3 z-[60] flex items-center gap-1.5 px-3 h-9 rounded-full bg-stone-900/50 hover:bg-stone-900/70 backdrop-blur-sm border border-white/15 text-amber-50 transition-colors cursor-pointer"
+    >
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+      <span className="font-sans text-xs font-medium">Study</span>
+    </button>
+  );
+}
+
 export default function AppLayout() {
   const location = useLocation();
   const { pathname } = location;
@@ -440,22 +456,18 @@ export default function AppLayout() {
       </header>
 
       <main id="kjb-scroll" className={`flex-1 overflow-y-auto relative ${isRoom || isFromRoom ? '' : 'pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0'}`}>
-        {pathname === '/read' || isRoom ? (
+        {isRoom ? (
           <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
+            <Outlet />
+          </div>
+        ) : pathname === '/read' ? (
+          <div key={reloadKey} className={`relative ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
+            {isFromRoom && <BackToStudyButton />}
             <Outlet />
           </div>
         ) : isFromRoom ? (
           <div key={reloadKey} className={`relative min-h-[70vh] ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
-            <button
-              type="button"
-              onClick={() => navigate('/room')}
-              aria-label="Back to the Study"
-              title="Back to the Study"
-              className="fixed top-3 left-3 z-30 flex items-center gap-1.5 px-3 h-9 rounded-full bg-stone-900/50 hover:bg-stone-900/70 backdrop-blur-sm border border-white/15 text-amber-50 transition-colors cursor-pointer"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
-              <span className="font-sans text-xs font-medium">Study</span>
-            </button>
+            <BackToStudyButton />
             <Outlet />
           </div>
         ) : (
