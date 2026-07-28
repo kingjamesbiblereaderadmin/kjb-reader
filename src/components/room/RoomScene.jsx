@@ -114,20 +114,32 @@ export default function RoomScene() {
       {/* Desk drawers (right side of desk) → Saved */}
       <Hotspot label="Saved Verses" to="/saved" style={{ right: '6%', bottom: '6%', width: '16%', height: '20%' }} />
 
-      {/* Daily verse hung on the wall like a framed plaque */}
-      <Hotspot label={verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'} onClick={openDailyVerse} style={{ left: '4%', top: '50%', width: '21%', height: '24%' }}>
+      {/* Daily verse — engraved wall plaque, brass picture light, cast shadow */}
+      <Hotspot label={verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'} onClick={openDailyVerse} style={{ left: '3%', top: '48%', width: '22%', height: '26%' }}>
         <div className="absolute inset-0 flex flex-col items-center">
-          {/* picture wire + nail */}
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-px h-3 bg-stone-100/50" />
-          <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-stone-200/70 shadow" />
-          {/* frame */}
-          <div className="mt-2 w-full flex-1 rounded-md border-[5px] border-[#6b4a2e] dark:border-[#3a2814] bg-[#fdf6e3] dark:bg-[#2e281c] shadow-[0_8px_20px_rgba(0,0,0,0.45)] p-2 text-left flex flex-col justify-center">
-            <p className="font-serif text-[10px] sm:text-[11px] leading-snug text-[#2b2620] dark:text-[#e8dfc9] line-clamp-4">
-              {verse?.text ? `\u201C${verse.text.slice(0, 120)}\u201D` : 'Loading today\u2019s verse\u2026'}
-            </p>
-            <p className="mt-1.5 font-sans text-[9px] sm:text-[10px] font-semibold tracking-wide text-amber-700 dark:text-amber-400">
-              {verse?.ref ? `\u2014 ${verse.ref} (KJB)` : ''}
-            </p>
+          {/* brass picture light above the frame */}
+          <div className="absolute -top-[7%] left-1/2 -translate-x-1/2 w-[60%] h-[2px] rounded-full bg-[#b08d57]" />
+          <div className="absolute -top-[10%] left-1/2 -translate-x-1/2 w-[26%] h-[3%] rounded-b-[60%] bg-gradient-to-b from-[#c9a55c] to-[#8a6d3a]" />
+          {/* warm light wash falling on the frame */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[140%] rounded-md bg-amber-100/15 blur-xl pointer-events-none" />
+
+          {/* beveled walnut frame */}
+          <div className="relative mt-[2%] w-full flex-1 rounded-[3px] p-[5px] bg-gradient-to-br from-[#5b3d22] via-[#4a3018] to-[#2e1d11] shadow-[0_10px_22px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,220,170,0.18)]">
+            {/* inner gold bevel */}
+            <div className="w-full h-full rounded-[2px] p-[2px] bg-gradient-to-br from-[#caa45c] to-[#7a5a2e]">
+              {/* ivory mat with engraved verse */}
+              <div className="w-full h-full rounded-[1px] bg-gradient-to-b from-[#f6ecd2] to-[#e9dcbc] dark:from-[#2a2418] dark:to-[#211b12] px-2 py-1.5 text-left flex flex-col justify-center shadow-inner">
+                <p className="font-serif text-[9px] sm:text-[11px] leading-snug text-[#3a2e1f] dark:text-[#e3d6b8] line-clamp-4 italic">
+                  {verse?.text ? verse.text.slice(0, 120) : 'Loading today\u2019s verse\u2026'}
+                </p>
+                {/* brass reference plate */}
+                <div className="mt-1.5 self-center rounded-sm bg-gradient-to-b from-[#d9b65a] to-[#9a7430] px-2 py-[1px]">
+                  <span className="font-sans text-[8px] sm:text-[9px] font-bold tracking-[0.12em] text-[#2b1d0a]">
+                    {verse?.ref ? `${verse.ref.toUpperCase()} · KJB` : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </Hotspot>
