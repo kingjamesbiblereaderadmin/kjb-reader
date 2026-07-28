@@ -310,49 +310,71 @@
     font-family: 'Times New Roman', Times, serif;
   }
 
-  /* ── Physical Bible page ──
-     The reading area sits on a cream "paper" page with a dark leatherette
-     border and soft drop shadow, mimicking a printed KJV Bible open on a
-     table. Warm muted tones only — near-black text on aged ivory paper. */
+  /* ── Physical Bible: book open on a surface ──
+     The page sits on a warm terracotta "table", with a black leather cover
+     edge and aged parchment paper — mimicking an open KJV Bible. Text colour
+     is left to the theme's foreground (near-black in light, soft ivory in
+     dark) so it stays readable in both modes. */
+  .kjb-bible-surface {
+    position: relative;
+    background-color: #C8683A;
+    background-image:
+      radial-gradient(ellipse at 28% 18%, rgba(235,150,90,0.45) 0%, transparent 55%),
+      radial-gradient(ellipse at 78% 88%, rgba(110,50,20,0.45) 0%, transparent 55%);
+    padding: 1.5rem 0.75rem 3rem;
+    margin: 0.5rem 0 0;
+    border-radius: 0.5rem;
+    box-shadow: inset 0 1px 4px rgba(0,0,0,0.22);
+  }
+  .dark .kjb-bible-surface {
+    background-color: #3a2418;
+    background-image:
+      radial-gradient(ellipse at 28% 18%, rgba(120,70,35,0.4) 0%, transparent 55%),
+      radial-gradient(ellipse at 78% 88%, rgba(30,16,8,0.5) 0%, transparent 55%);
+  }
   .kjb-bible-page {
     position: relative;
-    background-color: #f6efde;
+    background-color: #E6DCC5;
     background-image:
-      radial-gradient(ellipse at 15% 20%, rgba(176,154,112,0.06) 0%, transparent 55%),
-      radial-gradient(ellipse at 85% 80%, rgba(140,116,82,0.07) 0%, transparent 55%),
-      radial-gradient(circle at 50% 50%, rgba(198,176,138,0.035) 0%, transparent 75%);
-    color: #1a1a1a;
-    border: 0.45rem solid #241710;
-    border-radius: 0.2rem;
+      /* gutter / spine shadow near the left edge + aged yellowing at the edges */
+      linear-gradient(90deg, rgba(150,130,95,0.16) 0%, rgba(150,130,95,0.02) 7%, transparent 14%, transparent 88%, rgba(150,130,95,0.10) 100%),
+      radial-gradient(ellipse at 12% 60%, rgba(150,130,95,0.10) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(225,205,165,0.06) 0%, transparent 70%);
+    border: 0.32rem solid #161616;
+    border-radius: 0.12rem;
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.35),
-      0 2px 6px rgba(0,0,0,0.14),
-      0 10px 34px rgba(0,0,0,0.20);
-    padding: 2.25rem 1.75rem 2.75rem;
-    margin: 0.75rem 0 2rem;
+      inset 0 1px 0 rgba(255,250,235,0.45),
+      0 1px 2px rgba(0,0,0,0.18),
+      0 6px 18px rgba(0,0,0,0.26),
+      0 16px 44px rgba(0,0,0,0.30);
+    padding: 2rem 1.5rem 2.5rem;
+    margin: 0 auto;
   }
   .dark .kjb-bible-page {
     background-color: #211b14;
     background-image:
-      radial-gradient(ellipse at 15% 20%, rgba(118,98,68,0.07) 0%, transparent 55%),
-      radial-gradient(ellipse at 85% 80%, rgba(96,80,54,0.08) 0%, transparent 55%);
-    color: #e6ddca;
-    border-color: #080604;
+      linear-gradient(90deg, rgba(0,0,0,0.3) 0%, transparent 10%, transparent 90%, rgba(0,0,0,0.2) 100%),
+      radial-gradient(ellipse at 12% 60%, rgba(0,0,0,0.18) 0%, transparent 45%);
+    border-color: #050505;
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.04),
-      0 2px 8px rgba(0,0,0,0.42),
-      0 10px 34px rgba(0,0,0,0.55);
+      inset 0 1px 0 rgba(255,250,235,0.06),
+      0 1px 2px rgba(0,0,0,0.4),
+      0 6px 18px rgba(0,0,0,0.5),
+      0 16px 44px rgba(0,0,0,0.55);
   }
   /* On narrow screens, slim the leatherette frame so two columns still fit. */
   @media (max-width: 640px) {
     .kjb-bible-page {
-      border-width: 0.3rem;
-      padding: 1.5rem 1rem 2rem;
+      border-width: 0.26rem;
+      padding: 1.2rem 0.8rem 1.75rem;
+    }
+    .kjb-bible-surface {
+      padding: 1rem 0.4rem 2rem;
     }
   }
   /* Two-column gutter: a faint vertical rule between columns, like a printed Bible. */
   .kjb-bible-page .kjb-two-col {
-    column-gap: 1.75rem;
+    column-gap: 1.5rem;
   }
 
   /* ── App-wide accessibility fonts ──

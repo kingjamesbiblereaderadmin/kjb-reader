@@ -1834,6 +1834,7 @@ export default function BibleReader() {
         </div>
       )}
 
+      <div className="kjb-bible-surface">
       <div 
         ref={readerContentRef}
         className={`kjb-reader-content kjb-bible-page leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
@@ -1882,6 +1883,7 @@ export default function BibleReader() {
             <p className={`kjb-colophon text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={colophon} searchTerm={highlightSection === 'colophon' ? searchTerm : null} /></p>
           </div>
         )}
+      </div>
       </div>
 
       {!loading && !error && ((pos.abbr === 'MAL' && pos.chapter === 4) || (pos.abbr === 'REV' && pos.chapter === 22)) && (
