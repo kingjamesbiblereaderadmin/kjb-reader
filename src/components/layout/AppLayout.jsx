@@ -62,7 +62,8 @@ const BOTTOM_NAV_SECONDARY = [
 ];
 
 export default function AppLayout() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const navigate = useNavigate();
   const { isDark, mode, toggleTheme } = useTheme();
   const { hideHeader } = useHeaderHide();
@@ -73,6 +74,10 @@ export default function AppLayout() {
   const isLegacy = pathname === '/legacy';
   // The immersive study room is full-screen with no app shell
   const isRoom = pathname === '/room';
+  // Pages opened from the Study Room render shell-less on the room's dark
+  // ambient backdrop, so they feel like part of the study rather than the
+  // regular app shell (header / footer / bottom nav).
+  const isFromRoom = !!location.state?.fromRoom && !isRoom;
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -298,8 +303,8 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="h-screen bg-gradient-to-br from-background via-accent/5 to-background flex flex-col overflow-hidden">
-      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader || isRoom ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+    <div className={`h-screen flex flex-col overflow-hidden ${isFromRoom ? 'bg-stone-900' : 'bg-gradient-to-br from-background via-accent/5 to-background'}`}>
+      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader || isRoom || isFromRoom ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
           {/* Logo / Back Button */}
           {pathname === '/' ? (
@@ -422,9 +427,23 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main id="kjb-scroll" className={`flex-1 overflow-y-auto relative ${isRoom ? '' : 'pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0'}`}>
-        {pathname === '/read' || pathname === '/room' ? (
+      <main id="kjb-scroll" className={`flex-1 overflow-y-auto relative ${isRoom || isFromRoom ? '' : 'pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0'}`}>
+        {pathname === '/read' || isRoom ? (
           <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
+            <Outlet />
+          </div>
+        ) : isFromRoom ? (
+          <div key={reloadKey} className={`relative min-h-[70vh] ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
+            <button
+              type="button"
+              onClick={() => navigate('/room')}
+              aria-label="Back to the Study"
+              title="Back to the Study"
+              className="fixed top-3 left-3 z-30 flex items-center gap-1.5 px-3 h-9 rounded-full bg-stone-900/50 hover:bg-stone-900/70 backdrop-blur-sm border border-white/15 text-amber-50 transition-colors cursor-pointer"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+              <span className="font-sans text-xs font-medium">Study</span>
+            </button>
             <Outlet />
           </div>
         ) : (
@@ -436,7 +455,7 @@ export default function AppLayout() {
         )}
       </main>
 
-      {!isRoom && (
+      {!isRoom && !isFromRoom && (
         <>
           <BottomNav pathname={pathname} navigate={navigate} />
 

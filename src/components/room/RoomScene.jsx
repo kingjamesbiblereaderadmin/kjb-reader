@@ -25,9 +25,9 @@ import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 const ROOM_IMAGE = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ca8b4dc41_generated_image.png';
 
-function Pin({ icon: Icon, label, to, onClick, style }) {
+function Pin({ icon: Icon, label, to, onClick, style, state }) {
   const navigate = useNavigate();
-  const handle = () => { if (to) navigate(to); else onClick?.(); };
+  const handle = () => { if (to) navigate(to, state ? { state } : undefined); else onClick?.(); };
   return (
     <button
       type="button"
@@ -65,7 +65,7 @@ export default function RoomScene() {
       }));
       localStorage.setItem('kjb-position', JSON.stringify({ abbr, chapter: verse.chapter, verse: verse.verse }));
     } catch {}
-    navigate(`/read?book=${abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`);
+    navigate(`/read?book=${abbr}&chapter=${verse.chapter}&verse=${verse.verse}&from=daily`, { state: { fromRoom: true } });
     setTimeout(() => { try { window.dispatchEvent(new Event('kjb-navigate')); } catch {} }, 0);
   };
 
@@ -88,14 +88,14 @@ export default function RoomScene() {
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(0,0,0,0.35) 100%)' }} />
 
       {/* ── visible pins, one per object ── */}
-      <Pin icon={Heart} label="Gospel" to="/gospel" style={{ left: '13%', top: '24%' }} />
-      <Pin icon={Settings} label="Settings" to="/settings" style={{ left: '60%', top: '13%' }} />
-      <Pin icon={Library} label="Contents" to="/contents" style={{ left: '89%', top: '30%' }} />
-      <Pin icon={Info} label="About" to="/about" style={{ left: '21%', bottom: '27%' }} />
-      <Pin icon={BookOpen} label="Read" to="/read" style={{ left: '46%', bottom: '23%' }} />
+      <Pin icon={Heart} label="Gospel" to="/gospel" state={{ fromRoom: true }} style={{ left: '13%', top: '24%' }} />
+      <Pin icon={Settings} label="Settings" to="/settings" state={{ fromRoom: true }} style={{ left: '60%', top: '13%' }} />
+      <Pin icon={Library} label="Contents" to="/contents" state={{ fromRoom: true }} style={{ left: '89%', top: '30%' }} />
+      <Pin icon={Info} label="About" to="/about" state={{ fromRoom: true }} style={{ left: '21%', bottom: '27%' }} />
+      <Pin icon={BookOpen} label="Read" to="/read" state={{ fromRoom: true }} style={{ left: '46%', bottom: '23%' }} />
       <Pin icon={Lightbulb} label={isDark ? 'Lamp On' : 'Lamp Off'} onClick={toggleTheme} style={{ left: '67%', bottom: '25%' }} />
-      <Pin icon={Bookmark} label="Saved" to="/saved" style={{ left: '89%', bottom: '13%' }} />
-      <Pin icon={BookMarked} label="Resources" to="/resources" style={{ left: '31%', bottom: '31%' }} />
+      <Pin icon={Bookmark} label="Saved" to="/saved" state={{ fromRoom: true }} style={{ left: '89%', bottom: '13%' }} />
+      <Pin icon={BookMarked} label="Resources" to="/resources" state={{ fromRoom: true }} style={{ left: '31%', bottom: '31%' }} />
 
       {/* ── Verse of the Day, shown inside the framed painting on the wall ── */}
       <button
