@@ -1911,6 +1911,9 @@ export default function BibleReader() {
           </div>
         )}
         </div>
+        {!loading && !error && verses.length > 0 && !isViewingTitlePage && (
+          <div className="kjb-page-number" style={{ fontSize: `${zoomLevel / 100 * 0.8}rem` }}>{pos.chapter}</div>
+        )}
       </div>
       </div>
 
