@@ -11,6 +11,8 @@ export const DISCORD_ADD_TO_SERVER_URL =
 export const DISCORD_ADD_TO_APPS_URL =
   'https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=applications.commands&integration_type=1';
 
+export const DISCORD_SUPPORT_SERVER_URL = 'https://discord.gg/7rvWGz96BS';
+
 function DiscordIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -64,6 +66,17 @@ export default function DiscordInvitePage() {
             <div className="flex-1 min-w-0">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Add to My Apps</p>
               <p className="font-sans text-xs text-muted-foreground">Install the bot as a personal Discord app — use slash commands in any server you're in.</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+          </a>
+
+          <a href={DISCORD_SUPPORT_SERVER_URL} target="_blank" rel="noopener noreferrer" className={cardClass}>
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600">
+              <DiscordIcon className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Support Server</p>
+              <p className="font-sans text-xs text-muted-foreground">Join our Discord community for help, updates, and to share feedback.</p>
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
