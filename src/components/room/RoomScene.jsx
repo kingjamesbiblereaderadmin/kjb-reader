@@ -89,13 +89,13 @@ export default function RoomScene() {
 
       {/* ── visible pins, one per object ── */}
       <Pin icon={Heart} label="Gospel" to="/gospel" state={{ fromRoom: true }} style={{ left: '13%', top: '24%' }} />
-      <Pin icon={Settings} label="Settings" to="/settings" state={{ fromRoom: true }} style={{ left: '60%', top: '13%' }} />
+      <Pin icon={Settings} label="Settings" to="/settings" state={{ fromRoom: true }} style={{ left: '60%', top: '7%' }} />
       <Pin icon={Library} label="Contents" to="/contents" state={{ fromRoom: true }} style={{ left: '89%', top: '30%' }} />
-      <Pin icon={Info} label="About" to="/about" state={{ fromRoom: true }} style={{ left: '21%', bottom: '27%' }} />
+      <Pin icon={Info} label="About" to="/about" state={{ fromRoom: true }} style={{ left: '50%', bottom: '8%' }} />
       <Pin icon={BookOpen} label="Read" to="/read" state={{ fromRoom: true }} style={{ left: '46%', bottom: '23%' }} />
       <Pin icon={Lightbulb} label={isDark ? 'Lamp On' : 'Lamp Off'} onClick={toggleTheme} style={{ left: '67%', bottom: '25%' }} />
       <Pin icon={Bookmark} label="Saved" to="/saved" state={{ fromRoom: true }} style={{ left: '89%', bottom: '13%' }} />
-      <Pin icon={BookMarked} label="Resources" to="/resources" state={{ fromRoom: true }} style={{ left: '31%', bottom: '31%' }} />
+      <Pin icon={BookMarked} label="Resources" to="/resources" state={{ fromRoom: true }} style={{ left: '73%', top: '22%' }} />
 
       {/* ── Verse of the Day, shown inside the framed painting on the wall ── */}
       <button
