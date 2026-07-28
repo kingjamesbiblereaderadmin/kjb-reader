@@ -1865,7 +1865,7 @@ export default function BibleReader() {
         className={`kjb-reader-content kjb-bible-page leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
         style={{ fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6', ...(fontFamily !== 'cursive' ? { fontFamily: getFontFamilyValue(fontFamily) } : {}) }}
       >
-        {!loading && !error && verses.length > 0 && !isViewingTitlePage && <div className="kjb-ribbon" aria-hidden="true" />}
+        {!loading && !error && verses.length > 0 && !isViewingTitlePage && (highlightVerse || lastReadingActive || (filterMode && selectedVerses.size > 0)) && <div className="kjb-ribbon" aria-hidden="true" />}
         <div className={flipClass}>
         {loading && <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-accent" /></div>}
         {error && <div className="text-center py-16 text-destructive font-sans">{error}</div>}
