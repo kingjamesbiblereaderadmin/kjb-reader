@@ -317,20 +317,20 @@
      dark) so it stays readable in both modes. */
   .kjb-bible-surface {
     position: relative;
-    background-color: #1a130f;
+    background-color: #0d0d0d;
     background-image:
-      radial-gradient(ellipse at 50% 0%, rgba(95,65,42,0.45) 0%, transparent 60%),
-      radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.45) 0%, transparent 55%);
+      radial-gradient(ellipse at 50% 0%, rgba(70,70,70,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.5) 0%, transparent 55%);
     padding: 1.5rem 0.75rem 3rem;
     margin: 0.5rem 0 0;
     border-radius: 0.5rem;
     box-shadow: inset 0 1px 4px rgba(0,0,0,0.22);
   }
   .dark .kjb-bible-surface {
-    background-color: #0c0907;
+    background-color: #050505;
     background-image:
-      radial-gradient(ellipse at 50% 0%, rgba(55,36,24,0.4) 0%, transparent 60%),
-      radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.5) 0%, transparent 55%);
+      radial-gradient(ellipse at 50% 0%, rgba(45,45,45,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.55) 0%, transparent 55%);
   }
   .kjb-bible-page {
     position: relative;
@@ -379,6 +379,42 @@
   /* Two-column gutter: a faint vertical rule between columns, like a printed Bible. */
   .kjb-bible-page .kjb-two-col {
     column-gap: 1.5rem;
+  }
+
+  /* Bible ribbon marker — a silk ribbon hanging from the top edge at the spine */
+  .kjb-ribbon {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1.15rem;
+    height: 58vh;
+    background: linear-gradient(180deg, #6e0e0e 0%, #a82626 14%, #8f1c1c 85%, #5c0a0a 100%);
+    box-shadow: inset 1px 0 0 rgba(255,255,255,0.12), inset -1px 0 0 rgba(0,0,0,0.25), -1px 0 3px rgba(0,0,0,0.22), 1px 0 3px rgba(0,0,0,0.22);
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0.9;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
+  }
+  .dark .kjb-ribbon {
+    background: linear-gradient(180deg, #4a0808 0%, #8a1f1f 14%, #741515 85%, #3d0606 100%);
+  }
+
+  /* Mobile page-flip animation on chapter change */
+  @keyframes kjb-flip-next {
+    0%   { transform: perspective(1800px) rotateY(-78deg); transform-origin: left center; opacity: 0; }
+    45%  { opacity: 1; }
+    100% { transform: perspective(1800px) rotateY(0); opacity: 1; }
+  }
+  @keyframes kjb-flip-prev {
+    0%   { transform: perspective(1800px) rotateY(78deg); transform-origin: right center; opacity: 0; }
+    45%  { opacity: 1; }
+    100% { transform: perspective(1800px) rotateY(0); opacity: 1; }
+  }
+  .kjb-flip-next { animation: kjb-flip-next 0.55s cubic-bezier(0.22,1,0.36,1) both; transform-style: preserve-3d; will-change: transform, opacity; }
+  .kjb-flip-prev { animation: kjb-flip-prev 0.55s cubic-bezier(0.22,1,0.36,1) both; transform-style: preserve-3d; will-change: transform, opacity; }
+  @media (prefers-reduced-motion: reduce) {
+    .kjb-flip-next, .kjb-flip-prev { animation: none; }
   }
 
   /* ── App-wide accessibility fonts ──

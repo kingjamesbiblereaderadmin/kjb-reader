@@ -1176,6 +1176,25 @@ export default function BibleReader() {
 
   const resultViewRef = useRef('filter');
 
+  // Page-flip animation (mobile) — direction inferred from book/chapter order
+  const bookOrdinal = (abbr, chapter) => {
+    const idx = BIBLE_BOOKS.findIndex(b => b.abbr === abbr);
+    if (idx < 0) return 0;
+    let ord = 0;
+    for (let i = 0; i < idx; i++) ord += BIBLE_BOOKS[i].chapters;
+    return ord + (chapter || 0);
+  };
+  const [flipDir, setFlipDir] = useState('next');
+  const [flipKey, setFlipKey] = useState(0);
+  const [flipClass, setFlipClass] = useState('');
+  useEffect(() => {
+    if (flipKey === 0) return;
+    if (!isMobile()) return;
+    setFlipClass(flipDir === 'next' ? 'kjb-flip-next' : 'kjb-flip-prev');
+    const t = setTimeout(() => setFlipClass(''), 620);
+    return () => clearTimeout(t);
+  }, [flipKey, flipDir]);
+
   useToolbarState(pos, loading, verses, filterMode, selectedVerses, searchTerm, searchResultIndex, searchTotalResults, gospelMode, searchClearedRef, setFilterMode, setSelectedVerses, setHighlightedVerses, resultViewRef, setSearchTerm, setSearchResultIndex, setSearchTotalResults, setGospelMode, setGospelResultIndex, setGospelTotalResults, setHighlightVerse);
 
   const { navigate: baseNavigate, returnToChapter: baseReturnToChapter, preSearchPosRef, rangeHighlightRef, freshNavRef } = useReaderNavigation(pos, loadChapter, routerNavigate, routerLocation);
@@ -1256,6 +1275,12 @@ export default function BibleReader() {
     const sameChapter = newAbbr === pos.abbr && newChapter === pos.chapter;
     const scroller = document.getElementById('kjb-scroll');
     const scrollY = scroller ? scroller.scrollTop : window.scrollY;
+    if (!sameChapter) {
+      const newOrd = bookOrdinal(newAbbr, newChapter);
+      const oldOrd = bookOrdinal(pos.abbr, pos.chapter);
+      setFlipDir(newOrd >= oldOrd ? 'next' : 'prev');
+      setFlipKey(k => k + 1);
+    }
     
     // ALWAYS save current reading position before ANY navigation
     // This is the key fix - we save BEFORE overwriting with special mode positions
@@ -1840,6 +1865,8 @@ export default function BibleReader() {
         className={`kjb-reader-content kjb-bible-page leading-loose text-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`}
         style={{ fontSize: `${zoomLevel / 100 * 1.125}rem`, lineHeight: zoomLevel > 100 ? '1.8' : '1.6', ...(fontFamily !== 'cursive' ? { fontFamily: getFontFamilyValue(fontFamily) } : {}) }}
       >
+        {!loading && !error && verses.length > 0 && !isViewingTitlePage && <div className="kjb-ribbon" aria-hidden="true" />}
+        <div className={flipClass}>
         {loading && <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-accent" /></div>}
         {error && <div className="text-center py-16 text-destructive font-sans">{error}</div>}
         {!loading && !error && isViewingTitlePage && (
@@ -1883,6 +1910,7 @@ export default function BibleReader() {
             <p className={`kjb-colophon text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={colophon} searchTerm={highlightSection === 'colophon' ? searchTerm : null} /></p>
           </div>
         )}
+        </div>
       </div>
       </div>
 
