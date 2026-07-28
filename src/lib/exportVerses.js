@@ -389,7 +389,7 @@ export function exportDocx(items, query, filters, options = {}) {
   const titlePrefix = options.titlePrefix || 'KJB Search Results';
   const isReading = titlePrefix === 'KJB Reading';
   const rows = splitBySections(items).map(sec => {
-    if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:15pt;margin:24pt 0 12pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
+    if (sec.isTestament) return `<h2 style="font-family:Georgia,serif;font-size:15pt;margin:24pt 0 12pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;page-break-after:avoid;break-after:avoid;">${escapeHtml(sec.title.toUpperCase())}</h2>`;
     const bookNameObj = sec.items[0]?.bookNameObj;
     const fullBookName = bookNameObj ? bookNameObj.name : sec.title;
     const bookVerseCount = sec.items.length;
@@ -789,7 +789,7 @@ export function exportPrint(items, query, filters, options = {}) {
     rows = splitBySections(items).map(sec => {
       if (sec.isTestament) {
         const verseCount = sec.items.reduce((sum, item) => sum + (item.items ? item.items.length : 1), 0);
-        return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${escapeHtml(sec.title.toUpperCase())} <span style="font-size:12pt;font-weight:normal;color:#666;">(${verseCount} verse${verseCount !== 1 ? 's' : ''})</span></h2>`;
+        return `<h2 style="font-family:Georgia,serif;font-size:16pt;margin:30pt 0 16pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;page-break-after:avoid;break-after:avoid;">${escapeHtml(sec.title.toUpperCase())} <span style="font-size:12pt;font-weight:normal;color:#666;">(${verseCount} verse${verseCount !== 1 ? 's' : ''})</span></h2>`;
       }
       
       const bookNameObj = sec.items[0]?.bookNameObj;
