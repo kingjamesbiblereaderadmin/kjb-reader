@@ -1,33 +1,33 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Heart, BookMarked, Library, Info, BookOpen, Settings, Bookmark, Lightbulb, Sparkles,
+} from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { getDailyVerse } from '@/lib/dailyVerse';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 
 /**
  * Interactive cozy study-room scene. A photorealistic room image is the
- * backdrop; broad, transparent hotspot buttons are layered over the natural
- * objects so every part of the app is reachable from inside the room.
+ * backdrop; visible icon "pins" sit on each real object so the tap targets
+ * are obvious and always line up with what's in the photo.
  *
- *  open Bible (desk)  → /read
- *  bookshelf (wall)   → /contents
- *  stained window     → /gospel
- *  drawer cabinet     → /saved
- *  picture frames     → /resources
- *  notebook (desk)    → /about
- *  wall clock         → /settings
- *  desk lamp          → toggle day / night theme
- *  daily-verse note   → open today's verse in the reader
+ *  stained window  → /gospel
+ *  wall painting   → today's verse (open in reader)
+ *  wall clock      → /settings
+ *  tall bookshelf  → /contents
+ *  desk notebook   → /about
+ *  open Bible      → /read
+ *  banker's lamp   → toggle day / night theme
+ *  desk drawers    → /saved
+ *  stack of books  → /resources
  */
 
 const ROOM_IMAGE = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ca8b4dc41_generated_image.png';
 
-function Hotspot({ label, to, onClick, style, children }) {
+function Pin({ icon: Icon, label, to, onClick, style }) {
   const navigate = useNavigate();
-  const handle = () => {
-    if (to) navigate(to);
-    else onClick?.();
-  };
+  const handle = () => { if (to) navigate(to); else onClick?.(); };
   return (
     <button
       type="button"
@@ -35,12 +35,12 @@ function Hotspot({ label, to, onClick, style, children }) {
       aria-label={label}
       title={label}
       style={style}
-      className="group absolute rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-1 transition-transform duration-200 hover:scale-[1.03] active:scale-95 cursor-pointer"
+      className="group absolute z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center cursor-pointer"
     >
-      {/* persistent faint hint + hover wash so users can tell objects are tappable */}
-      <span className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/15 group-hover:ring-white/60 group-hover:bg-amber-100/10 transition-all duration-200" />
-      {children}
-      <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 z-30 whitespace-nowrap rounded-md bg-stone-900/85 px-2.5 py-1 text-[11px] font-sans font-semibold tracking-wide text-amber-50 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 shadow-lg">
+      <span className="flex items-center justify-center w-9 h-9 rounded-full bg-stone-900/55 backdrop-blur-md border border-amber-200/40 text-amber-50 shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-transform duration-200 group-hover:scale-110 group-hover:bg-amber-500/80 group-hover:text-stone-900 active:scale-95">
+        <Icon className="w-4 h-4" />
+      </span>
+      <span className="mt-1 whitespace-nowrap rounded-md bg-stone-900/75 px-1.5 py-0.5 text-[10px] font-sans font-semibold tracking-wide text-amber-50 shadow group-hover:bg-stone-900/90">
         {label}
       </span>
     </button>
@@ -87,47 +87,36 @@ export default function RoomScene() {
       {/* subtle vignette for depth */}
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(0,0,0,0.35) 100%)' }} />
 
-      {/* ── hotspots, positioned over the actual objects in the photo ── */}
+      {/* ── visible pins, one per object ── */}
+      <Pin icon={Heart} label="Gospel" to="/gospel" style={{ left: '13%', top: '24%' }} />
+      <Pin icon={Settings} label="Settings" to="/settings" style={{ left: '60%', top: '13%' }} />
+      <Pin icon={Library} label="Contents" to="/contents" style={{ left: '89%', top: '30%' }} />
+      <Pin icon={Info} label="About" to="/about" style={{ left: '21%', bottom: '27%' }} />
+      <Pin icon={BookOpen} label="Read" to="/read" style={{ left: '46%', bottom: '23%' }} />
+      <Pin icon={Lightbulb} label={isDark ? 'Lamp On' : 'Lamp Off'} onClick={toggleTheme} style={{ left: '67%', bottom: '25%' }} />
+      <Pin icon={Bookmark} label="Saved" to="/saved" style={{ left: '89%', bottom: '13%' }} />
+      <Pin icon={BookMarked} label="Resources" to="/resources" style={{ left: '31%', bottom: '31%' }} />
 
-      {/* Stained-glass window (left-back wall) → Gospel */}
-      <Hotspot label="Gospel" to="/gospel" style={{ left: '2%', top: '6%', width: '22%', height: '42%' }} />
-
-      {/* Framed picture (centre-back wall) → Resources */}
-      <Hotspot label="Resources" to="/resources" style={{ left: '36%', top: '10%', width: '16%', height: '20%' }} />
-
-      {/* Wall clock (right of artwork, left of bookshelf) → Settings */}
-      <Hotspot label="Settings" to="/settings" style={{ left: '55%', top: '8%', width: '11%', height: '15%' }} />
-
-      {/* Tall bookshelf (right side) → Contents */}
-      <Hotspot label="Contents" to="/contents" style={{ right: '2%', top: '5%', width: '24%', height: '55%' }} />
-
-      {/* Leather notebook (left of Bible on desk) → About */}
-      <Hotspot label="About" to="/about" style={{ left: '16%', bottom: '20%', width: '14%', height: '16%' }} />
-
-      {/* Open Bible (centre of desk, centerpiece) → Read */}
-      <Hotspot label="Read the Bible" to="/read" style={{ left: '33%', bottom: '16%', width: '26%', height: '22%' }} />
-
-      {/* Banker's lamp (right of Bible) → toggle day/night */}
-      <Hotspot label={isDark ? 'Turn lamp on' : 'Turn lamp off'} onClick={toggleTheme} style={{ left: '60%', bottom: '18%', width: '13%', height: '24%' }} />
-
-      {/* Desk drawers (right side of desk) → Saved */}
-      <Hotspot label="Saved Verses" to="/saved" style={{ right: '4%', bottom: '4%', width: '17%', height: '18%' }} />
-
-      {/* Daily verse — a floating UI card pinned in the corner (clearly an
-          overlay, not pretending to be part of the room photo) */}
+      {/* ── Verse of the Day, shown inside the framed painting on the wall ── */}
       <button
         type="button"
         onClick={openDailyVerse}
         aria-label={verse?.ref ? `Today's verse: ${verse.ref}` : 'Daily verse'}
-        className="group absolute z-20 left-3 bottom-3 w-[min(58vw,15rem)] rounded-2xl bg-stone-900/55 backdrop-blur-md border border-white/15 px-4 py-3 text-left shadow-[0_8px_24px_rgba(0,0,0,0.45)] transition-transform duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer"
+        title={verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'}
+        className="group absolute z-20 flex flex-col items-center justify-center text-center"
+        style={{ left: '37%', top: '9%', width: '17%', height: '21%' }}
       >
-        {/* pin */}
-        <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-amber-400 ring-2 ring-stone-900/40 shadow" />
-        <p className="font-sans text-[9px] font-bold uppercase tracking-[0.16em] text-amber-300/90 mb-1">Verse of the Day</p>
-        <p className="font-serif text-[11px] sm:text-xs leading-snug text-stone-100 line-clamp-3">
-          {verse?.text ? `\u201C${verse.text.slice(0, 110)}\u201D` : 'Loading today\u2019s verse\u2026'}
+        <span className="absolute inset-0 rounded-md ring-1 ring-inset ring-amber-200/30 group-hover:ring-amber-200/80 transition" />
+        <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-stone-900/85 px-2.5 py-1 text-[11px] font-sans font-semibold tracking-wide text-amber-50 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 shadow-lg">
+          {verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'}
+        </span>
+        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-stone-900/55 backdrop-blur-md border border-amber-200/40 text-amber-50 shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-transform duration-200 group-hover:scale-110 group-hover:bg-amber-500/80 group-hover:text-stone-900">
+          <Sparkles className="w-3.5 h-3.5" />
+        </span>
+        <p className="mt-1 font-serif text-[9px] sm:text-[10px] leading-tight text-stone-100/95 line-clamp-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+          {verse?.text ? `\u201C${verse.text.slice(0, 90)}\u201D` : 'Loading\u2026'}
         </p>
-        <p className="mt-1.5 font-sans text-[10px] font-semibold tracking-wide text-amber-200">
+        <p className="mt-0.5 font-sans text-[8px] sm:text-[9px] font-bold tracking-wide text-amber-200 drop-shadow">
           {verse?.ref ? `${verse.ref} · KJB` : ''}
         </p>
       </button>
@@ -138,7 +127,7 @@ export default function RoomScene() {
         <p className="font-sans text-[11px] sm:text-xs text-stone-200/90 mt-0.5 drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]">Tap anything to begin</p>
       </div>
 
-      {/* floating exit — back to classic home, no full shell needed */}
+      {/* floating exit — back to classic home */}
       <button
         type="button"
         onClick={() => navigate('/')}
