@@ -116,7 +116,7 @@ export default function RoomScene() {
         <span className="pointer-events-none absolute inset-[6px] overflow-hidden rounded-sm">
           <RoomDailyVerseCard />
         </span>
-        <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-stone-900/85 px-2.5 py-1 text-[11px] font-sans font-semibold tracking-wide text-amber-50 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 shadow-lg">
+        <span className="pointer-events-none absolute top-full mt-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-stone-900/85 px-2.5 py-1 text-[11px] font-sans font-semibold tracking-wide text-amber-50 opacity-0 -translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 shadow-lg z-30">
           {verse?.ref ? `Today · ${verse.ref}` : 'Daily Verse'}
         </span>
       </button>
