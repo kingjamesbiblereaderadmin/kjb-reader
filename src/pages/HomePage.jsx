@@ -423,7 +423,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-background via-accent/5 to-background"
+    <div className="min-h-screen"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}

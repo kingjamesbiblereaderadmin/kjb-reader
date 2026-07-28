@@ -61,7 +61,7 @@ function DiscordIcon({ className }) {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+    <div className="min-h-screen">
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
       {/* Header */}
       <div className="text-center mb-10">

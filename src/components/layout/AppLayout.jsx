@@ -7,6 +7,8 @@ import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { useBrowserZoom } from '@/hooks/useBrowserZoom';
 import { requestNotificationPermission, scheduleDailyNotification, getNotificationsEnabled, initNotifications } from '@/lib/notifications';
 import BibleSearchBar from '@/components/bible/BibleSearchBar';
+import SceneBackground from '@/components/SceneBackground';
+import { sceneFor } from '@/lib/pageScenes';
 import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
@@ -428,13 +430,10 @@ export default function AppLayout() {
           <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
             <Outlet />
           </div>
-        ) : pathname === '/read' ? (
-          <div key={reloadKey} className={`relative ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
-            <Outlet />
-          </div>
         ) : (
-          <div key={reloadKey} className={`kjb-bible-surface ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
-            <div className="kjb-bible-page min-h-[70vh]">
+          <div key={reloadKey} className={`relative min-h-[70vh] ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
+            {sceneFor(pathname) && <SceneBackground image={sceneFor(pathname)} />}
+            <div className="relative z-10">
               <Outlet />
             </div>
           </div>
