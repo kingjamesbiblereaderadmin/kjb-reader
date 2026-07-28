@@ -207,65 +207,113 @@ function parseQueryTerms(query) {
   return { terms: term ? [term] : [], isQuoted: false };
 }
 
-// Highlight search term(s) in plain text (supports multiple comma-separated terms)
+// Highlight search term(s) in bracketed plain text (TXT / CSV).
+// Strips [brackets] for matching so a multi-word term that spans an italic
+// boundary (e.g. "love [me]" → "love me") is still found and highlighted.
+// *** markers wrap around the matched words; brackets themselves are never
+// inside a highlight marker — the marker closes before '[' and reopens after ']'.
 function highlightTermText(text, query, filters) {
   const { terms, isQuoted } = parseQueryTerms(query);
   if (!terms.length) return text;
   const cs = isQuoted || (filters && filters.caseSensitive);
   const ww = isQuoted || (filters && filters.wholeWord);
-  let out = text;
+
+  // Build plain text (brackets removed) + map each plain char back to its
+  // position in the original bracketed text.
+  const plainChars = [];
+  const origPos = [];
+  let i = 0;
+  while (i < text.length) {
+    if (text[i] === '[') {
+      i++;
+      while (i < text.length && text[i] !== ']') {
+        plainChars.push(text[i]);
+        origPos.push(i);
+        i++;
+      }
+      if (i < text.length) i++;
+    } else {
+      plainChars.push(text[i]);
+      origPos.push(i);
+      i++;
+    }
+  }
+  const plainStr = plainChars.join('');
+
+  const hlMask = new Array(plainStr.length).fill(false);
   for (const term of terms) {
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const re = ww
       ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, cs ? 'g' : 'gi')
       : new RegExp(`(${escaped})`, cs ? 'g' : 'gi');
-    out = ww
-      ? out.replace(re, (m, prefix, tm) => `${prefix}***${tm}***`)
-      : out.replace(re, (m) => `***${m}***`);
+    let m;
+    while ((m = re.exec(plainStr)) !== null) {
+      const prefix = ww ? m[1] : '';
+      const termMatch = ww ? m[2] : m[0];
+      const start = m.index + prefix.length;
+      for (let p = start; p < start + termMatch.length; p++) hlMask[p] = true;
+      if (re.lastIndex === m.index) re.lastIndex++;
+    }
   }
-  return out;
+
+  if (!hlMask.some(Boolean)) return text;
+
+  // Rebuild original text, inserting *** around highlighted runs.
+  let result = '';
+  let plainIdx = 0;
+  let inHl = false;
+  for (let j = 0; j < text.length; j++) {
+    const ch = text[j];
+    if (ch === '[' || ch === ']') {
+      if (inHl) { result += '***'; inHl = false; }
+      result += ch;
+      continue;
+    }
+    const isHl = hlMask[plainIdx];
+    plainIdx++;
+    if (isHl && !inHl) { result += '***'; inHl = true; }
+    else if (!isHl && inHl) { result += '***'; inHl = false; }
+    result += ch;
+  }
+  if (inHl) result += '***';
+  return result;
 }
 
-// Split string into highlighted and non-highlighted parts for PDF.
-// Supports multiple comma-separated terms: builds a boolean highlight map.
-function splitForHighlight(str, query, filters) {
+// Build a boolean highlight mask across ALL italic/roman runs (for PDF).
+// Concatenates every run's text into one plain string, finds matches there
+// (so a multi-word term spanning an italic boundary is detected), and returns
+// a per-character mask indexed by position in the concatenated string.
+function buildRunsHighlightMask(runs, query, filters) {
   const { terms, isQuoted } = parseQueryTerms(query);
-  if (!terms.length) return [{ text: str, highlight: false }];
+  if (!terms.length) return null;
 
   const cs = isQuoted || (filters && filters.caseSensitive);
   const ww = isQuoted || (filters && filters.wholeWord);
 
-  const flags = new Array(str.length).fill(false);
+  const plainStr = runs.map(r => r.str).join('');
+  const mask = new Array(plainStr.length).fill(false);
   for (const term of terms) {
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const re = ww
       ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, cs ? 'g' : 'gi')
       : new RegExp(`(${escaped})`, cs ? 'g' : 'gi');
-    let match;
-    while ((match = re.exec(str)) !== null) {
-      const prefix = ww ? match[1] : '';
-      const termMatch = ww ? match[2] : match[0];
-      const start = match.index + prefix.length;
-      for (let p = start; p < start + termMatch.length; p++) flags[p] = true;
-      if (re.lastIndex === match.index) re.lastIndex++;
+    let m;
+    while ((m = re.exec(plainStr)) !== null) {
+      const prefix = ww ? m[1] : '';
+      const termMatch = ww ? m[2] : m[0];
+      const start = m.index + prefix.length;
+      for (let p = start; p < start + termMatch.length; p++) mask[p] = true;
+      if (re.lastIndex === m.index) re.lastIndex++;
     }
   }
-
-  // Coalesce consecutive same-flag chars into runs.
-  const parts = [];
-  let i = 0;
-  while (i < str.length) {
-    const hl = flags[i];
-    let j = i;
-    while (j < str.length && flags[j] === hl) j++;
-    parts.push({ text: str.substring(i, j), highlight: hl });
-    i = j;
-  }
-  return parts.length ? parts : [{ text: str, highlight: false }];
+  return mask.some(Boolean) ? mask : null;
 }
 
-// Highlight search term(s) in HTML text (safely skipping HTML tags).
-// Supports multiple comma-separated terms.
+// Highlight search term(s) in HTML text, correctly handling terms that span
+// across inline HTML tags (e.g. a phrase where one word is <em>italic</em> and
+// the next is not). Builds a plain-text view of the HTML (tags stripped), finds
+// matches there, then wraps the corresponding text segments in highlight spans
+// — never wrapping or nesting inside tags themselves.
 function highlightTermHtml(html, query, filters) {
   const { terms, isQuoted } = parseQueryTerms(query);
   if (!terms.length) return html;
@@ -273,22 +321,67 @@ function highlightTermHtml(html, query, filters) {
   const caseSensitive = isQuoted || (filters && filters.caseSensitive);
   const wholeWord = isQuoted || (filters && filters.wholeWord);
 
-  const parts = html.split(/(<[^>]+>)/g);
+  // Tokenize: even indices = text, odd indices = tags.
+  const tokens = html.split(/(<[^>]+>)/g);
+
+  // Build plain text from text segments, tracking each char's token + position.
+  const plainChars = [];
+  for (let i = 0; i < tokens.length; i += 2) {
+    const seg = tokens[i];
+    if (!seg) continue;
+    for (let j = 0; j < seg.length; j++) plainChars.push(seg[j]);
+  }
+  const plainStr = plainChars.join('');
+
+  // Find all match ranges in the plain text.
+  const flags = caseSensitive ? 'g' : 'gi';
+  const hlMask = new Array(plainStr.length).fill(false);
   for (const term of terms) {
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const re = wholeWord
-      ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, caseSensitive ? 'g' : 'gi')
-      : new RegExp(`(${escaped})`, caseSensitive ? 'g' : 'gi');
-    for (let i = 0; i < parts.length; i += 2) {
-      if (!parts[i]) continue;
-      // Don't re-highlight text already inside a highlight span (avoid nesting).
-      if (parts[i].includes('background-color:#fef08a')) continue;
-      parts[i] = wholeWord
-        ? parts[i].replace(re, (m, prefix, tm) => `${prefix}<span style="background-color:#fef08a;color:inherit;">${tm}</span>`)
-        : parts[i].replace(re, (m, tm) => `<span style="background-color:#fef08a;color:inherit;">${tm}</span>`);
+      ? new RegExp(`(^|[^a-zA-Z'])(${escaped})(?=[^a-zA-Z']|$)`, flags)
+      : new RegExp(`(${escaped})`, flags);
+    let m;
+    while ((m = re.exec(plainStr)) !== null) {
+      const prefix = wholeWord ? m[1] : '';
+      const termMatch = wholeWord ? m[2] : m[0];
+      const start = m.index + prefix.length;
+      for (let p = start; p < start + termMatch.length; p++) hlMask[p] = true;
+      if (re.lastIndex === m.index) re.lastIndex++;
     }
   }
-  return parts.join('');
+
+  if (!hlMask.some(Boolean)) return html;
+
+  // Rebuild tokens: wrap highlighted runs within each text segment.
+  let plainIdx = 0;
+  for (let i = 0; i < tokens.length; i += 2) {
+    const seg = tokens[i];
+    if (!seg) { continue; }
+    let segHasHl = false;
+    for (let j = 0; j < seg.length; j++) {
+      if (hlMask[plainIdx + j]) { segHasHl = true; break; }
+    }
+    if (segHasHl) {
+      let newSeg = '';
+      let k = 0;
+      while (k < seg.length) {
+        const isHl = hlMask[plainIdx + k];
+        let run = '';
+        while (k < seg.length && hlMask[plainIdx + k] === isHl) {
+          run += seg[k];
+          k++;
+        }
+        newSeg += isHl
+          ? `<span style="background-color:#fef08a;color:inherit;">${run}</span>`
+          : run;
+      }
+      tokens[i] = newSeg;
+    }
+    plainIdx += seg.length;
+  }
+
+  return tokens.join('');
 }
 
 // ── DOCX (Word-compatible HTML) — italics preserved ──
@@ -470,11 +563,32 @@ export function exportPdf(items, query, filters, options = {}) {
       doc.text("•", marginX, y);
     }
     
+    // Build the highlight mask once across ALL runs so a multi-word term that
+    // spans an italic/roman boundary is detected and highlighted correctly.
+    const hlMask = (!isReading && query) ? buildRunsHighlightMask(runs, query, filters) : null;
+    let plainCharOffset = 0;
     runs.forEach(run => {
       doc.setFont('times', run.italic ? 'italic' : 'normal');
-      
-      const subRuns = (!isReading && query) ? splitForHighlight(run.str, query, filters) : [{ text: run.str, highlight: false }];
-      
+
+      let subRuns;
+      if (hlMask) {
+        subRuns = [];
+        const runStart = plainCharOffset;
+        let k = 0;
+        while (k < run.str.length) {
+          const isHl = hlMask[runStart + k];
+          let runText = '';
+          while (k < run.str.length && hlMask[runStart + k] === isHl) {
+            runText += run.str[k];
+            k++;
+          }
+          subRuns.push({ text: runText, highlight: isHl });
+        }
+      } else {
+        subRuns = [{ text: run.str, highlight: false }];
+      }
+      plainCharOffset += run.str.length;
+
       subRuns.forEach(sub => {
         // Split into words to allow wrapping
         const words = sub.text.split(/(\s+)/);
