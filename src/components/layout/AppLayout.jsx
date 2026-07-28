@@ -61,22 +61,6 @@ const BOTTOM_NAV_SECONDARY = [
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
-function BackToStudyButton() {
-  const navigate = useNavigate();
-  return (
-    <button
-      type="button"
-      onClick={() => navigate('/room')}
-      aria-label="Back to the Study"
-      title="Back to the Study"
-      className="fixed top-3 left-3 z-[60] flex items-center gap-1.5 px-3 h-9 rounded-full bg-stone-900/50 hover:bg-stone-900/70 backdrop-blur-sm border border-white/15 text-amber-50 transition-colors cursor-pointer"
-    >
-      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
-      <span className="font-sans text-xs font-medium">Study</span>
-    </button>
-  );
-}
-
 export default function AppLayout() {
   const location = useLocation();
   const { pathname } = location;
@@ -90,22 +74,6 @@ export default function AppLayout() {
   const isLegacy = pathname === '/legacy';
   // The immersive study room is full-screen with no app shell
   const isRoom = pathname === '/room';
-  // The reader rebuilds its own URL on every position change (useReaderUrlSync),
-  // which drops location.state — so we also keep a session flag that survives
-  // those replace-navigations. Entering the room sets it; returning home clears it.
-  const [fromRoomFlag, setFromRoomFlag] = useState(() => {
-    try { return sessionStorage.getItem('kjb-from-room') === '1'; } catch { return false; }
-  });
-  useEffect(() => {
-    try {
-      if (pathname === '/room') { sessionStorage.setItem('kjb-from-room', '1'); setFromRoomFlag(true); }
-      else if (pathname === '/') { sessionStorage.removeItem('kjb-from-room'); setFromRoomFlag(false); }
-    } catch {}
-  }, [pathname]);
-  // Pages opened from the Study Room render shell-less on the room's dark
-  // ambient backdrop, so they feel like part of the study rather than the
-  // regular app shell (header / footer / bottom nav).
-  const isFromRoom = !isRoom && (!!location.state?.fromRoom || fromRoomFlag);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -331,8 +299,8 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className={`h-screen flex flex-col overflow-hidden ${isFromRoom ? 'bg-stone-900' : 'bg-gradient-to-br from-background via-accent/5 to-background'}`}>
-      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader || isRoom || isFromRoom ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-background via-accent/5 to-background">
+      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader || isRoom ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
           {/* Logo / Back Button */}
           {pathname === '/' ? (
@@ -455,19 +423,13 @@ export default function AppLayout() {
         )}
       </header>
 
-      <main id="kjb-scroll" className={`flex-1 overflow-y-auto relative ${isRoom || isFromRoom ? '' : 'pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0'}`}>
+      <main id="kjb-scroll" className={`flex-1 overflow-y-auto relative ${isRoom ? '' : 'pb-[calc(5rem+env(safe-area-inset-bottom))] sm:!pb-0'}`}>
         {isRoom ? (
           <div key={reloadKey} className={isReloading ? 'opacity-50 pointer-events-none' : ''}>
             <Outlet />
           </div>
         ) : pathname === '/read' ? (
           <div key={reloadKey} className={`relative ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
-            {isFromRoom && <BackToStudyButton />}
-            <Outlet />
-          </div>
-        ) : isFromRoom ? (
-          <div key={reloadKey} className={`relative min-h-[70vh] ${isReloading ? 'opacity-50 pointer-events-none' : ''}`}>
-            <BackToStudyButton />
             <Outlet />
           </div>
         ) : (
@@ -479,7 +441,7 @@ export default function AppLayout() {
         )}
       </main>
 
-      {!isRoom && !isFromRoom && (
+      {!isRoom && (
         <>
           <BottomNav pathname={pathname} navigate={navigate} />
 
