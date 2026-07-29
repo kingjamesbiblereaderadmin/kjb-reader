@@ -1,4 +1,4 @@
-import { ABBR_TO_NAME, BOOK_ORDER, loadBible, buildFlatList, verseFromRef, normalizeDateKey, normalizePilcrows, extractSuperscription, processVerse } from "../../shared/bibleData.ts";
+import { ABBR_TO_NAME, BOOK_ORDER, NAME_TO_FULL, loadBible, buildFlatList, verseFromRef, normalizeDateKey, normalizePilcrows, extractSuperscription, processVerse } from "../../shared/bibleData.ts";
 
 // NOTE: chapter-level caching was removed — it served stale responses
 // (without superscriptions/colophons) from warm isolates after code updates.
@@ -147,6 +147,7 @@ Deno.serve(async (req) => {
       const verseResult: any = {
         abbr,
         book: bookName,
+        bookFullName: NAME_TO_FULL[bookName] || bookName,
         chapter: parseInt(chapterNum),
         verse: verseObj.verse,
         text: processed.text,
@@ -349,6 +350,7 @@ Deno.serve(async (req) => {
             const result: any = {
               abbr,
               book: bookName,
+              bookFullName: NAME_TO_FULL[bookName] || bookName,
               chapter: parseInt(chapterNum),
               verse: vo.verse,
               ref: `${bookName} ${chapterNum}:${vo.verse}`,

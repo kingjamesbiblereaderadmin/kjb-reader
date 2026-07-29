@@ -22,6 +22,77 @@ export const ABBR_TO_NAME = {
   '3Jo':'3 John','Jude':'Jude','Re':'Revelation'
 };
 
+// Full title-page book names (as printed in the KJB Table of Contents).
+// Maps the short API name → the full descriptive title.
+export const NAME_TO_FULL: Record<string, string> = {
+  'Genesis': 'The First Book of Moses, called Genesis',
+  'Exodus': 'The Second Book of Moses, called Exodus',
+  'Leviticus': 'The Third Book of Moses, called Leviticus',
+  'Numbers': 'The Fourth Book of Moses, called Numbers',
+  'Deuteronomy': 'The Fifth Book of Moses, called Deuteronomy',
+  'Joshua': 'The Book of Joshua',
+  'Judges': 'The Book of Judges',
+  'Ruth': 'The Book of Ruth',
+  '1 Samuel': 'The First Book of Samuel, Otherwise called, The First Book Of The Kings',
+  '2 Samuel': 'The Second Book of Samuel, Otherwise called, The Second Book Of The Kings',
+  '1 Kings': 'The First Book Of The Kings, Commonly called, The Third Book Of The Kings',
+  '2 Kings': 'The Second Book Of The Kings, Commonly called, The Fourth Book Of The Kings',
+  '1 Chronicles': 'The First Book of the Chronicles',
+  '2 Chronicles': 'The Second Book of the Chronicles',
+  'Ezra': 'Ezra',
+  'Nehemiah': 'The Book of Nehemiah',
+  'Esther': 'The Book of Esther',
+  'Job': 'The Book of Job',
+  'Psalms': 'The Book of Psalms',
+  'Proverbs': 'The Proverbs',
+  'Ecclesiastes': 'Ecclesiastes; or, the Preacher',
+  'Song of Solomon': 'The Song of Solomon',
+  'Isaiah': 'The Book of the Prophet Isaiah',
+  'Jeremiah': 'The Book of the Prophet Jeremiah',
+  'Lamentations': 'The Lamentations of Jeremiah',
+  'Ezekiel': 'The Book of the Prophet Ezekiel',
+  'Daniel': 'The Book of Daniel',
+  'Hosea': 'Hosea',
+  'Joel': 'Joel',
+  'Amos': 'Amos',
+  'Obadiah': 'Obadiah',
+  'Jonah': 'Jonah',
+  'Micah': 'Micah',
+  'Nahum': 'Nahum',
+  'Habakkuk': 'Habakkuk',
+  'Zephaniah': 'Zephaniah',
+  'Haggai': 'Haggai',
+  'Zechariah': 'Zechariah',
+  'Malachi': 'Malachi',
+  'Matthew': 'The Gospel According to Saint Matthew',
+  'Mark': 'The Gospel According to Saint Mark',
+  'Luke': 'The Gospel According to Saint Luke',
+  'John': 'The Gospel According to Saint John',
+  'Acts': 'The Acts of the Apostles',
+  'Romans': 'The Epistle of Paul the Apostle to the Romans',
+  '1 Corinthians': 'The First Epistle of Paul the Apostle to the Corinthians',
+  '2 Corinthians': 'The Second Epistle of Paul the Apostle to the Corinthians',
+  'Galatians': 'The Epistle of Paul the Apostle to the Galatians',
+  'Ephesians': 'The Epistle of Paul the Apostle to the Ephesians',
+  'Philippians': 'The Epistle of Paul the Apostle to the Philippians',
+  'Colossians': 'The Epistle of Paul the Apostle to the Colossians',
+  '1 Thessalonians': 'The First Epistle of Paul the Apostle to the Thessalonians',
+  '2 Thessalonians': 'The Second Epistle of Paul the Apostle to the Thessalonians',
+  '1 Timothy': 'The First Epistle of Paul the Apostle to Timothy',
+  '2 Timothy': 'The Second Epistle of Paul the Apostle to Timothy',
+  'Titus': 'The Epistle of Paul to Titus',
+  'Philemon': 'The Epistle of Paul to Philemon',
+  'Hebrews': 'The Epistle of Paul the Apostle to the Hebrews',
+  'James': 'The General Epistle of James',
+  '1 Peter': 'The First Epistle General of Peter',
+  '2 Peter': 'The Second Epistle General of Peter',
+  '1 John': 'The First Epistle General of John',
+  '2 John': 'The Second Epistle of John',
+  '3 John': 'The Third Epistle of John',
+  'Jude': 'The General Epistle of Jude',
+  'Revelation': 'The Revelation of Saint John the Divine',
+};
+
 export const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
 
 // Psalm superscriptions (titles above verse 1). The Wharton PCE source text
@@ -336,7 +407,7 @@ export function verseFromRef(bible, ref) {
   const text = normalizePilcrows(textNoSup);
   const abbrEntry = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
   const abbr = abbrEntry ? abbrEntry[0] : bookName.slice(0, 3).toUpperCase();
-  const result: any = { abbr, book: bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
+  const result: any = { abbr, book: bookName, bookFullName: NAME_TO_FULL[bookName] || bookName, chapter: parseInt(chapterNum), verse: verseNum, text, ref };
   if (vo.heading) result.heading = vo.heading;
   if (superscription) result.superscription = superscription;
   // Psalm superscriptions are not in the Wharton PCE source text — look them
