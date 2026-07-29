@@ -403,10 +403,10 @@ export default function GospelContent({ collapsible = false, showPreachers = tru
           title="Believe you are a sinner that deserves hell"
           copyText={`1. Believe you are a sinner that deserves hell\n\n${VERSE_TEXTS['Rom3:20']}\n\n${VERSE_TEXTS['Psa9:17']}`}
         >
-          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 text-sm mb-3">
             {VERSE_TEXTS['Rom3:20']}
           </blockquote>
-          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 text-sm mb-3">
             {VERSE_TEXTS['Psa9:17']}
           </blockquote>
           <div className="flex flex-wrap gap-2">
@@ -423,7 +423,7 @@ export default function GospelContent({ collapsible = false, showPreachers = tru
           title="Believe that Jesus is God manifested in the flesh"
           copyText={`2. Believe that Jesus is God manifested in the flesh\n\n${VERSE_TEXTS['1Tim3:16']}`}
         >
-          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 text-sm mb-3">
             {VERSE_TEXTS['1Tim3:16']}
           </blockquote>
           <div className="flex flex-wrap gap-2">
@@ -439,10 +439,10 @@ export default function GospelContent({ collapsible = false, showPreachers = tru
           title="Believe he died, shed his blood, was buried and rose again for our sins according to the scriptures"
           copyText={`3. Believe he died, shed his blood, was buried and rose again for our sins according to the scriptures\n\n"Moreover, brethren, I declare unto you the gospel which I preached unto you... how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4\n\n${VERSE_TEXTS['Rom3:25']}`}
         >
-          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 text-sm mb-3">
             "Moreover, brethren, I declare unto you the gospel which I preached unto you, which also ye have received, and wherein ye stand; By which also ye are saved, if ye keep in memory what I preached unto you, unless ye have believed in vain. For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures." — 1 Corinthians 15:1–4
           </blockquote>
-          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 italic text-sm mb-3">
+          <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/80 text-sm mb-3">
             {VERSE_TEXTS['Rom3:25']}
           </blockquote>
           <div className="flex flex-wrap gap-2">
@@ -482,7 +482,7 @@ export default function GospelContent({ collapsible = false, showPreachers = tru
         <p className="font-sans text-sm text-foreground/80 mb-3">
           A believer who has trusted the gospel cannot lose salvation, no matter what happens in their life. God's gift of eternal life is just that — eternal.
         </p>
-        <blockquote className="border-l-2 border-accent pl-4 font-serif italic text-foreground/75 text-sm mb-2">
+        <blockquote className="border-l-2 border-accent pl-4 font-serif text-foreground/75 text-sm mb-2">
           "In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise." — <VerseLink book="Ephesians" chapter={1} verse={13}>Ephesians 1:13</VerseLink>
         </blockquote>
       </div>
