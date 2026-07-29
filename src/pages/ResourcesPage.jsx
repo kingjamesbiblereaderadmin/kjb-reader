@@ -761,6 +761,9 @@ export default function ResourcesPage() {
       {/* Why KJB is God's Word section */}
       <WhyKJBSection expanded={expandedSections.whyKjb} toggle={() => toggleSection('whyKjb')} />
 
+      {/* Scripture banner above preachers */}
+      <ScriptureBanner />
+
       {/* Verified Preachers section */}
       {expandedSections.preachers && (
         <PreachersSection openPreachers={expandedSections.preacherLinks} togglePreacher={togglePreacher} />
