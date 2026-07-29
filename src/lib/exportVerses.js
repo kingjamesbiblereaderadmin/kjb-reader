@@ -190,7 +190,7 @@ export function exportTxt(items, query, filters, options = {}) {
   }).join('\n\n\n');
   const footer = `\n\n${'='.repeat(50)}\n${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible`;
   const blob = new Blob(['\uFEFF', header + body + footer], { type: 'text/plain;charset=utf-8' });
-  downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.txt`);
+  downloadBlob(blob, `kjb-${sanitizeFilename(query)}${options.filenameSuffix || ''}${filterSuffix(filters)}.txt`);
 }
 
 // Parse a query into its highlight term(s). Quoted queries → a single literal
@@ -426,7 +426,7 @@ export function exportDocx(items, query, filters, options = {}) {
     `${headerHtml}${!isReading ? summaryHtml(options.filterSummary) : ''}${rows}` +
     `<p style="font-size:10pt;color:#777;${isReading ? 'text-align:center;' : ''}">${items.length} verse${items.length !== 1 ? 's' : ''} — King James Bible</p></body></html>`;
   const blob = new Blob(['\uFEFF', html], { type: 'application/msword' });
-  downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.doc`);
+  downloadBlob(blob, `kjb-${sanitizeFilename(query)}${options.filenameSuffix || ''}${filterSuffix(filters)}.doc`);
 }
 
 // ── CSV (Excel-compatible) — opens cleanly without the .xls format warning.
@@ -465,7 +465,7 @@ export function exportXls(items, query, filters, options = {}) {
   const csv = [...summaryRows, header, ...rows].join('\r\n');
   // Leading BOM so Excel detects UTF-8.
   const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
-  downloadBlob(blob, `kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.csv`);
+  downloadBlob(blob, `kjb-${sanitizeFilename(query)}${options.filenameSuffix || ''}${filterSuffix(filters)}.csv`);
 }
 
 // ── PDF (jsPDF) — italics preserved via font style switching ──
@@ -712,7 +712,7 @@ export function exportPdf(items, query, filters, options = {}) {
     }
   }
 
-  doc.save(`kjb-${sanitizeFilename(query)}${filterSuffix(filters)}.pdf`);
+  doc.save(`kjb-${sanitizeFilename(query)}${options.filenameSuffix || ''}${filterSuffix(filters)}.pdf`);
 }
 
 // ── Print ──
@@ -831,8 +831,10 @@ export function exportPrint(items, query, filters, options = {}) {
       summaryHtml(options.filterSummary);
 
   // Use a clean, generic title for the browser's print header so we avoid
-  // showing hyphenated file names or "about:blank".
-  const printTitle = '\u200B';
+  // showing hyphenated file names or "about:blank". When a filename suffix is
+  // provided (Advanced Search), use a descriptive title so "Save as PDF"
+  // suggests a filename that includes the active filters.
+  const printTitle = options.filenameSuffix ? `${titlePrefix}${options.filenameSuffix}` : '\u200B';
 
   const footerHtml = isReading 
     ? '' 

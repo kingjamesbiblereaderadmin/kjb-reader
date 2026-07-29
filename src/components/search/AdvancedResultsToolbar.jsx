@@ -37,6 +37,42 @@ function plainForCopy(text) {
     .trim();
 }
 
+// Build a short, filename-safe suffix describing the active advanced-search
+// filters (testament, book, match mode/options, numeric ranges, booleans,
+// sort). The search text itself is already the export "query" (first part of
+// the filename), so it's not duplicated here.
+function buildFilenameSuffix(filters) {
+  if (!filters) return '';
+  const parts = [];
+  if (filters.testament === 'old') parts.push('OT');
+  else if (filters.testament === 'new') parts.push('NT');
+  if (filters.book && filters.book !== 'all') parts.push(filters.book);
+  if (filters.textAdjacent) parts.push('phrase');
+  else if (filters.textInOrder) parts.push('inorder');
+  if (filters.textWholeWord) parts.push('wholeword');
+  if (filters.textCaseSensitive) parts.push('matchcase');
+  if (filters.ranges) {
+    for (const [key, r] of Object.entries(filters.ranges)) {
+      if (!r) continue;
+      const hasMin = r.min !== '' && r.min != null;
+      const hasMax = r.max !== '' && r.max != null;
+      if (hasMin && hasMax) parts.push(`${key}-${r.min}-${r.max}`);
+      else if (hasMin) parts.push(`${key}-min${r.min}`);
+      else if (hasMax) parts.push(`${key}-max${r.max}`);
+    }
+  }
+  if (filters.bools) {
+    for (const [key, val] of Object.entries(filters.bools)) {
+      if (val && val !== 'any') parts.push(`${key}-${val}`);
+    }
+  }
+  if (filters.sortKey && filters.sortKey !== 'none' && filters.sortKey !== 'canonical') {
+    parts.push(`sort-${filters.sortKey}-${filters.sortDir || 'asc'}`);
+  }
+  const slug = parts.join('-').replace(/[^a-zA-Z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+  return slug ? `-${slug}` : '';
+}
+
 const FORMATS = [
   { key: 'pdf', label: 'PDF', icon: FileDown },
   { key: 'docx', label: 'Word (.doc)', icon: FileType },
@@ -65,7 +101,8 @@ export default function AdvancedResultsToolbar({ records, selectedRecords, filte
   const query = searchText || 'Advanced-Search';
   const items = active.map(toExportItem);
   const filterSummary = describeFilters(filters);
-  const exportOptions = { titlePrefix: 'KJB Advanced Search', filterSummary, showQuery: !!searchText };
+  const filenameSuffix = buildFilenameSuffix(filters);
+  const exportOptions = { titlePrefix: 'KJB Advanced Search', filterSummary, filenameSuffix, showQuery: !!searchText };
 
   // The exporter's highlighter reads `filters.caseSensitive` / `filters.wholeWord`
   // and treats commas / quotes specially. Advanced Search stores these under
