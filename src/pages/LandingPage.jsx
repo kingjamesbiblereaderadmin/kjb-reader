@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
+import ScriptureBanner from '@/components/ScriptureBanner';
 
 function TikTokIcon({ className }) {
   return (
@@ -38,6 +39,9 @@ export default function LandingPage() {
           <p className="font-sans text-sm text-muted-foreground">Read the King James Bible — anytime, anywhere, even offline.</p>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
+
+        {/* Scripture banner */}
+        <ScriptureBanner />
 
         {/* CTA */}
         <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03] text-center">
