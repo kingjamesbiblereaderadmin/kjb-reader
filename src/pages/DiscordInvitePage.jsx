@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 // 1529303667348606996). Kept here so kingjamesbiblereader.com/discord is the
 // single canonical short link people share/click.
 export const DISCORD_ADD_TO_SERVER_URL =
-  'https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072';
+  'https://discord.com/api/oauth2/authorize?client_id=1529303667348606996&permissions=397821864976&scope=bot+applications.commands&redirect_uri=https%3A%2F%2Fsolene-c1cbdd64.base44.app%2Ffunctions%2FdiscordGuildJoin&response_type=code';
 
 export const DISCORD_ADD_TO_APPS_URL =
   'https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=applications.commands&integration_type=1';
