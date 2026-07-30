@@ -321,10 +321,13 @@ async function buildPdf(opts, bible, onProgress) {
         const last = verses[verses.length - 1];
         verses = [...verses.slice(0, -1), { ...last, text: stripEndMarker(last.text) }];
       }
-      // Reserve room for the chapter heading PLUS its first verse line, so the
-      // heading never gets orphaned at the very bottom of a page/column. (heading
-      // 11pt + 22pt gap + first verse line ≈ 34 + bodySize + 4)
-      ensureSpace(ctx, 34 + bodySize + 8);
+      // Reserve room for the chapter heading PLUS a few verse lines, so the
+      // heading is never orphaned at the bottom of a page/column with only its
+      // first verse. Includes the pre-chapter breathing gap (12pt) + heading
+      // (11pt) + 22pt gap + ~3 verse lines, so the heading always travels with a
+      // meaningful block of its text instead of being split off.
+      const chapterReserve = (ch > 1 ? 12 : 0) + 11 + 22 + (bodySize + 3.5) * 3 + 8;
+      ensureSpace(ctx, chapterReserve);
       if (ch > 1 && !atPageTop(ctx)) ctx.y += 12; // breathing room before each new chapter
       if (onChapterStart) onChapterStart(ch, ctx);
       doc.setFont(F, 'bold'); doc.setFontSize(11);
