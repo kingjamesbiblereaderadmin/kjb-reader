@@ -51,14 +51,11 @@ function loadPosition() {
 
 function savePosition(abbr, chapter, verse = null) {
   try {
-    let verseEnd = null;
-    try {
-      const prev = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      if (prev.abbr === abbr && prev.chapter === chapter && prev.verse === verse && prev.verseEnd) {
-        verseEnd = prev.verseEnd;
-      }
-    } catch {}
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse, verseEnd }));
+    // verseEnd (a "Read Selected" passage range) is intentionally NOT persisted
+    // across saves — it's a transient in-session view. Persisting it made the
+    // reader jump back into a filtered passage on reopen. Share links carry
+    // their own verseEnd in the URL when a range is meant.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ abbr, chapter, verse, verseEnd: null }));
     // Dispatch a storage event so the settings sync push listener picks up
     // the new position and pushes it to the cloud for cross-device sync.
     // localStorage.setItem in the same tab does NOT fire 'storage' natively.
@@ -315,13 +312,19 @@ export default function BibleReader() {
   };
 
   const generateShareText = () => {
-    const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
-    const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
+    // Coerce verse numbers to ints — selectedVerses holds ints (from
+    // toggleVerseSelect) while cached v.verse can be a string, so a plain
+    // toUse.has(v.verse) match silently produced an empty selection and an
+    // empty clipboard (copy "didn't work").
+    const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => parseInt(v.verse, 10)));
+    const verseInSel = (v) => toUse.has(parseInt(v.verse, 10));
+    const selectedVersesList = verses.filter(verseInSel).sort((a, b) => parseInt(a.verse, 10) - parseInt(b.verse, 10));
 
     const groups = [];
     let group = [];
     selectedVersesList.forEach((v) => {
-      if (group.length === 0 || v.verse === group[group.length - 1].verse + 1) {
+      const vn = parseInt(v.verse, 10);
+      if (group.length === 0 || vn === parseInt(group[group.length - 1].verse, 10) + 1) {
         group.push(v);
       } else {
         groups.push(group);
@@ -331,21 +334,23 @@ export default function BibleReader() {
     if (group.length) groups.push(group);
 
     const chapterSubscript = resolveSubscript(book.apiName, pos.chapter) || null;
-    const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
+    const lastVerseNum = verses.length ? parseInt(verses[verses.length - 1].verse, 10) : null;
     // Subscript/colophon are included when explicitly selected (Select-mode tap)
     // or, when no section has been explicitly toggled, when their anchor verse
     // (1 / last) is in the selection — preserving the pre-tap behaviour.
     const anySectionToggled = selectedSections.size > 0;
     const wantSub = !!chapterSubscript && (selectedSections.has('subscript') || (!anySectionToggled && groups.some(g => g.some(v => parseInt(v.verse, 10) === 1))));
-    const wantCol = !!colophon && (selectedSections.has('colophon') || (!anySectionToggled && groups.some(g => g.some(v => parseInt(v.verse, 10) === parseInt(lastVerseNum, 10)))));
+    const wantCol = !!colophon && (selectedSections.has('colophon') || (!anySectionToggled && groups.some(g => g.some(v => parseInt(v.verse, 10) === lastVerseNum))));
     const blocks = groups.map((g, gi) => {
-      const range = formatVerseRange(g.map(v => v.verse));
+      const nums = g.map(v => parseInt(v.verse, 10));
+      const range = formatVerseRange(nums);
+      const first = nums[0], last = nums[nums.length - 1];
       return formatVerseShare({
         text: g.map(v => cleanVerseText(v.text)).join(' '),
         subscript: gi === 0 && wantSub ? chapterSubscript : null,
         colophon: gi === groups.length - 1 && wantCol ? colophon : null,
         ref: `${book.shortName} ${pos.chapter}:${range}`,
-        url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: g[0].verse, verseEnd: g[g.length - 1].verse > g[0].verse ? g[g.length - 1].verse : undefined, from: searchTerm ? 'search' : undefined }),
+        url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: first, verseEnd: last > first ? last : undefined, from: searchTerm ? 'search' : undefined }),
       });
     });
     return blocks.join('\n\n———\n\n');
@@ -373,13 +378,18 @@ export default function BibleReader() {
   // Per-verse copy: each selected verse's text on its own line, followed by a
   // single combined reference at the end (not a ref per verse).
   const generatePerVerseText = () => {
-    const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => v.verse));
-    const selectedVersesList = verses.filter(v => toUse.has(v.verse)).sort((a, b) => a.verse - b.verse);
+    // Coerce verse numbers to ints (see generateShareText) — cached v.verse can
+    // be a string while selectedVerses holds ints, which broke the filter.
+    const toUse = selectedVerses.size > 0 ? selectedVerses : new Set(verses.map(v => parseInt(v.verse, 10)));
+    const verseInSel = (v) => toUse.has(parseInt(v.verse, 10));
+    const selectedVersesList = verses.filter(verseInSel).sort((a, b) => parseInt(a.verse, 10) - parseInt(b.verse, 10));
 
     const verseLines = selectedVersesList.map(v => cleanVerseText(v.text).replace(/^¶\s*/, ''));
-    const range = formatVerseRange(selectedVersesList.map(v => v.verse));
+    const nums = selectedVersesList.map(v => parseInt(v.verse, 10));
+    const range = formatVerseRange(nums);
     const ref = `${book.shortName} ${pos.chapter}:${range}`;
-    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: selectedVersesList[0]?.verse, verseEnd: selectedVersesList[selectedVersesList.length - 1]?.verse > selectedVersesList[0]?.verse ? selectedVersesList[selectedVersesList.length - 1]?.verse : undefined, from: searchTerm ? 'search' : undefined });
+    const first = nums[0], last = nums[nums.length - 1];
+    const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: first, verseEnd: last > first ? last : undefined, from: searchTerm ? 'search' : undefined });
 
     // Include the Psalm superscription (subscript) and epistle colophon when
     // explicitly selected (Select-mode tap) or — when no section has been
@@ -387,8 +397,8 @@ export default function BibleReader() {
     const parts = [];
     const includesV1 = selectedVersesList.some(v => parseInt(v.verse, 10) === 1);
     const chapterSub = resolveSubscript(book.apiName, pos.chapter) || null;
-    const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
-    const includesLast = lastVerseNum != null && selectedVersesList.some(v => parseInt(v.verse, 10) === parseInt(lastVerseNum, 10));
+    const lastVerseNum = verses.length ? parseInt(verses[verses.length - 1].verse, 10) : null;
+    const includesLast = lastVerseNum != null && selectedVersesList.some(v => parseInt(v.verse, 10) === lastVerseNum);
     const anySectionToggled = selectedSections.size > 0;
     if (chapterSub && (selectedSections.has('subscript') || (!anySectionToggled && includesV1))) {
       parts.push(`¶ ${cleanVerseText(chapterSub).replace(/^[\u00B6\uFFFD¶]\s*/, '')}`);
@@ -425,7 +435,7 @@ export default function BibleReader() {
   const handleSaveSelected = () => {
     if (!selectedVerses.size) return;
     [...selectedVerses].sort((a, b) => a - b).forEach((vNum) => {
-      const v = verses.find(vv => vv.verse === vNum);
+      const v = verses.find(vv => parseInt(vv.verse, 10) === vNum);
       if (!v) return;
       saveVerse({ abbr: pos.abbr, chapter: pos.chapter, verse: vNum, ref: `${book.shortName} ${pos.chapter}:${vNum}`, text: cleanVerseText(v.text), folder: 'Favorites' });
     });
@@ -443,9 +453,9 @@ export default function BibleReader() {
       if (last > first) url += `&verseEnd=${last}`;
       try {
         window.history.replaceState({}, '', url);
+        // Only persist the starting verse (not verseEnd) so reopening the reader
+        // lands on the chapter instead of jumping back into this filtered passage.
         savePosition(pos.abbr, pos.chapter, first);
-        const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...p, verseEnd: last > first ? last : null }));
       } catch {}
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -738,12 +748,17 @@ export default function BibleReader() {
                 }
               }
               // Restore the "verse only" vs "full chapter" view and any
-              // selected verses so the share/copy toolbar reappears too.
-              if (state.filterMode !== undefined) setFilterMode(state.filterMode);
-              if (state.selectedVerses && state.selectedVerses.length > 0) {
-                const newSet = new Set(state.selectedVerses);
-                setSelectedVerses(newSet);
-                setHighlightedVerses(newSet);
+              // selected verses ONLY when this was an active search or gospel
+              // session — otherwise reopening would jump back into a "Read
+              // Selected" passage filter from a previous session.
+              const hadContext = (state.hasSearchContext && state.searchTerm) || state.hasGospelContext;
+              if (hadContext) {
+                if (state.filterMode !== undefined) setFilterMode(state.filterMode);
+                if (state.selectedVerses && state.selectedVerses.length > 0) {
+                  const newSet = new Set(state.selectedVerses);
+                  setSelectedVerses(newSet);
+                  setHighlightedVerses(newSet);
+                }
               }
             } else if (searchTerm || gospelMode) {
               // Landed on a chapter with no saved toolbar state for it (e.g. a
@@ -851,16 +866,21 @@ export default function BibleReader() {
                   setGospelTotalResults(g.results.length);
                 }
               }
-              // Restore filter mode and selected verses
-              if (state.filterMode !== undefined) { setFilterMode(state.filterMode); restoredFilterMode = true; }
-              if (state.selectedVerses && state.selectedVerses.length > 0) {
-                const newSet = new Set(state.selectedVerses);
-                setSelectedVerses(newSet);
-                setHighlightedVerses(newSet);
-                restoredSelection = true;
-                // Track the verse to highlight/scroll to below — kjb-position's own
-                // verse can be stale/null here even though a selection was restored.
-                restoredHighlightVerse = Math.min(...newSet);
+              // Restore filter mode and selected verses ONLY for an active
+              // search/gospel session — a plain "Read Selected" passage filter
+              // must not reapply on reopen (jumps back to filter from a previous).
+              const hadContext = (state.hasSearchContext && state.searchTerm) || state.hasGospelContext;
+              if (hadContext) {
+                if (state.filterMode !== undefined) { setFilterMode(state.filterMode); restoredFilterMode = true; }
+                if (state.selectedVerses && state.selectedVerses.length > 0) {
+                  const newSet = new Set(state.selectedVerses);
+                  setSelectedVerses(newSet);
+                  setHighlightedVerses(newSet);
+                  restoredSelection = true;
+                  // Track the verse to highlight/scroll to below — kjb-position's own
+                  // verse can be stale/null here even though a selection was restored.
+                  restoredHighlightVerse = Math.min(...newSet);
+                }
               }
               // Restore the "verse/chapter only" flag (Show Full Chapter vs Verses
               // Only) so it matches what the user last had open on this chapter.
