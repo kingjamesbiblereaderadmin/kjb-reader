@@ -113,6 +113,7 @@ export default function BibleReader() {
   const [showFontPopover, setShowFontPopover] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState(new Set());
+  const [selectedSections, setSelectedSections] = useState(new Set());
   const [filterMode, setFilterMode] = useState(false);
   const [fontFamily, setFontFamily] = useState(() => {
     try { return localStorage.getItem('kjb-reader-font-family') || 'serif'; } catch { return 'serif'; }
@@ -284,8 +285,33 @@ export default function BibleReader() {
     });
   };
 
+  // Clear section selection whenever select mode is turned off (covers Cancel,
+  // Clear, Read selected, and any navigation that exits select mode).
+  useEffect(() => {
+    if (!selectMode) setSelectedSections(new Set());
+  }, [selectMode]);
+
+  // In Select mode the subscript/colophon blocks toggle a selected state
+  // (included in copy); outside Select mode they keep the single-highlight behaviour.
+  const sectionActive = (key) => selectMode ? selectedSections.has(key) : highlightSection === key;
+  const handleSectionClick = (key) => {
+    if (selectMode) {
+      setSelectedSections(prev => {
+        const next = new Set(prev);
+        next.has(key) ? next.delete(key) : next.add(key);
+        return next;
+      });
+    } else {
+      setHighlightSection(s => s === key ? null : key);
+    }
+  };
+
   const selectAllVerses = () => {
     setSelectedVerses(new Set(verses.map(v => parseInt(v.verse, 10))));
+    const next = new Set();
+    if (chapterSubscript) next.add('subscript');
+    if (colophon) next.add('colophon');
+    setSelectedSections(next);
   };
 
   const generateShareText = () => {
@@ -306,14 +332,18 @@ export default function BibleReader() {
 
     const chapterSubscript = resolveSubscript(book.apiName, pos.chapter) || null;
     const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
-    const blocks = groups.map((g) => {
+    // Subscript/colophon are included when explicitly selected (Select-mode tap)
+    // or, when no section has been explicitly toggled, when their anchor verse
+    // (1 / last) is in the selection — preserving the pre-tap behaviour.
+    const anySectionToggled = selectedSections.size > 0;
+    const wantSub = !!chapterSubscript && (selectedSections.has('subscript') || (!anySectionToggled && groups.some(g => g.some(v => parseInt(v.verse, 10) === 1))));
+    const wantCol = !!colophon && (selectedSections.has('colophon') || (!anySectionToggled && groups.some(g => g.some(v => parseInt(v.verse, 10) === parseInt(lastVerseNum, 10)))));
+    const blocks = groups.map((g, gi) => {
       const range = formatVerseRange(g.map(v => v.verse));
-      const includesV1 = g.some(v => parseInt(v.verse, 10) === 1);
-      const includesLast = lastVerseNum != null && g.some(v => parseInt(v.verse, 10) === parseInt(lastVerseNum, 10));
       return formatVerseShare({
         text: g.map(v => cleanVerseText(v.text)).join(' '),
-        subscript: includesV1 ? chapterSubscript : null,
-        colophon: includesLast ? colophon : null,
+        subscript: gi === 0 && wantSub ? chapterSubscript : null,
+        colophon: gi === groups.length - 1 && wantCol ? colophon : null,
         ref: `${book.shortName} ${pos.chapter}:${range}`,
         url: buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: g[0].verse, verseEnd: g[g.length - 1].verse > g[0].verse ? g[g.length - 1].verse : undefined, from: searchTerm ? 'search' : undefined }),
       });
@@ -351,20 +381,21 @@ export default function BibleReader() {
     const ref = `${book.shortName} ${pos.chapter}:${range}`;
     const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: selectedVersesList[0]?.verse, verseEnd: selectedVersesList[selectedVersesList.length - 1]?.verse > selectedVersesList[0]?.verse ? selectedVersesList[selectedVersesList.length - 1]?.verse : undefined, from: searchTerm ? 'search' : undefined });
 
-    // Include the Psalm superscription (subscript) when verse 1 is in the
-    // selection, and the epistle colophon when the chapter's last verse is —
-    // mirroring "Copy (Passage)" so per-verse copy carries them too.
+    // Include the Psalm superscription (subscript) and epistle colophon when
+    // explicitly selected (Select-mode tap) or — when no section has been
+    // toggled — when their anchor verse (1 / last) is in the selection.
     const parts = [];
     const includesV1 = selectedVersesList.some(v => parseInt(v.verse, 10) === 1);
     const chapterSub = resolveSubscript(book.apiName, pos.chapter) || null;
-    if (includesV1 && chapterSub) {
+    const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
+    const includesLast = lastVerseNum != null && selectedVersesList.some(v => parseInt(v.verse, 10) === parseInt(lastVerseNum, 10));
+    const anySectionToggled = selectedSections.size > 0;
+    if (chapterSub && (selectedSections.has('subscript') || (!anySectionToggled && includesV1))) {
       parts.push(`¶ ${cleanVerseText(chapterSub).replace(/^[\u00B6\uFFFD¶]\s*/, '')}`);
     }
     parts.push(verseLines.join('\n\n'));
     parts.push(`${ref} (KJB)`);
-    const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
-    const includesLast = lastVerseNum != null && selectedVersesList.some(v => parseInt(v.verse, 10) === parseInt(lastVerseNum, 10));
-    if (includesLast && colophon) {
+    if (colophon && (selectedSections.has('colophon') || (!anySectionToggled && includesLast))) {
       parts.push(`¶ ${cleanVerseText(colophon).replace(/^[\u00B6\uFFFD¶]\s*/, '')}`);
     }
     parts.push(`Read more: <${url}>`);
@@ -1842,11 +1873,11 @@ export default function BibleReader() {
           </p>
           {chapterSubscript && (
             <p
-              onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor"
-              className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
+              onClick={() => handleSectionClick('subscript')} id="kjb-subscript-anchor"
+              className={`kjb-subscript text-sm text-muted-foreground mt-2 mb-4 max-w-lg mx-auto leading-relaxed text-center transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${sectionActive('subscript') ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}
               style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem` }}
             >
-              <SubscriptContent text={chapterSubscript} searchTerm={highlightSection === 'subscript' ? searchTerm : null} />
+              <SubscriptContent text={chapterSubscript} searchTerm={sectionActive('subscript') ? searchTerm : null} />
             </p>
           )}
         </div>
@@ -1879,7 +1910,7 @@ export default function BibleReader() {
           return (
           <div className={`${useColumns ? 'kjb-two-col text-left hyphens-auto' : 'text-left'} ${paragraphMode ? 'text-left px-2 sm:px-4' : ''}`} style={useColumns ? { fontSize: 'inherit', columnCount: 2, columnGap: '1.5rem', columnRule: '1px solid hsl(var(--border))' } : { fontSize: 'inherit' }}>
             {columnMode && !isViewingTitlePage && chapterSubscript && (
-              <p onClick={() => setHighlightSection(s => s === 'subscript' ? null : 'subscript')} id="kjb-subscript-anchor" className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${highlightSection === 'subscript' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={chapterSubscript} searchTerm={highlightSection === 'subscript' ? searchTerm : null} /></p>
+              <p onClick={() => handleSectionClick('subscript')} id="kjb-subscript-anchor" className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${sectionActive('subscript') ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={chapterSubscript} searchTerm={sectionActive('subscript') ? searchTerm : null} /></p>
             )}
             {verses.filter(v => !activeFilter || verseInSelection(v)).map((v, idx) => (
               <VerseText
@@ -1896,8 +1927,8 @@ export default function BibleReader() {
           );
         })()}
         {!loading && !error && colophon && (
-          <div onClick={() => { setHighlightSection(highlightSection === 'colophon' ? null : 'colophon'); }} id="kjb-colophon-anchor" className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center transition-colors duration-500 rounded-lg cursor-pointer ${highlightSection === 'colophon' ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}>
-            <p className={`kjb-colophon text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={colophon} searchTerm={highlightSection === 'colophon' ? searchTerm : null} /></p>
+          <div onClick={() => handleSectionClick('colophon')} id="kjb-colophon-anchor" className={`${columnMode ? 'mt-6 mb-4' : 'mt-12 mb-4 border-t border-border pt-6'} text-center transition-colors duration-500 rounded-lg cursor-pointer ${sectionActive('colophon') ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`}>
+            <p className={`kjb-colophon text-sm text-muted-foreground leading-relaxed ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={colophon} searchTerm={sectionActive('colophon') ? searchTerm : null} /></p>
           </div>
         )}
       </div>
