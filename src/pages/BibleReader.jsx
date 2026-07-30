@@ -308,8 +308,8 @@ export default function BibleReader() {
     const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
     const blocks = groups.map((g) => {
       const range = formatVerseRange(g.map(v => v.verse));
-      const includesV1 = g.some(v => v.verse === 1);
-      const includesLast = lastVerseNum != null && g.some(v => v.verse === lastVerseNum);
+      const includesV1 = g.some(v => parseInt(v.verse, 10) === 1);
+      const includesLast = lastVerseNum != null && g.some(v => parseInt(v.verse, 10) === parseInt(lastVerseNum, 10));
       return formatVerseShare({
         text: g.map(v => cleanVerseText(v.text)).join(' '),
         subscript: includesV1 ? chapterSubscript : null,
@@ -350,7 +350,25 @@ export default function BibleReader() {
     const range = formatVerseRange(selectedVersesList.map(v => v.verse));
     const ref = `${book.shortName} ${pos.chapter}:${range}`;
     const url = buildVerseUrl({ abbr: pos.abbr, chapter: pos.chapter, verse: selectedVersesList[0]?.verse, verseEnd: selectedVersesList[selectedVersesList.length - 1]?.verse > selectedVersesList[0]?.verse ? selectedVersesList[selectedVersesList.length - 1]?.verse : undefined, from: searchTerm ? 'search' : undefined });
-    return `${verseLines.join('\n\n')}\n\n${ref} (KJB)\n\nRead more: <${url}>`;
+
+    // Include the Psalm superscription (subscript) when verse 1 is in the
+    // selection, and the epistle colophon when the chapter's last verse is —
+    // mirroring "Copy (Passage)" so per-verse copy carries them too.
+    const parts = [];
+    const includesV1 = selectedVersesList.some(v => parseInt(v.verse, 10) === 1);
+    const chapterSub = resolveSubscript(book.apiName, pos.chapter) || null;
+    if (includesV1 && chapterSub) {
+      parts.push(`¶ ${cleanVerseText(chapterSub).replace(/^[\u00B6\uFFFD¶]\s*/, '')}`);
+    }
+    parts.push(verseLines.join('\n\n'));
+    parts.push(`${ref} (KJB)`);
+    const lastVerseNum = verses.length ? verses[verses.length - 1].verse : null;
+    const includesLast = lastVerseNum != null && selectedVersesList.some(v => parseInt(v.verse, 10) === parseInt(lastVerseNum, 10));
+    if (includesLast && colophon) {
+      parts.push(`¶ ${cleanVerseText(colophon).replace(/^[\u00B6\uFFFD¶]\s*/, '')}`);
+    }
+    parts.push(`Read more: <${url}>`);
+    return parts.join('\n\n');
   };
 
   const handleCopyPerVerse = async () => {
