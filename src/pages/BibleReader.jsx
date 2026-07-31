@@ -63,6 +63,28 @@ function savePosition(abbr, chapter, verse = null) {
   } catch {}
 }
 
+async function copyToClipboard(text) {
+  // Prefer the async Clipboard API — execCommand('copy') is deprecated and
+  // silently fails (returns false WITHOUT throwing) in many modern browsers
+  // and PWA standalone mode, so the old catch-fallback never ran and nothing
+  // was copied. The Clipboard API returns a rejected promise on real failure,
+  // so we only fall back to the textarea hack when it's genuinely unavailable.
+  if (navigator.clipboard && window.isSecureContext) {
+    try { await navigator.clipboard.writeText(text); return; } catch {}
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.top = '0';
+  textarea.style.left = '0';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try { document.execCommand('copy'); } catch {}
+  document.body.removeChild(textarea);
+}
+
 export default function BibleReader() {
   const { hideHeader, setHideHeader } = useHeaderHide();
   const routerLocation = useLocation();
@@ -358,19 +380,7 @@ export default function BibleReader() {
 
   const handleCopySelected = async () => {
     const lines = generateShareText();
-    
-    try {
-      const textarea = document.createElement('textarea');
-      textarea.value = lines;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    } catch {
-      await navigator.clipboard.writeText(lines);
-    }
+    await copyToClipboard(lines);
     setCopyFeedback(true);
     setTimeout(() => setCopyFeedback(false), 1800);
   };
@@ -414,20 +424,7 @@ export default function BibleReader() {
 
   const handleCopyPerVerse = async () => {
     const lines = generatePerVerseText();
-    console.log('[KJB] Per-verse copy output:', JSON.stringify(lines));
-
-    try {
-      const textarea = document.createElement('textarea');
-      textarea.value = lines;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    } catch {
-      await navigator.clipboard.writeText(lines);
-    }
+    await copyToClipboard(lines);
     setCopyFeedback(true);
     setTimeout(() => setCopyFeedback(false), 1800);
   };
