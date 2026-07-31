@@ -1047,11 +1047,11 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
             — {verse.ref}
           </p>
 
-          {/* Date — merged into the same block as verse + ref so long verses
-              flow naturally without overlapping or overflowing. */}
-          <div className="flex flex-col items-center justify-center w-full mt-8 relative z-10">
+          {/* Date — inline within the same verse/ref block so it flows
+              naturally and never gets clipped by a fixed line-height. */}
+          <div className="flex flex-col items-center justify-center w-full mt-6 relative z-10">
             <span
-              className="whitespace-nowrap"
+              className="whitespace-nowrap inline-block"
               style={{
                 backgroundColor: hasCustomBg ? 'rgba(0, 0, 0, 0.55)' : `rgba(${defaultBg.pill}, 0.65)`,
                 border: '1px solid rgba(255,255,255,0.18)',
@@ -1061,8 +1061,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 fontSize: '13px',
                 fontWeight: 700,
                 letterSpacing: '0.03em',
-                lineHeight: a11yFont === 'dyslexic' ? '1.5' : '13px',
-                padding: a11yFont === 'dyslexic' ? '10px 18px' : '8px 18px',
+                lineHeight: 'normal',
+                padding: '8px 18px',
                 boxShadow: '0 3px 9px rgba(0,0,0,0.3)',
               }}
             >
