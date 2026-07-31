@@ -1061,8 +1061,8 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 fontSize: '13px',
                 fontWeight: 700,
                 letterSpacing: '0.03em',
-                lineHeight: '13px',
-                padding: '8px 18px',
+                lineHeight: a11yFont === 'dyslexic' ? '1.5' : '13px',
+                padding: a11yFont === 'dyslexic' ? '10px 18px' : '8px 18px',
                 boxShadow: '0 3px 9px rgba(0,0,0,0.3)',
               }}
             >
