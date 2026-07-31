@@ -394,7 +394,7 @@ export default function BibleReader() {
     const verseInSel = (v) => toUse.has(parseInt(v.verse, 10));
     const selectedVersesList = verses.filter(verseInSel).sort((a, b) => parseInt(a.verse, 10) - parseInt(b.verse, 10));
 
-    const verseLines = selectedVersesList.map(v => cleanVerseText(v.text).replace(/^¶\s*/, ''));
+    const verseLines = selectedVersesList.map(v => `${parseInt(v.verse, 10)} ${cleanVerseText(v.text).replace(/^¶\s*/, '')}`);
     const nums = selectedVersesList.map(v => parseInt(v.verse, 10));
     const range = formatVerseRange(nums);
     const ref = `${book.shortName} ${pos.chapter}:${range}`;
