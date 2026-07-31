@@ -741,7 +741,7 @@ export default function ResourcesPage() {
           <div>
             <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJB Discord Bot</h2>
             <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
-              Add the KJB Reader bot to your Discord server for daily verses and verse search directly in Discord.
+              Use the KJB Reader bot in your own Discord account or add it to a server for daily verses and verse search directly in Discord.
             </p>
             <div className="flex items-center gap-3 flex-wrap">
               <a
@@ -750,7 +750,7 @@ export default function ResourcesPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
-                Add to your server <ExternalLink className="w-3.5 h-3.5" />
+                Get the Discord Bot <ExternalLink className="w-3.5 h-3.5" />
               </a>
               <CopyButton text="https://kingjamesbiblereader.com/discord" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
             </div>
