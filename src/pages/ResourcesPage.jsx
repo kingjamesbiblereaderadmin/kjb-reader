@@ -71,27 +71,7 @@ function getLinkLabel(url) {
   try {return new URL(url).hostname.replace('www.', '');} catch {return 'Website';}
 }
 
-const WHY_KJB = {
-  title: "Why the KJB is God's Word",
-  desc: "The King James Bible is the only preserved Word of God in the English Language",
-  content: [
-  {
-    title: "The Word of God Will Keep Its Infallibility",
-    text: "A historical book demonstrating that the King James Bible is the infallible, preserved Word of God in the English language. Full text available on Archive.org.",
-    links: [{ url: 'https://archive.org/details/wordgodwillkeepi0000faus', label: 'Read on Archive.org' }]
-  },
-  {
-    title: "Warning on the NKJV",
-    text: "You are more than welcome to purchase a King James Bible from the Dollar Store or any Bible retailer without worrying about errors. However, please note: the NKJV is not the same as the King James Bible. Please check out this resource to learn more and do your own research.",
-    links: [{ url: 'https://www.scionofzion.com/nkjv.htm', label: 'NKJV Comparison' }]
-  },
-  {
-    title: "Textus Receptus Bibles",
-    text: "Research on the Textus Receptus — the Greek text underlying the King James Bible.",
-    links: [{ url: 'https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs', label: 'Read comparison' }]
-  }]
 
-};
 
 const PREACHERS = [
 {
@@ -164,75 +144,10 @@ const PREACHERS = [
 
 
 
-const RESOURCES = [
-{
-  category: "How to Read the Bible",
-  icon: BookOpen,
-  color: "text-green-600",
-  bg: "bg-green-50 dark:bg-green-900/20",
-  expandable: true,
-  items: [
-  {
-    title: "AV Publications",
-    desc: "Books and resources for King James Bible believers.",
-    url: "https://avpublications.com/",
-    label: "avpublications.com"
-  }]
-}
-];
+const RESOURCES = [];
 
 
-function WhyKJBSection({ expanded, toggle }) {
-  return (
-    <div className="mb-10">
-      <button
-        onClick={toggle}
-        className="w-full bg-gradient-to-r from-amber-50 to-amber-50 dark:from-amber-900/20 dark:to-amber-900/20 border border-amber-200 dark:border-amber-900/30 rounded-xl p-4 hover:border-amber-300 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left">
-        
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="font-serif font-bold text-lg text-foreground mb-1">{WHY_KJB.title}</h2>
-            <p className="font-sans text-sm text-muted-foreground">{WHY_KJB.desc}</p>
-          </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <CopyButton 
-              text={`${WHY_KJB.title}\n${WHY_KJB.desc}\n\n${WHY_KJB.content.map(item => `${item.title}\n${item.text}\n${item.links ? item.links.map(l => l.url).join('\n') : ''}`).join('\n\n')}`} 
-              className="p-2 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 transition-colors cursor-pointer" 
-            />
-            <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`} />
-          </div>
-        </div>
-      </button>
-      {expanded &&
-      <div className="mt-3 space-y-3">
-          {WHY_KJB.content.map((item) =>
-        <div key={item.title} className="bg-card border border-border rounded-lg p-4">
-              <h3 className="font-serif font-semibold text-foreground mb-2">{item.title}</h3>
-              <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-2">{item.text}</p>
-              {item.links &&
-          <div className="flex flex-wrap gap-4 mt-3">
-                  {item.links.map((link) =>
-            <div key={link.url} className="flex items-center gap-1.5">
-              <a
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent/80 transition-colors underline underline-offset-2">
-                
-                        {link.label} <ExternalLink className="w-3 h-3" />
-                      </a>
-                      <CopyButton text={link.url} className="p-1 rounded hover:bg-accent/10 text-accent/70 hover:text-accent transition-colors" />
-                    </div>
-            )}
-                </div>
-          }
-            </div>
-        )}
-        </div>
-      }
-    </div>);
 
-}
 
 function PreachersSection({ openPreachers, togglePreacher }) {
   return (
@@ -309,7 +224,6 @@ function PreachersSection({ openPreachers, togglePreacher }) {
 
 export default function ResourcesPage() {
   const [expandedSections, setExpandedSections] = useState(() => ({
-    whyKjb: true,
     preachers: true,
     ministry: true,
     disclaimer: true,
@@ -320,7 +234,6 @@ export default function ResourcesPage() {
   // Tracks whether the last toggleAll set everything to expanded.
   // Resets to false as soon as the user collapses anything individually.
   const allExpanded =
-    expandedSections.whyKjb &&
     expandedSections.preachers &&
     expandedSections.ministry &&
     expandedSections.disclaimer &&
@@ -339,7 +252,6 @@ export default function ResourcesPage() {
     });
     setExpandedSections(prev => ({
       ...prev,
-      whyKjb: newState,
       preachers: newState,
       ministry: newState,
       disclaimer: newState,
@@ -369,13 +281,6 @@ export default function ResourcesPage() {
   const handlePrint = () => {
     const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     let html = `<h1 style="font-family:Georgia,serif;font-size:22pt;text-align:center;margin-bottom:6pt;">Resources</h1><p style="text-align:center;font-size:11pt;color:#555;margin-bottom:24pt;">KJB defence materials, studies on modern version corruption, and free Bible study resources.</p>`;
-
-    // Why the KJB is God's Word
-    html += `<h2 style="font-size:15pt;margin:24pt 0 4pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">${esc(WHY_KJB.title)}</h2><p style="font-size:11pt;color:#555;margin:0 0 10pt 0;">${esc(WHY_KJB.desc)}</p>`;
-    WHY_KJB.content.forEach((item) => {
-      html += `<h3 style="font-size:13pt;margin:12pt 0 4pt 0;">${esc(item.title)}</h3><p style="font-size:11pt;line-height:1.5;margin:0 0 4pt 0;">${esc(item.text)}</p>`;
-      (item.links || []).forEach((l) => { html += `<p style="font-size:10pt;color:#2a5ac8;margin:0 0 2pt 0;">${esc(l.label)}: ${esc(l.url)}</p>`; });
-    });
 
     // Verified Preachers
     html += `<h2 style="font-size:15pt;margin:24pt 0 8pt 0;border-bottom:1px solid #ccc;padding-bottom:4pt;">Verified KJB Preachers</h2>`;
@@ -493,9 +398,6 @@ export default function ResourcesPage() {
           </div>
         </div>
       </div>
-
-      {/* Why KJB is God's Word section */}
-      <WhyKJBSection expanded={expandedSections.whyKjb} toggle={() => toggleSection('whyKjb')} />
 
       {/* Scripture banner above preachers */}
       <ScriptureBanner />
