@@ -399,9 +399,6 @@ export default function ResourcesPage() {
         </div>
       </div>
 
-      {/* Scripture banner above preachers */}
-      <ScriptureBanner />
-
       {/* Verified Preachers section */}
       {expandedSections.preachers && (
         <PreachersSection openPreachers={expandedSections.preacherLinks} togglePreacher={togglePreacher} />
