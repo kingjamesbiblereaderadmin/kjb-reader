@@ -215,10 +215,15 @@ const RESOURCES = [
     desc: "Resources defending the Johannine Comma (1 John 5:7) — the Trinitarian verse attacked by modern versions.",
     url: "https://www.scionofzion.com/1_john_5_7.htm",
     label: "Read defence"
+  },
+  {
+    title: "Full Proof Gospel Ministries — KJV Defence",
+    desc: "Extensive KJV defence resources by Jesse M. Boyd, including the ESV Accuracy Test, NKJV analysis, doctrinal teachings skewed in modern versions, and in-depth essays on 1 John 5:7, John 1:18, and the Pericope de Adultera.",
+    url: "https://fpgm.org/training/kjv-defense/",
+    label: "fpgm.org/training/kjv-defense"
   }]
-
-},
-{
+  },
+  {
   category: "Why Modern Versions Are Corrupt",
   icon: ShieldAlert,
   color: "text-red-500",
