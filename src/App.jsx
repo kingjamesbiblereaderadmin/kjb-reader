@@ -36,6 +36,7 @@ const loaders = {
   Terms: () => import('@/pages/TermsOfServicePage').catch((err) => { console.error('Failed to load TermsOfServicePage:', err); throw err; }),
   Salvation: () => import('@/pages/SalvationPage').catch((err) => { console.error('Failed to load SalvationPage:', err); throw err; }),
   DiscordInvite: () => import('@/pages/DiscordInvitePage.jsx').catch((err) => { console.error('Failed to load DiscordInvitePage:', err); throw err; }),
+  KjbDefence: () => import('@/pages/KjbDefencePage.jsx').catch((err) => { console.error('Failed to load KjbDefencePage:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -59,6 +60,7 @@ const LandingPage = lazy(loaders.Landing);
 const TermsOfServicePage = lazy(loaders.Terms);
 const SalvationPage = lazy(loaders.Salvation);
 const DiscordInvitePage = lazy(loaders.DiscordInvite);
+const KjbDefencePage = lazy(loaders.KjbDefence);
 
 
 const getLoaderForPath = (pathname) => {
@@ -248,6 +250,7 @@ const AuthenticatedApp = () => {
               <Route path="/read" element={<Suspense fallback={<RouteLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />
               <Route path="/gospel" element={<Suspense fallback={<RouteLoader />}><FadeIn><GospelPage /></FadeIn></Suspense>} />
               <Route path="/resources" element={<Suspense fallback={<RouteLoader />}><FadeIn><ResourcesPage /></FadeIn></Suspense>} />
+              <Route path="/kjb-defence" element={<Suspense fallback={<RouteLoader />}><FadeIn><KjbDefencePage /></FadeIn></Suspense>} />
               <Route path="/about" element={<Suspense fallback={<RouteLoader />}><FadeIn><AboutPage /></FadeIn></Suspense>} />
               <Route path="/contents" element={<Suspense fallback={<RouteLoader />}><FadeIn><ContentsPage /></FadeIn></Suspense>} />
               <Route path="/settings" element={<Suspense fallback={<RouteLoader />}><FadeIn><SettingsPage /></FadeIn></Suspense>} />

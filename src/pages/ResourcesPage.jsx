@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy, Printer, Mail, PlayCircle, Link2 } from 'lucide-react';
 import { printHtml } from '@/lib/printHelpers';
 import ScriptureBanner from '@/components/ScriptureBanner';
@@ -177,298 +178,7 @@ const RESOURCES = [
     url: "https://avpublications.com/",
     label: "avpublications.com"
   }]
-
-},
-{
-  category: "KJB Defence",
-  icon: ShieldAlert,
-  color: "text-blue-500",
-  bg: "bg-blue-50 dark:bg-blue-900/20",
-  expandable: true,
-  items: [
-  {
-    title: "King James Bible: Pure Cambridge Edition & Free Download",
-    desc: "The definitive electronic text of the Pure Cambridge Edition of the KJB — bibleprotector.com. Free downloads available in PDF, ePub, and TXT formats.",
-    url: "https://www.bibleprotector.com",
-    label: "bibleprotector.com"
-  },
-  {
-    title: "The Word of God Will Keep Its Infallibility (Archive.org)",
-    desc: "Historical book demonstrating that the King James Bible is infallible — full text available on Archive.org.",
-    url: "https://archive.org/details/wordgodwillkeepi0000faus/page/18/mode/1up?q=%22King+James+Bible+is+infallible%22",
-    label: "Read on Archive.org"
-  },
-  {
-    title: "KJV Compare",
-    desc: "Go through hundreds of changes made in modern versions of the Bible — verse-by-verse.",
-    url: "https://kjvcompare.com/",
-    label: "kjvcompare.com"
-  },
-  {
-    title: "Scion of Zion — KJB Comparisons",
-    desc: "Detailed comparisons of the KJB with modern versions, exposing corruptions and omissions.",
-    url: "https://www.scionofzion.com/kjcomparisons.html",
-    label: "scionofzion.com"
-  },
-  {
-    title: "1 John 5:7 Defence",
-    desc: "Resources defending the Johannine Comma (1 John 5:7) — the Trinitarian verse attacked by modern versions.",
-    url: "https://www.scionofzion.com/1_john_5_7.htm",
-    label: "Read defence"
-  },
-  {
-    title: "Full Proof Gospel Ministries — KJV Defence",
-    desc: "Extensive KJV defence resources by Jesse M. Boyd, including the ESV Accuracy Test, NKJV analysis, doctrinal teachings skewed in modern versions, and in-depth essays on 1 John 5:7, John 1:18, and the Pericope de Adultera.",
-    url: "https://fpgm.org/training/kjv-defense/",
-    label: "fpgm.org/training/kjv-defense"
-  }]
-  },
-  {
-  category: "Why Modern Versions Are Corrupt",
-  icon: ShieldAlert,
-  color: "text-red-500",
-  bg: "bg-red-50 dark:bg-red-900/20",
-  expandable: true,
-  items: [
-  {
-    title: "The Critical Text & Westcott-Hort",
-    desc: "Westcott and Hort created the Critical Text based on Vatican and Egyptian manuscripts with hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Trinity and deity of Christ. Their text was used in the Revised Version of 1881.",
-    url: "https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf",
-    label: "Theological Heresies of Westcott & Hort (PDF)"
-  },
-  {
-    title: "NKJV Exposed",
-    desc: "The NKJV is NOT the same as the King James Bible. Resources exposing the New King James Version.",
-    url: "https://www.scionofzion.com/nkjv.htm",
-    label: "scionofzion.com/nkjv"
-  },
-  {
-    title: "A Lamp in the Dark — Full Documentary",
-    desc: "The untold history of the Bible — a documentary exposing the corruption of modern Bible translations.",
-    url: "https://www.youtube.com/watch?v=RmXBj2N9fhY&list=PLiMliTxa3H172BW4ANpBAavcIGVz-KXFW",
-    label: "Watch on YouTube"
-  },
-  {
-    title: "KJB Defence Playlist",
-    desc: "Comprehensive playlist defending the King James Bible as the infallible, perfect words of God in the English Language.",
-    url: "https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm&si=w73gmQRdA_3QbE48",
-    label: "Watch Playlist"
-  },
-  {
-    title: "Gail Riplinger — The Sword Slays the Dragon",
-    desc: "Gail Riplinger's powerful defence of the King James Bible against modern version corruption.",
-    url: "https://www.youtube.com/watch?v=fyN680Y0Vwc",
-    label: "Watch on YouTube"
-  },
-  {
-    title: "Irrefutable Proof: The KJB Superseded Hebrew and Greek",
-    desc: "Truth is Christ channel — demonstrating the superiority and authority of the King James Bible.",
-    url: "https://www.youtube.com/watch?v=t6ck6KrVPIk",
-    label: "Watch on YouTube"
-  },
-  {
-    title: "AV1611 Articles",
-    desc: "Articles defending the Authorised Version — King James Bible defence resources.",
-    url: "https://www.av1611.org/articles",
-    label: "av1611.org/articles"
-  },
-  {
-    title: "Preserved Words",
-    desc: "Another King James Bible Believer — resources and articles defending the preserved Word of God.",
-    url: "https://www.preservedwords.com/bp/index.html",
-    label: "preservedwords.com"
-  },
-  {
-    title: "Brandplucked — KJB Articles",
-    desc: "Extensive collection of articles defending the King James Bible.",
-    url: "https://brandplucked.com/kjbarticles.htm",
-    label: "brandplucked.com"
-  }]
-
-},
-{
-  category: "1 John 5:7 Defence",
-  icon: ShieldAlert,
-  color: "text-amber-600",
-  bg: "bg-amber-50 dark:bg-amber-900/20",
-  expandable: true,
-  items: [
-  {
-    title: "1 John 5:7 - The 1st Century Latin/Spain Connection",
-    desc: "Historical evidence connecting 1 John 5:7 to early Christian manuscripts and tradition.",
-    url: "https://kjvdebate.com/blog/f/i-john-57-the-1st-century-latinspain-connection",
-    label: "Read article"
-  },
-  {
-    title: "The Authenticity of 1 John 5:7",
-    desc: "Historical evidence and church tradition supporting the Johannine Comma.",
-    url: "https://catalog.obitel-minsk.com/blog/2021/08/the-authenticity-of-1-john-57-historical-evidence-and-the-church-tradition",
-    label: "Read article"
-  },
-  {
-    title: "Textus Receptus - 1 John 5:7",
-    desc: "Wiki entry on 1 John 5:7 in the Textus Receptus (Received Text).",
-    url: "https://textus-receptus.com/wiki/1_John_5:7",
-    label: "textus-receptus.com"
-  },
-  {
-    title: "KJV Debate - 1 John 5:7 PDF",
-    desc: "Comprehensive PDF resource defending 1 John 5:7.",
-    url: "https://kjvdebate.com/pdf",
-    label: "Download PDF"
-  }]
-
-},
-{
-  category: "Westcott & Hort Heresies",
-  icon: ShieldAlert,
-  color: "text-red-600",
-  bg: "bg-red-50 dark:bg-red-900/20",
-  expandable: true,
-  items: [
-  {
-    title: "Theological Heresies of Westcott and Hort",
-    desc: "Detailed examination of the heretical beliefs held by Westcott and Hort, whose critical text corrupted Bible translations.",
-    url: "https://faithsaves.net/wp-content/uploads/2016/01/Theological-Heresies-of-Westcott-and-Hort-Waite.pdf",
-    label: "Download PDF"
-  },
-  {
-    title: "Scattered Christians - Westcott & Hort",
-    desc: "Analysis of Westcott and Hort's influence on modern Bible versions.",
-    url: "https://scatteredchristians.org/WescottHort.html",
-    label: "Read article"
-  },
-  {
-    title: "Textus Receptus Bibles - Editorial Issues",
-    desc: "Information on editorial changes and textual issues in modern versions.",
-    url: "https://textusreceptusbibles.com/Editorial/Umlauts",
-    label: "Read more"
-  },
-  {
-    title: "Differences Between Textus Receptus and NA/UBS",
-    desc: "Detailed comparison of the Greek texts used in different Bible versions.",
-    url: "https://textusreceptusbibles.com/Differences_Between_Textus_Receptus_and_NaUbs",
-    label: "Compare texts"
-  }]
-
-},
-{
-  category: "NKJV Exposed",
-  icon: ShieldAlert,
-  color: "text-orange-600",
-  bg: "bg-orange-50 dark:bg-orange-900/20",
-  expandable: true,
-  items: [
-  {
-    title: "AV1611 - NKJV Exposed",
-    desc: "Comprehensive analysis showing the NKJV is not the King James Bible.",
-    url: "https://www.av1611.org/nkjv.html",
-    label: "av1611.org"
-  },
-  {
-    title: "TBS - What Today's Christian Needs to Know About NKJV",
-    desc: "Official resource from The Bible For Today highlighting NKJV issues.",
-    url: "https://www.tbsbibles.org/page/WhatTodaysChristianNeedsToKnowAboutTheNewKingJamesVersion",
-    label: "Read article"
-  },
-  {
-    title: "TBS - Does the NKJV Live Up to Its Claims?",
-    desc: "Critical examination of NKJV translation claims and accuracy.",
-    url: "https://www.tbsbibles.org/page/DoesTheNKJVLiveUpToItsClaims",
-    label: "Read article"
-  },
-  {
-    title: "TBS - The New King James Version Overview",
-    desc: "Detailed overview of NKJV problems and textual issues.",
-    url: "https://www.tbsbibles.org/page/TheNewKingJamesVersion",
-    label: "Read article"
-  },
-  {
-    title: "TBS - An Examination of the NKJV (Parts 1 & 2)",
-    desc: "Comprehensive two-part examination of NKJV translation errors.",
-    url: "https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/An-Examination-of-NKJV-Part-1.pdf",
-    label: "Download PDFs"
-  }]
-
-},
-{
-  category: "Living Bible Exposed",
-  icon: ShieldAlert,
-  color: "text-pink-600",
-  bg: "bg-pink-50 dark:bg-pink-900/20",
-  expandable: true,
-  items: [
-  {
-    title: "TBS - The Living Bible Exposed",
-    desc: "Official resource exposing errors and problems in the Living Bible paraphrase.",
-    url: "https://cdn.ymaws.com/www.tbsbibles.org/resource/collection/D4DCAF37-AEB6-4CEC-880F-FD229A90560F/The-Living-Bible.pdf",
-    label: "Download PDF"
-  },
-  {
-    title: "Jesus is Savior - Living Bible Exposed",
-    desc: "Comprehensive resource exposing the Living Bible's doctrinal problems.",
-    url: "https://www.jesus-is-savior.com/Bible/Living%20Bible/lb_exposed.htm",
-    label: "Read article"
-  },
-  {
-    title: "Jesus is Savior - NLT Bible Exposed",
-    desc: "Detailed analysis of the New Living Translation's translation errors.",
-    url: "https://jesus-is-savior.com/Bible/NLT/nlt_exposed.htm",
-    label: "Read article"
-  }]
-
-},
-{
-  category: "ESV & NIV Exposed",
-  icon: ShieldAlert,
-  color: "text-cyan-600",
-  bg: "bg-cyan-50 dark:bg-cyan-900/20",
-  expandable: true,
-  items: [
-  {
-    title: "Brandplucked - Is the ESV Inerrant?",
-    desc: "Critical analysis of ESV translation choices and inerrancy claims.",
-    url: "https://brandplucked.com/is-the-esv-inerrant.html",
-    label: "Read article"
-  },
-  {
-    title: "Brandplucked - The ESV Examined",
-    desc: "Comprehensive examination of ESV translation problems.",
-    url: "https://brandplucked.com/theesv.htm",
-    label: "Read article"
-  },
-  {
-    title: "TBS - English Standard Version",
-    desc: "Official analysis of ESV translation issues.",
-    url: "https://www.tbsbibles.org/page/EnglishStandardVersion",
-    label: "Read article"
-  },
-  {
-    title: "AV1611 - NIV Exposed",
-    desc: "Detailed comparison of NIV problems and doctrinal deletions.",
-    url: "https://www.av1611.org/kjv/nivteen.html",
-    label: "Read article"
-  },
-  {
-    title: "Jesus is Precious - NIV Missing Verses",
-    desc: "Documentation of verses omitted from the NIV translation.",
-    url: "https://www.jesusisprecious.org/bible/niv/acts_8-37_missing.htm",
-    label: "Read article"
-  },
-  {
-    title: "Scion of Zion - NIV 1984 vs 2011",
-    desc: "Comparison of changes made between NIV versions.",
-    url: "https://www.scionofzion.com/niv%201984%20and%202011.html",
-    label: "Compare versions"
-  },
-  {
-    title: "Jesus is Savior - NIV Exposed",
-    desc: "Comprehensive resource exposing the NIV's doctrinal corruptions.",
-    url: "https://www.jesus-is-savior.com/Bible/NIV/new_international_version_exposed.htm",
-    label: "Read article"
-  }]
-
-},
+}
 ];
 
 
@@ -759,6 +469,27 @@ export default function ResourcesPage() {
               </a>
               <CopyButton text="https://kingjamesbiblereader.com/discord" className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" />
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* KJB Defence — dedicated page */}
+      <div className="bg-card border border-border rounded-2xl mb-6 p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-indigo-600">
+            <ShieldAlert className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJB Defence</h2>
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
+              A dedicated collection of resources defending the King James Bible and exposing the corruption of modern versions.
+            </p>
+            <Link
+              to="/kjb-defence"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Open KJB Defence <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </div>
