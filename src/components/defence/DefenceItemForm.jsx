@@ -39,7 +39,7 @@ export default function DefenceItemForm({ initialItem, existingCategories, onSub
       title: title.trim(),
       desc: desc.trim(),
       url: url.trim(),
-      label: label.trim() || new URL(url.trim()).hostname.replace('www.', ''),
+      label: label.trim() || (() => { try { return new URL(url.trim()).hostname.replace('www.', ''); } catch { return url.trim(); } })(),
       order: parseInt(order) || 0,
     });
   };
