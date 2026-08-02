@@ -11,6 +11,13 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
   // would never be persisted.
   const [restoreTick, setRestoreTick] = useState(0);
 
+  // Capture the navigation source (?from=daily / ?from=random) ONCE on mount.
+  // The reader's URL-sync strips the param shortly after navigation, so
+  // re-reading window.location.search on every restore (including the focus
+  // listener below) would lose the guard and resurrect a stale search filter
+  // over a daily/random chapter. Pinning it per-mount keeps that from happening.
+  const navFromRef = useRef(null);
+
   // Persist toolbar state with chapter + search/gospel context
   useEffect(() => {
     if (loading || !hasRestoredRef.current) return;
@@ -57,8 +64,10 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
         // navigated here via Daily Verse or Random Chapter - those flows
         // explicitly clear search/gospel state, and this restore (also
         // triggered on window focus) shouldn't undo that.
-        const navUrlParams = new URLSearchParams(window.location.search);
-        const navFrom = navUrlParams.get('from');
+        if (navFromRef.current === null) {
+          navFromRef.current = new URLSearchParams(window.location.search).get('from') || '';
+        }
+        const navFrom = navFromRef.current;
         if (navFrom === 'daily' || navFrom === 'random') {
           setRestoreTick(t => t + 1);
           return;
