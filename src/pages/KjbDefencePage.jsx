@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { ShieldAlert, ExternalLink, CheckCircle, ChevronDown, Plus, Pencil, Trash2, Loader2, Search, Printer, Copy, Shield, Lock } from 'lucide-react';
+import { ShieldAlert, ChevronDown, Plus, Loader2, Search, Printer, Shield, Lock } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { printHtml } from '@/lib/printHelpers';
 import ScriptureBanner from '@/components/ScriptureBanner';
 import DefenceItemForm from '@/components/defence/DefenceItemForm';
+import DefenceWarningBanner from '@/components/defence/DefenceWarningBanner';
+import DefenceCategoryList from '@/components/defence/DefenceCategoryList';
+import CopyButton from '@/components/defence/CopyButton';
 import { toast } from 'sonner';
 
 const CATEGORY_STYLES = {
@@ -28,29 +31,6 @@ const CATEGORY_ORDER = [
   'Living Bible Exposed',
   'ESV & NIV Exposed',
 ];
-
-function CopyButton({ text, className }) {
-  const [copied, setCopied] = useState(false);
-  const handle = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    try { navigator.clipboard.writeText(text); } catch {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <div role="button" onClick={handle} className={className || 'p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer'} title="Copy">
-      {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-    </div>
-  );
-}
 
 export default function KjbDefencePage() {
   const { user } = useAuth();
@@ -160,6 +140,27 @@ export default function KjbDefencePage() {
     }
   };
 
+  // Persist a new order for a category's items after a drag-and-drop reorder.
+  // Updates optimistically and rolls back via reload if the save fails.
+  const handleReorder = async (categoryName, reorderedItems) => {
+    const previous = items;
+    setItems((prev) => prev.map((it) => {
+      if (it.category !== categoryName) return it;
+      const newOrder = reorderedItems.findIndex((r) => r.id === it.id);
+      return newOrder >= 0 ? { ...it, order: newOrder } : it;
+    }));
+    try {
+      await base44.entities.DefenceResource.bulkUpdate(
+        reorderedItems.map((it, idx) => ({ id: it.id, order: idx }))
+      );
+    } catch (err) {
+      console.error('[KjbDefence] reorder failed', err);
+      toast.error('Reorder failed to save.');
+      setItems(previous);
+      await load();
+    }
+  };
+
   const handlePrint = () => {
     const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     let html = `<h1 style="font-family:Georgia,serif;font-size:22pt;text-align:center;margin-bottom:6pt;">KJB Defence</h1><p style="text-align:center;font-size:11pt;color:#555;margin-bottom:24pt;">Resources defending the King James Bible.</p>`;
@@ -218,6 +219,7 @@ export default function KjbDefencePage() {
       </div>
 
       <ScriptureBanner />
+      <DefenceWarningBanner />
 
       {/* Search */}
       <div className="relative mb-6 max-w-md mx-auto">
@@ -267,47 +269,15 @@ export default function KjbDefencePage() {
                   </div>
                 </button>
                 {isOpen && (
-                  <div className="p-4 space-y-3">
-                    {cat.items.map((item) => (
-                      <div key={item.id} className="block bg-card border border-border rounded-xl p-5 group">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-serif text-lg font-semibold text-foreground">{item.title}</h3>
-                            </div>
-                            <p className="font-sans text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                            <a href={item.url} target={item.url.startsWith('mailto') ? '_self' : '_blank'} rel="noopener noreferrer" className="inline-block mt-3 text-xs font-sans font-medium text-accent underline underline-offset-2">
-                              {item.label || item.url} →
-                            </a>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0 mt-1">
-                            <CopyButton text={item.url} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors" />
-                            <a href={item.url} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors" title="Open">
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                            {isAdmin && adminMode && (
-                              <>
-                                <button onClick={() => openEdit(item)} className="p-1.5 rounded-md hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors" title="Edit">
-                                  <Pencil className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => handleDelete(item)} className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Delete">
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    {isAdmin && adminMode && (
-                      <button
-                        onClick={openAdd}
-                        className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl border border-dashed border-border text-muted-foreground hover:border-accent hover:text-accent font-sans text-sm font-medium transition-all duration-200"
-                      >
-                        <Plus className="w-4 h-4" /> Add to {cat.name}
-                      </button>
-                    )}
-                  </div>
+                  <DefenceCategoryList
+                    cat={cat}
+                    isAdmin={isAdmin}
+                    adminMode={adminMode}
+                    onReorder={handleReorder}
+                    onEdit={openEdit}
+                    onDelete={handleDelete}
+                    onAdd={openAdd}
+                  />
                 )}
               </div>
             );
