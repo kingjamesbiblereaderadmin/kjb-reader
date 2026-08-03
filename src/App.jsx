@@ -37,6 +37,9 @@ const loaders = {
   Salvation: () => import('@/pages/SalvationPage').catch((err) => { console.error('Failed to load SalvationPage:', err); throw err; }),
   DiscordInvite: () => import('@/pages/DiscordInvitePage.jsx').catch((err) => { console.error('Failed to load DiscordInvitePage:', err); throw err; }),
   KjbDefence: () => import('@/pages/KjbDefencePage.jsx').catch((err) => { console.error('Failed to load KjbDefencePage:', err); throw err; }),
+  Login: () => import('@/pages/Login.jsx').catch((err) => { console.error('Failed to load Login:', err); throw err; }),
+  ForgotPassword: () => import('@/pages/ForgotPassword.jsx').catch((err) => { console.error('Failed to load ForgotPassword:', err); throw err; }),
+  ResetPassword: () => import('@/pages/ResetPassword.jsx').catch((err) => { console.error('Failed to load ResetPassword:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -61,6 +64,9 @@ const TermsOfServicePage = lazy(loaders.Terms);
 const SalvationPage = lazy(loaders.Salvation);
 const DiscordInvitePage = lazy(loaders.DiscordInvite);
 const KjbDefencePage = lazy(loaders.KjbDefence);
+const LoginPage = lazy(loaders.Login);
+const ForgotPasswordPage = lazy(loaders.ForgotPassword);
+const ResetPasswordPage = lazy(loaders.ResetPassword);
 
 
 const getLoaderForPath = (pathname) => {
@@ -245,6 +251,9 @@ const AuthenticatedApp = () => {
             <Route path="/privacy" element={<Suspense fallback={<RouteLoader />}><PrivacyPolicyPage /></Suspense>} />
             <Route path="/salvation" element={<Suspense fallback={<RouteLoader />}><SalvationPage /></Suspense>} />
             <Route path="/discord" element={<Suspense fallback={<RouteLoader />}><DiscordInvitePage /></Suspense>} />
+            <Route path="/login" element={<Suspense fallback={<RouteLoader />}><LoginPage /></Suspense>} />
+            <Route path="/forgot-password" element={<Suspense fallback={<RouteLoader />}><ForgotPasswordPage /></Suspense>} />
+            <Route path="/reset-password" element={<Suspense fallback={<RouteLoader />}><ResetPasswordPage /></Suspense>} />
             <Route element={<AppLayout />}>
               <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
               <Route path="/read" element={<Suspense fallback={<RouteLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />

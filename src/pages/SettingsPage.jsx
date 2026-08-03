@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server, Globe, Mail, PlayCircle, Link2, FileText } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server, Globe, Mail, PlayCircle, Link2, FileText, Lock } from 'lucide-react';
 import ShortcutsList from '@/components/ShortcutsList';
 import ImageCropper from '@/components/bible/ImageCropper';
 import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
@@ -14,6 +14,7 @@ import { useTheme, COLOUR_PALETTES } from '@/lib/themeContext';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import ContactLinks from '@/components/ContactLinks';
+import { useAuth } from '@/lib/AuthContext';
 import {
   getNotificationsEnabled, getNotificationTime, setNotificationTime,
   requestNotificationPermission, disableNotifications, scheduleDailyNotification, showLocalNotification, cleanForNotification
@@ -60,6 +61,7 @@ const WORKER_VERSION = 'v20260802_0002';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
   const [deleting, setDeleting] = useState(false);
@@ -1492,6 +1494,34 @@ export default function SettingsPage() {
         </button>
         {expandedSections.advanced && (
           <div className="px-5 pb-6 pt-2 space-y-3">
+            {/* Admin sign-in / Defence access */}
+            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-secondary/50 border border-border mb-4">
+              <div className="flex-1 min-w-0">
+                <p className="font-sans text-sm text-foreground font-medium flex items-center gap-1.5">
+                  <Lock className="w-4 h-4 text-primary shrink-0" /> Admin Access
+                </p>
+                <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                  {user?.role === 'admin'
+                    ? `Signed in as admin${user.email ? ` · ${user.email}` : ''}.`
+                    : 'Sign in with an admin account to edit the KJB Defence resources.'}
+                </p>
+              </div>
+              {user?.role === 'admin' ? (
+                <button
+                  onClick={() => navigate('/kjb-defence')}
+                  className="shrink-0 px-3 py-2 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200"
+                >
+                  Open Defence
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate('/login?returnTo=/kjb-defence')}
+                  className="shrink-0 px-3 py-2 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200"
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
             <div className="space-y-2 mb-4 pt-1 border-b border-border pb-4">
               <div className="flex justify-between items-center font-sans text-sm gap-4">
                 <span className="text-muted-foreground shrink-0">Worker Version</span>
