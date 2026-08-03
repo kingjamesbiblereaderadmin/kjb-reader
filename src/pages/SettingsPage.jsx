@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server, Globe, Mail, PlayCircle, Link2, FileText, Lock } from 'lucide-react';
+import { Settings, Bell, BellOff, Download, CheckCircle2, AlertCircle, Loader2, Trash2, Smartphone, MonitorSmartphone, Eye, EyeOff, ZoomIn, ZoomOut, Palette, Upload, Crop, Type, ChevronDown, CheckCircle, ExternalLink, Shield, MessageCircle, Youtube, RotateCcw, Accessibility, Keyboard, Star, Server, Globe, Mail, PlayCircle, Link2, FileText, Lock, Wrench } from 'lucide-react';
 import ShortcutsList from '@/components/ShortcutsList';
 import ImageCropper from '@/components/bible/ImageCropper';
 import DownloadBibleSection from '@/components/bible/DownloadBibleSection';
@@ -57,7 +57,7 @@ const isBookmarkBrowser = () => {
 };
 
 const LAST_REVISED = 'July 13th, 2026';
-const WORKER_VERSION = 'v20260802_0002';
+const WORKER_VERSION = 'v20260803_0001';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -1507,12 +1507,20 @@ export default function SettingsPage() {
                 </p>
               </div>
               {user?.role === 'admin' ? (
-                <button
-                  onClick={() => navigate('/kjb-defence')}
-                  className="shrink-0 px-3 py-2 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200"
-                >
-                  Open Defence
-                </button>
+                <div className="shrink-0 flex flex-col gap-2">
+                  <button
+                    onClick={() => navigate('/kjb-defence')}
+                    className="px-3 py-2 rounded-xl bg-primary border border-primary text-primary-foreground font-sans text-xs font-medium hover:opacity-90 transition-all duration-200"
+                  >
+                    Open Defence
+                  </button>
+                  <button
+                    onClick={() => navigate('/dev-tools')}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-secondary border border-border text-foreground font-sans text-xs font-medium hover:border-accent transition-all duration-200"
+                  >
+                    <Wrench className="w-3.5 h-3.5" /> Dev Tools
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={() => navigate('/login?returnTo=/kjb-defence')}
