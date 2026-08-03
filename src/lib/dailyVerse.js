@@ -60,14 +60,12 @@ function saveCachedDailyVerse(verse) {
 // Generate today's daily verse. Uses API when online, on-device logic when offline.
 export async function getDailyVerseFromBible() {
   console.log("[DEBUG] getDailyVerseFromBible called");
-  // Return today's cached verse if already picked
-  const cached = loadCachedDailyVerse(true); // requireToday=true
-  if (cached) {
-    console.log("[DEBUG] Returning today's cached verse:", cached.ref);
-    return cached;
-  }
 
-  // Try to use the API first if online
+  // When online, always fetch the authoritative verse from the API so every
+  // browser converges on the same verse even if the API's pick for "today"
+  // changed after a browser first cached it (admin exclusions/pins, deploys,
+  // Bible-data updates). The cache is only used for the synchronous initial
+  // render (getLastCachedDailyVerse) and the offline fallback below.
   if (typeof navigator !== 'undefined' && navigator.onLine) {
     try {
       const d = new Date();
@@ -84,6 +82,13 @@ export async function getDailyVerseFromBible() {
     } catch (err) {
       console.warn("[DEBUG] API fetch failed, falling back to local:", err.message);
     }
+  }
+
+  // Offline (or API failed): use today's cached verse if present
+  const cached = loadCachedDailyVerse(true); // requireToday=true
+  if (cached) {
+    console.log("[DEBUG] Returning today's cached verse:", cached.ref);
+    return cached;
   }
 
   // Try to generate a deterministic offline verse using cached data
