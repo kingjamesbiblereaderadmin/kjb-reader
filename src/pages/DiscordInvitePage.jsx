@@ -53,8 +53,8 @@ export default function DiscordInvitePage() {
               <DiscordIcon className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Add to your account</p>
-              <p className="font-sans text-xs text-muted-foreground">Personal install — works in DMs, group DMs, and any server you're in.</p>
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">📱 Add to your account</p>
+              <p className="font-sans text-xs text-muted-foreground">Works in DMs, group DMs, and any server you're in.</p>
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
@@ -64,8 +64,8 @@ export default function DiscordInvitePage() {
               <DiscordIcon className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Add to a server</p>
-              <p className="font-sans text-xs text-muted-foreground">The bot joins a server with a role and enables daily verse delivery.</p>
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">🏠 Add to a server</p>
+              <p className="font-sans text-xs text-muted-foreground">Bot joins with daily verse delivery.</p>
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
