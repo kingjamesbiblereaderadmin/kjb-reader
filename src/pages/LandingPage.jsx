@@ -96,22 +96,42 @@ export default function LandingPage() {
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
         </a>
 
-        {/* KJB Discord Bot */}
-        <a
-          href="https://kingjamesbiblereader.com/discord"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
-        >
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
-            <DiscordIcon className="w-5 h-5" />
+        {/* KJB Discord Bot — two install options */}
+        <div className="mb-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
+              <DiscordIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-sans font-medium text-sm text-foreground">KJB Discord Bot</p>
+              <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord.</p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Discord Bot</p>
-            <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord server for daily verses and verse search.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a
+              href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=applications.commands&integration_type=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            >
+              <p className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">📱 Add to Your Account</p>
+              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Install KJB Reader to your Discord account — works in DMs, group DMs, and any server you're in.</p>
+            </a>
+            <a
+              href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            >
+              <p className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">🏠 Add to a Server</p>
+              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Add KJB Reader bot to a server for daily verse delivery with role pings.</p>
+            </a>
           </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground" />
-        </a>
+          <a href="mailto:Kingjamesbiblereader@outlook.sg" className="mt-3 inline-flex items-center gap-1.5 font-sans text-xs text-muted-foreground hover:text-accent transition-colors">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
+            Kingjamesbiblereader@outlook.sg
+          </a>
+        </div>
 
         {/* Step-by-step setup wizard */}
         <div className="mb-5">
