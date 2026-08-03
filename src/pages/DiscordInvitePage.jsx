@@ -46,30 +46,31 @@ export default function DiscordInvitePage() {
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
 
-        {/* Invite cards */}
+        {/* Install buttons — side by side */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <a href={DISCORD_PERSONAL_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-center gap-3 p-6 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
+            <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
+              <DiscordIcon className="w-6 h-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">📱 Add to Your Account</p>
+              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Install KJB Reader to your Discord account — works in DMs, group DMs, and any server you're in.</p>
+            </div>
+          </a>
+
+          <a href={DISCORD_SERVER_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-center gap-3 p-6 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
+            <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
+              <DiscordIcon className="w-6 h-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">🏠 Add to a Server</p>
+              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Add KJB Reader bot to a server for daily verse delivery with role pings.</p>
+            </div>
+          </a>
+        </div>
+
+        {/* Support server + email */}
         <div className="space-y-4">
-          <a href={DISCORD_PERSONAL_INSTALL_URL} target="_blank" rel="noopener noreferrer" className={cardClass}>
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
-              <DiscordIcon className="w-5 h-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">📱 Add to your account</p>
-              <p className="font-sans text-xs text-muted-foreground">Works in DMs, group DMs, and any server you're in.</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
-          </a>
-
-          <a href={DISCORD_SERVER_INSTALL_URL} target="_blank" rel="noopener noreferrer" className={cardClass}>
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
-              <DiscordIcon className="w-5 h-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">🏠 Add to a server</p>
-              <p className="font-sans text-xs text-muted-foreground">Bot joins with daily verse delivery.</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
-          </a>
-
           <a href={DISCORD_SUPPORT_SERVER_URL} target="_blank" rel="noopener noreferrer" className={cardClass}>
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600">
               <DiscordIcon className="w-5 h-5" />
@@ -77,6 +78,17 @@ export default function DiscordInvitePage() {
             <div className="flex-1 min-w-0">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Support Server</p>
               <p className="font-sans text-xs text-muted-foreground">Join our Discord community for help, updates, and to share feedback.</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+          </a>
+
+          <a href="mailto:Kingjamesbiblereader@outlook.sg" className={cardClass}>
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-amber-500 to-orange-600">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Support Email</p>
+              <p className="font-sans text-xs text-muted-foreground">Kingjamesbiblereader@outlook.sg</p>
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
