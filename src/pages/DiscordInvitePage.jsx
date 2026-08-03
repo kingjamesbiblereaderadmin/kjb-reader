@@ -5,11 +5,11 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 // Discord Bot invite links for the KJB Reader Bot (application_id
 // 1529303667348606996). Kept here so kingjamesbiblereader.com/discord is the
 // single canonical short link people share/click.
-export const DISCORD_ADD_TO_SERVER_URL =
-  'https://discord.com/api/oauth2/authorize?client_id=1529303667348606996&permissions=397821864976&scope=bot+applications.commands&redirect_uri=https%3A%2F%2Fsolene-c1cbdd64.base44.app%2Ffunctions%2FdiscordGuildJoin&response_type=code';
-
-export const DISCORD_ADD_TO_APPS_URL =
+export const DISCORD_PERSONAL_INSTALL_URL =
   'https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=applications.commands&integration_type=1';
+
+export const DISCORD_SERVER_INSTALL_URL =
+  'https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072';
 
 export const DISCORD_SUPPORT_SERVER_URL = 'https://kingjamesbiblereader.com/discord';
 
@@ -48,24 +48,24 @@ export default function DiscordInvitePage() {
 
         {/* Invite cards */}
         <div className="space-y-4">
-          <a href={DISCORD_ADD_TO_SERVER_URL} target="_blank" rel="noopener noreferrer" className={cardClass}>
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
-              <DiscordIcon className="w-5 h-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Add to Server</p>
-              <p className="font-sans text-xs text-muted-foreground">Add the bot to a Discord server you manage — slash commands for daily verses and Bible search.</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
-          </a>
-
-          <a href={DISCORD_ADD_TO_APPS_URL} target="_blank" rel="noopener noreferrer" className={cardClass}>
+          <a href={DISCORD_PERSONAL_INSTALL_URL} target="_blank" rel="noopener noreferrer" className={cardClass}>
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
               <DiscordIcon className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Add to My Apps</p>
-              <p className="font-sans text-xs text-muted-foreground">Install the bot as a personal Discord app — use slash commands in any server you're in.</p>
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Add to your account</p>
+              <p className="font-sans text-xs text-muted-foreground">Personal install — works in DMs, group DMs, and any server you're in.</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+          </a>
+
+          <a href={DISCORD_SERVER_INSTALL_URL} target="_blank" rel="noopener noreferrer" className={cardClass}>
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
+              <DiscordIcon className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Add to a server</p>
+              <p className="font-sans text-xs text-muted-foreground">The bot joins a server with a role and enables daily verse delivery.</p>
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
