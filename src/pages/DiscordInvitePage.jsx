@@ -53,8 +53,8 @@ export default function DiscordInvitePage() {
               <DiscordIcon className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">📱 Add to Your Account</p>
-              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Install KJB Reader to your Discord account — works in DMs, group DMs, and any server you're in.</p>
+              <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">📱 Personal Install</p>
+              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Adds slash commands to your Discord account — works in DMs, group DMs, and any server.</p>
             </div>
           </a>
 
@@ -63,8 +63,8 @@ export default function DiscordInvitePage() {
               <DiscordIcon className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">🏠 Add to a Server</p>
-              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Add KJB Reader bot to a server for daily verse delivery with role pings.</p>
+              <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">🏠 Server Install</p>
+              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</p>
             </div>
           </a>
         </div>

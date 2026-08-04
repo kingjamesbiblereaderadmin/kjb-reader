@@ -370,8 +370,8 @@ export default function ResourcesPage() {
                 rel="noopener noreferrer"
                 className="flex flex-col items-center text-center gap-1.5 p-4 rounded-xl bg-secondary/50 border border-border hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
               >
-                <span className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">📱 Add to Your Account</span>
-                <span className="font-sans text-xs text-muted-foreground leading-relaxed">Install KJB Reader to your Discord account — works in DMs, group DMs, and any server you're in.</span>
+                <span className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">📱 Personal Install</span>
+                <span className="font-sans text-xs text-muted-foreground leading-relaxed">Adds slash commands to your Discord account — works in DMs, group DMs, and any server.</span>
               </a>
               <a
                 href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072"
@@ -379,8 +379,8 @@ export default function ResourcesPage() {
                 rel="noopener noreferrer"
                 className="flex flex-col items-center text-center gap-1.5 p-4 rounded-xl bg-secondary/50 border border-border hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
               >
-                <span className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">🏠 Add to a Server</span>
-                <span className="font-sans text-xs text-muted-foreground leading-relaxed">Add KJB Reader bot to a server for daily verse delivery with role pings.</span>
+                <span className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">🏠 Server Install</span>
+                <span className="font-sans text-xs text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</span>
               </a>
             </div>
             <div className="mt-3">

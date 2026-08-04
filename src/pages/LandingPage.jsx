@@ -114,8 +114,8 @@ export default function LandingPage() {
               rel="noopener noreferrer"
               className="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
             >
-              <p className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">📱 Add to Your Account</p>
-              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Install KJB Reader to your Discord account — works in DMs, group DMs, and any server you're in.</p>
+              <p className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">📱 Personal Install</p>
+              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Adds slash commands to your Discord account — works in DMs, group DMs, and any server.</p>
             </a>
             <a
               href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072"
@@ -123,8 +123,8 @@ export default function LandingPage() {
               rel="noopener noreferrer"
               className="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
             >
-              <p className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">🏠 Add to a Server</p>
-              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Add KJB Reader bot to a server for daily verse delivery with role pings.</p>
+              <p className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">🏠 Server Install</p>
+              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</p>
             </a>
           </div>
           <a href="mailto:Kingjamesbiblereader@outlook.sg" className="mt-3 inline-flex items-center gap-1.5 font-sans text-xs text-muted-foreground hover:text-accent transition-colors">
