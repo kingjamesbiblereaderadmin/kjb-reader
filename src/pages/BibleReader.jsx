@@ -1181,17 +1181,22 @@ export default function BibleReader() {
       try { setZoomLevel(parseInt(localStorage.getItem('kjb-zoom') || '100')); } catch {}
       try { const f = localStorage.getItem('kjb-reader-font-family') || 'serif'; setFontFamily(f); applyReaderFont(f); } catch {}
       try { setA11yFont(getAccessibilityFont()); } catch {}
-      // Re-read search context and last reading position so the indicator reappears on focus/storage change
+      // Re-read search context and last reading position so the indicator reappears on focus/storage change.
+      // Guarded by searchClearedRef: if the user has since navigated away from search
+      // (which clears in-memory state but doesn't always wipe localStorage), don't
+      // resurrect a stale past search when the app regains focus.
       try {
-        const term = localStorage.getItem('kjb-search-term');
-        const resultsRaw = localStorage.getItem('kjb-search-results');
-        const index = localStorage.getItem('kjb-search-index');
-        if (term && resultsRaw) {
-          const results = JSON.parse(resultsRaw);
-          if (results.length > 0) {
-            setSearchTerm(term);
-            setSearchResultIndex(index ? parseInt(index, 10) : 0);
-            setSearchTotalResults(results.length);
+        if (!searchClearedRef.current) {
+          const term = localStorage.getItem('kjb-search-term');
+          const resultsRaw = localStorage.getItem('kjb-search-results');
+          const index = localStorage.getItem('kjb-search-index');
+          if (term && resultsRaw) {
+            const results = JSON.parse(resultsRaw);
+            if (results.length > 0) {
+              setSearchTerm(term);
+              setSearchResultIndex(index ? parseInt(index, 10) : 0);
+              setSearchTotalResults(results.length);
+            }
           }
         }
       } catch {}
