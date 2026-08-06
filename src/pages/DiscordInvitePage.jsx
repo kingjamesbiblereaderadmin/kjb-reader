@@ -99,7 +99,7 @@ export default function DiscordInvitePage() {
           <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Built With</h2>
           <ul className="space-y-2.5 text-xs text-muted-foreground/80">
             <li className="flex flex-wrap items-baseline gap-x-1.5">
-              <a href="https://www.bibleprotector.com" target="_blank" rel="noopener noreferrer" className="font-serif font-medium text-accent hover:underline transition-colors">King James Bible (KJB) text</a>
+              <a href="https://bibleprotector.com" target="_blank" rel="noopener noreferrer" className="font-serif font-medium text-accent hover:underline transition-colors">King James Bible (KJB) text</a>
               <span className="text-muted-foreground/70">— public domain, 1900 Pure Cambridge Edition, sourced from Bible Protector.</span>
             </li>
             <li className="flex flex-wrap items-baseline gap-x-1.5">
