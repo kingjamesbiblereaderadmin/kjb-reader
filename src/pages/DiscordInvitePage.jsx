@@ -99,23 +99,23 @@ export default function DiscordInvitePage() {
           <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Built With</h2>
           <ul className="space-y-2.5 text-xs text-muted-foreground/80">
             <li className="flex flex-wrap items-baseline gap-x-1.5">
-              <a href="https://kingjamesbiblereader.com" target="_blank" rel="noopener noreferrer" className="font-serif font-medium text-foreground/80 hover:text-accent transition-colors">King James Bible (KJB) text</a>
+              <a href="https://kingjamesbiblereader.com" target="_blank" rel="noopener noreferrer" className="font-serif font-medium text-accent hover:underline transition-colors">King James Bible (KJB) text</a>
               <span className="text-muted-foreground/70">— public domain, 1900 Pure Cambridge Edition.</span>
             </li>
             <li className="flex flex-wrap items-baseline gap-x-1.5">
-              <a href="https://discord.js.org" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-foreground/80 hover:text-accent transition-colors">Discord.js</a>
+              <a href="https://discord.js.org" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-accent hover:underline transition-colors">Discord.js</a>
               <span className="text-muted-foreground/70">— open-source Node.js library (MIT licence) powering the bot's Discord integration.</span>
             </li>
             <li className="flex flex-wrap items-baseline gap-x-1.5">
-              <a href="https://discloud.app" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-foreground/80 hover:text-accent transition-colors">Discloud</a>
+              <a href="https://discloud.app" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-accent hover:underline transition-colors">Discloud</a>
               <span className="text-muted-foreground/70">— hosting provider running the bot's always-on Discord gateway connection.</span>
             </li>
             <li className="flex flex-wrap items-baseline gap-x-1.5">
-              <a href="https://kingjamesbiblereader.com" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-foreground/80 hover:text-accent transition-colors">KJB Reader Bible API (kingjamesbiblereader.com)</a>
+              <a href="https://kingjamesbiblereader.com" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-accent hover:underline transition-colors">KJB Reader Bible API (kingjamesbiblereader.com)</a>
               <span className="text-muted-foreground/70">— our own API powering verse lookup, search, and daily verse delivery.</span>
             </li>
             <li className="flex flex-wrap items-baseline gap-x-1.5">
-              <a href="https://github.com/node-cron/node-cron" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-foreground/80 hover:text-accent transition-colors">node-cron</a>
+              <a href="https://github.com/node-cron/node-cron" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-accent hover:underline transition-colors">node-cron</a>
               <span className="text-muted-foreground/70">— open-source scheduling library used for daily verse delivery timing.</span>
             </li>
           </ul>
