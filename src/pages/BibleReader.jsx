@@ -410,11 +410,12 @@ export default function BibleReader() {
     const lastVerseNum = verses.length ? parseInt(verses[verses.length - 1].verse, 10) : null;
     const includesLast = lastVerseNum != null && selectedVersesList.some(v => parseInt(v.verse, 10) === lastVerseNum);
     const anySectionToggled = selectedSections.size > 0;
+    // Reference heads the block — professional citation order (source first).
+    parts.push(`${ref} (KJB)`);
     if (chapterSub && (selectedSections.has('subscript') || (!anySectionToggled && includesV1))) {
       parts.push(`¶ ${cleanVerseText(chapterSub).replace(/^[\u00B6\uFFFD¶]\s*/, '')}`);
     }
     parts.push(verseLines.join('\n\n'));
-    parts.push(`${ref} (KJB)`);
     if (colophon && (selectedSections.has('colophon') || (!anySectionToggled && includesLast))) {
       parts.push(`¶ ${cleanVerseText(colophon).replace(/^[\u00B6\uFFFD¶]\s*/, '')}`);
     }

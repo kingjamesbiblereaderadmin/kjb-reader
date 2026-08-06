@@ -44,17 +44,19 @@ function withPilcrow(text = '') {
 
 // The canonical share/copy format used everywhere — a clean, professional layout:
 //
+//   <Reference> (KJB)
 //   ¶ <subscript>          ← outside the quotes (Psalm superscription)
-//   “<text>” - <Reference> (KJB)
+//   “<text>”
 //   ¶ <colophon>           ← outside the quotes (epistle closing note)
 //
 //   Read more: <link>
 //
 // Optional title (e.g. "Verse of the Day") sits on its own line at the very top.
-// Each pilcrow (¶) starts a new line with a blank-line gap above it (matching
-// read mode, where a paragraph mark begins a fresh paragraph with space before
-// it) — never indented. A leading pilcrow stays at the very start (no blank
-// line before it).
+// The reference heads the block (professional citation order: source first, then
+// the quotation). Each pilcrow (¶) starts a new line with a blank-line gap above
+// it (matching read mode, where a paragraph mark begins a fresh paragraph with
+// space before it) — never indented. A leading pilcrow stays at the very start
+// (no blank line before it).
 function breakParagraphsAtPilcrow(text = '') {
   return String(text)
     .replace(/\s*¶\s*/g, '\n\n¶ ')
@@ -66,10 +68,12 @@ export function formatVerseShare({ text, ref, url, title, subscript, colophon } 
   const clean = breakParagraphsAtPilcrow(cleanVerseText(text));
   const parts = [];
   if (title) parts.push(title);
-  // Subscript, quoted verse + ref, then colophon — grouped together as one block.
+  // Reference heads the block — professional citation order (source first).
+  if (ref) parts.push(`${ref} (KJB)`);
+  // Subscript, quoted verse, then colophon — grouped together as one block.
   const quoteBlock = [];
   if (subscript) quoteBlock.push(withPilcrow(subscript));
-  quoteBlock.push(`“${clean}” - ${ref} (KJB)`);
+  quoteBlock.push(`“${clean}”`);
   if (colophon) quoteBlock.push(withPilcrow(colophon));
   parts.push(quoteBlock.join('\n'));
   if (url) parts.push(`Read more: <${url}>`);
