@@ -934,7 +934,7 @@ export default function SearchPage() {
       const q = getQueryFromUrl() || query;
       const url = buildVerseUrl({ abbr: r.abbr, chapter: r.chapter, verse: (isColophon || r.isSubscript) ? null : r.verse, from: 'search' }) + (q ? `&q=${encodeURIComponent(q)}` : '');
       // Wrap the link in <> so chat apps don't render a link embed/preview.
-      const bullet = `• "${text}"\n  — ${ref} (KJB)\n  Read: <${url}>`;
+      const bullet = `• ${ref} (KJB)\n  "${text}"\n  Read: <${url}>`;
       return (hasPilcrow && idx > 0) ? `\n${bullet}` : bullet;
     });
     return lines.join('\n\n');

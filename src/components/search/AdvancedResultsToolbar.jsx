@@ -144,7 +144,7 @@ export default function AdvancedResultsToolbar({ records, selectedRecords, filte
 
   const doCopy = async () => {
     if (!active.length) return;
-    const text = active.map(r => `"${plainForCopy(r.rawText)}" — ${r.ref} (KJB)`).join('\n\n');
+    const text = active.map(r => `${r.ref} (KJB)\n"${plainForCopy(r.rawText)}"`).join('\n\n');
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
