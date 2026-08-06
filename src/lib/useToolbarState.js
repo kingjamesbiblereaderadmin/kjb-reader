@@ -89,13 +89,8 @@ export function useToolbarState(pos, loading, verses, filterMode, selectedVerses
           // session — never for a stale "Read Selected" filter, which would
           // make reopening jump back into a filtered passage.
           const hadContext = state.hasSearchContext || state.hasGospelContext;
-          // Don't restore the filtered view (filterMode) when returning to
-          // /read via tab navigation — the user wants the full chapter, not a
-          // leftover filtered passage from a previous search/gospel session.
-          // The search/gospel stepper context below still restores so prev/next
-          // keeps working; only the visible "filter" is dropped.
           if (hadContext && state.filterMode !== undefined) {
-            setFilterMode(false);
+            setFilterMode(state.filterMode);
           }
           if (hadContext && state.selectedVerses && state.selectedVerses.length > 0) {
             const newSet = new Set(state.selectedVerses);
