@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, User, Server } from 'lucide-react';
 
 // Discord Bot invite links for the KJB Reader Bot (application_id
 // 1529303667348606996). Kept here so kingjamesbiblereader.com/discord is the
@@ -50,7 +50,7 @@ export default function DiscordInvitePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <a href={DISCORD_PERSONAL_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-center gap-3 p-6 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
             <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
-              <DiscordIcon className="w-6 h-6" />
+              <User className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">📱 Personal Install</p>
@@ -60,7 +60,7 @@ export default function DiscordInvitePage() {
 
           <a href={DISCORD_SERVER_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-center gap-3 p-6 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
             <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
-              <DiscordIcon className="w-6 h-6" />
+              <Server className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">🏠 Server Install</p>
