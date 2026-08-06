@@ -94,29 +94,29 @@ export default function DiscordInvitePage() {
           </a>
         </div>
 
-        {/* Credits & Attribution — visually secondary to the install cards */}
+        {/* Credits & Attribution — left-aligned, links, British spelling */}
         <div className="mt-10 pt-6 border-t border-border/40">
-          <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 text-center">Built With</h2>
-          <ul className="flex flex-wrap justify-center gap-2 text-xs text-muted-foreground/80">
-            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
-              <span className="font-serif font-medium text-foreground/80">King James Version</span>
-              <span className="text-muted-foreground/70">— public domain, 1611/1769 Authorized Version</span>
+          <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Built With</h2>
+          <ul className="space-y-2.5 text-xs text-muted-foreground/80">
+            <li className="flex flex-wrap items-baseline gap-x-1.5">
+              <a href="https://kingjamesbiblereader.com" target="_blank" rel="noopener noreferrer" className="font-serif font-medium text-foreground/80 hover:text-accent transition-colors">King James Version (KJV) Bible text</a>
+              <span className="text-muted-foreground/70">— public domain, 1611/1769 Authorised Version.</span>
             </li>
-            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
-              <span className="font-sans font-medium text-foreground/80">Discord.js</span>
-              <span className="text-muted-foreground/70">— Node.js library (MIT)</span>
+            <li className="flex flex-wrap items-baseline gap-x-1.5">
+              <a href="https://discord.js.org" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-foreground/80 hover:text-accent transition-colors">Discord.js</a>
+              <span className="text-muted-foreground/70">— open-source Node.js library (MIT licence) powering the bot's Discord integration.</span>
             </li>
-            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
-              <span className="font-sans font-medium text-foreground/80">Discloud</span>
-              <span className="text-muted-foreground/70">— always-on bot hosting</span>
+            <li className="flex flex-wrap items-baseline gap-x-1.5">
+              <a href="https://discloud.app" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-foreground/80 hover:text-accent transition-colors">Discloud</a>
+              <span className="text-muted-foreground/70">— hosting provider running the bot's always-on Discord gateway connection.</span>
             </li>
-            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
-              <span className="font-sans font-medium text-foreground/80">KJB Reader Bible API</span>
-              <span className="text-muted-foreground/70">— verse lookup, search & daily verse</span>
+            <li className="flex flex-wrap items-baseline gap-x-1.5">
+              <a href="https://kingjamesbiblereader.com" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-foreground/80 hover:text-accent transition-colors">KJB Reader Bible API (kingjamesbiblereader.com)</a>
+              <span className="text-muted-foreground/70">— our own API powering verse lookup, search, and daily verse delivery.</span>
             </li>
-            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
-              <span className="font-sans font-medium text-foreground/80">node-cron</span>
-              <span className="text-muted-foreground/70">— daily verse scheduling</span>
+            <li className="flex flex-wrap items-baseline gap-x-1.5">
+              <a href="https://github.com/node-cron/node-cron" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-foreground/80 hover:text-accent transition-colors">node-cron</a>
+              <span className="text-muted-foreground/70">— open-source scheduling library used for daily verse delivery timing.</span>
             </li>
           </ul>
         </div>
