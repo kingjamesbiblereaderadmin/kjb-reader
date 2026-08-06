@@ -99,8 +99,8 @@ export default function DiscordInvitePage() {
           <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Built With</h2>
           <ul className="space-y-2.5 text-xs text-muted-foreground/80">
             <li className="flex flex-wrap items-baseline gap-x-1.5">
-              <a href="https://kingjamesbiblereader.com" target="_blank" rel="noopener noreferrer" className="font-serif font-medium text-foreground/80 hover:text-accent transition-colors">King James Version (KJV) Bible text</a>
-              <span className="text-muted-foreground/70">— public domain, 1611/1769 Authorised Version.</span>
+              <a href="https://kingjamesbiblereader.com" target="_blank" rel="noopener noreferrer" className="font-serif font-medium text-foreground/80 hover:text-accent transition-colors">King James Bible (KJB) text</a>
+              <span className="text-muted-foreground/70">— public domain, 1900 Pure Cambridge Edition.</span>
             </li>
             <li className="flex flex-wrap items-baseline gap-x-1.5">
               <a href="https://discord.js.org" target="_blank" rel="noopener noreferrer" className="font-sans font-medium text-foreground/80 hover:text-accent transition-colors">Discord.js</a>
