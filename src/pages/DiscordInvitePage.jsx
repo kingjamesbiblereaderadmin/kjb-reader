@@ -93,6 +93,33 @@ export default function DiscordInvitePage() {
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
         </div>
+
+        {/* Credits & Attribution — visually secondary to the install cards */}
+        <div className="mt-10 pt-6 border-t border-border/40">
+          <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 text-center">Built With</h2>
+          <ul className="flex flex-wrap justify-center gap-2 text-xs text-muted-foreground/80">
+            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
+              <span className="font-serif font-medium text-foreground/80">King James Version</span>
+              <span className="text-muted-foreground/70">— public domain, 1611/1769 Authorized Version</span>
+            </li>
+            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
+              <span className="font-sans font-medium text-foreground/80">Discord.js</span>
+              <span className="text-muted-foreground/70">— Node.js library (MIT)</span>
+            </li>
+            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
+              <span className="font-sans font-medium text-foreground/80">Discloud</span>
+              <span className="text-muted-foreground/70">— always-on bot hosting</span>
+            </li>
+            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
+              <span className="font-sans font-medium text-foreground/80">KJB Reader Bible API</span>
+              <span className="text-muted-foreground/70">— verse lookup, search & daily verse</span>
+            </li>
+            <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/50 backdrop-blur border border-border/40">
+              <span className="font-sans font-medium text-foreground/80">node-cron</span>
+              <span className="text-muted-foreground/70">— daily verse scheduling</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );
