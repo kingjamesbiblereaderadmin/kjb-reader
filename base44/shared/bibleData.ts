@@ -45,7 +45,7 @@ export const NAME_TO_FULL: Record<string, string> = {
   'Job': 'The Book of Job',
   'Psalms': 'The Book of Psalms',
   'Proverbs': 'The Proverbs',
-  'Ecclesiastes': 'Ecclesiastes; [or], the Preacher',
+  'Ecclesiastes': 'Ecclesiastes; or, the Preacher',
   'Song of Solomon': 'The Song of Solomon',
   'Isaiah': 'The Book of the Prophet Isaiah',
   'Jeremiah': 'The Book of the Prophet Jeremiah',
