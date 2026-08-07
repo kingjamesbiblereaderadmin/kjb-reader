@@ -111,6 +111,9 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
                 <li>Example: <span className="italic">love, God</span> finds verses containing both, even if far apart.</li>
               </>
             )}
+            {filters.textWildcard && (
+              <li><strong>Wildcard</strong> mode: <span className="italic">*</span> matches any run of characters, <span className="italic">?</span> matches a single character. Example: <span className="italic">lov*</span> matches love, loved, lovely.</li>
+            )}
           </ul>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 mt-2.5">
             <label className="flex items-center gap-1.5 cursor-pointer select-none">
@@ -149,6 +152,15 @@ export default function AdvancedFilterPanel({ filters, onChange, onReset, availa
                 className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
               />
               <span className="font-sans text-xs text-foreground">Adjacent (phrase)</span>
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={filters.textWildcard}
+                onChange={(e) => set({ textWildcard: e.target.checked })}
+                className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
+              />
+              <span className="font-sans text-xs text-foreground">Wildcard (* ?)</span>
             </label>
           </div>
         </div>
