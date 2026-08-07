@@ -140,7 +140,7 @@ export default function ExtensionPage() {
         {/* Screenshot */}
         <div className="flex flex-col items-center mb-5">
           <img
-            src="https://media.base44.com/images/public/6a713d810d97fdb5921ed14e/36d4f40c6_generated_image.png"
+            src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/cc7bde00a_Screenshot2026-08-07190320.png"
             alt="KJB SidePanel in action"
             className="w-full max-w-2xl rounded-2xl border border-border/60 shadow-lg"
           />
