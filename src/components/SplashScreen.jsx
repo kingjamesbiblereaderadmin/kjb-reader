@@ -521,10 +521,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
         {/* Right side — scripture */}
         <div
-          className="flex flex-col items-center lg:items-start justify-between self-stretch gap-8 lg:gap-10 max-w-md text-center lg:text-left py-2"
+          className="flex flex-col items-center justify-between self-stretch gap-8 lg:gap-10 max-w-md text-center py-2"
           style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
         >
-          <div className="flex flex-col items-center sm:items-start gap-2">
+          <div className="flex flex-col items-center gap-2">
             <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: 'clamp(0.88rem, 3.5vw, 1.02rem)', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
               "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
             </p>
