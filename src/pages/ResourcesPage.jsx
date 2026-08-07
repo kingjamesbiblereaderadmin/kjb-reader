@@ -394,16 +394,16 @@ export default function ResourcesPage() {
             <Puzzle className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJB Reader Chrome Extension <span className="text-accent font-semibold text-sm">— Coming Soon!</span></h2>
+            <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJB SidePanel</h2>
             <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
-              Read, search, and look up Bible verses from any web page with the KJB Reader sidebar extension.
+              Read, search, and look up Bible verses from any web page with the KJB Reader sidebar extension — now available on the Chrome Web Store.
             </p>
             <div className="flex items-center gap-3 flex-wrap">
               <Link
                 to="/extension"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
-                Get the KJB Reader Chrome Extension
+                Get KJB SidePanel
               </Link>
             </div>
           </div>
