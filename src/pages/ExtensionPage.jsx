@@ -59,9 +59,9 @@ export default function ExtensionPage() {
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB SidePanel</h1>
           <p className="font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
-          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30">
-            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-            <span className="font-sans text-xs font-semibold text-green-600 dark:text-green-400">Available Now</span>
+          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#DCFCE7' }}>
+            <CheckCircle className="w-3.5 h-3.5" style={{ color: '#166534' }} />
+            <span className="font-sans text-xs font-semibold" style={{ color: '#166534' }}>Available Now</span>
           </div>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
