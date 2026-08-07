@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 import {
   Bell, Share, MonitorSmartphone, Download, Accessibility, Palette,
   Type, Moon, Sun, Monitor, ChevronLeft, ChevronRight, Check, Star,
-  Image as ImageIcon, Upload, Trash2, Crop, Heart, Globe,
+  Image as ImageIcon, Upload, Trash2, Crop,
 } from 'lucide-react';
-import { GospelStep, ResourcesStep } from '@/components/LandingContentSteps';
 import { toast } from 'sonner';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { useTheme } from '@/lib/themeContext';
@@ -106,8 +105,6 @@ export default function LandingSetupWizard() {
     background: false,
     a11y: false,
     notif: false,
-    gospel: false,
-    resources: false,
   });
 
   const markDone = (id) => setCompleted(prev => prev[id] ? prev : { ...prev, [id]: true });
@@ -254,9 +251,7 @@ export default function LandingSetupWizard() {
     { id: 'theme', label: 'Theme', icon: Palette },
     { id: 'fonts', label: 'Fonts', icon: Type },
     { id: 'background', label: 'Background', icon: ImageIcon },
-    { id: 'notif', label: 'Notif', icon: Bell },
-    { id: 'gospel', label: 'Gospel', icon: Heart },
-    { id: 'resources', label: 'More', icon: Globe },
+    { id: 'notif', label: 'Notifications', icon: Bell },
   ];
 
   const isFirst = step === 0;
@@ -274,7 +269,7 @@ export default function LandingSetupWizard() {
   return (
     <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 shadow-lg shadow-black/[0.03]">
       {/* Step indicator — compact circles, tick only when actually completed */}
-      <div className="flex items-center justify-center gap-1 mb-6 overflow-x-auto scrollbar-hide max-w-full">
+      <div className="flex items-center justify-center gap-1 mb-6">
         {STEPS.map((s, i) => {
           const Icon = s.icon;
           const active = i === step;
@@ -284,7 +279,7 @@ export default function LandingSetupWizard() {
               <button
                 type="button"
                 onClick={() => setStep(i)}
-                className={`flex flex-col items-center gap-0.5 transition-opacity ${active ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
+                className={`flex flex-col items-center gap-0.5 transition-all ${active ? 'scale-110' : 'opacity-60 hover:opacity-100'}`}
               >
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
                   done ? 'bg-primary border-primary text-primary-foreground'
@@ -293,7 +288,7 @@ export default function LandingSetupWizard() {
                 }`}>
                   {done ? <Check className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
                 </div>
-                <span className={`font-sans text-[9px] hidden sm:block ${active ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>{s.label}</span>
+                <span className={`font-sans text-[9px] ${active ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>{s.label}</span>
               </button>
               {i < STEPS.length - 1 && (
                 <div className={`h-0.5 w-3 sm:w-6 rounded-full transition-all ${completed[s.id] ? 'bg-primary' : 'bg-border'}`} />
@@ -592,12 +587,6 @@ export default function LandingSetupWizard() {
             )}
           </div>
         )}
-
-        {/* Step 5: Gospel */}
-        {step === 5 && <GospelStep onDone={() => markDone('gospel')} />}
-
-        {/* Step 6: Resources */}
-        {step === 6 && <ResourcesStep onDone={() => markDone('resources')} />}
       </div>
 
       {/* Navigation buttons */}

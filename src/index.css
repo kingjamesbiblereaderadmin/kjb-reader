@@ -313,7 +313,7 @@
   /* ── App-wide accessibility fonts ──
      Applied via data attribute on <html>. Overrides every font across the app
      (UI + scripture). Cursive scripture styling is intentionally left intact. */
-  html[data-a11y-font="dyslexic"] *:not(.cursive-em-style):not(.cursive-em-style *):not(.kjb-font-preview):not(.kjb-splash):not(.kjb-splash *) {
+  html[data-a11y-font="dyslexic"] *:not(.cursive-em-style):not(.cursive-em-style *):not(.kjb-font-preview) {
     font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
   }
   html[data-a11y-font="hyperlegible"] *:not(.cursive-em-style):not(.cursive-em-style *):not(.kjb-font-preview) {

@@ -192,7 +192,7 @@
     <meta http-equiv="Cache-Control" content="public, max-age=3600, stale-while-revalidate=86400" />
     <title>KJB Reader</title>
     <!-- Preload critical resources -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Dancing+Script:wght@300;400;500;600;700&family=Great+Vibes&family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=block" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Dancing+Script:wght@300;400;500;600;700&family=Great+Vibes&family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=block" />
     <meta name="description" content="Read the King James Bible (Pure Cambridge Edition) — the pure, infallible Word of God." />
     <meta name="theme-color" content="#0f1117" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -257,34 +257,6 @@
       html, body { background-color: #fef9f3; color: #0f1718; margin: 0; width: 100%; min-height: 100vh; }
       html.dark, html.dark body { background-color: #0f1117; color: #ffffff; }
       #root { min-height: 100vh; width: 100%; background-color: inherit; }
-      /* Match index.css root font-size for the Atkinson Hyperlegible a11y font
-         so the boot splash renders at the same scale as the React splash
-         (index.css only loads once React mounts, otherwise the text jumps size). */
-      html[data-a11y-font="hyperlegible"] { font-size: 112.5%; }
-      /* OpenDyslexic @font-face for the boot splash (index.css's copy only loads
-         with React). The woff files are already preloaded in <head>. */
-      @font-face {
-        font-family: 'OpenDyslexic';
-        src: url('/fonts/OpenDyslexic-regular.woff') format('woff');
-        font-weight: 400; font-style: normal; font-display: swap;
-      }
-      @font-face {
-        font-family: 'OpenDyslexic';
-        src: url('/fonts/OpenDyslexic-bold.woff') format('woff');
-        font-weight: 700; font-style: normal; font-display: swap;
-      }
-      @font-face {
-        font-family: 'OpenDyslexic';
-        src: url('/fonts/OpenDyslexic-italic.woff') format('woff');
-        font-weight: 400; font-style: italic; font-display: swap;
-      }
-      /* Apply the chosen accessibility font to the boot splash immediately so it
-         matches the React splash (index.css holds these rules for the app but
-         only loads once React mounts). */
-      html[data-a11y-font="hyperlegible"] .kjb-splash,
-      html[data-a11y-font="hyperlegible"] .kjb-splash * { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif !important; }
-      html[data-a11y-font="system"] .kjb-splash,
-      html[data-a11y-font="system"] .kjb-splash * { font-family: system-ui, -apple-system, sans-serif !important; }
     </style>
   </head>
   <body>
@@ -295,47 +267,53 @@
            aware: dark bg in dark mode, light bg in light mode. The inline theme
            script above adds the `dark` class before this renders, so we read it
            and set the splash colors here before paint. -->
-      <div id="kjb-boot-splash" class="kjb-splash" style="position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;overflow-y:auto;background:#0f1117;">
+      <div id="kjb-boot-splash" style="position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:#0f1117;">
         <!-- Ambient glow layers (match the React SplashScreen exactly) -->
         <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;">
           <div style="position:absolute;top:-25%;left:50%;transform:translateX(-50%);width:120%;height:50%;border-radius:50%;background:radial-gradient(circle, rgba(79,106,255,0.14), transparent 60%);"></div>
           <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:120%;height:33.33%;border-radius:50%;background:radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%);"></div>
         </div>
-        <!-- Card: logo beside the verse, reference and gospel. Progress bar +
-             status sit below the card. Matches the React SplashScreen so the
-             boot→React handoff has no jump. -->
+        <!-- Two-side composition: brand on one side, scripture on the other.
+             Stacks vertically on mobile, side-by-side on desktop (see <style> below). -->
         <div id="kjb-boot-grid">
-          <div id="kjb-boot-row">
-            <img
-              id="kjb-boot-logo"
-              alt="KJB Reader Logo"
-              style="position:relative;flex-shrink:0;object-fit:contain;border-radius:0.75rem;padding:0.5rem;background:#0f1117;box-shadow:0 0 0 1px rgba(0,0,0,0.05);"
-            />
-            <div id="kjb-boot-divider"></div>
-            <div id="kjb-boot-text">
-              <div id="kjb-boot-verse-wrap">
-                <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:clamp(0.82rem,3.2vw,0.95rem);font-style:normal;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
-                  "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
-                </p>
-                <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.5rem,1.8vw,0.58rem);letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin:0;text-align:center;">
-                  — 2 Timothy 2:15 —
-                </p>
+          <!-- Left side — brand -->
+          <div id="kjb-boot-brand" style="position:relative;display:flex;flex-direction:column;align-items:center;">
+            <div style="position:relative;">
+              <div style="position:absolute;inset:0;border-radius:1.5rem;filter:blur(1rem);background:radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%);"></div>
+              <img
+                id="kjb-boot-logo"
+                alt="KJB Reader Logo"
+                style="position:relative;object-fit:contain;border-radius:1.5rem;padding:0.75rem;background:#0f1117;box-shadow:0 0 0 1px rgba(0,0,0,0.05);"
+              />
+            </div>
+            <div id="kjb-boot-progress-wrap" style="display:flex;flex-direction:column;align-items:center;gap:20px;">
+              <div id="kjb-boot-track" style="width:100%;height:6px;border-radius:9999px;overflow:hidden;position:relative;background:rgba(255,255,255,0.08);">
+                <div style="position:absolute;top:0;height:100%;border-radius:9999px;width:40%;background:linear-gradient(90deg,#4f6aff,#a855f7);animation:kjb-boot-indeterminate 1.2s ease-in-out infinite;"></div>
               </div>
-              <div id="kjb-boot-gospel-wrap">
-                <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.72rem,2.8vw,0.82rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
-                  Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
-                </p>
-                <p id="kjb-boot-gospel-trust" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.72rem,2.8vw,0.82rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
-                  Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
-                </p>
-              </div>
+              <span id="kjb-boot-text" style="font-family:Inter,system-ui,sans-serif;font-size:0.875rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;text-align:center;color:#ffffff;">Loading KJB Reader...</span>
             </div>
           </div>
-          <div id="kjb-boot-progress-wrap" style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;width:14rem;">
-            <div id="kjb-boot-track" style="width:100%;height:6px;border-radius:9999px;overflow:hidden;position:relative;background:rgba(255,255,255,0.08);">
-              <div style="position:absolute;top:0;height:100%;border-radius:9999px;width:40%;background:linear-gradient(90deg,#4f6aff,#a855f7);animation:kjb-boot-indeterminate 1.2s ease-in-out infinite;"></div>
+          <!-- Divider — horizontal on mobile, vertical on desktop -->
+          <div id="kjb-boot-divider"></div>
+          <!-- Right side — scripture -->
+          <div id="kjb-boot-scripture" style="animation:kjb-splash-fade 600ms ease-out 200ms both;">
+            <div id="kjb-boot-scripture-quote" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+              <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:1.02rem;font-style:normal;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+                "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
+              </p>
+              <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin:0;">
+                — 2 Timothy 2:15 —
+              </p>
             </div>
-            <span id="kjb-boot-text" style="font-family:Inter,system-ui,sans-serif;font-size:0.875rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;text-align:center;color:#ffffff;">Loading KJB Reader...</span>
+            <div id="kjb-boot-scripture-divider" style="width:2.5rem;height:1px;background:linear-gradient(90deg,transparent,rgba(120,120,130,0.45),transparent);"></div>
+            <div id="kjb-boot-gospel-wrap" style="display:flex;flex-direction:column;gap:0.6rem;">
+              <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:0.9rem;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+                Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
+              </p>
+              <p id="kjb-boot-gospel-trust" style="font-family:Inter,system-ui,sans-serif;font-size:0.9rem;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+                Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -357,8 +335,6 @@
               document.getElementById('kjb-boot-ref').style.color = 'rgba(90,100,114,0.55)';
               document.getElementById('kjb-boot-gospel').style.color = 'rgba(90,100,114,0.85)';
               document.getElementById('kjb-boot-gospel-trust').style.color = 'rgba(90,100,114,0.85)';
-              var dividerEl = document.getElementById('kjb-boot-divider');
-              if (dividerEl) { dividerEl.style.background = 'rgba(0,0,0,0.15)'; }
             }
           } catch (e) {}
         })();
@@ -372,54 +348,37 @@
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        /* Card splash layout — logo beside the verse/reference/gospel, with
-           the progress bar + status below the card. Matches the React
-           SplashScreen so the boot→React handoff has no jump. */
+        /* Two-side splash layout — base (mobile) stacks vertically; desktop
+           places brand on one side and scripture on the other. Matches the
+           React SplashScreen so the boot→React handoff has no jump. */
         #kjb-boot-grid {
           position: relative;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 2rem;
+          justify-content: center;
+          gap: 3rem;
           width: 100%;
-          max-width: 42rem;
-          margin: auto;
-          padding: 2rem 1.5rem;
+          max-width: 64rem;
+          padding: 0 2rem 4rem;
           box-sizing: border-box;
         }
-        #kjb-boot-row {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 1.25rem;
-          width: 100%;
-          box-sizing: border-box;
+        #kjb-boot-brand {
+          gap: 3rem;
         }
         #kjb-boot-divider {
-          display: none;
+          width: 2.5rem;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent);
         }
-        #kjb-boot-text {
-          flex: 1;
-          min-width: 0;
-          display: none;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          gap: 1rem;
-        }
-        #kjb-boot-verse-wrap {
+        #kjb-boot-scripture {
           display: flex;
           flex-direction: column;
           align-items: center;
+          justify-content: space-between;
           gap: 0.75rem;
-        }
-        #kjb-boot-gospel-wrap {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.5rem;
+          max-width: 28rem;
+          text-align: center;
         }
         #kjb-boot-logo {
           width: 8rem;
@@ -428,33 +387,26 @@
         #kjb-boot-progress-wrap {
           width: 14rem;
         }
-        @media (min-width: 1024px) {
+        @media (min-width: 640px) {
           #kjb-boot-grid {
-            max-width: 42rem;
-            gap: 2.5rem;
-            padding: 2.5rem 2rem;
-          }
-          #kjb-boot-row {
             flex-direction: row;
-            align-items: center;
-            gap: 2rem;
+            gap: 6rem;
+            padding: 0 4rem 5rem;
+          }
+          #kjb-boot-brand {
+            gap: 4rem;
           }
           #kjb-boot-divider {
-            display: block;
             width: 1px;
-            align-self: stretch;
-            background: rgba(255,255,255,0.15);
+            height: 20rem;
+            background: linear-gradient(transparent, rgba(120,120,130,0.35), transparent);
           }
-          #kjb-boot-text {
-            display: flex;
+          #kjb-boot-scripture {
             align-items: flex-start;
             text-align: left;
-            justify-content: space-between;
-            gap: 2rem;
-          }
-          #kjb-boot-verse-wrap,
-          #kjb-boot-gospel-wrap {
-            align-items: flex-start;
+            max-width: 28rem;
+            align-self: stretch;
+            gap: 1rem;
           }
           #kjb-boot-logo {
             width: 10rem;

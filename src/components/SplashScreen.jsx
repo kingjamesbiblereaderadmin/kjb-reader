@@ -463,7 +463,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   return (
     <div
-      className={`kjb-splash fixed inset-0 z-[999999] flex flex-col items-center overflow-x-hidden overflow-y-auto transition-opacity duration-500 ease-in-out ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${
         isFadingOut ? 'opacity-0' : 'opacity-100'
       }`}
       style={{ background: splashBg }}
@@ -474,64 +474,73 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-1/3 rounded-full" style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%)' }} />
       </div>
 
-      {/* Two-column composition: logo on the left, a divider, then the 2 Timothy
-          verse (top) and gospel (bottom) on the right. On mobile it stacks
-          vertically (logo, verse, gospel) with no divider — the original layout. */}
-      <div className="relative flex flex-col items-center justify-center gap-6 lg:gap-8 w-full max-w-2xl px-6 lg:px-8 my-auto py-8">
-        <div className="flex flex-col lg:flex-row items-center gap-5 lg:gap-8 w-full justify-center">
-          <img
-            src={logoSrc}
-            alt="KJB Reader Logo"
-            className="relative shrink-0 w-32 h-32 lg:w-40 lg:h-40 object-contain rounded-xl p-2 ring-1 ring-black/5"
-            style={{ background: splashBg }}
-          />
-          {/* Vertical divider — desktop only */}
-          <div className="hidden lg:block w-px self-stretch bg-foreground/15" />
-          <div className="hidden lg:flex flex-1 min-w-0 flex-col justify-center lg:justify-between gap-4 lg:gap-8 items-center lg:items-start text-center lg:text-left">
-            {/* 2 Timothy verse + reference — top */}
-            <div className="flex flex-col gap-3 items-center lg:items-start">
-              <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: 'clamp(0.82rem, 3.2vw, 0.95rem)', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
-                "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
-              </p>
-              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.5rem, 1.8vw, 0.58rem)', letterSpacing: '0.18em', textTransform: 'uppercase', color: refColor, margin: 0, textAlign: 'center' }}>
-                — 2 Timothy 2:15 —
-              </p>
+      {/* Two-side composition: brand on one side, scripture on the other.
+          Stacks vertically on mobile, side-by-side on desktop. */}
+      <div className="relative flex flex-col sm:flex-row items-center justify-center gap-12 sm:gap-24 w-full max-w-5xl px-8 sm:px-16 pb-16 sm:pb-24">
+        {/* Left side — brand */}
+        <div className="flex flex-col items-center gap-12 sm:gap-16">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%)' }} />
+            <img
+              src={logoSrc}
+              alt="KJB Reader Logo"
+              className="relative w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-3xl p-3 ring-1 ring-black/5"
+              style={{ background: splashBg }}
+            />
+          </div>
+          <div className="flex flex-col items-center gap-5 w-56 sm:w-64">
+            {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
+            <div
+              className="w-full h-1.5 rounded-full overflow-hidden relative"
+              style={{ background: trackBg }}
+            >
+              {progress === null ? (
+                <div
+                  className="absolute top-0 h-full rounded-full"
+                  style={{ width: '40%', background: 'linear-gradient(90deg, #4f6aff, #a855f7)', animation: 'kjb-splash-indeterminate 1.2s ease-in-out infinite' }}
+                />
+              ) : (
+                <div
+                  className="h-full rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #4f6aff, #a855f7)' }}
+                />
+              )}
             </div>
-            {/* Gospel — bottom */}
-            <div className="flex flex-col gap-2 items-center lg:items-start">
-              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.72rem, 2.8vw, 0.82rem)', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
-                Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
-              </p>
-              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.72rem, 2.8vw, 0.82rem)', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
-                Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
-              </p>
-            </div>
+            <span
+              className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300 text-center"
+              style={{ color: textColor }}
+            >
+              {currentMessage}
+            </span>
           </div>
         </div>
-        {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
-        <div className="flex flex-col items-center gap-5 w-56 lg:w-64">
-          <div
-            className="w-full h-1.5 rounded-full overflow-hidden relative"
-            style={{ background: trackBg }}
-          >
-            {progress === null ? (
-              <div
-                className="absolute top-0 h-full rounded-full"
-                style={{ width: '40%', background: 'linear-gradient(90deg, #4f6aff, #a855f7)', animation: 'kjb-splash-indeterminate 1.2s ease-in-out infinite' }}
-              />
-            ) : (
-              <div
-                className="h-full rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #4f6aff, #a855f7)' }}
-              />
-            )}
+
+        {/* Divider — vertical on desktop, horizontal on mobile */}
+        <div className="hidden sm:block w-px self-stretch max-h-80" style={{ background: 'linear-gradient(transparent, rgba(120,120,130,0.35), transparent)' }} />
+        <div className="sm:hidden w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
+
+        {/* Right side — scripture */}
+        <div
+          className="flex flex-col items-center sm:items-start justify-between self-stretch gap-6 sm:gap-8 max-w-md text-center sm:text-left py-2"
+          style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
+        >
+          <div className="flex flex-col items-center sm:items-start gap-2">
+            <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '1.02rem', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
+              "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
+            </p>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
+              — 2 Timothy 2:15 —
+            </p>
           </div>
-          <span
-            className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300 text-center"
-            style={{ color: textColor }}
-          >
-            {currentMessage}
-          </span>
+          <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(120,120,130,0.45), transparent)' }} />
+          <div className="flex flex-col gap-3">
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
+              Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
+            </p>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
+              Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
+            </p>
+          </div>
         </div>
       </div>
       <style>{`

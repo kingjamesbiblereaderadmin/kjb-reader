@@ -1,10 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, FileText, MonitorSmartphone, ChevronDown } from 'lucide-react';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram, BookOpen } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
-import ContactLinks from '@/components/ContactLinks';
 import ScriptureBanner from '@/components/ScriptureBanner';
+
+function TikTokIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.72a4.85 4.85 0 01-1.01-.03z" />
+    </svg>
+  );
+}
+
+function DiscordIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+    </svg>
+  );
+}
 
 const LAST_UPDATED = 'July 16th, 2026';
 
@@ -20,7 +34,7 @@ export default function LandingPage() {
 
       <div className="relative w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
         {/* Hero header */}
-        <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
+        <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
           <div className="relative inline-flex items-center justify-center mb-4">
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 to-violet-500/30 blur-xl" />
             <Link to="/" className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden shadow-lg shadow-blue-500/30 ring-1 ring-white/20 hover:scale-105 active:scale-95 transition-transform">
@@ -33,85 +47,217 @@ export default function LandingPage() {
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Welcome to KJB Reader</h1>
           <p className="font-sans text-sm text-muted-foreground">Read the King James Bible — anytime, anywhere, even offline.</p>
-          <div className="mt-5">
-            <Link
-              to="/"
-              onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-md"
-            >
-              Open KJB Reader
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+          <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
 
         {/* Scripture banner */}
-        <div className="mb-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '60ms', animationFillMode: 'both' }}>
+        <div className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '60ms', animationFillMode: 'both' }}>
           <ScriptureBanner />
         </div>
 
-        {/* Setup wizard — Install, Theme, Fonts, Background, Notif, Gospel, Resources */}
-        <div className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '120ms', animationFillMode: 'both' }}>
+        {/* CTA featured card */}
+        <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 backdrop-blur-xl p-6 sm:p-8 mb-6 shadow-lg shadow-black/[0.03] animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '100ms', animationFillMode: 'both' }}>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent" />
+          <div className="absolute -right-8 -bottom-10 opacity-[0.06] dark:opacity-[0.12] text-primary pointer-events-none">
+            <BookOpen className="w-36 h-36" />
+          </div>
+          <div className="relative flex flex-col sm:flex-row items-start gap-5">
+            <div className="w-14 h-14 flex items-center justify-center rounded-2xl text-white shadow-xl bg-gradient-to-br from-primary to-accent ring-1 ring-white/20 shrink-0">
+              <BookOpen className="w-7 h-7" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
+                KJB Reader is a free, installable Bible reading app featuring the King James Bible
+                (Pure Cambridge Edition). Enjoy daily verses, offline reading, search, bookmarks,
+                and customizable typography — all with privacy at the forefront.
+              </p>
+              <div className="flex items-center justify-start gap-3 flex-wrap">
+                <Link
+                  to="/"
+                  onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-md"
+                >
+                  Open KJB Reader
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Promo — Gospel featured */}
+        <Link
+          to="/salvation"
+          className="group relative flex flex-col sm:flex-row items-start gap-4 p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-primary/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 mb-4 overflow-hidden animate-in fade-in slide-in-from-bottom-4"
+          style={{ animationDuration: '500ms', animationDelay: '140ms', animationFillMode: 'both' }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/8 to-transparent" />
+          <div className="absolute -right-6 -bottom-6 opacity-[0.06] dark:opacity-[0.12] text-primary pointer-events-none">
+            <Heart className="w-28 h-28" />
+          </div>
+          <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-primary to-accent ring-1 ring-white/15 shrink-0">
+            <Heart className="w-6 h-6" />
+          </div>
+          <div className="relative flex-1 min-w-0">
+            <p className="font-serif font-bold text-base text-foreground group-hover:text-accent transition-colors mb-1">Are you saved?</p>
+            <div className="font-sans text-xs text-muted-foreground leading-relaxed space-y-2"><p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.</p><p>Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.</p></div>
+          </div>
+          <ArrowRight className="relative w-4 h-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all shrink-0" />
+        </Link>
+
+        {/* Promo — KJBI + Extension */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <a
+            href="https://kjbi.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-indigo-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4"
+            style={{ animationDuration: '500ms', animationDelay: '180ms', animationFillMode: 'both' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/8 to-transparent" />
+            <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-purple-600 ring-1 ring-white/15 mb-3">
+              <GraduationCap className="w-6 h-6" />
+            </div>
+            <p className="relative font-serif font-bold text-base text-foreground group-hover:text-accent transition-colors mb-1">KJBI.org — Free Online Bible College</p>
+            <p className="relative font-sans text-xs text-muted-foreground leading-relaxed">King James Bible Institute by Robert Breaker &amp; Robert Potthoff — go deeper in God's Word, for free.</p>
+            <div className="relative mt-3 inline-flex items-center gap-1 text-xs font-sans font-medium text-accent">
+              Visit <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </a>
+
+          <Link
+            to="/extension"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-blue-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4"
+            style={{ animationDuration: '500ms', animationDelay: '220ms', animationFillMode: 'both' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/8 to-transparent" />
+            <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600 ring-1 ring-white/15 mb-3">
+              <Globe className="w-6 h-6" />
+            </div>
+            <p className="relative font-serif font-bold text-base text-foreground group-hover:text-accent transition-colors mb-1">KJB Reader - SidePanel <span className="text-accent font-semibold">— Available Now!</span></p>
+            <p className="relative font-sans text-xs text-muted-foreground leading-relaxed">Read, search, and look up Bible verses from any web page. Desktop browsers only.</p>
+            <div className="relative mt-3 inline-flex items-center gap-1 text-xs font-sans font-medium text-accent">
+              Learn more <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </Link>
+        </div>
+
+        {/* Promo — Discord bot */}
+        <div className="relative p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-violet-400/50 transition-all duration-300 mb-5 overflow-hidden animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '260ms', animationFillMode: 'both' }}>
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/8 to-transparent" />
+          <div className="relative flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700 ring-1 ring-white/15 shrink-0">
+              <DiscordIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="font-serif font-bold text-base text-foreground">KJB Discord Bot</p>
+              <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord.</p>
+            </div>
+          </div>
+          <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a
+              href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=applications.commands&integration_type=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col items-center text-center justify-center gap-1 p-4 rounded-2xl bg-background/40 border border-border/60 hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+            >
+              <p className="font-sans font-semibold text-xs text-foreground group-hover:text-accent transition-colors">📱 Personal Install</p>
+              <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">Slash commands for your account — DMs, group DMs, any server.</p>
+            </a>
+            <a
+              href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col items-center text-center justify-center gap-1 p-4 rounded-2xl bg-background/40 border border-border/60 hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+            >
+              <p className="font-sans font-semibold text-xs text-foreground group-hover:text-accent transition-colors">🏠 Server Install</p>
+              <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</p>
+            </a>
+          </div>
+        </div>
+
+        {/* Step-by-step setup wizard */}
+        <div className="mb-5 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '300ms', animationFillMode: 'both' }}>
           <LandingSetupWizard />
         </div>
 
-        {/* Legal — Privacy / Terms / Legacy, collapsed by default */}
-        <div className="mt-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '180ms', animationFillMode: 'both' }}>
-          <Collapsible defaultOpen={false}>
-            <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
-              <CollapsibleTrigger className="w-full flex items-center justify-center gap-2 text-center group">
-                <div>
-                  <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Legal & Legacy</h3>
-                  <p className="font-sans text-xs text-muted-foreground text-center">Privacy, terms, and the legacy reader for old browsers (e.g. IE11)</p>
-                </div>
-                <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180 group-data-[state=open]:rotate-180" />
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-sm mx-auto mt-4">
-                  {[
-                    { to: '/privacy', icon: Shield, title: 'Privacy', sub: 'Privacy Policy', bg: 'from-slate-500 to-slate-700' },
-                    { to: '/terms', icon: FileText, title: 'Terms', sub: 'Terms of Service', bg: 'from-amber-500 to-orange-600' },
-                    { to: '/legacy', icon: MonitorSmartphone, title: 'Legacy', sub: 'Old-browser reader', bg: 'from-sky-500 to-blue-600' },
-                  ].map(({ to, icon: Icon, title, sub, bg }) => (
-                    <Link
-                      key={to}
-                      to={to}
-                      className="group flex items-center gap-2.5 p-3 rounded-xl border border-border bg-card hover:border-accent/50 transition-all"
-                    >
-                      <div className={`w-9 h-9 flex items-center justify-center rounded-xl text-white bg-gradient-to-br ${bg} shrink-0`}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-sans font-semibold text-xs text-foreground truncate">{title}</p>
-                        <p className="font-sans text-[11px] text-muted-foreground truncate">{sub}</p>
-                      </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent ml-auto shrink-0" />
-                    </Link>
-                  ))}
-                </div>
-              </CollapsibleContent>
+        {/* Legal Links */}
+        <div className="grid sm:grid-cols-3 gap-4 mb-5 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '340ms', animationFillMode: 'both' }}>
+          <Link
+            to="/privacy"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-lg hover:border-violet-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/8 to-transparent" />
+            <div className="relative w-10 h-10 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-600 ring-1 ring-white/15 mb-3">
+              <Shield className="w-5 h-5" />
             </div>
-          </Collapsible>
+            <p className="relative font-serif font-bold text-sm text-foreground group-hover:text-accent transition-colors">Privacy Policy</p>
+            <p className="relative font-sans text-xs text-muted-foreground mt-0.5">How your data is handled</p>
+          </Link>
+
+          <Link
+            to="/terms"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-lg hover:border-emerald-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/8 to-transparent" />
+            <div className="relative w-10 h-10 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600 ring-1 ring-white/15 mb-3">
+              <FileText className="w-5 h-5" />
+            </div>
+            <p className="relative font-serif font-bold text-sm text-foreground group-hover:text-accent transition-colors">Terms of Service</p>
+            <p className="relative font-sans text-xs text-muted-foreground mt-0.5">Rules for using this app</p>
+          </Link>
+
+          <Link
+            to="/legacy"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-lg hover:border-slate-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-500/8 to-transparent" />
+            <div className="relative w-10 h-10 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-slate-500 to-slate-700 ring-1 ring-white/15 mb-3">
+              <MonitorSmartphone className="w-5 h-5" />
+            </div>
+            <p className="relative font-serif font-bold text-sm text-foreground group-hover:text-accent transition-colors">Legacy Reader</p>
+            <p className="relative font-sans text-xs text-muted-foreground mt-0.5">For old browsers (IE 11)</p>
+          </Link>
         </div>
 
-        {/* Contact — rich link cards, collapsed by default */}
-        <div className="mt-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '240ms', animationFillMode: 'both' }}>
-          <Collapsible defaultOpen={false}>
-            <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
-              <CollapsibleTrigger className="w-full flex items-center justify-center gap-2 text-center group">
-                <div>
-                  <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Links & Contact</h3>
-                  <p className="font-sans text-xs text-muted-foreground text-center">Ways to reach us and follow the ministry</p>
-                </div>
-                <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="mt-4">
-                  <ContactLinks />
-                </div>
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
+        {/* Contact */}
+        <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 backdrop-blur-xl p-6 sm:p-7 shadow-lg shadow-black/[0.03] animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '380ms', animationFillMode: 'both' }}>
+          <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-primary/5 blur-3xl" />
+          <h2 className="relative font-serif text-xl font-semibold text-foreground mb-4">Contact</h2>
+          <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-sans text-sm text-foreground/85">
+            <a href="mailto:kingjamesbiblereader@outlook.sg" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
+              <Mail className="w-4 h-4 text-muted-foreground" />
+              kingjamesbiblereader@outlook.sg
+            </a>
+            <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
+              <Globe className="w-4 h-4 text-muted-foreground" />
+              godisgracious1031ministries.com
+            </a>
+            <a href="https://youtube.com/@shawnr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
+              <Youtube className="w-4 h-4 text-muted-foreground" />
+              @shawnr325av
+            </a>
+            <a href="https://www.tiktok.com/@svdbyfaithinr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
+              <TikTokIcon className="w-4 h-4 text-muted-foreground" />
+              @svdbyfaithinr325av
+            </a>
+            <a href="https://www.instagram.com/svdbyfaithinhisbloodr325av/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
+              <Instagram className="w-4 h-4 text-muted-foreground" />
+              @svdbyfaithinhisbloodr325av
+            </a>
+            <a href="https://rumble.com/user/Godisgracious1031" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
+              <PlayCircle className="w-4 h-4 text-muted-foreground" />
+              Rumble · Godisgracious1031
+            </a>
+            <a href="https://discord.com/users/shawn_faithinhisbloodr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
+              <DiscordIcon className="w-4 h-4 text-muted-foreground" />
+              shawn_faithinhisbloodr325av
+            </a>
+            <a href="https://linktr.ee/shawnr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
+              <Link2 className="w-4 h-4 text-muted-foreground" />
+              linktr.ee/shawnr325av
+            </a>
+          </div>
         </div>
 
         <p className="text-center font-sans text-xs text-muted-foreground mt-8">
