@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Copy, Share2, AlignLeft, Filter, Printer, BookMarked, ChevronDown, Bookmark } from 'lucide-react';
+import { Copy, Share2, AlignLeft, Filter, Printer, BookMarked, ChevronDown, Bookmark, List } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Slim action bar shown when reading a verse range / search result.
 // `filterMode` controls whether the reader is filtered to only the selected
 // verses (true) or showing the full chapter with them highlighted (false).
-export default function ReadingRangeBar({ label, filterMode, copyFeedback, shareFeedback, shareLinkFeedback, saveFeedback, onCopy, onShareText, onShareLink, onSave, onToggleView, onClear, onPrintPage, onPrintContents }) {
+export default function ReadingRangeBar({ label, filterMode, copyFeedback, shareFeedback, shareLinkFeedback, saveFeedback, onCopy, onShareText, onShareTextPerVerse, onShareLink, onSave, onToggleView, onClear, onPrintPage, onPrintContents }) {
   const prevLabelRef = useRef(label);
 
   useEffect(() => {
@@ -50,10 +50,14 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
             <Share2 className="w-3.5 h-3.5" /> {shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="end" className="w-52">
           <DropdownMenuItem onClick={onShareText} className="cursor-pointer">
             <AlignLeft className="w-4 h-4 mr-2" />
-            Share Text
+            Share Text (Passage)
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onShareTextPerVerse} className="cursor-pointer">
+            <List className="w-4 h-4 mr-2" />
+            Share Text (Per Verse)
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onShareLink} className="cursor-pointer">
             <Share2 className="w-4 h-4 mr-2" />

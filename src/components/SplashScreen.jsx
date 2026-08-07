@@ -521,7 +521,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
         {/* Right side — scripture */}
         <div
-          className="flex flex-col items-center sm:items-start gap-2 max-w-md text-center sm:text-left"
+          className="flex flex-col items-center sm:items-start gap-3 max-w-md text-center sm:text-left"
           style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
         >
           <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '0.82rem', fontStyle: 'italic', color: verseColor, lineHeight: 1.6, margin: 0 }}>
@@ -530,7 +530,8 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
             — 2 Timothy 2:15 —
           </p>
-          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.72rem', color: gospelColor, lineHeight: 1.5, margin: '0.25rem 0 0 0' }}>
+          <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
+          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.72rem', color: gospelColor, lineHeight: 1.5, margin: 0 }}>
             Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.
           </p>
         </div>

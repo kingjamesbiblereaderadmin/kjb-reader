@@ -475,6 +475,21 @@ export default function BibleReader() {
     } catch {}
   };
 
+  // Per-verse share: each selected verse on its own line (mirrors Copy → Per Verse).
+  const handleSharePerVerse = async () => {
+    const shareText = generatePerVerseText();
+    const hasSel = selectedVerses.size > 0;
+    const ref = hasSel ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}` : `${book.shortName} ${pos.chapter}`;
+    try {
+      if (navigator.share) return await navigator.share({ title: `${ref} — KJB Reader`, text: shareText });
+    } catch (err) { if (err?.name === 'AbortError') return; }
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShareFeedback(true);
+      setTimeout(() => setShareFeedback(false), 1800);
+    } catch {}
+  };
+
   const [shareLinkFeedback, setShareLinkFeedback] = useState(false);
   const handleShareLink = async () => {
     const hasSel = selectedVerses.size > 0;
@@ -1685,10 +1700,14 @@ export default function BibleReader() {
                     <span className="hidden lg:inline">{shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'}</span>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-48">
+                <DropdownMenuContent align="center" className="w-52">
                   <DropdownMenuItem onClick={handleShareChapter} className="cursor-pointer">
                     <AlignLeft className="w-4 h-4 mr-2" />
-                    Share Text
+                    Share Text (Passage)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSharePerVerse} className="cursor-pointer">
+                    <List className="w-4 h-4 mr-2" />
+                    Share Text (Per Verse)
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleShareLink} className="cursor-pointer">
                     <Share2 className="w-4 h-4 mr-2" />
@@ -1842,7 +1861,7 @@ export default function BibleReader() {
                   setFilterMode(false); setSelectedVerses(new Set()); setHighlightVerse(null);
                 }
               }}
-              onCopy={handleCopySelected} onCopyPerVerse={handleCopyPerVerse} onShareText={handleShareChapter} onShareLink={handleShareLink}
+              onCopy={handleCopySelected} onCopyPerVerse={handleCopyPerVerse} onShareText={handleShareChapter} onShareTextPerVerse={handleSharePerVerse} onShareLink={handleShareLink}
               onReadSelected={handleReadSelected} onShowFull={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
               onPrintPage={() => window.print()} onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
             />
@@ -1852,7 +1871,7 @@ export default function BibleReader() {
             <ReadingRangeBar
               label={searchTerm ? (/\d+:\d+/.test(searchTerm) ? `Currently Reading: ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}` : `Search: "${searchTerm}"`) : gospelMode ? 'Gospel' : lastReadingActive ? (lastReadingPos?.fromRandom ? 'Random Chapter' : 'Daily Verse') : `Reading ${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}`}
               filterMode={filterMode} copyFeedback={copyFeedback} shareFeedback={shareFeedback} shareLinkFeedback={shareLinkFeedback} saveFeedback={saveFeedback}
-              onCopy={handleCopySelected} onShareText={handleShareChapter} onShareLink={handleShareLink} onSave={handleSaveSelected} onPrintPage={() => window.print()}
+              onCopy={handleCopySelected} onShareText={handleShareChapter} onShareTextPerVerse={handleSharePerVerse} onShareLink={handleShareLink} onSave={handleSaveSelected} onPrintPage={() => window.print()}
               onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
               onToggleView={() => {
                 setFilterMode(prev => {
