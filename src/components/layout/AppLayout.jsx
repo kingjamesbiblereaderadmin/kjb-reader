@@ -495,6 +495,10 @@ function DesktopFooter({ navigate, setMenuOpen }) {
             <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
               Base44
             </a>
+            {' '}· Design script by{' '}
+            <a href="https://www.reddit.com/r/Base44/comments/1vdkfn8/free_base44_prompt_turn_a_generic_aibuilt_page/" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+              Will Kode
+            </a>
           </p>
           <p className="text-center font-sans text-xs text-muted-foreground mt-1">
             <Link to="/privacy" className="hover:text-foreground hover:underline transition-colors">Privacy</Link>
