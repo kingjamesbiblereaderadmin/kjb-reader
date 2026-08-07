@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, ChevronRight, FlaskConical } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Heart, Info, List, Library, Settings, Bookmark, Shuffle, FlaskConical } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
 import QuickLinkCard from '@/components/home/QuickLinkCard';
+import FeaturedReadCard from '@/components/home/FeaturedReadCard';
+import ImageFeatureCard from '@/components/home/ImageFeatureCard';
+import GospelCallSection from '@/components/home/GospelCallSection';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import IncognitoWarning from '@/components/IncognitoWarning';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
@@ -14,17 +17,9 @@ import { isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 import { detectIncognito } from '@/lib/incognito';
 
-const QUICK_LINKS = [
-  { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', iconGradient: 'from-indigo-500 to-violet-600', fullSpan: true },
-  { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', iconGradient: 'from-blue-500 to-indigo-600' },
-  { path: null, icon: Shuffle, label: '__RANDOM__', desc: 'Jump to a random chapter', iconGradient: 'from-violet-500 to-purple-600' },
-  { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', iconGradient: 'from-fuchsia-500 to-pink-600' },
-  { path: '/advanced-search', icon: FlaskConical, label: 'Advanced Search', desc: 'Research verses by properties', iconGradient: 'from-indigo-500 to-purple-600' },
-  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', iconGradient: 'from-rose-500 to-red-600' },
-  { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', iconGradient: 'from-teal-500 to-emerald-600' },
-  { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', iconGradient: 'from-sky-500 to-blue-600' },
-  { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', iconGradient: 'from-slate-500 to-slate-700' },
-];
+// AI-generated featured artwork for the bento grid (decorative).
+const CONTENTS_IMAGE = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/5c90163a6_generated_image.png';
+const RESOURCES_IMAGE = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/352d01c28_generated_image.png';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -422,17 +417,26 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-background via-accent/5 to-background"
+    <div className="relative min-h-screen"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {/* Ambient background layers */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-accent/5 to-background" />
+        <div className="absolute -top-32 -left-24 w-[36rem] h-[36rem] rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 w-[34rem] h-[34rem] rounded-full bg-violet-500/10 dark:bg-violet-500/15 blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-[30rem] h-[30rem] rounded-full bg-accent/5 blur-3xl" />
+      </div>
+
       <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-6">
       <OfflineStatusBanner />
       <IncognitoWarning />
 
-      {/* Daily verse card */}
+      {/* Daily verse — framed centerpiece */}
       <div className="w-full mx-auto mb-8 relative">
+        <div className="absolute -inset-3 sm:-inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-indigo-500/15 via-violet-500/10 to-transparent blur-2xl" aria-hidden="true" />
         {verse ? (
           <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
         ) : (
@@ -444,47 +448,27 @@ export default function HomePage() {
 
 
 
-      {/* Quick links */}
-      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 auto-rows-fr">
-        {QUICK_LINKS.map((link, i) =>
-          link.label === '__RANDOM__' ? (
-            <QuickLinkCard
-              key="random"
-              onClick={handleRandomChapter}
-              icon={link.icon}
-              label="Random Chapter"
-              desc={link.desc}
-              iconGradient={link.iconGradient}
-            />
-          ) : (
-            <QuickLinkCard
-              key={link.path}
-              to={link.path}
-              icon={link.icon}
-              label={link.label}
-              desc={link.desc}
-              iconGradient={link.iconGradient}
-              className={link.fullSpan ? 'sm:col-span-2' : ''}
-            />
-          )
-        )}
+      {/* Bento: featured read hero */}
+      <FeaturedReadCard />
+
+      {/* Bento: image feature cards */}
+      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-5">
+        <ImageFeatureCard to="/contents" image={CONTENTS_IMAGE} icon={List} label="Table of Contents" desc="Browse all 66 books" iconGradient="from-blue-500 to-indigo-600" />
+        <ImageFeatureCard to="/resources" image={RESOURCES_IMAGE} icon={Library} label="Resources" desc="KJB defence & study" iconGradient="from-teal-500 to-emerald-600" />
+      </div>
+
+      {/* Bento: compact navigation tiles */}
+      <div className="print:hidden grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-3 sm:mt-4 mb-6">
+        <QuickLinkCard onClick={handleRandomChapter} icon={Shuffle} label="Random Chapter" desc="Jump to a random chapter" iconGradient="from-violet-500 to-purple-600" />
+        <QuickLinkCard to="/saved" icon={Bookmark} label="Saved Verses" desc="Your bookmarked verses" iconGradient="from-fuchsia-500 to-pink-600" />
+        <QuickLinkCard to="/advanced-search" icon={FlaskConical} label="Advanced Search" desc="Research verses by properties" iconGradient="from-indigo-500 to-purple-600" />
+        <QuickLinkCard to="/gospel" icon={Heart} label="Gospel" desc="Learn how to be saved" iconGradient="from-rose-500 to-red-600" />
+        <QuickLinkCard to="/about" icon={Info} label="About" desc="Ministry & links" iconGradient="from-sky-500 to-blue-600" />
+        <QuickLinkCard to="/settings" icon={Settings} label="Settings" desc="Offline downloads & info" iconGradient="from-slate-500 to-slate-700" />
       </div>
 
       {/* Gospel call */}
-      <div className="print:hidden bg-gradient-to-br from-rose-50 to-red-50 dark:from-red-950/20 dark:to-rose-950/20 border border-red-200/70 dark:border-red-900/30 rounded-3xl p-6 sm:p-8 text-center mb-6 shadow-sm">
-        <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
-        <div className="font-sans text-sm text-foreground/80 mb-4 space-y-1.5">
-          <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
-          <p className="font-medium">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
-        </div>
-        <Link
-          to="/gospel"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-[0.98]"
-        >
-          <Heart className="w-4 h-4" />
-          Learn How to be Saved
-        </Link>
-      </div>
+      <GospelCallSection />
 
       </div>
 
