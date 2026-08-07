@@ -55,7 +55,7 @@ export default function ExtensionPage() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/30 mb-4">
             <Globe className="w-7 h-7 text-white" />
           </div>
-          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB SidePanel</h1>
+          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader - SidePanel</h1>
           <p className="font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
           <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#DBEAFE' }}>
             <span className="font-sans text-xs font-semibold" style={{ color: '#1E40AF' }}>Coming to Chrome Web Store</span>
@@ -66,12 +66,12 @@ export default function ExtensionPage() {
         {/* Description card */}
         <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03] text-center">
           <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
-            The KJB SidePanel brings the King James Bible directly into your browser. Look up any
+            The KJB Reader - SidePanel brings the King James Bible directly into your browser. Look up any
             verse reference you encounter online, search the scriptures, and read the full Bible —
             all from a convenient sidebar.
           </p>
           <a
-            href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/25cc11590_kjb-extension.zip"
+            href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/b3ba8a4a0_kjb-extension.zip"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md"
