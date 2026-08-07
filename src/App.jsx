@@ -40,6 +40,7 @@ const loaders = {
   Login: () => import('@/pages/Login.jsx').catch((err) => { console.error('Failed to load Login:', err); throw err; }),
   ForgotPassword: () => import('@/pages/ForgotPassword.jsx').catch((err) => { console.error('Failed to load ForgotPassword:', err); throw err; }),
   ResetPassword: () => import('@/pages/ResetPassword.jsx').catch((err) => { console.error('Failed to load ResetPassword:', err); throw err; }),
+  Browser: () => import('@/pages/BrowserPage').catch((err) => { console.error('Failed to load BrowserPage:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -67,6 +68,7 @@ const KjbDefencePage = lazy(loaders.KjbDefence);
 const LoginPage = lazy(loaders.Login);
 const ForgotPasswordPage = lazy(loaders.ForgotPassword);
 const ResetPasswordPage = lazy(loaders.ResetPassword);
+const BrowserPage = lazy(loaders.Browser);
 
 
 const getLoaderForPath = (pathname) => {
@@ -271,6 +273,7 @@ const AuthenticatedApp = () => {
               <Route path="/manifest-screenshots" element={<Suspense fallback={<RouteLoader />}><FadeIn><ManifestScreenshots /></FadeIn></Suspense>} />
               <Route path="/legacy" element={<Suspense fallback={<RouteLoader />}><FadeIn><LegacyReader /></FadeIn></Suspense>} />
               <Route path="/dev-tools" element={<Suspense fallback={<RouteLoader />}><FadeIn><DevToolsPage /></FadeIn></Suspense>} />
+              <Route path="/browser" element={<Suspense fallback={<RouteLoader />}><FadeIn><BrowserPage /></FadeIn></Suspense>} />
             </Route>
             <Route path="/bible.txt" element={<Suspense fallback={null}><BibleTxt /></Suspense>} />
             <Route path="*" element={<PageNotFound />} />
