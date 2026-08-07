@@ -100,7 +100,7 @@ export default function LandingPage() {
           </div>
           <div className="relative flex-1 min-w-0">
             <p className="font-serif font-bold text-base text-foreground group-hover:text-accent transition-colors mb-1">Are you saved?</p>
-            <p className="font-sans text-xs text-muted-foreground leading-relaxed">Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+            <p className="font-sans text-xs text-muted-foreground leading-relaxed">Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures. Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.</p>
           </div>
           <ArrowRight className="relative w-4 h-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all shrink-0" />
         </Link>

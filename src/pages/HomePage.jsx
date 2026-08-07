@@ -525,8 +525,8 @@ export default function HomePage() {
           </div>
           <p className="font-serif text-2xl font-bold text-primary mb-2">Are you saved?</p>
           <div className="font-sans text-sm text-foreground/80 mb-5 space-y-1.5 max-w-xl mx-auto">
-            <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
-            <p className="font-medium">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+            <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.</p>
+            <p className="font-medium">Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.</p>
           </div>
           <Link
             to="/gospel"

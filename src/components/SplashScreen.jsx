@@ -534,7 +534,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           </div>
           <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(120,120,130,0.45), transparent)' }} />
           <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
-            Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.
+            Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures. Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
           </p>
         </div>
       </div>
