@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 // Action bar shown while in verse-select mode in the reader.
 export default function SelectActionBar({
   selectedCount, totalVerses, copyFeedback, shareFeedback, shareLinkFeedback,
-  onSelectAll, onCancel, onCopy, onCopyPerVerse, onShareText, onShareLink, onReadSelected, onShowFull, onPrintPage, onPrintContents
+  onSelectAll, onCancel, onCopy, onCopyPerVerse, onShareText, onShareTextPerVerse, onShareLink, onReadSelected, onShowFull, onPrintPage, onPrintContents
 }) {
   return (
     <div className="mt-2 pt-2 border-t border-border flex items-center gap-2 overflow-x-auto scrollbar-hide">
@@ -50,10 +50,14 @@ export default function SelectActionBar({
                 <Share2 className="w-3.5 h-3.5" /> {shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuItem onClick={onShareText} className="cursor-pointer">
                 <AlignLeft className="w-4 h-4 mr-2" />
-                Share Text
+                Share Text (Passage)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onShareTextPerVerse} className="cursor-pointer">
+                <List className="w-4 h-4 mr-2" />
+                Share Text (Per Verse)
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onShareLink} className="cursor-pointer">
                 <Share2 className="w-4 h-4 mr-2" />

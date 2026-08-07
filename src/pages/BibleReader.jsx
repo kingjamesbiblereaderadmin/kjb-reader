@@ -475,6 +475,20 @@ export default function BibleReader() {
     } catch {}
   };
 
+  const handleSharePerVerse = async () => {
+    const shareText = generatePerVerseText();
+    const hasSel = selectedVerses.size > 0;
+    const ref = hasSel ? `${book.shortName} ${pos.chapter}:${formatVerseRange([...selectedVerses])}` : `${book.shortName} ${pos.chapter}`;
+    try {
+      if (navigator.share) return await navigator.share({ title: `${ref} — KJB Reader`, text: shareText });
+    } catch (err) { if (err?.name === 'AbortError') return; }
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShareFeedback(true);
+      setTimeout(() => setShareFeedback(false), 1800);
+    } catch {}
+  };
+
   const [shareLinkFeedback, setShareLinkFeedback] = useState(false);
   const handleShareLink = async () => {
     const hasSel = selectedVerses.size > 0;
@@ -1842,7 +1856,7 @@ export default function BibleReader() {
                   setFilterMode(false); setSelectedVerses(new Set()); setHighlightVerse(null);
                 }
               }}
-              onCopy={handleCopySelected} onCopyPerVerse={handleCopyPerVerse} onShareText={handleShareChapter} onShareLink={handleShareLink}
+              onCopy={handleCopySelected} onCopyPerVerse={handleCopyPerVerse} onShareText={handleShareChapter} onShareTextPerVerse={handleSharePerVerse} onShareLink={handleShareLink}
               onReadSelected={handleReadSelected} onShowFull={() => { setFilterMode(false); setSelectMode(false); setSelectedVerses(new Set()); setShowFilterOverlay(false); }}
               onPrintPage={() => window.print()} onPrintContents={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
             />
