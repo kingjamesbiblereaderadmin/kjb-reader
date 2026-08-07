@@ -268,17 +268,36 @@
            script above adds the `dark` class before this renders, so we read it
            and set the splash colors here before paint. -->
       <div id="kjb-boot-splash" style="position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f1117;">
-        <div style="display:flex;flex-direction:column;align-items:center;margin-top:-4rem;gap:48px;">
-          <img
-            id="kjb-boot-logo"
-            alt="KJB Reader Logo"
-            style="width:11rem;height:11rem;object-fit:contain;border-radius:1rem;padding:0.75rem;background:#0f1117;"
-          />
+        <!-- Ambient glow layers (match the React SplashScreen exactly) -->
+        <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;">
+          <div style="position:absolute;top:-25%;left:50%;transform:translateX(-50%);width:120%;height:50%;border-radius:50%;background:radial-gradient(circle, rgba(79,106,255,0.14), transparent 60%);"></div>
+          <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:120%;height:33.33%;border-radius:50%;background:radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%);"></div>
+        </div>
+        <div style="position:relative;display:flex;flex-direction:column;align-items:center;margin-top:-2rem;gap:36px;">
+          <div style="position:relative;">
+            <div style="position:absolute;inset:0;border-radius:1.5rem;filter:blur(1rem);background:radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%);"></div>
+            <img
+              id="kjb-boot-logo"
+              alt="KJB Reader Logo"
+              style="position:relative;width:11rem;height:11rem;object-fit:contain;border-radius:1.5rem;padding:0.75rem;background:#0f1117;box-shadow:0 0 0 1px rgba(0,0,0,0.05);"
+            />
+          </div>
           <div style="display:flex;flex-direction:column;align-items:center;gap:20px;width:16rem;">
             <div id="kjb-boot-track" style="width:100%;height:6px;border-radius:9999px;overflow:hidden;position:relative;background:rgba(255,255,255,0.08);">
-              <div style="position:absolute;top:0;height:100%;border-radius:9999px;width:40%;background:#4f6aff;animation:kjb-boot-indeterminate 1.2s ease-in-out infinite;"></div>
+              <div style="position:absolute;top:0;height:100%;border-radius:9999px;width:40%;background:linear-gradient(90deg,#4f6aff,#a855f7);animation:kjb-boot-indeterminate 1.2s ease-in-out infinite;"></div>
             </div>
             <span id="kjb-boot-text" style="font-family:Inter,system-ui,sans-serif;font-size:0.875rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;text-align:center;color:#c8cdd8;">Loading KJB Reader...</span>
+          </div>
+          <div id="kjb-boot-scripture" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;max-width:20rem;padding:0 1rem;text-align:center;animation:kjb-splash-fade 600ms ease-out 200ms both;">
+            <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:0.78rem;font-style:italic;color:rgba(200,205,216,0.7);line-height:1.6;margin:0;">
+              "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
+            </p>
+            <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(200,205,216,0.5);margin:0;">
+              — 2 Timothy 2:15 —
+            </p>
+            <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:0.72rem;color:rgba(200,205,216,0.6);line-height:1.5;margin:0.25rem 0 0 0;">
+              Christ died for our sins, was buried, and rose again. Trust Him and be saved.
+            </p>
           </div>
         </div>
       </div>
@@ -296,6 +315,9 @@
               logoEl.style.background = bg;
               document.getElementById('kjb-boot-track').style.background = 'rgba(0,0,0,0.08)';
               document.getElementById('kjb-boot-text').style.color = '#5a6472';
+              document.getElementById('kjb-boot-verse').style.color = 'rgba(90,100,114,0.85)';
+              document.getElementById('kjb-boot-ref').style.color = 'rgba(90,100,114,0.55)';
+              document.getElementById('kjb-boot-gospel').style.color = 'rgba(90,100,114,0.7)';
             }
           } catch (e) {}
         })();
@@ -304,6 +326,10 @@
         @keyframes kjb-boot-indeterminate {
           0% { left: -40%; }
           100% { left: 100%; }
+        }
+        @keyframes kjb-splash-fade {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       </style>
     <script type="module" src="/src/main.jsx"></script>

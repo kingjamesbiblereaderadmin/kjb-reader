@@ -455,6 +455,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   const logoSrc = getSplashLogo();
   const trackBg = isDarkSplash ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
   const textColor = isDarkSplash ? '#c8cdd8' : '#5a6472';
+  // Scripture + Gospel accent colours — mirror the boot splash in index.html
+  // exactly so the handoff from static HTML to React is seamless (no jump).
+  const verseColor = isDarkSplash ? 'rgba(200,205,216,0.7)' : 'rgba(90,100,114,0.85)';
+  const refColor = isDarkSplash ? 'rgba(200,205,216,0.5)' : 'rgba(90,100,114,0.55)';
+  const gospelColor = isDarkSplash ? 'rgba(200,205,216,0.6)' : 'rgba(90,100,114,0.7)';
 
   return (
     <div
@@ -469,7 +474,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-1/3 rounded-full" style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%)' }} />
       </div>
 
-      <div className="relative flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
+      <div className="relative flex flex-col items-center -mt-8" style={{ gap: '36px' }}>
         <div className="relative">
           <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%)' }} />
           <img
@@ -504,10 +509,27 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             {currentMessage}
           </span>
         </div>
+        {/* Scripture (2 Timothy 2:15) + Gospel — matches the boot splash so the
+            handoff from the static HTML placeholder to React is seamless. */}
+        <div className="flex flex-col items-center gap-2 max-w-xs px-4 text-center" style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}>
+          <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '0.78rem', fontStyle: 'italic', color: verseColor, lineHeight: 1.6, margin: 0 }}>
+            "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
+          </p>
+          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
+            — 2 Timothy 2:15 —
+          </p>
+          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.72rem', color: gospelColor, lineHeight: 1.5, margin: '0.25rem 0 0 0' }}>
+            Christ died for our sins, was buried, and rose again. Trust Him and be saved.
+          </p>
+        </div>
         <style>{`
           @keyframes kjb-splash-indeterminate {
             0% { left: -40%; }
             100% { left: 100%; }
+          }
+          @keyframes kjb-splash-fade {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
           }
         `}</style>
       </div>
