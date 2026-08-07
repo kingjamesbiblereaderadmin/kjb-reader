@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260808_0039
+// KJB Reader Service Worker v20260808_0040
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260808_0039';
+const CACHE_NAME = 'kjb-reader-v20260808_0040';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -16,6 +16,12 @@ const APP_SHELL_FILES = [
 // atomic — one failure rejects the whole batch, so these go in individually).
 const PRECACHE_ASSETS = [
   'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2279e016e_8e738d108_cfb4bf781_Untitled.png',
+  // PWA manifest icons — precache at install so the home-screen / installed
+  // icon works offline immediately. They live under base44.app/api/.../files/
+  // mp/public/, which the /api/ exclusion below would otherwise skip.
+  'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/23dcc4982_kjb-icon192-v20260713.png',
+  'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png',
+  'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/94863d510_kjb-maskable512-v20260713.png',
   // Self-hosted OpenDyslexic fonts — precache at install so they're available
   // offline immediately, not just after the first page that uses them.
   '/fonts/OpenDyslexic-regular.woff',
@@ -126,8 +132,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip all API requests - let them hit the network directly
-  if (url.pathname.startsWith('/api/')) return;
+  // Skip all API requests - let them hit the network directly.
+  // EXCEPTION: public static assets served from base44 file storage live under
+  // /api/apps/.../files/mp/public/ (e.g. the PWA manifest icons). These must be
+  // cacheable so installed / PWA icons still resolve offline — without this
+  // exception the broad /api/ rule would bypass the cache and the icons would
+  // fail whenever the device is offline.
+  if (url.pathname.startsWith('/api/') && !url.pathname.includes('/files/mp/public/')) return;
 
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
