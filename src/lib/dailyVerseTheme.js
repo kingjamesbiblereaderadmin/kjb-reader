@@ -76,23 +76,23 @@ export function applyDailyAccent(isDark = document.documentElement.classList.con
     root.style.setProperty('--sidebar-primary-foreground', '0 0% 100%');
 
     if (isDark) {
-      root.style.setProperty('--background', `${hue} 30% 8%`);
+      root.style.setProperty('--background', `${hue} 25% 11%`);
       root.style.setProperty('--foreground', `0 0% 100%`);
-      root.style.setProperty('--card', `${hue} 28% 12%`);
+      root.style.setProperty('--card', `${hue} 24% 15%`);
       root.style.setProperty('--card-foreground', `0 0% 100%`);
-      root.style.setProperty('--popover', `${hue} 28% 12%`);
+      root.style.setProperty('--popover', `${hue} 24% 15%`);
       root.style.setProperty('--popover-foreground', `0 0% 100%`);
-      root.style.setProperty('--secondary', `${hue} 22% 18%`);
+      root.style.setProperty('--secondary', `${hue} 20% 20%`);
       root.style.setProperty('--secondary-foreground', `0 0% 100%`);
-      root.style.setProperty('--muted', `${hue} 22% 18%`);
+      root.style.setProperty('--muted', `${hue} 20% 20%`);
       root.style.setProperty('--muted-foreground', `0 0% 85%`);
-      root.style.setProperty('--border', `${hue} 24% 42%`);
-      root.style.setProperty('--input', `${hue} 24% 42%`);
-      root.style.setProperty('--sidebar-background', `${hue} 30% 9%`);
+      root.style.setProperty('--border', `${hue} 14% 52%`);
+      root.style.setProperty('--input', `${hue} 14% 52%`);
+      root.style.setProperty('--sidebar-background', `${hue} 25% 12%`);
       root.style.setProperty('--sidebar-foreground', `0 0% 100%`);
-      root.style.setProperty('--sidebar-accent', `${hue} 22% 18%`);
+      root.style.setProperty('--sidebar-accent', `${hue} 20% 20%`);
       root.style.setProperty('--sidebar-accent-foreground', `0 0% 100%`);
-      root.style.setProperty('--sidebar-border', `${hue} 24% 42%`);
+      root.style.setProperty('--sidebar-border', `${hue} 14% 52%`);
     } else {
       root.style.setProperty('--background', `${hue} 30% 99%`);
       root.style.setProperty('--foreground', `${hue} 55% 8%`);
