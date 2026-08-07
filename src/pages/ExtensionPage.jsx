@@ -1,8 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Puzzle, ArrowLeft, CheckCircle, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download } from 'lucide-react';
-
-const LAST_UPDATED = 'August 7th, 2026';
+import { Puzzle, ArrowLeft, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download } from 'lucide-react';
 
 const FEATURES = [
   {
@@ -118,15 +116,6 @@ export default function ExtensionPage() {
           </ol>
         </div>
 
-        {/* KJB SidePanel section header */}
-        <div className="text-center mb-5">
-          <h2 className="font-serif text-2xl font-bold text-foreground mb-2">KJB SidePanel</h2>
-          <p className="font-sans text-sm text-muted-foreground max-w-xl mx-auto">
-            A free Chrome extension for reading and searching the King James Bible — built with all
-            the features you love from KJB Reader, right in your browser sidebar.
-          </p>
-        </div>
-
         {/* Features */}
         <div className="grid sm:grid-cols-2 gap-4 mb-5">
           {FEATURES.map((f) => {
@@ -157,51 +146,6 @@ export default function ExtensionPage() {
           />
           <p className="font-sans text-xs text-muted-foreground mt-3">KJB SidePanel in action</p>
         </div>
-
-        {/* Status note */}
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 shadow-lg shadow-black/[0.03]">
-          <div className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-            <div>
-              <h2 className="font-serif text-lg font-semibold text-foreground mb-1">Coming Soon</h2>
-              <p className="font-sans text-sm text-foreground/85 leading-relaxed">
-                KJB SidePanel is coming soon to the Chrome Web Store. In the meantime, download the
-                .zip above and install it manually in Chrome developer mode to start reading and
-                searching the King James Bible from any web page.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Privacy & Page Scanning */}
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03]">
-          <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Privacy &amp; Page Scanning</h2>
-          <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
-            The KJB Reader Web Extension scans web pages you visit to detect Bible verse references
-            (e.g. &ldquo;John 3:16&rdquo;) and highlights them for quick lookup.{' '}
-            <span className="font-semibold text-foreground">No page content is collected, stored, or sent to any server.</span>{' '}
-            All detection happens locally in your browser.
-          </p>
-          <p className="font-sans font-medium text-sm text-foreground mb-2">How to exclude sites:</p>
-          <ul className="space-y-2 font-sans text-sm text-foreground/85 leading-relaxed">
-            <li className="flex items-start gap-2">
-              <span className="text-accent mt-0.5">•</span>
-              <span>Right-click the extension icon in your toolbar → &ldquo;Don&rsquo;t run on this site&rdquo;</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-accent mt-0.5">•</span>
-              <span>Or go to <code className="px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground font-sans text-xs">chrome://extensions</code> → KJB Reader → Details → Site access and remove specific sites</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-accent mt-0.5">•</span>
-              <span>This extension is already configured to <span className="font-semibold">NOT</span> run on kingjamesbiblereader.com</span>
-            </li>
-          </ul>
-        </div>
-
-        <p className="text-center font-sans text-xs text-muted-foreground mt-8">
-          © {new Date().getFullYear()} KJB Reader · Last updated: {LAST_UPDATED}
-        </p>
       </div>
     </div>
   );
