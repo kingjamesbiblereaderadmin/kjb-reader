@@ -92,8 +92,8 @@
     --accent-foreground: 250 30% 8%;
     --destructive: 0 62.8% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 250 18% 34%;
-    --input: 250 18% 34%;
+    --border: 250 18% 42%;
+    --input: 250 18% 42%;
     --ring: 255 80% 68%;
     --sidebar-background: 250 30% 9%;
     --sidebar-foreground: 0 0% 100%;
@@ -101,7 +101,7 @@
     --sidebar-primary-foreground: 250 30% 8%;
     --sidebar-accent: 250 22% 18%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 250 20% 22%;
+    --sidebar-border: 250 18% 42%;
     --sidebar-ring: 255 80% 68%;
   }
 }
