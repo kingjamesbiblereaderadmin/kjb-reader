@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Puzzle, ArrowLeft, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download } from 'lucide-react';
+import { Globe, ArrowLeft, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download } from 'lucide-react';
 
 const FEATURES = [
   {
@@ -53,7 +53,7 @@ export default function ExtensionPage() {
         {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/30 mb-4">
-            <Puzzle className="w-7 h-7 text-white" />
+            <Globe className="w-7 h-7 text-white" />
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB SidePanel</h1>
           <p className="font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
