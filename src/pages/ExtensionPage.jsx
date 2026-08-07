@@ -117,8 +117,9 @@ export default function ExtensionPage() {
           <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Privacy &amp; Page Scanning</h2>
           <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
             The KJB Reader Web Extension scans web pages you visit to detect Bible verse references
-            (e.g. &ldquo;John 3:16&rdquo;) and highlights them for quick lookup. No page content is
-            collected, stored, or sent to any server. All detection happens locally in your browser.
+            (e.g. &ldquo;John 3:16&rdquo;) and highlights them for quick lookup.{' '}
+            <span className="font-semibold text-foreground">No page content is collected, stored, or sent to any server.</span>{' '}
+            All detection happens locally in your browser.
           </p>
           <p className="font-sans font-medium text-sm text-foreground mb-2">How to exclude sites:</p>
           <ul className="space-y-2 font-sans text-sm text-foreground/85 leading-relaxed">
