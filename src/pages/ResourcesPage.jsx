@@ -383,12 +383,6 @@ export default function ResourcesPage() {
                 <span className="font-sans text-xs text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</span>
               </a>
             </div>
-            <div className="mt-3">
-              <a href="mailto:Kingjamesbiblereader@outlook.sg" className="inline-flex items-center gap-1.5 font-sans text-xs text-muted-foreground hover:text-accent transition-colors">
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
-                Kingjamesbiblereader@outlook.sg
-              </a>
-            </div>
           </div>
         </div>
       </div>
@@ -552,19 +546,6 @@ export default function ResourcesPage() {
           </a>
         </div>
         )}
-      </div>
-
-      {/* Disclaimer box */}
-      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4 mb-6 overflow-hidden">
-        <button
-          onClick={() => toggleSection('disclaimer')}
-          className="w-full flex items-center justify-between text-left transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
-        >
-          <p className="font-sans text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-            <strong>Note:</strong> The resources below are for educational purposes only. I may not affirm all doctrinal statements of every resource or ministry linked here. Please use discernment and compare all things to the King James Bible.
-          </p>
-          <ChevronDown className={`w-4 h-4 text-amber-600 transition-transform ${expandedSections.disclaimer ? 'rotate-180' : ''}`} />
-        </button>
       </div>
 
       <div className="space-y-4">
