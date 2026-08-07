@@ -1,21 +1,23 @@
 // Serves the PWA manifest dynamically so it's always live (never stale-cached).
 import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
+const NEW_LOGO = "https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ef85a8765_8e738d108_cfb4bf781_Untitled.png";
+
 const DEFAULT_ICONS = [
   {
-    src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/23dcc4982_kjb-icon192-v20260713.png",
+    src: NEW_LOGO,
     sizes: "192x192",
     type: "image/png",
     purpose: "any"
   },
   {
-    src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png",
+    src: NEW_LOGO,
     sizes: "512x512",
     type: "image/png",
     purpose: "any"
   },
   {
-    src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/94863d510_kjb-maskable512-v20260713.png",
+    src: NEW_LOGO,
     sizes: "512x512",
     type: "image/png",
     purpose: "maskable"
