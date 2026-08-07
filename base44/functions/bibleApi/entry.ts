@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
     const b44 = createClientFromRequest(req);
 
     const body = await req.json();
-    const { action, book, chapter } = body;
+    const { action, book, chapter, verse, endVerse } = body;
 
     const bible = await loadBible();
 
@@ -416,6 +416,135 @@ Deno.serve(async (req) => {
         count: results.length,
         offset,
         results,
+      });
+    }
+
+    // Look up a verse (or verse range / chapter) by book + chapter + verse.
+    // Returns the search-result-like shape the Chrome extension expects.
+    // `book` accepts a full name ("John") or an abbreviation ("Joh").
+    if (action === 'getVerse') {
+      if (!book || !chapter) {
+        return json({ error: 'book and chapter required' }, { status: 400 });
+      }
+      const fullName = ABBR_TO_NAME[book] || book;
+      const chapterNum = parseInt(chapter);
+      const verses = bible[fullName]?.[chapterNum];
+      if (!verses || verses.length === 0) {
+        return json({ error: `No verses found for ${fullName} ${chapterNum}` }, { status: 404 });
+      }
+
+      // Whole chapter when no verse is requested.
+      if (verse == null && endVerse == null) {
+        const out = verses.map(vo => {
+          const p = processVerse(vo, { book: fullName, chapter: chapterNum });
+          return { text: p.text, chapter: chapterNum, verse: vo.verse };
+        });
+        return json({
+          text: out.map(v => v.text).join(' '),
+          book: fullName,
+          chapter: chapterNum,
+          verse: null,
+          ref: `${fullName} ${chapterNum}`,
+          verses: out,
+        });
+      }
+
+      const start = verse != null ? parseInt(String(verse)) : null;
+      const end = endVerse != null ? parseInt(String(endVerse)) : start;
+
+      // Range request (verse + endVerse): return every verse in [start, end].
+      if (start != null && end != null && end > start) {
+        const out = [];
+        for (let v = start; v <= end; v++) {
+          const vo = verses.find(x => x.verse === v);
+          if (!vo) continue;
+          const p = processVerse(vo, { book: fullName, chapter: chapterNum });
+          out.push({ text: p.text, chapter: chapterNum, verse: v });
+        }
+        if (!out.length) {
+          return json({ error: `No verses found for ${fullName} ${chapterNum}:${start}-${end}` }, { status: 404 });
+        }
+        return json({
+          text: out.map(v => v.text).join(' '),
+          book: fullName,
+          chapter: chapterNum,
+          verse: start,
+          ref: `${fullName} ${chapterNum}:${start}-${end}`,
+          verses: out,
+        });
+      }
+
+      // Single verse.
+      if (start != null) {
+        const vo = verses.find(x => x.verse === start);
+        if (!vo) {
+          return json({ error: `Verse ${fullName} ${chapterNum}:${start} not found` }, { status: 404 });
+        }
+        const p = processVerse(vo, { book: fullName, chapter: chapterNum });
+        return json({
+          text: p.text,
+          book: fullName,
+          chapter: chapterNum,
+          verse: start,
+          ref: `${fullName} ${chapterNum}:${start}`,
+        });
+      }
+
+      return json({ error: 'Invalid verse request' }, { status: 400 });
+    }
+
+    // Daily verse (date-seeded). No params required — defaults to today (UTC).
+    // Optional `date` / `clientDate` (YYYY-MM-DD) pins the seed to a local date.
+    // Returns the same { ref, text, book, chapter, verse, description } shape as
+    // search results so the Chrome extension's daily-verse feature can render it
+    // identically to a search hit.
+    if (action === 'getDailyVerse') {
+      if (!BOOK_ORDER.length) {
+        return json({ error: 'No bible data' }, { status: 500 });
+      }
+      const controls = await loadControls(b44);
+
+      let seed;
+      const dateInput = body.date || body.clientDate;
+      if (dateInput) {
+        const [y, m, d] = String(dateInput).split('-').map(Number);
+        seed = y * 10000 + m * 100 + d;
+      } else {
+        const today = new Date();
+        seed = today.getUTCFullYear() * 10000 + (today.getUTCMonth() + 1) * 100 + today.getUTCDate();
+      }
+
+      // Honour an admin pin for this exact date, if one is set.
+      const dateKey = normalizeDateKey(dateInput || null);
+      if (dateKey && controls.pins[dateKey]) {
+        const pinned = verseFromRef(bible, controls.pins[dateKey]);
+        if (pinned) {
+          const cleanText = pinned.text.replace(/^¶\s*/, '');
+          return json({
+            ref: pinned.ref,
+            text: pinned.text,
+            book: pinned.book,
+            chapter: pinned.chapter,
+            verse: pinned.verse,
+            description: `"${cleanText}"\n— ${pinned.book} ${pinned.chapter}:${pinned.verse}`,
+          });
+        }
+      }
+
+      const flat = buildFlatList(bible, controls.extraExcluded);
+      if (!flat.length) return json({ error: 'No eligible verses' }, { status: 500 });
+
+      const picked = pickForSeed(flat, seed, controls.extraExcluded);
+      const v = verseFromRef(bible, `${picked.bookName} ${picked.chapterNum}:${picked.verseObj.verse}`);
+      if (!v) return json({ error: 'Verse not found' }, { status: 500 });
+      const cleanText = v.text.replace(/^¶\s*/, '');
+      return json({
+        ref: v.ref,
+        text: v.text,
+        book: v.book,
+        chapter: v.chapter,
+        verse: v.verse,
+        description: `"${cleanText}"\n— ${v.book} ${v.chapter}:${v.verse}`,
       });
     }
 
