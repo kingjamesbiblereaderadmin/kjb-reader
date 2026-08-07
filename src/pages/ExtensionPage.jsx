@@ -71,7 +71,7 @@ export default function ExtensionPage() {
             all from a convenient sidebar.
           </p>
           <a
-            href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/b3ba8a4a0_kjb-extension.zip"
+            href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/8d1a83f61_kjb-extension.zip"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md"
