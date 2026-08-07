@@ -71,14 +71,14 @@ export default function ExtensionPage() {
             all from a convenient sidebar.
           </p>
           <a
-            href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/e975bcf86_kjb-extension.zip"
+            href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/cc076f236_KJB-Reader-SidePanel-v030.zip"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md"
             style={{ backgroundColor: '#16A34A' }}
           >
             <Download className="w-4 h-4" />
-            Download Extension (.zip)
+            Download KJB Reader - SidePanel (.zip)
           </a>
           <p className="font-sans text-xs text-muted-foreground mt-3">
             Coming soon to the Chrome Web Store. Download the .zip to install manually in developer mode.
