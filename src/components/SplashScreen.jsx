@@ -463,7 +463,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   return (
     <div
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center overflow-x-hidden transition-opacity duration-500 ease-in-out ${
+      className={`kjb-splash fixed inset-0 z-[999999] flex flex-col items-center justify-center overflow-x-hidden transition-opacity duration-500 ease-in-out ${
         isFadingOut ? 'opacity-0' : 'opacity-100'
       }`}
       style={{ background: splashBg }}
@@ -525,19 +525,19 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
         >
           <div className="flex flex-col items-center sm:items-start gap-2">
-            <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '1.02rem', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
+            <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: 'clamp(0.88rem, 3.5vw, 1.02rem)', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
               "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
             </p>
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.62rem, 2.5vw, 0.72rem)', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
               — 2 Timothy 2:15 —
             </p>
           </div>
           <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(120,120,130,0.45), transparent)' }} />
           <div className="flex flex-col gap-3">
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.78rem, 3vw, 0.9rem)', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
               Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
             </p>
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.78rem, 3vw, 0.9rem)', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
               Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
             </p>
           </div>

@@ -271,7 +271,7 @@
            aware: dark bg in dark mode, light bg in light mode. The inline theme
            script above adds the `dark` class before this renders, so we read it
            and set the splash colors here before paint. -->
-      <div id="kjb-boot-splash" style="position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;overflow-x:hidden;background:#0f1117;">
+      <div id="kjb-boot-splash" class="kjb-splash" style="position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;overflow-x:hidden;background:#0f1117;">
         <!-- Ambient glow layers (match the React SplashScreen exactly) -->
         <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;">
           <div style="position:absolute;top:-25%;left:50%;transform:translateX(-50%);width:120%;height:50%;border-radius:50%;background:radial-gradient(circle, rgba(79,106,255,0.14), transparent 60%);"></div>
@@ -302,19 +302,19 @@
           <!-- Right side — scripture -->
           <div id="kjb-boot-scripture" style="animation:kjb-splash-fade 600ms ease-out 200ms both;">
             <div id="kjb-boot-scripture-quote" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
-              <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:1.02rem;font-style:normal;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+              <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:clamp(0.88rem,3.5vw,1.02rem);font-style:normal;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
                 "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
               </p>
-              <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin:0;">
+              <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.62rem,2.5vw,0.72rem);letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin:0;">
                 — 2 Timothy 2:15 —
               </p>
             </div>
             <div id="kjb-boot-scripture-divider" style="width:2.5rem;height:1px;background:linear-gradient(90deg,transparent,rgba(120,120,130,0.45),transparent);"></div>
             <div id="kjb-boot-gospel-wrap" style="display:flex;flex-direction:column;gap:0.6rem;">
-              <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:0.9rem;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+              <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.78rem,3vw,0.9rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
                 Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
               </p>
-              <p id="kjb-boot-gospel-trust" style="font-family:Inter,system-ui,sans-serif;font-size:0.9rem;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+              <p id="kjb-boot-gospel-trust" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.78rem,3vw,0.9rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
                 Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
               </p>
             </div>
