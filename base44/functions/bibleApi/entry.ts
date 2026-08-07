@@ -432,6 +432,12 @@ Deno.serve(async (req) => {
       if (!verses || verses.length === 0) {
         return json({ error: `No verses found for ${fullName} ${chapterNum}` }, { status: 404 });
       }
+      // Resolve the abbreviation + full title-page book name so external
+      // consumers (e.g. the Chrome extension) get the same metadata the
+      // search / random / daily-verse actions return.
+      const abbrEntry = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === fullName);
+      const abbr = abbrEntry ? abbrEntry[0] : fullName.slice(0, 3).toUpperCase();
+      const bookFullName = NAME_TO_FULL[fullName] || fullName;
 
       // Whole chapter when no verse is requested.
       if (verse == null && endVerse == null) {
@@ -445,6 +451,8 @@ Deno.serve(async (req) => {
         const resp: any = {
           text: out.map(v => v.text).join(' '),
           book: fullName,
+          bookFullName,
+          abbr,
           chapter: chapterNum,
           verse: null,
           ref: `${fullName} ${chapterNum}`,
@@ -476,6 +484,8 @@ Deno.serve(async (req) => {
         const rangeResp: any = {
           text: out.map(v => v.text).join(' '),
           book: fullName,
+          bookFullName,
+          abbr,
           chapter: chapterNum,
           verse: start,
           ref: `${fullName} ${chapterNum}:${start}-${end}`,
@@ -496,6 +506,8 @@ Deno.serve(async (req) => {
         const singleResp: any = {
           text: p.text,
           book: fullName,
+          bookFullName,
+          abbr,
           chapter: chapterNum,
           verse: start,
           ref: `${fullName} ${chapterNum}:${start}`,
