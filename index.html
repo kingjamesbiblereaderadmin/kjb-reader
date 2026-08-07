@@ -257,6 +257,10 @@
       html, body { background-color: #fef9f3; color: #0f1718; margin: 0; width: 100%; min-height: 100vh; }
       html.dark, html.dark body { background-color: #0f1117; color: #ffffff; }
       #root { min-height: 100vh; width: 100%; background-color: inherit; }
+      /* Match index.css root font-size for the Atkinson Hyperlegible a11y font
+         so the boot splash renders at the same scale as the React splash
+         (index.css only loads once React mounts, otherwise the text jumps size). */
+      html[data-a11y-font="hyperlegible"] { font-size: 112.5%; }
     </style>
   </head>
   <body>
