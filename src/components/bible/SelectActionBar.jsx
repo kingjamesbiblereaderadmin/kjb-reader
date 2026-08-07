@@ -5,23 +5,23 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 // Action bar shown while in verse-select mode in the reader.
 export default function SelectActionBar({
   selectedCount, totalVerses, copyFeedback, shareFeedback, shareLinkFeedback,
-  onSelectAll, onCancel, onCopy, onCopyPerVerse, onShareText, onShareTextPerVerse, onShareLink, onReadSelected, onShowFull, onPrintPage, onPrintContents
+  onSelectAll, onCancel, onCopy, onCopyPerVerse, onShareText, onShareLink, onReadSelected, onShowFull, onPrintPage, onPrintContents
 }) {
   return (
     <div className="mt-2 pt-2 border-t border-border flex items-center gap-2 overflow-x-auto scrollbar-hide">
       <span className="font-sans text-xs text-muted-foreground font-medium whitespace-nowrap">
         {selectedCount === 0 ? '0' : selectedCount}{selectedCount === 0 ? '' : `/${totalVerses}`} selected
       </span>
-      <div className="w-px h-4 bg-border/50" />
+      <div className="w-px h-4 bg-border" />
       <button
         onClick={onSelectAll}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
       >
         <CheckSquare className="w-3.5 h-3.5" /> All
       </button>
       <button
         onClick={onCancel}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
       >
         <X className="w-3.5 h-3.5" /> Cancel
       </button>
@@ -29,7 +29,7 @@ export default function SelectActionBar({
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
                 <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
               </button>
             </DropdownMenuTrigger>
@@ -46,18 +46,14 @@ export default function SelectActionBar({
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
                 <Share2 className="w-3.5 h-3.5" /> {shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem onClick={onShareText} className="cursor-pointer">
                 <AlignLeft className="w-4 h-4 mr-2" />
-                Share Text (Passage)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onShareTextPerVerse} className="cursor-pointer">
-                <List className="w-4 h-4 mr-2" />
-                Share Text (Per Verse)
+                Share Text
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onShareLink} className="cursor-pointer">
                 <Share2 className="w-4 h-4 mr-2" />
@@ -68,7 +64,7 @@ export default function SelectActionBar({
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
                 <Printer className="w-3.5 h-3.5" /> Print
               </button>
             </DropdownMenuTrigger>
@@ -86,13 +82,13 @@ export default function SelectActionBar({
 
           <button
             onClick={onReadSelected}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap shadow-md shadow-primary/20"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
           >
             <BookMarked className="w-3.5 h-3.5" /> Read Selected
           </button>
           <button
             onClick={onShowFull}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/12 border border-accent/40 text-accent hover:bg-accent/20 hover:border-accent/60 font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
           >
             <AlignLeft className="w-3.5 h-3.5" /> Show Full Chapter
           </button>

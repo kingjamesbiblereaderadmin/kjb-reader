@@ -176,20 +176,11 @@ export default function KjbDefencePage() {
   const existingCategories = categories.map((c) => c.name);
 
   return (
-    <div className="relative w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-10">
-      {/* Decorative ambient background */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-accent/5 blur-3xl" />
-      </div>
+    <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-10">
       {/* Header */}
-      <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
-        <div className="relative inline-flex items-center justify-center mb-4">
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 to-indigo-600/30 blur-xl" />
-          <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 ring-1 ring-white/20">
-            <ShieldAlert className="w-8 h-8 text-white" />
-          </div>
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">
+          <ShieldAlert className="w-7 h-7 text-blue-500" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">KJB Defence</h1>
         <p className="font-sans text-muted-foreground max-w-lg mx-auto">Resources defending the King James Bible as the preserved, infallible Word of God — and exposing the corruption of modern versions.</p>
@@ -237,7 +228,7 @@ export default function KjbDefencePage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search defence resources..."
-          className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-card/70 backdrop-blur-xl border-2 border-border/60 font-sans text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none transition-colors shadow-sm"
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-card border border-border font-sans text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none transition-colors"
         />
       </div>
 
@@ -257,7 +248,7 @@ export default function KjbDefencePage() {
           {filtered.map((cat) => {
             const isOpen = expanded[cat.name] !== false;
             return (
-              <div key={cat.name} className="bg-card/70 backdrop-blur-xl border-2 border-border/60 rounded-3xl overflow-hidden shadow-lg shadow-black/[0.03]">
+              <div key={cat.name} className="bg-card border border-border rounded-2xl overflow-hidden">
                 <button
                   onClick={() => toggle(cat.name)}
                   className={`w-full ${cat.style.bg} border-b rounded-t-xl p-4 hover:opacity-90 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left`}

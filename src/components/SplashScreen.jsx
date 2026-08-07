@@ -454,12 +454,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   const splashBg = isDarkSplash ? '#0f1117' : '#fef9f3';
   const logoSrc = getSplashLogo();
   const trackBg = isDarkSplash ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
-  const textColor = isDarkSplash ? '#ffffff' : '#5a6472';
-  // Scripture + Gospel accent colours — mirror the boot splash in index.html
-  // exactly so the handoff from static HTML to React is seamless (no jump).
-  const verseColor = isDarkSplash ? 'rgba(255,255,255,0.95)' : 'rgba(90,100,114,0.85)';
-  const refColor = isDarkSplash ? 'rgba(255,255,255,0.65)' : 'rgba(90,100,114,0.55)';
-  const gospelColor = isDarkSplash ? 'rgba(255,255,255,0.85)' : 'rgba(90,100,114,0.7)';
+  const textColor = isDarkSplash ? '#c8cdd8' : '#5a6472';
 
   return (
     <div
@@ -468,91 +463,45 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       }`}
       style={{ background: splashBg }}
     >
-      {/* Ambient glow layers */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/4 left-1/2 -translate-x-1/2 w-[120%] h-1/2 rounded-full" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.14), transparent 60%)' }} />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-1/3 rounded-full" style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%)' }} />
-      </div>
-
-      {/* Two-side composition: brand on one side, scripture on the other.
-          Stacks vertically on mobile, side-by-side on desktop. */}
-      <div className="relative flex flex-col sm:flex-row items-center justify-center gap-12 sm:gap-24 w-full max-w-5xl px-8 sm:px-16">
-        {/* Left side — brand */}
-        <div className="flex flex-col items-center gap-12 sm:gap-16">
-          <div className="relative">
-            <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%)' }} />
-            <img
-              src={logoSrc}
-              alt="KJB Reader Logo"
-              className="relative w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-3xl p-3 ring-1 ring-black/5"
-              style={{ background: splashBg }}
-            />
+      <div className="flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
+        <img
+          src={logoSrc}
+          alt="KJB Reader Logo"
+          className="w-44 h-44 object-contain rounded-2xl p-3"
+          style={{ background: splashBg }}
+        />
+        <div className="flex flex-col items-center gap-5 w-64">
+          {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
+          <div
+            className="w-full h-1.5 rounded-full overflow-hidden relative"
+            style={{ background: trackBg }}
+          >
+            {progress === null ? (
+              <div
+                className="absolute top-0 h-full rounded-full"
+                style={{ width: '40%', background: '#4f6aff', animation: 'kjb-splash-indeterminate 1.2s ease-in-out infinite' }}
+              />
+            ) : (
+              <div
+                className="h-full rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${progress}%`, background: '#4f6aff' }}
+              />
+            )}
           </div>
-          <div className="flex flex-col items-center gap-5 w-56 sm:w-64">
-            {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
-            <div
-              className="w-full h-1.5 rounded-full overflow-hidden relative"
-              style={{ background: trackBg }}
-            >
-              {progress === null ? (
-                <div
-                  className="absolute top-0 h-full rounded-full"
-                  style={{ width: '40%', background: 'linear-gradient(90deg, #4f6aff, #a855f7)', animation: 'kjb-splash-indeterminate 1.2s ease-in-out infinite' }}
-                />
-              ) : (
-                <div
-                  className="h-full rounded-full transition-all duration-300 ease-out"
-                  style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #4f6aff, #a855f7)' }}
-                />
-              )}
-            </div>
-            <span
-              className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300 text-center"
-              style={{ color: textColor }}
-            >
-              {currentMessage}
-            </span>
-          </div>
+          <span
+            className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300 text-center"
+            style={{ color: textColor }}
+          >
+            {currentMessage}
+          </span>
         </div>
-
-        {/* Divider — vertical on desktop, horizontal on mobile */}
-        <div className="hidden sm:block w-px self-stretch max-h-80" style={{ background: 'linear-gradient(transparent, rgba(120,120,130,0.35), transparent)' }} />
-        <div className="sm:hidden w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
-
-        {/* Right side — scripture */}
-        <div
-          className="flex flex-col items-center sm:items-start justify-between self-stretch gap-6 sm:gap-8 max-w-md text-center sm:text-left py-2"
-          style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
-        >
-          <div className="flex flex-col items-center sm:items-start gap-2">
-            <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '1.02rem', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
-              "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
-            </p>
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
-              — 2 Timothy 2:15 —
-            </p>
-          </div>
-          <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(120,120,130,0.45), transparent)' }} />
-          <div className="flex flex-col gap-3">
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
-              Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
-            </p>
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
-              Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
-            </p>
-          </div>
-        </div>
+        <style>{`
+          @keyframes kjb-splash-indeterminate {
+            0% { left: -40%; }
+            100% { left: 100%; }
+          }
+        `}</style>
       </div>
-      <style>{`
-        @keyframes kjb-splash-indeterminate {
-          0% { left: -40%; }
-          100% { left: 100%; }
-        }
-        @keyframes kjb-splash-fade {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }

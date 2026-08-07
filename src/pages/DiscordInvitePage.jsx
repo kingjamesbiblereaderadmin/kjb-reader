@@ -21,37 +21,25 @@ function DiscordIcon({ className }) {
   );
 }
 
-const cardClass = "group relative flex items-center gap-3 p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border/60 shadow-sm hover:shadow-xl hover:border-accent/40 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden";
+const cardClass = "flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group";
 
 export default function DiscordInvitePage() {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-background via-accent/5 to-background overflow-hidden">
-      {/* Decorative ambient background */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl" />
-        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-violet-500/10 blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-purple-500/5 blur-3xl" />
-      </div>
-
-      <div className="relative w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+      <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
         {/* Back link */}
-        <div className="mb-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent hover:bg-accent/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to KJB Reader
-          </Link>
-        </div>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 font-sans text-sm text-muted-foreground hover:text-accent transition-colors mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to KJB Reader
+        </Link>
 
         {/* Header */}
-        <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '60ms', animationFillMode: 'both' }}>
-          <div className="relative inline-flex items-center justify-center mb-4">
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-indigo-500/30 to-violet-600/30 blur-xl" />
-            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30 ring-1 ring-white/20">
-              <DiscordIcon className="w-8 h-8 text-white" />
-            </div>
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-indigo-500/30 mb-4 bg-gradient-to-br from-indigo-500 to-violet-600">
+            <DiscordIcon className="w-7 h-7 text-white" />
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader Bot</h1>
           <p className="font-sans text-sm text-muted-foreground">For random, search, daily, and gospel sharing.</p>
@@ -59,24 +47,22 @@ export default function DiscordInvitePage() {
         </div>
 
         {/* Install buttons — side by side */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '100ms', animationFillMode: 'both' }}>
-          <a href={DISCORD_PERSONAL_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="group relative flex flex-col items-center text-center gap-3 p-6 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border/60 shadow-sm hover:shadow-xl hover:border-violet-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/8 to-transparent" />
-            <div className="relative flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700 ring-1 ring-white/15">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <a href={DISCORD_PERSONAL_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-center gap-3 p-6 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
+            <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
               <User className="w-6 h-6" />
             </div>
-            <div className="relative flex-1 min-w-0">
+            <div className="flex-1 min-w-0">
               <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">📱 Personal Install</p>
               <p className="font-sans text-xs text-muted-foreground leading-relaxed">Adds slash commands to your Discord account — works in DMs, group DMs, and any server.</p>
             </div>
           </a>
 
-          <a href={DISCORD_SERVER_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="group relative flex flex-col items-center text-center gap-3 p-6 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border/60 shadow-sm hover:shadow-xl hover:border-indigo-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/8 to-transparent" />
-            <div className="relative flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600 ring-1 ring-white/15">
+          <a href={DISCORD_SERVER_INSTALL_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-center gap-3 p-6 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
+            <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-violet-600">
               <Server className="w-6 h-6" />
             </div>
-            <div className="relative flex-1 min-w-0">
+            <div className="flex-1 min-w-0">
               <p className="font-sans font-semibold text-base text-foreground group-hover:text-accent transition-colors mb-1">🏠 Server Install</p>
               <p className="font-sans text-xs text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</p>
             </div>
@@ -84,34 +70,32 @@ export default function DiscordInvitePage() {
         </div>
 
         {/* Support server + email */}
-        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '140ms', animationFillMode: 'both' }}>
+        <div className="space-y-4">
           <a href={DISCORD_SUPPORT_SERVER_URL} target="_blank" rel="noopener noreferrer" className={cardClass}>
-            <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.12] blur-2xl" />
-            <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600 ring-1 ring-white/15">
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600">
               <DiscordIcon className="w-5 h-5" />
             </div>
-            <div className="relative flex-1 min-w-0">
+            <div className="flex-1 min-w-0">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Support Server</p>
               <p className="font-sans text-xs text-muted-foreground">Join our Discord community for help, updates, and to share feedback.</p>
             </div>
-            <ArrowRight className="relative w-4 h-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
 
           <a href="mailto:Kingjamesbiblereader@outlook.sg" className={cardClass}>
-            <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.12] blur-2xl" />
-            <div className="relative flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-amber-500 to-orange-600 ring-1 ring-white/15">
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-amber-500 to-orange-600">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
             </div>
-            <div className="relative flex-1 min-w-0">
+            <div className="flex-1 min-w-0">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Support Email</p>
               <p className="font-sans text-xs text-muted-foreground">Kingjamesbiblereader@outlook.sg</p>
             </div>
-            <ArrowRight className="relative w-4 h-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
         </div>
 
         {/* Credits & Attribution — left-aligned, links, British spelling */}
-        <div className="mt-10 pt-6 border-t border-border/40 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '180ms', animationFillMode: 'both' }}>
+        <div className="mt-10 pt-6 border-t border-border/40">
           <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Built With</h2>
           <ul className="space-y-2.5 text-xs text-muted-foreground/80">
             <li className="flex flex-wrap items-baseline gap-x-1.5">

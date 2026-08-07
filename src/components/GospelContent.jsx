@@ -327,7 +327,7 @@ function StepCard({ number, icon, iconBg, title, copyText, children, defaultOpen
     : "flex items-start justify-between gap-4 mb-2";
 
   return (
-    <div className="relative bg-card/70 backdrop-blur-xl border-2 border-border/60 rounded-3xl p-6 shadow-lg shadow-black/[0.03] hover:shadow-xl hover:border-accent/40 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
+    <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
       <div className={headerClass} onClick={collapsible ? () => setOpen(!open) : undefined}>
         <div className="flex-shrink-0 w-10 h-10 rounded-2xl shadow-md flex items-center justify-center" style={{ backgroundImage: iconBg }}>
           {icon}
@@ -368,12 +368,9 @@ export default function GospelContent({ collapsible = false, showPreachers = tru
   return (
     <>
       {/* Header */}
-      <div className="relative text-center mb-8 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
-        <div className="relative inline-flex items-center justify-center mb-4">
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-red-500/30 to-rose-600/30 blur-xl" />
-          <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-red-500 to-rose-600 shadow-lg shadow-red-500/30 ring-1 ring-white/20">
-            <Heart className="w-8 h-8 text-white" />
-          </div>
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 shadow-lg shadow-red-500/30 mb-4">
+          <Heart className="w-7 h-7 text-white" />
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">How to be Saved</h1>
         <p className="font-sans text-muted-foreground max-w-lg mx-auto">

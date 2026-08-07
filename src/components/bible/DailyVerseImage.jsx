@@ -1330,7 +1330,7 @@ export default function DailyVerseImage({ verse, onClick, onToggleNotif, notifEn
                 textShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}
             >
-              "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)).replace(/<span class="pilcrow">¶<\/span>/g, `<span class="pilcrow" style="color: ${textColor}; opacity: ${textOpacity}; font-family: ${resolvedFont};">¶</span>`) }} />"
+              "<span dangerouslySetInnerHTML={{ __html: renderVerseText(cleanVerseText(verse.text)) }} />"
             </blockquote>
             <p 
               className="text-base md:text-lg font-semibold mt-12"

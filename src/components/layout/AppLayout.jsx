@@ -310,7 +310,7 @@ export default function AppLayout() {
               className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
             >
               <div className="flex items-center gap-1.5">
-                <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ef85a8765_8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
+                <img src="https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png" alt="KJB Reader" className="h-8 w-auto" />
               </div>
             </Link>
           ) : (
@@ -494,10 +494,6 @@ function DesktopFooter({ navigate, setMenuOpen }) {
             {' '}· Created with{' '}
             <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
               Base44
-            </a>
-            {' '}· Design script by{' '}
-            <a href="https://www.reddit.com/r/Base44/comments/1vdkfn8/free_base44_prompt_turn_a_generic_aibuilt_page/" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-              Will Kode
             </a>
           </p>
           <p className="text-center font-sans text-xs text-muted-foreground mt-1">

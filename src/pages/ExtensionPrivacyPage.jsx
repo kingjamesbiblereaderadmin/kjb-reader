@@ -20,8 +20,8 @@ function AIDisclaimer() {
 
 function Section({ title, children }) {
   return (
-    <div className="relative overflow-hidden bg-card/70 backdrop-blur-xl border-2 border-border/60 rounded-3xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-      <h2 className="relative font-serif text-xl sm:text-2xl font-semibold text-foreground mb-3">{title}</h2>
+    <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03]">
+      <h2 className="font-serif text-xl sm:text-2xl font-semibold text-foreground mb-3">{title}</h2>
       <div className="font-sans text-sm text-foreground/85 leading-relaxed space-y-3">
         {children}
       </div>
@@ -33,21 +33,12 @@ export default function ExtensionPrivacyPage() {
   const navigate = useNavigate();
   const goBack = () => navigate(-1);
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-background via-accent/5 to-background overflow-hidden">
-      {/* Decorative ambient background */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-accent/5 blur-3xl" />
-      </div>
-      <div className="relative w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+      <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
         {/* Header */}
-        <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
-          <div className="relative inline-flex items-center justify-center mb-4">
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 to-cyan-600/30 blur-xl" />
-            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/30 ring-1 ring-white/20">
-              <Globe className="w-8 h-8 text-white" />
-            </div>
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/30 mb-4">
+            <Globe className="w-7 h-7 text-white" />
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader Extension Privacy Policy</h1>
           <p className="font-sans text-sm text-muted-foreground">Last updated: {LAST_UPDATED}</p>
@@ -57,7 +48,7 @@ export default function ExtensionPrivacyPage() {
         <div className="text-center mb-6">
           <Link
             to="/extension"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent hover:bg-accent/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Extension
@@ -137,7 +128,7 @@ export default function ExtensionPrivacyPage() {
         <div className="text-center mt-8">
           <Link
             to="/extension"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent hover:bg-accent/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Extension

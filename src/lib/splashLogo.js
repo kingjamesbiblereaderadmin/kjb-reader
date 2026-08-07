@@ -1,10 +1,10 @@
 import { base44 } from '@/api/base44Client';
 
-const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/ef85a8765_8e738d108_cfb4bf781_Untitled.png';
+const LOGO_URL = 'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png';
 const STORAGE_KEY = 'kjb-splash-logo-dataurl';
 const VERSION_KEY = 'kjb-splash-logo-version';
 // Bump when the caching logic changes so existing users re-cache.
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v2';
 
 export function getSplashLogo() {
   try {

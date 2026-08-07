@@ -466,7 +466,7 @@ export default function BibleSearchBar({ onClose }) {
     <div className="relative w-full px-1" ref={containerRef}>
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative flex items-center">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-accent/70 pointer-events-none flex-shrink-0 z-10" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none flex-shrink-0 z-10" />
           <GhostInput
             ref={inputRef}
             type="text"
@@ -477,7 +477,7 @@ export default function BibleSearchBar({ onClose }) {
             onKeyDown={handleKeyDown}
             placeholder="Search..."
             leftPadClass="pl-9"
-            inputClassName="w-full pl-9 pr-8 py-2 h-10 rounded-xl bg-card/50 backdrop-blur-md border border-border/50 text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20 transition-all truncate"
+            inputClassName="w-full pl-9 pr-8 py-1.5 h-9 rounded-lg bg-secondary border border-border text-sm font-sans text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors truncate"
           />
           {query && (
             <button
@@ -495,16 +495,16 @@ export default function BibleSearchBar({ onClose }) {
       </form>
 
       {open && suggestions.length > 0 && (
-        <div className="absolute top-full mt-2 left-0 right-0 z-50 bg-popover/90 backdrop-blur-xl border border-border/60 rounded-2xl shadow-xl shadow-black/[0.08] overflow-hidden min-w-[240px] max-w-[calc(100vw-2rem)]">
+        <div className="absolute top-full mt-1 left-0 right-0 z-50 bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[240px] max-w-[calc(100vw-2rem)]">
           {suggestions.map((s, i) => (
             <button
               key={i}
               onClick={() => handleSelect(s)}
               onMouseEnter={() => setSelectedIndex(i)}
-              className={`w-full flex items-center gap-3 px-3 py-3 min-h-[48px] transition-colors text-left border-b border-border/50 last:border-0 touch-manipulation ${
+              className={`w-full flex items-center gap-3 px-3 py-3 min-h-[48px] transition-colors text-left border-b border-border last:border-0 touch-manipulation ${
                 i === selectedIndex
-                  ? 'bg-accent/15 ring-1 ring-inset ring-accent/40'
-                  : 'hover:bg-accent/10'
+                  ? 'bg-accent/15 ring-1 ring-inset ring-accent/40 border-l-2 border-l-accent'
+                  : 'hover:bg-secondary'
               }`}
             >
               <Search className={`w-3.5 h-3.5 flex-shrink-0 ${i === selectedIndex ? 'text-accent' : 'text-muted-foreground'}`} />

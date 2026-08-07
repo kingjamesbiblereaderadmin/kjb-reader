@@ -7,7 +7,7 @@ export default function ShareMenu({ onShareText, onShareLink, feedback, label = 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all">
+        <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors">
           <Share2 className="w-3.5 h-3.5" /> {feedback ? 'Copied!' : label}
         </button>
       </DropdownMenuTrigger>

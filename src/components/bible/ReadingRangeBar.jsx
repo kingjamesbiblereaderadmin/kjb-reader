@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Copy, Share2, AlignLeft, Filter, Printer, BookMarked, ChevronDown, Bookmark, List } from 'lucide-react';
+import { Copy, Share2, AlignLeft, Filter, Printer, BookMarked, ChevronDown, Bookmark } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Slim action bar shown when reading a verse range / search result.
 // `filterMode` controls whether the reader is filtered to only the selected
 // verses (true) or showing the full chapter with them highlighted (false).
-export default function ReadingRangeBar({ label, filterMode, copyFeedback, shareFeedback, shareLinkFeedback, saveFeedback, onCopy, onShareText, onShareTextPerVerse, onShareLink, onSave, onToggleView, onClear, onPrintPage, onPrintContents }) {
+export default function ReadingRangeBar({ label, filterMode, copyFeedback, shareFeedback, shareLinkFeedback, saveFeedback, onCopy, onShareText, onShareLink, onSave, onToggleView, onClear, onPrintPage, onPrintContents }) {
   const prevLabelRef = useRef(label);
 
   useEffect(() => {
@@ -29,35 +29,31 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
   return (
     <div className="mt-2 pt-2 border-t border-border flex items-center gap-2 overflow-x-auto scrollbar-hide">
       <span className="font-sans text-xs text-muted-foreground font-medium whitespace-nowrap">{label}</span>
-      <div className="w-px h-4 bg-border/50" />
+      <div className="w-px h-4 bg-border" />
       <button
         onClick={onCopy}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
       >
         <Copy className="w-3.5 h-3.5" /> {copyFeedback ? 'Copied!' : 'Copy'}
       </button>
       {onSave && (
         <button
           onClick={onSave}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
         >
           <Bookmark className="w-3.5 h-3.5" /> {saveFeedback ? 'Saved!' : 'Save'}
         </button>
       )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap">
             <Share2 className="w-3.5 h-3.5" /> {shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem onClick={onShareText} className="cursor-pointer">
             <AlignLeft className="w-4 h-4 mr-2" />
-            Share Text (Passage)
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onShareTextPerVerse} className="cursor-pointer">
-            <List className="w-4 h-4 mr-2" />
-            Share Text (Per Verse)
+            Share Text
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onShareLink} className="cursor-pointer">
             <Share2 className="w-4 h-4 mr-2" />
@@ -68,7 +64,7 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
 
       <button
         onClick={onPrintContents}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
       >
         <Printer className="w-3.5 h-3.5" /> Print
       </button>
@@ -76,7 +72,7 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
       {/* Toggle between filtered (verses only) and full-chapter views */}
       <button
         onClick={onToggleView}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/12 border border-accent/40 text-accent hover:bg-accent/20 hover:border-accent/60 font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
       >
         {filterMode
           ? <><AlignLeft className="w-3.5 h-3.5" /> Full Chapter</>
@@ -89,7 +85,7 @@ export default function ReadingRangeBar({ label, filterMode, copyFeedback, share
           e.stopPropagation();
           onClear(e);
         }}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
       >
         Clear
       </button>
