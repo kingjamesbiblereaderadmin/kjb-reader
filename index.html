@@ -303,49 +303,38 @@
           <div style="position:absolute;top:-25%;left:50%;transform:translateX(-50%);width:120%;height:50%;border-radius:50%;background:radial-gradient(circle, rgba(79,106,255,0.14), transparent 60%);"></div>
           <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:120%;height:33.33%;border-radius:50%;background:radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%);"></div>
         </div>
-        <!-- Two-side composition: brand on one side, scripture on the other.
-             Stacks vertically on mobile, side-by-side on desktop (see <style> below). -->
+        <!-- Card: logo beside the verse, reference and gospel. Progress bar +
+             status sit below the card. Matches the React SplashScreen so the
+             boot→React handoff has no jump. -->
         <div id="kjb-boot-grid">
-          <!-- Left side — brand -->
-          <div id="kjb-boot-brand" style="position:relative;display:flex;flex-direction:column;align-items:center;">
-            <div style="position:relative;">
-              <div style="position:absolute;inset:0;border-radius:1.5rem;filter:blur(1rem);background:radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%);"></div>
-              <img
-                id="kjb-boot-logo"
-                alt="KJB Reader Logo"
-                style="position:relative;object-fit:contain;border-radius:1.5rem;padding:0.75rem;background:#0f1117;box-shadow:0 0 0 1px rgba(0,0,0,0.05);"
-              />
-            </div>
-            <div id="kjb-boot-progress-wrap" style="display:flex;flex-direction:column;align-items:center;gap:20px;">
-              <div id="kjb-boot-track" style="width:100%;height:6px;border-radius:9999px;overflow:hidden;position:relative;background:rgba(255,255,255,0.08);">
-                <div style="position:absolute;top:0;height:100%;border-radius:9999px;width:40%;background:linear-gradient(90deg,#4f6aff,#a855f7);animation:kjb-boot-indeterminate 1.2s ease-in-out infinite;"></div>
-              </div>
-              <span id="kjb-boot-text" style="font-family:Inter,system-ui,sans-serif;font-size:0.875rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;text-align:center;color:#ffffff;">Loading KJB Reader...</span>
-            </div>
-          </div>
-          <!-- Divider — horizontal on mobile, vertical on desktop -->
-          <div id="kjb-boot-divider"></div>
-          <!-- Right side — scripture -->
-          <div id="kjb-boot-scripture" style="animation:kjb-splash-fade 600ms ease-out 200ms both;">
-            <div id="kjb-boot-scripture-quote" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
-              <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:clamp(0.88rem,3.5vw,1.02rem);font-style:normal;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+          <div id="kjb-boot-card">
+            <img
+              id="kjb-boot-logo"
+              alt="KJB Reader Logo"
+              style="position:relative;flex-shrink:0;object-fit:contain;border-radius:0.75rem;padding:0.5rem;background:#0f1117;box-shadow:0 0 0 1px rgba(0,0,0,0.05);"
+            />
+            <div id="kjb-boot-card-text">
+              <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:clamp(0.82rem,3.2vw,0.95rem);font-style:normal;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
                 "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
               </p>
-              <span id="kjb-boot-ref-box" style="display:inline-block;border:1px solid rgba(128,128,128,0.4);border-radius:0.375rem;padding:0.375rem 1rem;background:rgba(255,255,255,0.05);">
-                <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.55rem,2vw,0.62rem);letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin:0;text-align:center;">
+              <span id="kjb-boot-ref-box" style="display:inline-block;align-self:flex-start;border:1px solid rgba(255,255,255,0.2);border-radius:0.375rem;padding:0.25rem 0.75rem;background:rgba(255,255,255,0.05);">
+                <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.5rem,1.8vw,0.58rem);letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin:0;text-align:center;">
                   — 2 Timothy 2:15 —
                 </p>
               </span>
-            </div>
-            <div id="kjb-boot-scripture-divider" style="width:2.5rem;height:1px;background:linear-gradient(90deg,transparent,rgba(120,120,130,0.45),transparent);"></div>
-            <div id="kjb-boot-gospel-wrap" style="display:flex;flex-direction:column;gap:0.75rem;">
-              <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.78rem,3vw,0.9rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+              <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.72rem,2.8vw,0.82rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
                 Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
               </p>
-              <p id="kjb-boot-gospel-trust" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.78rem,3vw,0.9rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+              <p id="kjb-boot-gospel-trust" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.72rem,2.8vw,0.82rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
                 Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
               </p>
             </div>
+          </div>
+          <div id="kjb-boot-progress-wrap" style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;width:14rem;">
+            <div id="kjb-boot-track" style="width:100%;height:6px;border-radius:9999px;overflow:hidden;position:relative;background:rgba(255,255,255,0.08);">
+              <div style="position:absolute;top:0;height:100%;border-radius:9999px;width:40%;background:linear-gradient(90deg,#4f6aff,#a855f7);animation:kjb-boot-indeterminate 1.2s ease-in-out infinite;"></div>
+            </div>
+            <span id="kjb-boot-text" style="font-family:Inter,system-ui,sans-serif;font-size:0.875rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;text-align:center;color:#ffffff;">Loading KJB Reader...</span>
           </div>
         </div>
       </div>
@@ -367,8 +356,10 @@
               document.getElementById('kjb-boot-ref').style.color = 'rgba(90,100,114,0.55)';
               document.getElementById('kjb-boot-gospel').style.color = 'rgba(90,100,114,0.85)';
               document.getElementById('kjb-boot-gospel-trust').style.color = 'rgba(90,100,114,0.85)';
+              var cardEl = document.getElementById('kjb-boot-card');
+              if (cardEl) { cardEl.style.borderColor = 'rgba(0,0,0,0.15)'; cardEl.style.background = 'rgba(0,0,0,0.04)'; }
               var refBoxEl = document.getElementById('kjb-boot-ref-box');
-              if (refBoxEl) refBoxEl.style.background = 'rgba(0,0,0,0.04)';
+              if (refBoxEl) { refBoxEl.style.borderColor = 'rgba(0,0,0,0.2)'; refBoxEl.style.background = 'rgba(0,0,0,0.04)'; }
             }
           } catch (e) {}
         })();
@@ -382,70 +373,61 @@
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        /* Two-side splash layout — base (mobile) stacks vertically; desktop
-           places brand on one side and scripture on the other. Matches the
-           React SplashScreen so the boot→React handoff has no jump. */
+        /* Card splash layout — logo beside the verse/reference/gospel, with
+           the progress bar + status below the card. Matches the React
+           SplashScreen so the boot→React handoff has no jump. */
         #kjb-boot-grid {
           position: relative;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 3rem;
+          gap: 2rem;
           width: 100%;
-          max-width: 64rem;
-          padding: 0 2rem 4rem;
+          max-width: 28rem;
+          padding: 0 1.5rem;
           box-sizing: border-box;
         }
-        #kjb-boot-brand {
-          gap: 3rem;
+        #kjb-boot-card {
+          display: flex;
+          align-items: flex-start;
+          gap: 1rem;
+          width: 100%;
+          border-radius: 1rem;
+          border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(255,255,255,0.04);
+          padding: 1rem;
+          box-sizing: border-box;
         }
-        #kjb-boot-divider {
-          width: 2.5rem;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent);
-        }
-        #kjb-boot-scripture {
+        #kjb-boot-card-text {
+          flex: 1;
+          min-width: 0;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: space-between;
-          gap: 2rem;
-          max-width: 100%;
-          text-align: center;
-          align-self: stretch;
+          align-items: flex-start;
+          text-align: left;
+          gap: 0.75rem;
         }
         #kjb-boot-logo {
-          width: 8rem;
-          height: 8rem;
+          width: 4rem;
+          height: 4rem;
         }
         #kjb-boot-progress-wrap {
           width: 14rem;
         }
         @media (min-width: 1024px) {
           #kjb-boot-grid {
-            flex-direction: row;
-            gap: 6rem;
-            padding: 0 4rem 6rem;
-          }
-          #kjb-boot-brand {
-            gap: 4rem;
-          }
-          #kjb-boot-divider {
-            width: 1px;
-            height: 20rem;
-            background: linear-gradient(transparent, rgba(120,120,130,0.35), transparent);
-          }
-          #kjb-boot-scripture {
-            align-items: center;
-            text-align: center;
             max-width: 28rem;
-            align-self: stretch;
             gap: 2.5rem;
+            padding: 0 2rem;
+          }
+          #kjb-boot-card {
+            gap: 1.25rem;
+            padding: 1.25rem;
           }
           #kjb-boot-logo {
-            width: 10rem;
-            height: 10rem;
+            width: 5rem;
+            height: 5rem;
           }
           #kjb-boot-progress-wrap {
             width: 16rem;
