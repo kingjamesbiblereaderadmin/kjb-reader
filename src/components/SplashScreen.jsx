@@ -521,7 +521,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
         {/* Right side — scripture */}
         <div
-          className="flex flex-col items-center lg:items-start justify-between self-stretch gap-6 lg:gap-8 max-w-md text-center lg:text-left py-2"
+          className="flex flex-col items-center lg:items-start justify-between self-stretch gap-8 lg:gap-10 max-w-md text-center lg:text-left py-2"
           style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
         >
           <div className="flex flex-col items-center sm:items-start gap-2">
@@ -529,7 +529,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
             </p>
             <div className="w-full text-center">
-              <span className="inline-block rounded-md border border-foreground/20 px-3 py-1">
+              <span className="inline-block rounded-md border border-foreground/20 bg-foreground/5 px-4 py-1.5">
                 <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.55rem, 2vw, 0.62rem)', letterSpacing: '0.18em', textTransform: 'uppercase', color: refColor, margin: 0, textAlign: 'center' }}>
                   — 2 Timothy 2:15 —
                 </p>
