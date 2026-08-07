@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260808_0042
+// KJB Reader Service Worker v20260808_0043
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260808_0042';
+const CACHE_NAME = 'kjb-reader-v20260808_0043';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -161,7 +161,13 @@ self.addEventListener('fetch', (event) => {
   // (then offline.html) keeps full offline support.
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).then((response) => {
+      // Always bypass the HTTP cache for the HTML document so a freshly
+      // deployed build's index.html — which references the new hashed JS
+      // chunks — is fetched when online. Mobile browsers can otherwise serve a
+      // stale cached index.html (long HTTP max-age), keeping the old chunks and
+      // old app code running so no update ever appears (desktop "updated" only
+      // because it was hard-refreshed). Offline still falls back to the cache.
+      fetch(request, { cache: 'no-store' }).then((response) => {
         if (response && response.ok) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
