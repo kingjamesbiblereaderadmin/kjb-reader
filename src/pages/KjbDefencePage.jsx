@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ShieldAlert, ChevronDown, Plus, Loader2, Search, Printer, Shield, Lock } from 'lucide-react';
-import AmbientBackground from '@/components/AmbientBackground';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -178,7 +177,6 @@ export default function KjbDefencePage() {
 
   return (
     <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-10">
-      <AmbientBackground />
       {/* Header */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">

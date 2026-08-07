@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import AmbientBackground from '@/components/AmbientBackground';
 import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy, Printer, Mail, PlayCircle, Link2 } from 'lucide-react';
 import { printHtml } from '@/lib/printHelpers';
 import ScriptureBanner from '@/components/ScriptureBanner';
@@ -303,7 +302,6 @@ export default function ResourcesPage() {
 
   return (
     <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-10">
-      <AmbientBackground />
       <div className="text-center mb-10">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">
           <FileText className="w-7 h-7 text-accent" />

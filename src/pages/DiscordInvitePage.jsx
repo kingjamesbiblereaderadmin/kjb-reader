@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import AmbientBackground from '@/components/AmbientBackground';
 import { ArrowLeft, ArrowRight, User, Server } from 'lucide-react';
 
 // Discord Bot invite links for the KJB Reader Bot (application_id
@@ -26,8 +25,7 @@ const cardClass = "flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-b
 
 export default function DiscordInvitePage() {
   return (
-    <div className="min-h-screen relative">
-      <AmbientBackground />
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
       <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
         {/* Back link */}
         <Link

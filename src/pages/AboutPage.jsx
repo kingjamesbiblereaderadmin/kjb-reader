@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import AmbientBackground from '@/components/AmbientBackground';
 import { Info, Mail, MessageSquare, ExternalLink, BookOpen, Globe, ChevronDown, ChevronRight, Youtube, PlayCircle, Link2, FileText } from 'lucide-react';
 import ContactLinks from '@/components/ContactLinks';
 
@@ -62,8 +61,7 @@ function DiscordIcon({ className }) {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen relative">
-      <AmbientBackground />
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
       {/* Header */}
       <div className="text-center mb-10">
