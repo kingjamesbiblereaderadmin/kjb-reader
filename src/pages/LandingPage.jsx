@@ -109,8 +109,8 @@ export default function LandingPage() {
               <Globe className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Reader Chrome Extension <span className="text-accent font-semibold">— Coming Soon!</span></p>
-              <p className="font-sans text-xs text-muted-foreground">Read, search, and look up Bible verses from any web page with the KJB Reader sidebar extension.</p>
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Reader - SidePanel <span className="text-accent font-semibold">— Available Now!</span></p>
+              <p className="font-sans text-xs text-muted-foreground">Read, search, and look up Bible verses from any web page. Desktop browsers only.</p>
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </Link>
