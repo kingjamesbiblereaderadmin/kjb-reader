@@ -117,15 +117,18 @@ Deno.serve(async (req) => {
     // the "Add to Home Screen" install prompt on the published domain (preview
     // runs on a different origin, so it was unaffected). Omitting it restores
     // the native install prompt.
-    // Protocol handlers — register as handler for bible: and kjb: URIs
+    // Protocol handlers — register as handler for web+bible: and web+kjb: URIs.
+    // Chrome's allowlist requires custom schemes to be web+-prefixed (bare
+    // "bible"/"kjb" are rejected and the entries ignored). The reader strips
+    // this prefix when parsing the ref.
     protocol_handlers: [
       {
-        protocol: "bible",
+        protocol: "web+bible",
         url: "/read?ref=%s",
         name: "KJB Reader"
       },
       {
-        protocol: "kjb",
+        protocol: "web+kjb",
         url: "/read?ref=%s",
         name: "KJB Reader"
       }

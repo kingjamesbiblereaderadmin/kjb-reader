@@ -91,7 +91,12 @@ export function resolveBook(token) {
 // Returns { abbr, chapter, verse, verseEnd } or null if not a reference
 export function parseReference(input) {
   if (!input) return null;
-  const raw = input.trim();
+  let raw = input.trim();
+  // Strip a protocol-handler scheme prefix from deep links, e.g.
+  // "web+bible:John 3:16", "bible:John 3:16", "web+kjb:...", "kjb:...". Chrome
+  // requires custom schemes to be web+-prefixed, so protocol_handlers register
+  // web+bible / web+kjb; the %s substitution passes the full URI as `ref`.
+  raw = raw.replace(/^(?:web\+)?(?:bible|kjb):\/?/i, '');
   // Match: <book tokens> <chapter>[:<verse>[-<verseEnd>]]
   const m = raw.match(/^((?:[1-3]\s*)?[A-Za-z][A-Za-z\s]*?)\s*(\d+)(?::(\d+)(?:\s*-\s*(\d+))?)?$/);
   if (!m) return null;
