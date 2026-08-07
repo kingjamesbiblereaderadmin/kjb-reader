@@ -68,10 +68,9 @@ export default function ExtensionPage() {
         {/* Description card */}
         <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03] text-center">
           <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
-            KJB SidePanel is a free Chrome extension for reading and searching the King James Bible.
-            It brings the full scriptures directly into your browser — look up any verse reference
-            you encounter online, search the scriptures, and read the whole Bible from a convenient
-            sidebar, without leaving the page you're on.
+            The KJB SidePanel brings the King James Bible directly into your browser. Look up any
+            verse reference you encounter online, search the scriptures, and read the full Bible —
+            all from a convenient sidebar.
           </p>
           <a
             href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/25cc11590_kjb-extension.zip"
