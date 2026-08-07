@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Shield, FileText, MonitorSmartphone } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
-import { LegalContactStep } from '@/components/LandingContentSteps';
+import ContactLinks from '@/components/ContactLinks';
 import ScriptureBanner from '@/components/ScriptureBanner';
 
 const LAST_UPDATED = 'July 16th, 2026';
@@ -54,10 +54,23 @@ export default function LandingPage() {
           <LandingSetupWizard />
         </div>
 
-        {/* Links & Contact — outside the wizard, always visible below */}
+        {/* Links & Contact — old rich-card format, outside the wizard */}
         <div className="mt-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '180ms', animationFillMode: 'both' }}>
           <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
-            <LegalContactStep />
+            <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Links & Contact</h3>
+            <p className="font-sans text-xs text-muted-foreground mb-4 text-center">Legal info and ways to reach us</p>
+            <div className="flex flex-wrap justify-center gap-2 mb-4">
+              <Link to="/privacy" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-sans text-foreground hover:border-accent/50 transition-all">
+                <Shield className="w-3.5 h-3.5" /> Privacy
+              </Link>
+              <Link to="/terms" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-sans text-foreground hover:border-accent/50 transition-all">
+                <FileText className="w-3.5 h-3.5" /> Terms
+              </Link>
+              <Link to="/legacy" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-sans text-foreground hover:border-accent/50 transition-all">
+                <MonitorSmartphone className="w-3.5 h-3.5" /> Legacy
+              </Link>
+            </div>
+            <ContactLinks />
           </div>
         </div>
 
