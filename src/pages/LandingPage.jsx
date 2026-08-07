@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram, BookOpen } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
 import ScriptureBanner from '@/components/ScriptureBanner';
 
@@ -47,42 +47,21 @@ export default function LandingPage() {
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Welcome to KJB Reader</h1>
           <p className="font-sans text-sm text-muted-foreground">Read the King James Bible — anytime, anywhere, even offline.</p>
-          <div className="mt-4 w-16 h-px bg-accent mx-auto" />
+          <div className="mt-5">
+            <Link
+              to="/"
+              onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-md"
+            >
+              Open KJB Reader
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
 
         {/* Scripture banner */}
         <div className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '60ms', animationFillMode: 'both' }}>
           <ScriptureBanner />
-        </div>
-
-        {/* CTA featured card */}
-        <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 backdrop-blur-xl p-6 sm:p-8 mb-6 shadow-lg shadow-black/[0.03] animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '100ms', animationFillMode: 'both' }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent" />
-          <div className="absolute -right-8 -bottom-10 opacity-[0.06] dark:opacity-[0.12] text-primary pointer-events-none">
-            <BookOpen className="w-36 h-36" />
-          </div>
-          <div className="relative flex flex-col sm:flex-row items-start gap-5">
-            <div className="w-14 h-14 flex items-center justify-center rounded-2xl text-white shadow-xl bg-gradient-to-br from-primary to-accent ring-1 ring-white/20 shrink-0">
-              <BookOpen className="w-7 h-7" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
-                KJB Reader is a free, installable Bible reading app featuring the King James Bible
-                (Pure Cambridge Edition). Enjoy daily verses, offline reading, search, bookmarks,
-                and customizable typography — all with privacy at the forefront.
-              </p>
-              <div className="flex items-center justify-start gap-3 flex-wrap">
-                <Link
-                  to="/"
-                  onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-md"
-                >
-                  Open KJB Reader
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Promo — Gospel featured */}

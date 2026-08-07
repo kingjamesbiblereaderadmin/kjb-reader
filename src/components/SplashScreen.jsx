@@ -487,7 +487,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           />
           {/* Vertical divider — desktop only */}
           <div className="hidden lg:block w-px self-stretch bg-foreground/15" />
-          <div className="flex-1 min-w-0 flex flex-col justify-center lg:justify-between gap-4 lg:gap-8 items-center lg:items-start text-center lg:text-left">
+          <div className="hidden lg:flex flex-1 min-w-0 flex-col justify-center lg:justify-between gap-4 lg:gap-8 items-center lg:items-start text-center lg:text-left">
             {/* 2 Timothy verse + reference — top */}
             <div className="flex flex-col gap-3 items-center lg:items-start">
               <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: 'clamp(0.82rem, 3.2vw, 0.95rem)', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
