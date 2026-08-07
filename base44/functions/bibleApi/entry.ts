@@ -310,13 +310,54 @@ Deno.serve(async (req) => {
 
       const caseSensitive = body.caseSensitive === true;
       const wholeWord = body.wholeWord === true;
+      const wildcard = body.wildcard === true;
+      const testament = String(body.testament || 'all').toLowerCase();
+      const bookFilter = body.book ? String(body.book).trim() : null;
       const limit = Number.isFinite(body.limit) ? Math.min(body.limit, 500) : 100;
       const offset = Number.isFinite(body.offset) ? Math.max(0, body.offset) : 0;
 
+      // Old Testament = first 39 books (Genesis–Malachi),
+      // New Testament = last 27 (Matthew–Revelation).
+      const OLD_TESTAMENT = new Set(BOOK_ORDER.slice(0, 39));
+      const NEW_TESTAMENT = new Set(BOOK_ORDER.slice(39));
+
+      // Resolve the set of books to search. A `book` filter overrides
+      // `testament` (searching one book is the tightest scope). Accept either a
+      // full name ("John") or an abbreviation ("Joh").
+      let booksToSearch;
+      if (bookFilter) {
+        const fullName = ABBR_TO_NAME[bookFilter] || bookFilter;
+        if (!bible[fullName]) {
+          return json({ error: `Unknown book: ${bookFilter}` }, { status: 400 });
+        }
+        booksToSearch = [fullName];
+      } else if (testament === 'old') {
+        booksToSearch = BOOK_ORDER.filter((b) => OLD_TESTAMENT.has(b));
+      } else if (testament === 'new') {
+        booksToSearch = BOOK_ORDER.filter((b) => NEW_TESTAMENT.has(b));
+      } else {
+        booksToSearch = BOOK_ORDER;
+      }
+
+      // Build a single RegExp matcher for all modes. wildcard=true supports
+      // ? (one char) and * (any run of chars); every other char is escaped.
       const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      let pattern;
+      if (wildcard) {
+        pattern = '';
+        for (const ch of query) {
+          if (ch === '*') pattern += '.*';
+          else if (ch === '?') pattern += '.';
+          else pattern += escapeRegex(ch);
+        }
+      } else {
+        pattern = escapeRegex(query);
+      }
+      if (wholeWord) pattern = `\\b${pattern}\\b`;
+      const matcher = new RegExp(pattern, caseSensitive ? '' : 'i');
 
       const matches = [];
-      for (const bookName of BOOK_ORDER) {
+      for (const bookName of booksToSearch) {
         if (!bible[bookName]) continue;
         for (const chapterNum of Object.keys(bible[bookName])) {
           const verses = bible[bookName][chapterNum];
@@ -330,18 +371,7 @@ Deno.serve(async (req) => {
               .replace(/¶/g, '')
               .replace(/\uFFFD/g, "'");
 
-            let found = false;
-            if (wholeWord) {
-              const flags = caseSensitive ? 'g' : 'gi';
-              const re = new RegExp(`\\b${escapeRegex(query)}\\b`, flags);
-              found = re.test(visibleText);
-            } else {
-              const hay = caseSensitive ? visibleText : visibleText.toLowerCase();
-              const needle = caseSensitive ? query : query.toLowerCase();
-              found = hay.includes(needle);
-            }
-
-            if (!found) continue;
+            if (!matcher.test(visibleText)) continue;
 
             const processed = processVerse(vo, { book: bookName, chapter: parseInt(chapterNum) });
             const abbrEntry = Object.entries(ABBR_TO_NAME).find(([k, v]) => v === bookName);
@@ -370,6 +400,9 @@ Deno.serve(async (req) => {
         query,
         caseSensitive,
         wholeWord,
+        testament,
+        book: bookFilter,
+        wildcard,
         total,
         count: results.length,
         offset,
