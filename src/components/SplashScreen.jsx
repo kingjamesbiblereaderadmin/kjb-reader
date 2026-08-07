@@ -463,13 +463,22 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       }`}
       style={{ background: splashBg }}
     >
-      <div className="flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
-        <img
-          src={logoSrc}
-          alt="KJB Reader Logo"
-          className="w-44 h-44 object-contain rounded-2xl p-3"
-          style={{ background: splashBg }}
-        />
+      {/* Ambient glow layers */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-1/4 left-1/2 -translate-x-1/2 w-[120%] h-1/2 rounded-full" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.14), transparent 60%)' }} />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-1/3 rounded-full" style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%)' }} />
+      </div>
+
+      <div className="relative flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
+        <div className="relative">
+          <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%)' }} />
+          <img
+            src={logoSrc}
+            alt="KJB Reader Logo"
+            className="relative w-44 h-44 object-contain rounded-3xl p-3 ring-1 ring-black/5"
+            style={{ background: splashBg }}
+          />
+        </div>
         <div className="flex flex-col items-center gap-5 w-64">
           {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
           <div
@@ -479,12 +488,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             {progress === null ? (
               <div
                 className="absolute top-0 h-full rounded-full"
-                style={{ width: '40%', background: '#4f6aff', animation: 'kjb-splash-indeterminate 1.2s ease-in-out infinite' }}
+                style={{ width: '40%', background: 'linear-gradient(90deg, #4f6aff, #a855f7)', animation: 'kjb-splash-indeterminate 1.2s ease-in-out infinite' }}
               />
             ) : (
               <div
                 className="h-full rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${progress}%`, background: '#4f6aff' }}
+                style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #4f6aff, #a855f7)' }}
               />
             )}
           </div>

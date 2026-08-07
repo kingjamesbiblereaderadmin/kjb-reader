@@ -37,13 +37,20 @@ const FEATURES = [
 
 export default function ExtensionPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
-      <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
+    <div className="relative min-h-screen bg-gradient-to-br from-background via-accent/5 to-background overflow-hidden">
+      {/* Decorative ambient background */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-accent/5 blur-3xl" />
+      </div>
+
+      <div className="relative w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
         {/* Back button */}
-        <div className="mb-6">
+        <div className="mb-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
           <Link
             to="/resources"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent hover:bg-accent/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Resources
@@ -51,9 +58,12 @@ export default function ExtensionPage() {
         </div>
 
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/30 mb-4">
-            <Globe className="w-7 h-7 text-white" />
+        <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '60ms', animationFillMode: 'both' }}>
+          <div className="relative inline-flex items-center justify-center mb-4">
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 to-cyan-600/30 blur-xl" />
+            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/30 ring-1 ring-white/20">
+              <Globe className="w-8 h-8 text-white" />
+            </div>
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-3">KJB Reader - SidePanel</h1>
           <p className="mt-1 max-w-xl mx-auto rounded-xl bg-amber-100 dark:bg-amber-900/20 px-4 py-2 font-sans text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
@@ -67,7 +77,7 @@ export default function ExtensionPage() {
         </div>
 
         {/* Description card */}
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03] text-center">
+        <div className="relative overflow-hidden bg-card/70 backdrop-blur-xl border-2 border-border/60 rounded-3xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03] text-center">
           <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
             The KJB Reader - SidePanel brings the King James Bible directly into your browser. Look up any
             verse reference you encounter online, search the scriptures, and read the full Bible —
@@ -94,7 +104,7 @@ export default function ExtensionPage() {
         </div>
 
         {/* Installation Instructions */}
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03]">
+        <div className="relative overflow-hidden bg-card/70 backdrop-blur-xl border-2 border-border/60 rounded-3xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03]">
           <h2 className="font-serif text-lg font-semibold text-foreground mb-4">Installation Instructions</h2>
           <ol className="space-y-3 font-sans text-sm text-foreground/85 leading-relaxed">
             <li className="flex items-start gap-3">
@@ -131,7 +141,7 @@ export default function ExtensionPage() {
             return (
               <div
                 key={f.title}
-                className="flex items-start gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+                className="group relative flex items-start gap-3 p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border/60 shadow-sm hover:shadow-xl hover:border-accent/40 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden"
               >
                 <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
                   <Icon className="w-5 h-5" />
