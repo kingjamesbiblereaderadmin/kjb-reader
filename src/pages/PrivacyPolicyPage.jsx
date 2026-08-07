@@ -95,9 +95,50 @@ export default function PrivacyPolicyPage() {
 
       <Section title="No Cloud Sync">
         <p>
-          The App does not sync any data to the cloud. There are no accounts, no sign-in, and
-          no cloud storage. Everything you do in the App — your saved verses, reading
-          progress, settings, and preferences — exists only on the device you are using.
+          The core Bible-reading App does not sync any data to the cloud. There are no
+          accounts, no sign-in, and no cloud storage. Everything you do in the App — your
+          saved verses, reading progress, settings, and preferences — exists only on the
+          device you are using. (The optional Discord bot integration, described below, is
+          a separate feature that stores minimal server configuration on our servers.)
+        </p>
+      </Section>
+
+      <Section title="KJB Reader Discord Bot">
+        <p>
+          KJB Reader offers an optional Discord bot that server administrators can add to their
+          own Discord servers for slash-command Bible lookups and scheduled daily verse delivery.
+          This is a separate, opt-in feature from the core reading app described above.
+        </p>
+        <p>
+          When a server administrator installs and configures the bot, we store the following
+          minimal server configuration on our servers: the Discord server (guild) ID and name,
+          the configured channel name, a Discord webhook URL (used only to post messages to that
+          channel), an optional role ID (used only for the daily verse ping), the chosen delivery
+          time and timezone, and whether delivery is active. We do not store who configured the
+          bot beyond a generic internal label — no personal identifiers of the person running setup
+          are stored.
+        </p>
+        <p>
+          The bot does not use Discord's privileged intents and does not collect profile
+          information about server members. On servers where the bot is added, it reads message
+          text solely to detect Bible references typed in natural language (e.g. "John 3:16") in
+          order to reply with the verse — it does not store, log, or retain message content beyond
+          the moment needed to generate that reply, and does not use messages for any other
+          purpose.
+        </p>
+        <p>
+          This server configuration data is used solely to deliver the scheduled daily verse and
+          to respond to bot commands and mentions. It is never sold or shared with third parties.
+          Server administrators can disable delivery at any time using the /setup disable command,
+          or remove the bot from their server entirely to stop all data use; removing the bot
+          deletes the stored configuration for that server.
+        </p>
+        <p>
+          To request removal of a specific server's stored configuration, contact us at{' '}
+          <a href="mailto:kingjamesbiblereader@outlook.sg" className="text-primary hover:underline">
+            kingjamesbiblereader@outlook.sg
+          </a>{' '}
+          with the server name.
         </p>
       </Section>
 

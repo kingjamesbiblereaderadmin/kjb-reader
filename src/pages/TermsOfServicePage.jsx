@@ -99,10 +99,29 @@ export default function TermsOfServicePage() {
 
         <Section title="No Accounts Required">
           <p>
-            The App does not require an account. There is no sign-in, no cloud sync, and no
-            remote data storage. All your data — saved verses, reading progress, and settings —
-            exists only on the device you are using. You are responsible for managing your own
-            data on your device.
+            The core reading App does not require an account. There is no sign-in, no cloud sync,
+            and no remote data storage. All your data — saved verses, reading progress, and
+            settings — exists only on the device you are using. You are responsible for managing
+            your own data on your device. (The optional Discord bot integration, described below,
+            is a separate feature that stores minimal server configuration on our servers.)
+          </p>
+        </Section>
+
+        <Section title="KJB Reader Discord Bot">
+          <p>
+            KJB Reader also offers an optional Discord bot for server administrators to add to
+            their own Discord servers, providing slash-command Bible lookups and scheduled daily
+            verse delivery. Unlike the core reading app, this feature requires storing minimal
+            server configuration (server ID/name, channel, delivery time/timezone, and an optional
+            role for pings) on our servers so scheduled deliveries can run — see the Privacy Policy
+            for details on exactly what is stored.
+          </p>
+          <p>
+            The bot is provided free of charge, "as is," with no guarantee of uninterrupted uptime
+            or delivery at the exact configured time. Server administrators are responsible for
+            ensuring their use of the bot complies with Discord's own Terms of Service and
+            Community Guidelines. Administrators may disable or remove the bot from their server
+            at any time.
           </p>
         </Section>
 
