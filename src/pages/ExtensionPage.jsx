@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Puzzle, ArrowLeft, CheckCircle, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart } from 'lucide-react';
+import { Puzzle, ArrowLeft, CheckCircle, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download } from 'lucide-react';
 
 const LAST_UPDATED = 'August 7th, 2026';
 
@@ -59,9 +59,8 @@ export default function ExtensionPage() {
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB SidePanel</h1>
           <p className="font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
-          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#DCFCE7' }}>
-            <CheckCircle className="w-3.5 h-3.5" style={{ color: '#166534' }} />
-            <span className="font-sans text-xs font-semibold" style={{ color: '#166534' }}>Available Now</span>
+          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#DBEAFE' }}>
+            <span className="font-sans text-xs font-semibold" style={{ color: '#1E40AF' }}>Coming to Chrome Web Store</span>
           </div>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
@@ -75,17 +74,49 @@ export default function ExtensionPage() {
             sidebar, without leaving the page you're on.
           </p>
           <a
-            href="https://chromewebstore.google.com/"
+            href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/25cc11590_kjb-extension.zip"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-primary/30"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md"
+            style={{ backgroundColor: '#16A34A' }}
           >
-            <Puzzle className="w-4 h-4" />
-            Add to Chrome
+            <Download className="w-4 h-4" />
+            Download Extension (.zip)
           </a>
           <p className="font-sans text-xs text-muted-foreground mt-3">
-            Free on the Chrome Web Store.
+            Coming soon to the Chrome Web Store. Download the .zip to install manually in developer mode.
           </p>
+        </div>
+
+        {/* Installation Instructions */}
+        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03]">
+          <h2 className="font-serif text-lg font-semibold text-foreground mb-4">Installation Instructions</h2>
+          <ol className="space-y-3 font-sans text-sm text-foreground/85 leading-relaxed">
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">1</span>
+              <span>Download the .zip file using the button above</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">2</span>
+              <span>Extract/unzip the downloaded file</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">3</span>
+              <span>Open Chrome and go to <code className="px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground font-sans text-xs">chrome://extensions</code></span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">4</span>
+              <span>Enable &lsquo;Developer mode&rsquo; (toggle in top right)</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">5</span>
+              <span>Click &lsquo;Load unpacked&rsquo; and select the extracted folder</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">6</span>
+              <span>The KJB SidePanel icon will appear in your toolbar</span>
+            </li>
+          </ol>
         </div>
 
         {/* KJB SidePanel section header */}
@@ -118,16 +149,26 @@ export default function ExtensionPage() {
           })}
         </div>
 
+        {/* Screenshot */}
+        <div className="flex flex-col items-center mb-5">
+          <img
+            src="https://media.base44.com/images/public/6a713d810d97fdb5921ed14e/36d4f40c6_generated_image.png"
+            alt="KJB SidePanel in action"
+            className="w-full max-w-2xl rounded-2xl border border-border/60 shadow-lg"
+          />
+          <p className="font-sans text-xs text-muted-foreground mt-3">KJB SidePanel in action</p>
+        </div>
+
         {/* Status note */}
         <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 shadow-lg shadow-black/[0.03]">
           <div className="flex items-start gap-3">
             <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
             <div>
-              <h2 className="font-serif text-lg font-semibold text-foreground mb-1">Now Available</h2>
+              <h2 className="font-serif text-lg font-semibold text-foreground mb-1">Coming Soon</h2>
               <p className="font-sans text-sm text-foreground/85 leading-relaxed">
-                KJB SidePanel is now live on the Chrome Web Store. Install it with one click to start
-                reading and searching the King James Bible from any web page. The listing ID will be
-                updated here once the store listing is fully approved.
+                KJB SidePanel is coming soon to the Chrome Web Store. In the meantime, download the
+                .zip above and install it manually in Chrome developer mode to start reading and
+                searching the King James Bible from any web page.
               </p>
             </div>
           </div>
