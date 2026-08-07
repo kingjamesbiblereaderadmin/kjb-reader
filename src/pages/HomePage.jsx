@@ -17,9 +17,7 @@ import { isBibleCached, CACHE_VERSION } from '@/lib/bibleCache';
 import { toast } from 'sonner';
 import { detectIncognito } from '@/lib/incognito';
 
-// AI-generated featured artwork for the bento grid (decorative).
-const CONTENTS_IMAGE = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/5c90163a6_generated_image.png';
-const RESOURCES_IMAGE = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/352d01c28_generated_image.png';
+// (Bento artwork removed — tiles now use gradients, no photos.)
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -453,8 +451,8 @@ export default function HomePage() {
 
       {/* Bento: image feature cards */}
       <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-5">
-        <ImageFeatureCard to="/contents" image={CONTENTS_IMAGE} icon={List} label="Table of Contents" desc="Browse all 66 books" iconGradient="from-blue-500 to-indigo-600" />
-        <ImageFeatureCard to="/resources" image={RESOURCES_IMAGE} icon={Library} label="Resources" desc="KJB defence & study" iconGradient="from-teal-500 to-emerald-600" />
+        <ImageFeatureCard to="/contents" icon={List} label="Table of Contents" desc="Browse all 66 books" iconGradient="from-blue-500 to-indigo-600" />
+        <ImageFeatureCard to="/resources" icon={Library} label="Resources" desc="KJB defence & study" iconGradient="from-teal-500 to-emerald-600" />
       </div>
 
       {/* Bento: compact navigation tiles */}
