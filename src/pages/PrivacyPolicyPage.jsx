@@ -131,35 +131,14 @@ export default function PrivacyPolicyPage() {
       <Section title="Chrome Browser Extension">
         <p>
           The KJB Reader Chrome Extension ("KJB Reader - SidePanel") is a companion browser
-          extension that provides Bible search, reading, and verse lookup directly from a sidebar
-          panel in your browser.
-        </p>
-        <p className="font-semibold mt-4">Permissions the extension uses:</p>
-        <ul className="space-y-2 list-disc pl-5">
-          <li><strong>activeTab</strong>: Detects Bible verse references (e.g., "John 3:16") in the text of the current web page so you can click them to look up the verse.</li>
-          <li><strong>contextMenus</strong>: Adds a right-click menu item to look up selected text as a Bible verse reference.</li>
-          <li><strong>sidePanel</strong>: Displays the Bible reader interface in Chrome's built-in side panel.</li>
-          <li><strong>storage</strong>: Stores your extension preferences locally on your device.</li>
-          <li><strong>tabs</strong>: Opens the KJB Reader website and legal pages in new browser tabs when you click links.</li>
-        </ul>
-        <p className="font-semibold mt-4">What the extension accesses:</p>
-        <p>
-          The extension's content script runs on web pages to detect Bible verse references in page
-          text. No page content is collected, transmitted, or stored — only verse reference strings
-          are parsed locally on your device. The extension excludes kingjamesbiblereader.com to
-          avoid conflicts.
-        </p>
-        <p className="font-semibold mt-4">Data the extension collects:</p>
-        <p>
-          The extension does not collect any personal information. It does not require an account.
-          It makes API requests to the KJB Reader backend (base44.app) to fetch Bible verse text as
-          JSON data. No user data is sent to the server. All preferences are stored locally on your
-          device using Chrome's storage API and can be cleared at any time.
-        </p>
-        <p className="font-semibold mt-4">Third-party services:</p>
-        <p>
-          The extension communicates with the KJB Reader API hosted on Base44 (base44.app) to
-          retrieve Bible verse data. No user-identifying information is sent in these requests.
+          extension available on the Chrome Web Store that provides Bible search, reading, and
+          verse lookup from a sidebar panel in your browser. The extension uses these permissions:
+          activeTab (detects Bible verse references on web pages), contextMenus (right-click verse
+          lookup), sidePanel (displays the reader in Chrome's side panel), storage (stores
+          preferences locally), and tabs (opens website links in new tabs). No page content is
+          collected or transmitted. The extension does not collect personal information and does
+          not require an account. It fetches Bible verse data as JSON from the KJB Reader API on
+          base44.app. No user data is sent to the server.
         </p>
       </Section>
 
