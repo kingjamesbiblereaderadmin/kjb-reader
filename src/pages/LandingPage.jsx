@@ -97,8 +97,8 @@ export default function LandingPage() {
         </a>
 
         {/* KJB Reader Chrome Extension */}
-        <a
-          href="#"
+        <Link
+          to="/extension"
           className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
         >
           <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
@@ -109,7 +109,7 @@ export default function LandingPage() {
             <p className="font-sans text-xs text-muted-foreground">Read, search, and look up Bible verses from any web page with the KJB Reader sidebar extension.</p>
           </div>
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
-        </a>
+        </Link>
 
         {/* KJB Discord Bot — two install options */}
         <div className="mb-5">

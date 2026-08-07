@@ -399,12 +399,12 @@ export default function ResourcesPage() {
               Read, search, and look up Bible verses from any web page with the KJB Reader sidebar extension.
             </p>
             <div className="flex items-center gap-3 flex-wrap">
-              <a
-                href="#"
+              <Link
+                to="/extension"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
-                Get the KJB Reader Chrome Extension <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+                Get the KJB Reader Chrome Extension
+              </Link>
             </div>
           </div>
         </div>
