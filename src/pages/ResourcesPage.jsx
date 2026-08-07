@@ -622,6 +622,22 @@ export default function ResourcesPage() {
 
           })}
       </div>
+
+      {/* Design credit */}
+      <div className="mt-8 text-center">
+        <p className="font-sans text-xs text-muted-foreground/80">
+          Design enhanced with a script by{' '}
+          <a
+            href="https://www.reddit.com/r/Base44/comments/1vdkfn8/free_base44_prompt_turn_a_generic_aibuilt_page/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-accent hover:underline"
+          >
+            Will Kode
+          </a>{' '}
+          — refined with AI to make it more appealing.
+        </p>
+      </div>
     </div>);
 
 }
