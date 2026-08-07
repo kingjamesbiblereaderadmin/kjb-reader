@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, ArrowLeft } from 'lucide-react';
 
-const LAST_UPDATED = 'July 16th, 2026';
+const LAST_UPDATED = 'August 7th, 2026';
 
 function AIDisclaimer() {
   return (
@@ -84,6 +84,7 @@ export default function PrivacyPolicyPage() {
           <li>Saved verses and reading position.</li>
           <li>An offline copy of the Bible text, if you choose to download it.</li>
           <li>Notification preferences for the daily verse reminder.</li>
+          <li>Extension preferences (API configuration) — stored locally via Chrome's storage API if you use the browser extension.</li>
         </ul>
         <p>
           All of this data stays only on your device. You can clear it at any time using the
@@ -124,6 +125,41 @@ export default function PrivacyPolicyPage() {
           tracking cookies. Anonymous, aggregated usage statistics (such as the number of times
           a page is viewed) may be collected solely to help us improve the site. These statistics
           are not linked to you or your device and cannot be used to identify anyone personally.
+        </p>
+      </Section>
+
+      <Section title="Chrome Browser Extension">
+        <p>
+          The KJB Reader Chrome Extension ("KJB Reader - SidePanel") is a companion browser
+          extension that provides Bible search, reading, and verse lookup directly from a sidebar
+          panel in your browser.
+        </p>
+        <p className="font-semibold mt-4">Permissions the extension uses:</p>
+        <ul className="space-y-2 list-disc pl-5">
+          <li><strong>activeTab</strong>: Detects Bible verse references (e.g., "John 3:16") in the text of the current web page so you can click them to look up the verse.</li>
+          <li><strong>contextMenus</strong>: Adds a right-click menu item to look up selected text as a Bible verse reference.</li>
+          <li><strong>sidePanel</strong>: Displays the Bible reader interface in Chrome's built-in side panel.</li>
+          <li><strong>storage</strong>: Stores your extension preferences locally on your device.</li>
+          <li><strong>tabs</strong>: Opens the KJB Reader website and legal pages in new browser tabs when you click links.</li>
+        </ul>
+        <p className="font-semibold mt-4">What the extension accesses:</p>
+        <p>
+          The extension's content script runs on web pages to detect Bible verse references in page
+          text. No page content is collected, transmitted, or stored — only verse reference strings
+          are parsed locally on your device. The extension excludes kingjamesbiblereader.com to
+          avoid conflicts.
+        </p>
+        <p className="font-semibold mt-4">Data the extension collects:</p>
+        <p>
+          The extension does not collect any personal information. It does not require an account.
+          It makes API requests to the KJB Reader backend (base44.app) to fetch Bible verse text as
+          JSON data. No user data is sent to the server. All preferences are stored locally on your
+          device using Chrome's storage API and can be cleared at any time.
+        </p>
+        <p className="font-semibold mt-4">Third-party services:</p>
+        <p>
+          The extension communicates with the KJB Reader API hosted on Base44 (base44.app) to
+          retrieve Bible verse data. No user-identifying information is sent in these requests.
         </p>
       </Section>
 

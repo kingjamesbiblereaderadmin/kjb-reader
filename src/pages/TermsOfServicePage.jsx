@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, ArrowLeft } from 'lucide-react';
 
-const LAST_UPDATED = 'July 16th, 2026';
+const LAST_UPDATED = 'August 7th, 2026';
 
 function AIDisclaimer() {
   return (
@@ -69,7 +69,8 @@ export default function TermsOfServicePage() {
             KJB Reader is a free, non-commercial application that provides access to the King James
             Bible (Pure Cambridge Edition) for personal reading, study, and reflection. The App
             works offline, offers daily verses, search, bookmarks, and customizable reading
-            settings.
+            settings. A Chrome browser extension is also available, providing the same Bible
+            reading and search functionality as a sidebar panel.
           </p>
         </Section>
 
@@ -102,6 +103,25 @@ export default function TermsOfServicePage() {
             remote data storage. All your data — saved verses, reading progress, and settings —
             exists only on the device you are using. You are responsible for managing your own
             data on your device.
+          </p>
+        </Section>
+
+        <Section title="Chrome Browser Extension">
+          <p>
+            The KJB Reader Chrome Extension ("KJB Reader - SidePanel") is provided as a free
+            companion to the KJB Reader website. The extension is available on the Chrome Web Store
+            and is subject to the Chrome Web Store Developer Program Policies in addition to these
+            Terms.
+          </p>
+          <p>
+            The extension uses the same King James Bible text (Pure Cambridge Edition) as the
+            website. All Bible data is fetched from the KJB Reader API. The extension does not
+            require an account and does not collect personal data.
+          </p>
+          <p>
+            By installing and using the extension, you agree to these Terms of Service. You may
+            uninstall the extension at any time through your browser's extension management page.
+            Uninstalling the extension will remove all locally stored preferences.
           </p>
         </Section>
 
