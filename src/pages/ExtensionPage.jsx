@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, ArrowLeft, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download, AlertTriangle } from 'lucide-react';
+import { Globe, ArrowLeft, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download } from 'lucide-react';
 
 const FEATURES = [
   {
@@ -56,15 +56,10 @@ export default function ExtensionPage() {
             <Globe className="w-7 h-7 text-white" />
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader - SidePanel</h1>
+          <p className="mt-2 max-w-xl mx-auto rounded-xl bg-amber-100 dark:bg-amber-900/20 px-4 py-2 font-sans text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+            Desktop Only — This extension is designed for desktop browsers only (Chrome, Edge, Brave on Windows, macOS, and Linux). It is not available on mobile browsers.
+          </p>
           <p className="font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
-          <div className="mt-4 max-w-xl mx-auto bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 flex items-start gap-3 text-left">
-            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-            <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-              <strong className="font-semibold">⚠️ Desktop Only</strong> — This extension is
-              designed for desktop browsers only (Chrome, Edge, Brave on Windows, macOS, and
-              Linux). It is not available on mobile browsers.
-            </p>
-          </div>
           <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#DBEAFE' }}>
             <span className="font-sans text-xs font-semibold" style={{ color: '#1E40AF' }}>Coming to Chrome Web Store</span>
           </div>
