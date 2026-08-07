@@ -119,27 +119,18 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   // CHECKING → FOUND loop until the guard cap).
   const applyServiceWorker = async () => {
     if ('serviceWorker' in navigator) {
-      try {
-        window._kjbSplashApplyingUpdate = true;
-        const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-        if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      } catch {}
+      try { window._kjbSplashApplyingUpdate = true; } catch {}
     }
-    // Ensure the deployed version is stashed as pending, then mark it applied.
-    // When detection came via reg.waiting, isSwUpdateAvailable() was never
-    // called, so kjb-pending-sw-version was never set — markSwVersionApplied()
-    // alone would no-op and kjb-applied-sw-version would never advance, causing
-    // the same bump to re-fire on every visit. Fetch the live deployed version
-    // (from the manifest endpoint) as a fallback so applied always advances.
+    // Force-fetch + activate the deployed service worker and confirm it really
+    // takes over. Mobile Chrome throttles background SW checks (~24h), so
+    // reg.waiting can be absent right after a deploy — without an explicit
+    // reg.update() + wait here, SKIP_WAITING would no-op and the old worker
+    // would keep running while we marked the new one "applied" (stuck forever).
     try {
-      let pending = sessionStorage.getItem('kjb-pending-sw-version');
-      if (!pending) {
-        const { fetchDeployedSwVersion } = await import('@/lib/swVersionCheck');
-        pending = await fetchDeployedSwVersion().catch(() => null);
-        if (pending) sessionStorage.setItem('kjb-pending-sw-version', pending);
-      }
-      const { markSwVersionApplied } = await import('@/lib/swVersionCheck');
-      markSwVersionApplied();
+      const { activateDeployedServiceWorker, fetchDeployedSwVersion, markSwVersionApplied } = await import('@/lib/swVersionCheck');
+      const deployed = await fetchDeployedSwVersion().catch(() => null);
+      await activateDeployedServiceWorker(deployed);
+      await markSwVersionApplied();
     } catch {}
     // Mark Bible data version applied too so checkForUpdates() won't re-fire.
     try { localStorage.setItem('bible_last_refresh', String(Date.now())); } catch {}
@@ -173,7 +164,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       onDone?.();
     };
     // Absolute cap — if the flow ever stalls, force the hand-off after 20s.
-    const hardTimeout = setTimeout(finishOnce, 20000);
+    const hardTimeout = setTimeout(finishOnce, 90000);
 
     (async () => {
       // Wait for incognito detection to complete before starting splash flow
@@ -278,7 +269,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
         console.groupEnd();
-        try { const { markSwVersionApplied } = await import('@/lib/swVersionCheck'); markSwVersionApplied(); } catch {}
+        try { const { markSwVersionApplied } = await import('@/lib/swVersionCheck'); await markSwVersionApplied(); } catch {}
         markVisited();
         finishOnce();
         return;
@@ -333,7 +324,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         console.group('[Splash] Summary');
         stepsLog.current.forEach((msg, i) => console.log(`${i + 1}. ${msg}`));
         console.groupEnd();
-        try { const { markSwVersionApplied } = await import('@/lib/swVersionCheck'); markSwVersionApplied(); } catch {}
+        try { const { markSwVersionApplied } = await import('@/lib/swVersionCheck'); await markSwVersionApplied(); } catch {}
         markVisited();
         finishOnce();
         return;
@@ -369,14 +360,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           setStep('APPLYING UPDATES...');
           await pause(STEP_PAUSE_MS);
 
-          // Activate service worker (flag so main.jsx skips its reload)
-          if ('serviceWorker' in navigator) {
-            try {
-              window._kjbSplashApplyingUpdate = true;
-              const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-              if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            } catch {}
-          }
+          // Activate service worker (flag so main.jsx skips its reload).
+          // Force-fetch + confirm so mobile (throttled SW updates) actually
+          // activates the new worker instead of silently no-op'ing SKIP_WAITING.
+          try {
+            window._kjbSplashApplyingUpdate = true;
+            const { activateDeployedServiceWorker, fetchDeployedSwVersion } = await import('@/lib/swVersionCheck');
+            const deployed = await fetchDeployedSwVersion().catch(() => null);
+            await activateDeployedServiceWorker(deployed);
+          } catch {}
 
           // 4. Checking for updates (repeat if found)
           setStep('CHECKING FOR UPDATES...');
@@ -410,13 +402,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             } else {
               setStep('APPLYING UPDATES...');
               await pause(STEP_PAUSE_MS);
-              if ('serviceWorker' in navigator) {
-                try {
-                  window._kjbSplashApplyingUpdate = true;
-                  const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-                  if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                } catch {}
-              }
+              try {
+                window._kjbSplashApplyingUpdate = true;
+                const { activateDeployedServiceWorker, fetchDeployedSwVersion } = await import('@/lib/swVersionCheck');
+                const deployed = await fetchDeployedSwVersion().catch(() => null);
+                await activateDeployedServiceWorker(deployed);
+              } catch {}
               setStep('CHECKING FOR UPDATES...');
               await pause(STEP_PAUSE_MS);
             }
@@ -433,20 +424,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         await pause(STEP_PAUSE_MS);
         window.dispatchEvent(new Event('kjb-progress-clear'));
 
-        // Record the deployed SW version as applied, so the next home check
-        // only re-triggers when a NEW version is deployed. Fall back to fetching
-        // the live deployed version (from the manifest endpoint) when pending
-        // wasn't pre-set, so applied always advances to the current deploy.
+        // Record the version the running service worker ACTUALLY reports — not
+        // the deployed/pending version. On mobile the new worker may not have
+        // activated (throttled update), so recording the deployed version here
+        // would falsely mark it applied and never re-trigger. Recording the
+        // live version means applied only advances when the worker really
+        // updated; otherwise the next visit re-triggers the update.
         try {
-          let pending = sessionStorage.getItem('kjb-pending-sw-version');
-          if (!pending) {
-            const { fetchDeployedSwVersion } = await import('@/lib/swVersionCheck');
-            pending = await fetchDeployedSwVersion().catch(() => null);
-          }
-          if (pending) {
-            localStorage.setItem('kjb-applied-sw-version', pending);
-            sessionStorage.removeItem('kjb-pending-sw-version');
-          }
+          const { markSwVersionApplied } = await import('@/lib/swVersionCheck');
+          await markSwVersionApplied();
         } catch {}
 
         console.group('[Splash] Summary');
