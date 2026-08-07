@@ -289,9 +289,10 @@
             <span id="kjb-boot-text" style="font-family:Inter,system-ui,sans-serif;font-size:0.875rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;text-align:center;color:#c8cdd8;">Loading KJB Reader...</span>
           </div>
         </div>
-        <!-- Scripture (2 Timothy 2:15) + Gospel — pinned to the bottom so the
-             centred logo/progress stays clean. Matches the React SplashScreen. -->
-        <div id="kjb-boot-scripture" style="position:absolute;bottom:1.5rem;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0.5rem;max-width:28rem;margin:0 auto;padding:0 1.5rem;text-align:center;animation:kjb-splash-fade 600ms ease-out 200ms both;">
+        <!-- Scripture (2 Timothy 2:15) + Gospel — raised off the bottom edge
+             with a subtle divider so it reads as intentional, not floating. -->
+        <div id="kjb-boot-scripture" style="position:absolute;bottom:2.75rem;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0.5rem;max-width:28rem;margin:0 auto;padding:0 1.5rem;text-align:center;animation:kjb-splash-fade 600ms ease-out 200ms both;">
+          <div style="width:2.5rem;height:1px;background:linear-gradient(90deg,transparent,rgba(79,106,255,0.45),transparent);"></div>
           <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:0.78rem;font-style:italic;color:rgba(200,205,216,0.7);line-height:1.6;margin:0;">
             "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
           </p>

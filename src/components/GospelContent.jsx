@@ -370,8 +370,8 @@ export default function GospelContent({ collapsible = false, showPreachers = tru
       {/* Header */}
       <div className="relative text-center mb-8 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
         <div className="relative inline-flex items-center justify-center mb-4">
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/30 to-accent/30 blur-xl" />
-          <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30 ring-1 ring-white/20">
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-red-500/30 to-rose-600/30 blur-xl" />
+          <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-red-500 to-rose-600 shadow-lg shadow-red-500/30 ring-1 ring-white/20">
             <Heart className="w-8 h-8 text-white" />
           </div>
         </div>

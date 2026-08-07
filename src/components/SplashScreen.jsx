@@ -520,9 +520,10 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           }
         `}</style>
       </div>
-      {/* Scripture (2 Timothy 2:15) + Gospel — pinned to the bottom so the
-          centred logo/progress stays clean. Matches the boot splash exactly. */}
-      <div className="absolute bottom-6 inset-x-0 flex flex-col items-center gap-2 max-w-md mx-auto px-6 text-center" style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}>
+      {/* Scripture (2 Timothy 2:15) + Gospel — raised off the bottom edge with
+          a subtle divider so it reads as intentional, not floating. */}
+      <div className="absolute bottom-11 inset-x-0 flex flex-col items-center gap-2 max-w-md mx-auto px-6 text-center" style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}>
+        <div style={{ width: '2.5rem', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
         <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '0.78rem', fontStyle: 'italic', color: verseColor, lineHeight: 1.6, margin: 0 }}>
           "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
         </p>
