@@ -4,7 +4,7 @@ const LOGO_URL = 'https://media.base44.com/images/public/6a05d76723afe58d80c589e
 const STORAGE_KEY = 'kjb-splash-logo-dataurl';
 const VERSION_KEY = 'kjb-splash-logo-version';
 // Bump when the caching logic changes so existing users re-cache.
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 
 export function getSplashLogo() {
   try {
