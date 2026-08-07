@@ -524,7 +524,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           className="flex flex-col items-center sm:items-start gap-3 max-w-md text-center sm:text-left"
           style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
         >
-          <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '0.82rem', fontStyle: 'italic', color: verseColor, lineHeight: 1.6, margin: 0 }}>
+          <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '0.82rem', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
             "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
           </p>
           <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
