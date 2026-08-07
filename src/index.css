@@ -207,14 +207,14 @@
      Force a serif font that always has the ¶ glyph, so accessibility fonts like
      OpenDyslexic (which lack a pilcrow glyph) don't render it as a missing-glyph box. */
   :root .pilcrow {
-    color: #000000;
+    color: currentColor;
     opacity: 0.5;
     font-style: normal;
     user-select: none;
     -webkit-user-select: none;
   }
   .dark .pilcrow {
-    color: #ffffff;
+    color: currentColor;
     opacity: 0.5;
     font-style: normal;
     user-select: none;
