@@ -463,7 +463,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   return (
     <div
-      className={`kjb-splash fixed inset-0 z-[999999] flex flex-col items-center justify-center overflow-x-hidden transition-opacity duration-500 ease-in-out ${
+      className={`kjb-splash fixed inset-0 z-[999999] flex flex-col items-center overflow-x-hidden overflow-y-auto transition-opacity duration-500 ease-in-out ${
         isFadingOut ? 'opacity-0' : 'opacity-100'
       }`}
       style={{ background: splashBg }}
@@ -477,7 +477,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
       {/* Two-column composition: logo on the left, a divider, then the 2 Timothy
           verse (top) and gospel (bottom) on the right. On mobile it stacks
           vertically (logo, verse, gospel) with no divider — the original layout. */}
-      <div className="relative flex flex-col items-center justify-center gap-8 lg:gap-10 w-full max-w-2xl px-6 lg:px-8">
+      <div className="relative flex flex-col items-center justify-center gap-6 lg:gap-8 w-full max-w-2xl px-6 lg:px-8 my-auto py-8">
         <div className="flex flex-col lg:flex-row items-center gap-5 lg:gap-8 w-full justify-center">
           <img
             src={logoSrc}

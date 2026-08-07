@@ -297,7 +297,7 @@
            aware: dark bg in dark mode, light bg in light mode. The inline theme
            script above adds the `dark` class before this renders, so we read it
            and set the splash colors here before paint. -->
-      <div id="kjb-boot-splash" class="kjb-splash" style="position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;overflow-x:hidden;background:#0f1117;">
+      <div id="kjb-boot-splash" class="kjb-splash" style="position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;overflow-y:auto;background:#0f1117;">
         <!-- Ambient glow layers (match the React SplashScreen exactly) -->
         <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;">
           <div style="position:absolute;top:-25%;left:50%;transform:translateX(-50%);width:120%;height:50%;border-radius:50%;background:radial-gradient(circle, rgba(79,106,255,0.14), transparent 60%);"></div>
@@ -382,11 +382,11 @@
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
           gap: 2rem;
           width: 100%;
           max-width: 42rem;
-          padding: 0 1.5rem;
+          margin: auto;
+          padding: 2rem 1.5rem;
           box-sizing: border-box;
         }
         #kjb-boot-row {
@@ -434,7 +434,7 @@
           #kjb-boot-grid {
             max-width: 42rem;
             gap: 2.5rem;
-            padding: 0 2rem;
+            padding: 2.5rem 2rem;
           }
           #kjb-boot-row {
             flex-direction: row;
