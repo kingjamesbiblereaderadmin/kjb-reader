@@ -130,11 +130,11 @@ export default function PrivacyPolicyPage() {
 
       <Section title="Chrome Browser Extension">
         <p>
-          The KJB Reader Chrome Extension ("KJB Reader - SidePanel") is a companion browser
+          The KJB Reader Chrome Extension (KJB Reader - SidePanel) is a companion browser
           extension available on the Chrome Web Store that provides Bible search, reading, and
           verse lookup from a sidebar panel in your browser. The extension uses these permissions:
           activeTab (detects Bible verse references on web pages), contextMenus (right-click verse
-          lookup), sidePanel (displays the reader in Chrome's side panel), storage (stores
+          lookup), sidePanel (displays the reader in Chrome side panel), storage (stores
           preferences locally), and tabs (opens website links in new tabs). No page content is
           collected or transmitted. The extension does not collect personal information and does
           not require an account. It fetches Bible verse data as JSON from the KJB Reader API on

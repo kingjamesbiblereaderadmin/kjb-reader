@@ -108,11 +108,11 @@ export default function TermsOfServicePage() {
 
         <Section title="Chrome Browser Extension">
           <p>
-            The KJB Reader Chrome Extension ("KJB Reader - SidePanel") is provided as a free
+            The KJB Reader Chrome Extension (KJB Reader - SidePanel) is provided as a free
             companion to the KJB Reader website, available on the Chrome Web Store. It uses the
             same King James Bible text (Pure Cambridge Edition). The extension does not require an
             account and does not collect personal data. You may uninstall it at any time through
-            your browser's extension management page.
+            your browser extension management page.
           </p>
         </Section>
 
