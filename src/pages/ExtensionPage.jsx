@@ -83,6 +83,11 @@ export default function ExtensionPage() {
           <p className="font-sans text-xs text-muted-foreground mt-3">
             Coming soon to the Chrome Web Store. Download the .zip to install manually in developer mode.
           </p>
+          <p className="font-sans text-xs text-muted-foreground mt-2">
+            <Link to="/extension-privacy" className="text-primary hover:underline font-medium">
+              Extension Privacy Policy
+            </Link>
+          </p>
         </div>
 
         {/* Installation Instructions */}
