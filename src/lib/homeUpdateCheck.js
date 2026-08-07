@@ -10,10 +10,19 @@
 // including downloading Bible data and activating the new service worker.
 // When no update is found, resolves false silently (no splash, no reload).
 
-// Fetch the deployed sw.js fresh (bypassing cache) and read its version string
-// from the top comment: "// KJB Reader Service Worker vXXXX". Returns null if it
-// can't be determined.
+// Fetch the deployed SW version. Prefer the dynamic manifest endpoint (always
+// served no-store, so it's the reliable source of "what's deployed right now")
+// over /sw.js, which the browser SW-script cache and edge caches can serve
+// stale for hours after a deploy — that staleness caused the home-update prompt
+// to never fire even after a version bump. Falls back to parsing /sw.js.
 async function fetchDeployedSwVersion() {
+  try {
+    const res = await fetch('/functions/manifest', { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json().catch(() => null);
+      if (json?.version) return json.version;
+    }
+  } catch {}
   try {
     const res = await fetch('/sw.js', { cache: 'no-store' });
     if (!res.ok) return null;
@@ -39,6 +48,7 @@ export async function checkHomeForUpdates() {
 
   // 1. App code update — a new service worker waiting/installing
   let swUpdated = false;
+  let deployedVersion = null;
   if ('serviceWorker' in navigator) {
     const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
     if (reg) {
@@ -61,23 +71,21 @@ export async function checkHomeForUpdates() {
       }
     }
 
-    // Fallback: the SW calls skipWaiting() on install, so a freshly deployed
-    // worker often auto-activates before we get here — leaving no waiting/
-    // installing worker to detect. Compare the deployed sw.js version against
-    // the version we last applied; if it changed, an update is available.
-    if (!swUpdated) {
-      const deployedVersion = await fetchDeployedSwVersion();
-      if (deployedVersion) {
-        const applied = localStorage.getItem('kjb-applied-sw-version');
-        if (applied && applied !== deployedVersion) {
-          swUpdated = true;
-        }
-        // Record the latest deployed version so the home_update splash can mark
-        // it applied once the sequence completes.
-        sessionStorage.setItem('kjb-pending-sw-version', deployedVersion);
-        // First time we ever see a version, store it so future bumps register.
-        if (!applied) localStorage.setItem('kjb-applied-sw-version', deployedVersion);
+    // Version-comparison fallback. This runs even when swUpdated was already
+    // set true via reg.waiting, so we always know the deployed version and can
+    // stash it as pending for the post-reload splash to mark applied. Without
+    // this, detection via reg.waiting left kjb-pending-sw-version unset, so the
+    // splash never advanced kjb-applied-sw-version and the same bump re-fired
+    // on every subsequent visit.
+    deployedVersion = await fetchDeployedSwVersion();
+    if (deployedVersion) {
+      const applied = localStorage.getItem('kjb-applied-sw-version');
+      if (applied && applied !== deployedVersion) {
+        swUpdated = true;
       }
+      try { sessionStorage.setItem('kjb-pending-sw-version', deployedVersion); } catch {}
+      // First time we ever see a version, store it so future bumps register.
+      if (!applied) localStorage.setItem('kjb-applied-sw-version', deployedVersion);
     }
   }
 

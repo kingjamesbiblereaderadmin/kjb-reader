@@ -1,6 +1,14 @@
 // Serves the PWA manifest dynamically so it's always live (never stale-cached).
 import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
+// BUMP THIS alongside public/sw.js (CACHE_NAME) and SettingsPage WORKER_VERSION.
+// Served as manifest.version so clients can detect a newly deployed SW without
+// relying on /sw.js being fresh (the browser SW-script cache and edge caches can
+// serve a stale sw.js for hours after a deploy, which prevented the update
+// prompt from ever firing). This endpoint is always served no-store, so the
+// version string here is the reliable source of truth for "what's deployed".
+const SW_VERSION = 'v20260808_0039';
+
 const DEFAULT_ICONS = [
   {
     src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/23dcc4982_kjb-icon192-v20260713.png",
@@ -91,6 +99,7 @@ Deno.serve(async (req) => {
     id: "/",
     name: "KJB Reader",
     short_name: "KJB Reader",
+    version: SW_VERSION,
     description: "Read the King James Bible (Pure Cambridge Edition) with offline support, daily verses, and beautiful typography.",
     start_url: "/",
     scope: "/",

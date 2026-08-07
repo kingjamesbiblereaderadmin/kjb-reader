@@ -125,7 +125,19 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         if (reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       } catch {}
     }
+    // Ensure the deployed version is stashed as pending, then mark it applied.
+    // When detection came via reg.waiting, isSwUpdateAvailable() was never
+    // called, so kjb-pending-sw-version was never set — markSwVersionApplied()
+    // alone would no-op and kjb-applied-sw-version would never advance, causing
+    // the same bump to re-fire on every visit. Fetch the live deployed version
+    // (from the manifest endpoint) as a fallback so applied always advances.
     try {
+      let pending = sessionStorage.getItem('kjb-pending-sw-version');
+      if (!pending) {
+        const { fetchDeployedSwVersion } = await import('@/lib/swVersionCheck');
+        pending = await fetchDeployedSwVersion().catch(() => null);
+        if (pending) sessionStorage.setItem('kjb-pending-sw-version', pending);
+      }
       const { markSwVersionApplied } = await import('@/lib/swVersionCheck');
       markSwVersionApplied();
     } catch {}
@@ -422,9 +434,15 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         window.dispatchEvent(new Event('kjb-progress-clear'));
 
         // Record the deployed SW version as applied, so the next home check
-        // only re-triggers when a NEW version is deployed.
+        // only re-triggers when a NEW version is deployed. Fall back to fetching
+        // the live deployed version (from the manifest endpoint) when pending
+        // wasn't pre-set, so applied always advances to the current deploy.
         try {
-          const pending = sessionStorage.getItem('kjb-pending-sw-version');
+          let pending = sessionStorage.getItem('kjb-pending-sw-version');
+          if (!pending) {
+            const { fetchDeployedSwVersion } = await import('@/lib/swVersionCheck');
+            pending = await fetchDeployedSwVersion().catch(() => null);
+          }
           if (pending) {
             localStorage.setItem('kjb-applied-sw-version', pending);
             sessionStorage.removeItem('kjb-pending-sw-version');
