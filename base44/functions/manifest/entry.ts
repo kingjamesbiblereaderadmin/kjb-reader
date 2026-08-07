@@ -7,23 +7,23 @@ import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 // serve a stale sw.js for hours after a deploy, which prevented the update
 // prompt from ever firing). This endpoint is always served no-store, so the
 // version string here is the reliable source of truth for "what's deployed".
-const SW_VERSION = 'v20260808_0043';
+const SW_VERSION = 'v20260808_0044';
 
 const DEFAULT_ICONS = [
   {
-    src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/23dcc4982_kjb-icon192-v20260713.png",
+    src: "/functions/pwaIcon?size=192",
     sizes: "192x192",
     type: "image/png",
     purpose: "any"
   },
   {
-    src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png",
+    src: "/functions/pwaIcon?size=512",
     sizes: "512x512",
     type: "image/png",
     purpose: "any"
   },
   {
-    src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/94863d510_kjb-maskable512-v20260713.png",
+    src: "/functions/pwaIcon?size=maskable",
     sizes: "512x512",
     type: "image/png",
     purpose: "maskable"

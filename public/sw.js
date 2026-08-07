@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260808_0043
+// KJB Reader Service Worker v20260808_0044
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260808_0043';
+const CACHE_NAME = 'kjb-reader-v20260808_0044';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -16,12 +16,13 @@ const APP_SHELL_FILES = [
 // atomic — one failure rejects the whole batch, so these go in individually).
 const PRECACHE_ASSETS = [
   'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2279e016e_8e738d108_cfb4bf781_Untitled.png',
-  // PWA manifest icons — precache at install so the home-screen / installed
-  // icon works offline immediately. They live under base44.app/api/.../files/
-  // mp/public/, which the /api/ exclusion below would otherwise skip.
-  'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/23dcc4982_kjb-icon192-v20260713.png',
-  'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/c2459f3df_kjb-icon512-v20260713.png',
-  'https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/94863d510_kjb-maskable512-v20260713.png',
+  // PWA manifest icons — precached at install so the home-screen / installed
+  // icon works offline. Served same-origin via the pwaIcon function (cross-origin
+  // base44.app URLs can time out on flaky mobile networks, leaving the installed
+  // PWA with a blank home-screen icon).
+  '/functions/pwaIcon?size=192',
+  '/functions/pwaIcon?size=512',
+  '/functions/pwaIcon?size=maskable',
   // Self-hosted OpenDyslexic fonts — precache at install so they're available
   // offline immediately, not just after the first page that uses them.
   '/fonts/OpenDyslexic-regular.woff',
