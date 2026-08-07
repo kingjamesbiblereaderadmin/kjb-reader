@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Heart, Library, Info, List, Settings, Bell, BellOff, Bookmark, Shuffle, ChevronRight, FlaskConical } from 'lucide-react';
 import DailyVerseImage from '@/components/bible/DailyVerseImage';
-import QuickLinkCard from '@/components/home/QuickLinkCard';
 import OfflineStatusBanner from '@/components/OfflineStatusBanner';
 import IncognitoWarning from '@/components/IncognitoWarning';
 import { getDailyVerse, getDailyVerseFromBible, getLastCachedDailyVerse } from '@/lib/dailyVerse';
@@ -422,68 +421,121 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-background via-accent/5 to-background"
+    <div className="relative bg-gradient-to-br from-background via-accent/5 to-background"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-6">
+      {/* Decorative ambient background — purposeful colour, no images */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute bottom-10 left-1/4 w-80 h-80 rounded-full bg-violet-500/5 blur-3xl" />
+      </div>
+
+      <div className="relative w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-6">
       <OfflineStatusBanner />
       <IncognitoWarning />
 
-      {/* Daily verse card */}
-      <div className="w-full mx-auto mb-8 relative">
-        {verse ? (
-          <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
-        ) : (
-          <div className="w-full min-h-[300px] bg-secondary/50 animate-pulse border border-border rounded-2xl shadow-lg flex items-center justify-center">
-            <span className="font-sans text-sm text-muted-foreground">Loading daily verse...</span>
+      {/* Daily verse card — framed with a gradient ring + ambient glow */}
+      <div className="w-full mx-auto mb-8 relative animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
+        <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 via-accent/15 to-primary/20 rounded-[2rem] blur-xl opacity-60" />
+        <div className="relative rounded-[1.75rem] p-1 bg-gradient-to-br from-primary/40 via-accent/25 to-primary/40">
+          <div className="rounded-[1.65rem] overflow-hidden">
+            {verse ? (
+              <DailyVerseImage verse={verse} onClick={handleVerseCardClick} onToggleNotif={handleToggleNotif} notifEnabled={notifEnabled} isOffline={isOffline} />
+            ) : (
+              <div className="w-full min-h-[300px] bg-secondary/50 animate-pulse border border-border flex items-center justify-center">
+                <span className="font-sans text-sm text-muted-foreground">Loading daily verse...</span>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
+      {/* Featured: Read the Bible */}
+      <Link
+        to="/read"
+        onClick={() => window.scrollTo({ top: 0 })}
+        className="print:hidden group relative block overflow-hidden rounded-3xl border-2 border-border bg-card/70 backdrop-blur-xl shadow-sm hover:shadow-xl hover:border-indigo-400/60 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 mb-4 sm:mb-5 animate-in fade-in slide-in-from-bottom-4"
+        style={{ animationDuration: '500ms', animationDelay: '80ms', animationFillMode: 'both' }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-violet-500/5 to-transparent" />
+        <div className="absolute -right-6 -bottom-8 opacity-[0.06] dark:opacity-[0.12] text-indigo-500 dark:text-indigo-300 pointer-events-none">
+          <BookOpen className="w-40 h-40" />
+        </div>
+        <div className="relative flex items-center gap-5 p-6 sm:p-8">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-3xl text-white shadow-xl bg-gradient-to-br from-indigo-500 to-violet-600 ring-1 ring-white/20 shrink-0">
+            <BookOpen className="w-8 h-8 sm:w-10 sm:h-10" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-serif font-bold text-2xl sm:text-3xl leading-tight text-foreground">Read the Bible</p>
+            <p className="font-sans text-sm text-muted-foreground mt-1">KJB Pure Cambridge Edition</p>
+          </div>
+          <ChevronRight className="w-6 h-6 text-muted-foreground/50 group-hover:text-accent group-hover:translate-x-1 transition-all shrink-0" />
+        </div>
+      </Link>
 
 
-      {/* Quick links */}
-      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 auto-rows-fr">
-        {QUICK_LINKS.map((link, i) =>
-          link.label === '__RANDOM__' ? (
-            <QuickLinkCard
-              key="random"
-              onClick={handleRandomChapter}
-              icon={link.icon}
-              label="Random Chapter"
-              desc={link.desc}
-              iconGradient={link.iconGradient}
-            />
-          ) : (
-            <QuickLinkCard
-              key={link.path}
-              to={link.path}
-              icon={link.icon}
-              label={link.label}
-              desc={link.desc}
-              iconGradient={link.iconGradient}
-              className={link.fullSpan ? 'sm:col-span-2' : ''}
-            />
-          )
-        )}
+
+      {/* Quick links bento */}
+      <div className="print:hidden grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 auto-rows-fr animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '140ms', animationFillMode: 'both' }}>
+        {QUICK_LINKS.slice(1).map((link) => {
+          const Icon = link.icon;
+          const isRandom = link.label === '__RANDOM__';
+          const label = isRandom ? 'Random Chapter' : link.label;
+          const cardClass = 'group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-accent/60 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden text-left';
+          const inner = (
+            <>
+              <div className={`absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br ${link.iconGradient} opacity-[0.12] blur-2xl`} />
+              <div className="relative flex items-center justify-between">
+                <div className={`w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br ${link.iconGradient} ring-1 ring-white/15`}>
+                  <Icon className="w-6 h-6" />
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <div className="relative mt-3">
+                <p className="font-serif font-bold text-base sm:text-lg leading-tight text-foreground">{label}</p>
+                <p className="font-sans text-xs text-muted-foreground mt-1">{link.desc}</p>
+              </div>
+            </>
+          );
+          if (isRandom) {
+            return <button key="random" onClick={handleRandomChapter} className={cardClass}>{inner}</button>;
+          }
+          return (
+            <Link key={link.path} to={link.path} onClick={() => window.scrollTo({ top: 0 })} className={cardClass}>
+              {inner}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Gospel call */}
-      <div className="print:hidden bg-gradient-to-br from-rose-50 to-red-50 dark:from-red-950/20 dark:to-rose-950/20 border border-red-200/70 dark:border-red-900/30 rounded-3xl p-6 sm:p-8 text-center mb-6 shadow-sm">
-        <p className="font-serif text-xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
-        <div className="font-sans text-sm text-foreground/80 mb-4 space-y-1.5">
-          <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
-          <p className="font-medium">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+      <div className="print:hidden relative overflow-hidden rounded-3xl border border-red-200/70 dark:border-red-900/30 shadow-lg mb-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '200ms', animationFillMode: 'both' }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-red-50 dark:from-red-950/20 dark:to-rose-950/20" />
+        <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-rose-500/10 blur-3xl" />
+        <div className="absolute -left-10 -bottom-10 w-40 h-40 rounded-full bg-red-500/10 blur-3xl" />
+        <div className="absolute -right-4 -bottom-4 opacity-[0.06] dark:opacity-[0.12] text-red-600 dark:text-red-400 pointer-events-none">
+          <Heart className="w-32 h-32" />
         </div>
-        <Link
-          to="/gospel"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-[0.98]"
-        >
-          <Heart className="w-4 h-4" />
-          Learn How to be Saved
-        </Link>
+        <div className="relative p-6 sm:p-8 text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-lg mb-3">
+            <Heart className="w-6 h-6" />
+          </div>
+          <p className="font-serif text-2xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
+          <div className="font-sans text-sm text-foreground/80 mb-5 space-y-1.5 max-w-xl mx-auto">
+            <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
+            <p className="font-medium">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+          </div>
+          <Link
+            to="/gospel"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:scale-[1.03] active:scale-[0.97] shadow-md"
+          >
+            <Heart className="w-4 h-4" />
+            Learn How to be Saved
+          </Link>
+        </div>
       </div>
 
       </div>
