@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram, Puzzle } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
 import ScriptureBanner from '@/components/ScriptureBanner';
 
@@ -92,6 +92,21 @@ export default function LandingPage() {
           <div className="flex-1 min-w-0">
             <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJBI.org — Free Online Bible College</p>
             <p className="font-sans text-xs text-muted-foreground">King James Bible Institute by Robert Breaker &amp; Robert Potthoff — go deeper in God's Word, for free.</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-muted-foreground" />
+        </a>
+
+        {/* KJB Reader Chrome Extension */}
+        <a
+          href="#"
+          className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
+        >
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
+            <Puzzle className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Reader Chrome Extension</p>
+            <p className="font-sans text-xs text-muted-foreground">Read, search, and look up Bible verses from any web page with the KJB Reader sidebar extension.</p>
           </div>
           <ArrowRight className="w-4 h-4 text-muted-foreground" />
         </a>

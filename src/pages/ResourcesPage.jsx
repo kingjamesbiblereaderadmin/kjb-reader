@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy, Printer, Mail, PlayCircle, Link2 } from 'lucide-react';
+import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy, Printer, Mail, PlayCircle, Link2, Puzzle } from 'lucide-react';
 import { printHtml } from '@/lib/printHelpers';
 import ScriptureBanner from '@/components/ScriptureBanner';
 
@@ -387,6 +387,29 @@ export default function ResourcesPage() {
               <a href="mailto:Kingjamesbiblereader@outlook.sg" className="inline-flex items-center gap-1.5 font-sans text-xs text-muted-foreground hover:text-accent transition-colors">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
                 Kingjamesbiblereader@outlook.sg
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* KJB Reader Chrome Extension */}
+      <div className="bg-card border border-border rounded-2xl mb-6 p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
+            <Puzzle className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJB Reader Chrome Extension</h2>
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-3">
+              Read, search, and look up Bible verses from any web page with the KJB Reader sidebar extension.
+            </p>
+            <div className="flex items-center gap-3 flex-wrap">
+              <a
+                href="#"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Get the KJB Reader Chrome Extension <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>
