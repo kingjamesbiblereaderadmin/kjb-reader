@@ -479,7 +479,7 @@ export default function HomePage() {
 
 
       {/* Quick links bento */}
-      <div className="print:hidden grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 auto-rows-fr animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '140ms', animationFillMode: 'both' }}>
+      <div className="print:hidden grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 auto-rows-fr animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '140ms', animationFillMode: 'both' }}>
         {QUICK_LINKS.slice(1).map((link) => {
           const Icon = link.icon;
           const isRandom = link.label === '__RANDOM__';
