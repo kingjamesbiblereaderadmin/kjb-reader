@@ -463,7 +463,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
   return (
     <div
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center overflow-x-hidden transition-opacity duration-500 ease-in-out ${
         isFadingOut ? 'opacity-0' : 'opacity-100'
       }`}
       style={{ background: splashBg }}
@@ -476,7 +476,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       {/* Two-side composition: brand on one side, scripture on the other.
           Stacks vertically on mobile, side-by-side on desktop. */}
-      <div className="relative flex flex-col sm:flex-row items-center justify-center gap-12 sm:gap-24 w-full max-w-5xl px-8 sm:px-16 pb-16 sm:pb-24">
+      <div className="relative flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 w-full max-w-5xl px-8 sm:px-16 pb-16 sm:pb-24">
         {/* Left side — brand */}
         <div className="flex flex-col items-center gap-12 sm:gap-16">
           <div className="relative">
@@ -516,12 +516,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         </div>
 
         {/* Divider — vertical on desktop, horizontal on mobile */}
-        <div className="hidden sm:block w-px self-stretch max-h-80" style={{ background: 'linear-gradient(transparent, rgba(120,120,130,0.35), transparent)' }} />
-        <div className="sm:hidden w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
+        <div className="hidden lg:block w-px self-stretch max-h-80" style={{ background: 'linear-gradient(transparent, rgba(120,120,130,0.35), transparent)' }} />
+        <div className="lg:hidden w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
 
         {/* Right side — scripture */}
         <div
-          className="flex flex-col items-center sm:items-start justify-between self-stretch gap-6 sm:gap-8 max-w-md text-center sm:text-left py-2"
+          className="flex flex-col items-center lg:items-start justify-between self-stretch gap-6 lg:gap-8 max-w-md text-center lg:text-left py-2"
           style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
         >
           <div className="flex flex-col items-center sm:items-start gap-2">
