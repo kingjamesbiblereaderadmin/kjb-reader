@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Maximize2, Minimize2, Globe } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Maximize2, Minimize2 } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -33,7 +33,6 @@ const NAV_COLORS = {
   '/resources': { gradient: 'from-violet-500 to-purple-600',  text: 'text-violet-500' },
   '/saved':     { gradient: 'from-fuchsia-500 to-pink-600',   text: 'text-fuchsia-500' },
   '/about':     { gradient: 'from-sky-500 to-cyan-600',       text: 'text-sky-500' },
-  '/browser':   { gradient: 'from-cyan-500 to-blue-600',       text: 'text-cyan-500' },
   '/settings':  { gradient: 'from-slate-500 to-slate-700',    text: 'text-slate-500' },
 };
 
@@ -45,7 +44,6 @@ const NAV_ITEMS = [
   { path: '/resources', icon: Library, label: 'Resources' },
   { path: '/saved', icon: Bookmark, label: 'Saved' },
   { path: '/about', icon: Info, label: 'About' },
-  { path: '/browser', icon: Globe, label: 'Browser' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
 
