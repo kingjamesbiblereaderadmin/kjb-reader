@@ -273,7 +273,7 @@
           <div style="position:absolute;top:-25%;left:50%;transform:translateX(-50%);width:120%;height:50%;border-radius:50%;background:radial-gradient(circle, rgba(79,106,255,0.14), transparent 60%);"></div>
           <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:120%;height:33.33%;border-radius:50%;background:radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%);"></div>
         </div>
-        <div style="position:relative;display:flex;flex-direction:column;align-items:center;margin-top:-2rem;gap:36px;">
+        <div style="position:relative;display:flex;flex-direction:column;align-items:center;margin-top:-4rem;gap:48px;">
           <div style="position:relative;">
             <div style="position:absolute;inset:0;border-radius:1.5rem;filter:blur(1rem);background:radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%);"></div>
             <img
@@ -288,17 +288,19 @@
             </div>
             <span id="kjb-boot-text" style="font-family:Inter,system-ui,sans-serif;font-size:0.875rem;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;text-align:center;color:#c8cdd8;">Loading KJB Reader...</span>
           </div>
-          <div id="kjb-boot-scripture" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;max-width:20rem;padding:0 1rem;text-align:center;animation:kjb-splash-fade 600ms ease-out 200ms both;">
-            <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:0.78rem;font-style:italic;color:rgba(200,205,216,0.7);line-height:1.6;margin:0;">
-              "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
-            </p>
-            <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(200,205,216,0.5);margin:0;">
-              — 2 Timothy 2:15 —
-            </p>
-            <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:0.72rem;color:rgba(200,205,216,0.6);line-height:1.5;margin:0.25rem 0 0 0;">
-              Christ died for our sins, was buried, and rose again. Trust Him and be saved.
-            </p>
-          </div>
+        </div>
+        <!-- Scripture (2 Timothy 2:15) + Gospel — pinned to the bottom so the
+             centred logo/progress stays clean. Matches the React SplashScreen. -->
+        <div id="kjb-boot-scripture" style="position:absolute;bottom:1.5rem;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0.5rem;max-width:28rem;margin:0 auto;padding:0 1.5rem;text-align:center;animation:kjb-splash-fade 600ms ease-out 200ms both;">
+          <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:0.78rem;font-style:italic;color:rgba(200,205,216,0.7);line-height:1.6;margin:0;">
+            "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
+          </p>
+          <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(200,205,216,0.5);margin:0;">
+            — 2 Timothy 2:15 —
+          </p>
+          <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:0.72rem;color:rgba(200,205,216,0.6);line-height:1.5;margin:0.25rem 0 0 0;">
+            Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.
+          </p>
         </div>
       </div>
       <script>
