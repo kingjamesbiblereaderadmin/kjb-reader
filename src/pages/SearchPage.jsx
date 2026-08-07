@@ -16,6 +16,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { exportVerses } from '@/lib/exportVerses';
 import { buildVerseUrl } from '@/lib/formatDailyVerse';
@@ -1103,55 +1110,24 @@ export default function SearchPage() {
       <div className="flex flex-wrap items-center gap-2 mb-5 print:hidden">
         <Filter className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="font-sans text-xs text-muted-foreground">Testament:</span>
-        {[['all', 'All'], ['old', 'OT'], ['new', 'NT']].map(([val, label]) => {
-          // Hide OT/NT option if no results exist in that testament after a search
-          if (searched && results.length > 0 && val !== 'all') {
-            const hasAny = results.some(r => val === 'old' ? OT_BOOKS.has(r.book) : NT_BOOKS.has(r.book));
-            if (!hasAny) return null;
+        <Select
+          value={
+            testamentFilter.has('all') ? 'all'
+            : (testamentFilter.has('old') && testamentFilter.has('new')) ? 'all'
+            : testamentFilter.has('old') ? 'old'
+            : testamentFilter.has('new') ? 'new' : 'all'
           }
-          const isActive = testamentFilter.has(val);
-          return (
-            <button
-              key={val}
-              type="button"
-              onClick={() => {
-                setTestamentFilter(prev => {
-                  const next = new Set(prev);
-                  if (val === 'all') {
-                    // Toggle all: if all is already active, clear everything; otherwise select only all
-                    if (next.has('all')) {
-                      next.clear();
-                    } else {
-                      next.clear();
-                      next.add('all');
-                    }
-                  } else {
-                    // Selecting a specific testament always clears 'all'
-                    next.delete('all');
-                    if (next.has(val)) {
-                      next.delete(val);
-                      // If nothing left, fall back to 'all'
-                      if (next.size === 0) next.add('all');
-                    } else {
-                      next.add(val);
-                      // Both OT and NT selected = same as 'all'
-                      if (next.has('old') && next.has('new')) {
-                        next.clear();
-                        next.add('all');
-                      }
-                    }
-                  }
-                  return next;
-                });
-              }}
-              className={`px-2.5 py-1 rounded-lg font-sans text-xs font-medium transition-colors ${
-                isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'
-              }`}
-            >
-              {label}
-            </button>
-          );
-        })}
+          onValueChange={(val) => setTestamentFilter(new Set([val]))}
+        >
+          <SelectTrigger className="h-7 w-[132px] rounded-lg font-sans text-xs font-medium border-border bg-secondary px-2.5 py-1 gap-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="font-sans text-xs">All</SelectItem>
+            <SelectItem value="old" className="font-sans text-xs">Old Testament</SelectItem>
+            <SelectItem value="new" className="font-sans text-xs">New Testament</SelectItem>
+          </SelectContent>
+        </Select>
         <button
           type="button"
           onClick={() => setShowBookFilter(!showBookFilter)}
@@ -1173,7 +1149,7 @@ export default function SearchPage() {
             onChange={e => setWholeWord(e.target.checked)}
             className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
           />
-          <label htmlFor="whole-word" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Whole word</label>
+          <label htmlFor="whole-word" className="font-sans text-xs text-muted-foreground cursor-pointer select-none">Match whole word</label>
         </div>
         <div className="flex items-center gap-1.5">
           <input
