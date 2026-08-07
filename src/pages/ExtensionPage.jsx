@@ -112,6 +112,31 @@ export default function ExtensionPage() {
           </div>
         </div>
 
+        {/* Privacy & Page Scanning */}
+        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03]">
+          <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Privacy &amp; Page Scanning</h2>
+          <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
+            The KJB Reader Web Extension scans web pages you visit to detect Bible verse references
+            (e.g. &ldquo;John 3:16&rdquo;) and highlights them for quick lookup. No page content is
+            collected, stored, or sent to any server. All detection happens locally in your browser.
+          </p>
+          <p className="font-sans font-medium text-sm text-foreground mb-2">How to exclude sites:</p>
+          <ul className="space-y-2 font-sans text-sm text-foreground/85 leading-relaxed">
+            <li className="flex items-start gap-2">
+              <span className="text-accent mt-0.5">•</span>
+              <span>Right-click the extension icon in your toolbar → &ldquo;Don&rsquo;t run on this site&rdquo;</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-accent mt-0.5">•</span>
+              <span>Or go to <code className="px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground font-sans text-xs">chrome://extensions</code> → KJB Reader → Details → Site access and remove specific sites</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-accent mt-0.5">•</span>
+              <span>This extension is already configured to <span className="font-semibold">NOT</span> run on kingjamesbiblereader.com</span>
+            </li>
+          </ul>
+        </div>
+
         <p className="text-center font-sans text-xs text-muted-foreground mt-8">
           © {new Date().getFullYear()} KJB Reader · Last updated: {LAST_UPDATED}
         </p>
