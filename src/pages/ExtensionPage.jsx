@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Puzzle, ArrowLeft, CheckCircle, Search, BookOpen, Sparkles, Bell, MousePointer2, Filter, Printer, Copy, Heart } from 'lucide-react';
+import { Puzzle, ArrowLeft, CheckCircle, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart } from 'lucide-react';
 
 const LAST_UPDATED = 'August 7th, 2026';
 
@@ -11,34 +11,29 @@ const FEATURES = [
     desc: 'Look up any Bible reference from any web page — no need to open a new tab.',
   },
   {
+    icon: BookOpen,
+    title: 'Read the KJB',
+    desc: 'Full King James Bible (Pure Cambridge Edition) text in a handy sidebar.',
+  },
+  {
     icon: MousePointer2,
-    title: 'Right-Click Context Menu Search',
-    desc: 'Highlight any text on a page, right-click, and search the King James Bible instantly.',
+    title: 'Right-Click Search',
+    desc: 'Select any text and right-click to instantly search the King James Bible.',
   },
   {
     icon: Sparkles,
     title: 'Advanced Search',
-    desc: 'Search with wildcards (* ?) and whole-word matching across the whole Bible.',
-  },
-  {
-    icon: Filter,
-    title: 'Testament Filtering',
-    desc: 'Narrow your search results to the Old or New Testament in a single click.',
-  },
-  {
-    icon: BookOpen,
-    title: 'Read Mode',
-    desc: 'Read the full King James Bible (Pure Cambridge Edition) with built-in print and copy options.',
+    desc: 'Search with wildcards, whole-word matching, and Old/New Testament filtering.',
   },
   {
     icon: Heart,
-    title: 'Gospel & Resources Tabs',
-    desc: 'Quick access to the Gospel message and curated KJB defence resources.',
+    title: 'Gospel & Resources',
+    desc: 'Quick access to gospel presentation, preacher links, and Bible study resources.',
   },
   {
     icon: Bell,
     title: 'Daily Verse',
-    desc: 'A fresh verse of the day delivered right to your sidebar for encouragement.',
+    desc: 'A new verse each day to encourage and inspire.',
   },
 ];
 
@@ -80,7 +75,7 @@ export default function ExtensionPage() {
             sidebar, without leaving the page you're on.
           </p>
           <a
-            href="https://chromewebstore.google.com/detail/kjb-sidepanel/"
+            href="https://chromewebstore.google.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-primary/30"
@@ -89,7 +84,7 @@ export default function ExtensionPage() {
             Add to Chrome
           </a>
           <p className="font-sans text-xs text-muted-foreground mt-3">
-            Free · Available on the Chrome Web Store
+            Free on the Chrome Web Store.
           </p>
         </div>
 
