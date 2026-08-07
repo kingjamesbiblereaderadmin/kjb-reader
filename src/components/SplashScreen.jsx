@@ -476,9 +476,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       {/* Two-side composition: brand on one side, scripture on the other.
           Stacks vertically on mobile, side-by-side on desktop. */}
-      <div className="relative flex flex-col sm:flex-row items-center justify-center gap-10 w-full max-w-4xl px-6 sm:px-10">
+      <div className="relative flex flex-col sm:flex-row items-center justify-center gap-12 sm:gap-24 w-full max-w-5xl px-8 sm:px-16">
         {/* Left side — brand */}
-        <div className="flex flex-col items-center gap-10">
+        <div className="flex flex-col items-center gap-12 sm:gap-16">
           <div className="relative">
             <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%)' }} />
             <img
@@ -516,7 +516,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         </div>
 
         {/* Divider — vertical on desktop, horizontal on mobile */}
-        <div className="hidden sm:block w-px self-stretch max-h-72" style={{ background: 'linear-gradient(transparent, rgba(79,106,255,0.25), transparent)' }} />
+        <div className="hidden sm:block w-px self-stretch max-h-80" style={{ background: 'linear-gradient(transparent, rgba(79,106,255,0.25), transparent)' }} />
         <div className="sm:hidden w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
 
         {/* Right side — scripture */}
