@@ -482,7 +482,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           <img
             src={logoSrc}
             alt="KJB Reader Logo"
-            className="relative shrink-0 w-20 h-20 lg:w-24 lg:h-24 object-contain rounded-xl p-2 ring-1 ring-black/5"
+            className="relative shrink-0 w-28 h-28 lg:w-32 lg:h-32 object-contain rounded-xl p-2 ring-1 ring-black/5"
             style={{ background: splashBg }}
           />
           {/* Vertical divider — desktop only */}
