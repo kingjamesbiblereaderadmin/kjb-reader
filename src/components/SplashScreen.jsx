@@ -476,19 +476,19 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       {/* Two-side composition: brand on one side, scripture on the other.
           Stacks vertically on mobile, side-by-side on desktop. */}
-      <div className="relative flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 w-full max-w-5xl px-8 sm:px-16 pb-16 sm:pb-24">
+      <div className="relative flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 w-full max-w-5xl px-8 lg:px-16 pb-16 lg:pb-24">
         {/* Left side — brand */}
-        <div className="flex flex-col items-center gap-12 sm:gap-16">
+        <div className="flex flex-col items-center gap-12 lg:gap-16">
           <div className="relative">
             <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%)' }} />
             <img
               src={logoSrc}
               alt="KJB Reader Logo"
-              className="relative w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-3xl p-3 ring-1 ring-black/5"
+              className="relative w-32 h-32 lg:w-40 lg:h-40 object-contain rounded-3xl p-3 ring-1 ring-black/5"
               style={{ background: splashBg }}
             />
           </div>
-          <div className="flex flex-col items-center gap-5 w-56 sm:w-64">
+          <div className="flex flex-col items-center gap-5 w-56 lg:w-64">
             {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
             <div
               className="w-full h-1.5 rounded-full overflow-hidden relative"
@@ -521,7 +521,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
         {/* Right side — scripture */}
         <div
-          className="flex flex-col items-center justify-between self-stretch gap-8 lg:gap-10 max-w-md text-center py-2"
+          className="flex flex-col items-center justify-between self-stretch gap-8 lg:gap-10 lg:max-w-md text-center"
           style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
         >
           <div className="flex flex-col items-center gap-2">
