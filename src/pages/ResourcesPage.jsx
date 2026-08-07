@@ -301,10 +301,19 @@ export default function ResourcesPage() {
   };
 
   return (
-    <div className="w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-10">
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary mb-4">
-          <FileText className="w-7 h-7 text-accent" />
+    <div className="relative w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-10">
+      {/* Decorative ambient background */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-teal-500/10 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-emerald-500/5 blur-3xl" />
+      </div>
+      <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
+        <div className="relative inline-flex items-center justify-center mb-4">
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-teal-500/30 to-emerald-600/30 blur-xl" />
+          <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-lg shadow-teal-500/30 ring-1 ring-white/20">
+            <FileText className="w-8 h-8 text-white" />
+          </div>
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">Resources</h1>
         <p className="font-sans text-muted-foreground max-w-lg mx-auto">KJB defence materials, studies on modern version corruption, and links to free Bible study resources.</p>
@@ -329,7 +338,7 @@ export default function ResourcesPage() {
       <ScriptureBanner />
 
       {/* KJBI — Free Online Bible College */}
-      <div className="bg-card border border-border rounded-2xl mb-6 p-5">
+      <div className="bg-card/70 backdrop-blur-xl border-2 border-border/60 rounded-3xl mb-6 p-5 shadow-lg shadow-black/[0.03] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
         <div className="flex items-start gap-3">
           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
           <div>
@@ -353,7 +362,7 @@ export default function ResourcesPage() {
       </div>
 
       {/* KJB Discord Bot */}
-      <div className="bg-card border border-border rounded-2xl mb-6 p-5">
+      <div className="bg-card/70 backdrop-blur-xl border-2 border-border/60 rounded-3xl mb-6 p-5 shadow-lg shadow-black/[0.03] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
             <DiscordIcon className="w-5 h-5" />
@@ -388,7 +397,7 @@ export default function ResourcesPage() {
       </div>
 
       {/* KJB Reader Chrome Extension */}
-      <div className="bg-card border border-border rounded-2xl mb-6 p-5">
+      <div className="bg-card/70 backdrop-blur-xl border-2 border-border/60 rounded-3xl mb-6 p-5 shadow-lg shadow-black/[0.03] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
             <Globe className="w-5 h-5" />
@@ -411,7 +420,7 @@ export default function ResourcesPage() {
       </div>
 
       {/* KJB Defence — dedicated page */}
-      <div className="bg-card border border-border rounded-2xl mb-6 p-5">
+      <div className="bg-card/70 backdrop-blur-xl border-2 border-border/60 rounded-3xl mb-6 p-5 shadow-lg shadow-black/[0.03] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-indigo-600">
             <ShieldAlert className="w-5 h-5" />

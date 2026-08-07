@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Info, Mail, MessageSquare, ExternalLink, BookOpen, Globe, ChevronDown, ChevronRight, Youtube, PlayCircle, Link2, FileText } from 'lucide-react';
+import { Info, Mail, MessageSquare, ExternalLink, BookOpen, Globe, ChevronDown, ChevronRight, Youtube, PlayCircle, Link2, FileText, Quote } from 'lucide-react';
 import ContactLinks from '@/components/ContactLinks';
 
 function AccordionSection({ title, children }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl overflow-hidden mb-5 shadow-lg shadow-black/[0.03]">
+    <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl overflow-hidden mb-5 shadow-lg shadow-black/[0.03] transition-all duration-200 hover:shadow-xl">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
+        className="w-full flex items-center justify-between gap-3 px-5 py-4 hover:bg-accent/5 transition-colors text-left group"
       >
-        <h3 className="font-serif text-lg font-semibold text-foreground">{title}</h3>
-        {open ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground rotate-[-90deg]" />}
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="w-9 h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center text-accent">
+            <ChevronRight className="w-4 h-4" />
+          </span>
+          <h3 className="font-serif text-lg font-semibold text-foreground group-hover:text-accent transition-colors truncate">{title}</h3>
+        </div>
+        <ChevronDown className={`w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : 'rotate-[-90deg]'}`} />
       </button>
       {open && (
-        <div className="px-5 pb-6 pt-4 border-t border-border/60">
+        <div className="px-5 pb-6 pt-4 border-t border-border/60 animate-in fade-in slide-in-from-top-1" style={{ animationDuration: '250ms', animationFillMode: 'both' }}>
           {children}
         </div>
       )}
@@ -61,51 +66,72 @@ function DiscordIcon({ className }) {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
-    <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
+    <div className="relative min-h-screen bg-gradient-to-br from-background via-accent/5 to-background overflow-hidden">
+      {/* Decorative ambient background */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-orange-500/5 blur-3xl" />
+      </div>
+
+    <div className="relative w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
       {/* Header */}
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/30 mb-4">
-          <Info className="w-7 h-7 text-white" />
+      <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
+        <div className="relative inline-flex items-center justify-center mb-4">
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-500/30 to-orange-600/30 blur-xl" />
+          <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/30 ring-1 ring-white/20">
+            <Info className="w-8 h-8 text-white" />
+          </div>
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-3">About</h1>
         <div className="mt-4 w-16 h-px bg-accent mx-auto" />
       </div>
 
-      {/* About Shawn */}
-      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-7 mb-8 shadow-lg shadow-black/[0.03]">
-        <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">About the Ministry</h2>
-        <p className="font-sans text-foreground/85 leading-relaxed mb-4">
-          I'm Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. 
-          I am a dispensational salvationist, rightly dividing the word of truth.
-        </p>
-        <ul className="space-y-2 font-sans text-sm text-foreground/80">
-          <li className="flex items-start gap-2">
-            <span className="text-accent mt-1">•</span>
-            I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-accent mt-1">•</span>
-            To be saved, you must believe that Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-accent mt-1">•</span>
-            I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.
-          </li>
-        </ul>
+      {/* About the Ministry */}
+      <div className="relative overflow-hidden bg-card/70 backdrop-blur-xl border border-border/60 rounded-3xl p-7 mb-8 shadow-lg shadow-black/[0.03] animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '60ms', animationFillMode: 'both' }}>
+        <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-amber-500/5 blur-3xl" />
+        <div className="absolute -right-4 -bottom-4 opacity-[0.06] dark:opacity-[0.12] text-amber-500 pointer-events-none">
+          <Quote className="w-32 h-32" />
+        </div>
+        <div className="relative">
+          <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">About the Ministry</h2>
+          <p className="font-sans text-foreground/85 leading-relaxed mb-4">
+            I'm Shawn, a firm believer that the King James Bible is the pure, infallible, perfect Word of God in the English language. 
+            I am a dispensational salvationist, rightly dividing the word of truth.
+          </p>
+          <ul className="space-y-3 font-sans text-sm text-foreground/80">
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />
+              <span>I believe in the blood-stained gospel as the only way to be saved, and I reject "repent of sins to be saved" (ROYS), "confess with your mouth to be saved," Lordship Salvation, infant baptism, baptism regeneration, etc.</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />
+              <span>To be saved, you must believe that Jesus is God, that He shed His blood on Calvary, died, was buried, and rose again for your justification.</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />
+              <span>I believe in OSAS (Once Saved, Always Saved): a believer who has trusted the gospel cannot lose salvation, no matter what happens in their life.</span>
+            </li>
+          </ul>
+        </div>
       </div>
 
-      {/* Statement of Faith — expandable sections */}
-      <div className="mb-8">
-        <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">Statement of Faith</h2>
+      {/* Statement of Faith */}
+      <div className="mb-8 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '100ms', animationFillMode: 'both' }}>
+        <h2 className="font-serif text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center text-accent">
+            <BookOpen className="w-4 h-4" />
+          </span>
+          Statement of Faith
+        </h2>
 
         <AccordionSection title="The King James Bible">
-          <ul className="space-y-2 font-sans text-sm text-foreground/80">
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Westcott and Hort created the Critical Text, based on manuscripts from the Vatican and Egypt. These manuscripts have hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Godhead/Trinity and deity of Christ. Their text was used in the Revised Version of 1881.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>The King James Bible is the infallible, perfect Word of God in the English language.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Translated with the Textus Receptus (Received Text) that the historical church has always used.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Translated by godly men well versed in the Biblical languages who studied commentaries and foreign translations from an early age.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>The Bible God has used for countless revivals and bringing the gospel to the world. It is mathematically proven to be a miracle.</li>
+          <ul className="space-y-3 font-sans text-sm text-foreground/80">
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Westcott and Hort created the Critical Text, based on manuscripts from the Vatican and Egypt. These manuscripts have hundreds of errors, deletions and additions to the Bible, attacking doctrines such as the Godhead/Trinity and deity of Christ. Their text was used in the Revised Version of 1881.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />The King James Bible is the infallible, perfect Word of God in the English language.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Translated with the Textus Receptus (Received Text) that the historical church has always used.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Translated by godly men well versed in the Biblical languages who studied commentaries and foreign translations from an early age.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />The Bible God has used for countless revivals and bringing the gospel to the world. It is mathematically proven to be a miracle.</li>
           </ul>
           <a
             href="https://youtube.com/playlist?list=PLNGhZnJavRf01ILv3TJu_ke4IPYcKcpJm&si=DZZUQXC_e-8LaQGI"
@@ -125,12 +151,12 @@ export default function AboutPage() {
         </AccordionSection>
 
         <AccordionSection title="Satan & Hell">
-          <ul className="space-y-2 font-sans text-sm text-foreground/80">
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Satan is also known as the Devil, Lucifer and the king of Pride. His goal is to steal, kill and deceive the world — through things such as abortion, sodomy, and going after worldly things instead of what truly matters.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>He deceives people that they are without a Saviour, that there is no God, no hell, and no afterlife.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>All people come short of the glory of God and have committed sin.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>The wages of sin is death and the wicked shall be turned into hell.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Hell is a place of torment day and night. Hell was created for Satan and his angels. Hell will be thrown into the lake of fire at the second death.</li>
+          <ul className="space-y-3 font-sans text-sm text-foreground/80">
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Satan is also known as the Devil, Lucifer and the king of Pride. His goal is to steal, kill and deceive the world — through things such as abortion, sodomy, and going after worldly things instead of what truly matters.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />He deceives people that they are without a Saviour, that there is no God, no hell, and no afterlife.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />All people come short of the glory of God and have committed sin.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />The wages of sin is death and the wicked shall be turned into hell.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Hell is a place of torment day and night. Hell was created for Satan and his angels. Hell will be thrown into the lake of fire at the second death.</li>
           </ul>
           <a
             href="https://youtube.com/playlist?list=PLPVNJ2ztsABc&si=YJQYHu7YYT_F8v3s"
@@ -150,15 +176,15 @@ export default function AboutPage() {
         </AccordionSection>
 
         <AccordionSection title="Salvation & Pre-Tribulation Rapture">
-          <ul className="space-y-2 font-sans text-sm text-foreground/80">
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Jesus Christ is God manifested in the flesh, born of the virgin Mary.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Jesus Christ lived a perfect life, died on Calvary's cross, shed his blood, was buried and rose again on the third day.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Jesus went to heaven to put his precious blood in the mercy seat so we can have eternal life.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>To be saved: Believe Jesus is God and that he died for your sins, shed his blood, was buried and rose again for your justification.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Repenting of sins, water baptism, making him Lord or letting him into your heart is not salvation.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>I believe in the Pre-Tribulation Rapture where the church will meet in the clouds with our Saviour before the Antichrist reigns on earth.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Those in the 7-year tribulation will have to endure to the end, not take the mark, and be martyrs for Christ.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>I believe Jesus will reign in the new heaven and earth after the white throne judgment.</li>
+          <ul className="space-y-3 font-sans text-sm text-foreground/80">
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Jesus Christ is God manifested in the flesh, born of the virgin Mary.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Jesus Christ lived a perfect life, died on Calvary's cross, shed his blood, was buried and rose again on the third day.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Jesus went to heaven to put his precious blood in the mercy seat so we can have eternal life.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />To be saved: Believe Jesus is God and that he died for your sins, shed his blood, was buried and rose again for your justification.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Repenting of sins, water baptism, making him Lord or letting him into your heart is not salvation.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />I believe in the Pre-Tribulation Rapture where the church will meet in the clouds with our Saviour before the Antichrist reigns on earth.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Those in the 7-year tribulation will have to endure to the end, not take the mark, and be martyrs for Christ.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />I believe Jesus will reign in the new heaven and earth after the white throne judgment.</li>
           </ul>
           <a
             href="https://youtube.com/playlist?list=PLNGhZnJavRf3LX3ZaUiQaSn4kLLT7dt1c&si=M6mzCAKvtJjr_eH4"
@@ -196,10 +222,10 @@ export default function AboutPage() {
           <p className="font-sans text-sm text-foreground/80 mb-3">
             Many widely-observed holidays have roots in pagan customs that were later given a Christian veneer. Believers should study these origins for themselves.
           </p>
-          <ul className="space-y-2 font-sans text-sm text-foreground/80">
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Easter — its name, timing and symbols (eggs, rabbits) trace back to pagan spring fertility festivals rather than scripture.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Christmas — December 25th and many of its customs (trees, wreaths, yule logs) originate in pagan winter solstice celebrations, not the biblical account of Christ's birth.</li>
-            <li className="flex items-start gap-2"><span className="text-accent mt-1">•</span>Halloween — descends from pagan harvest and death festivals (such as Samhain) later absorbed into the church calendar as "All Hallows' Eve."</li>
+          <ul className="space-y-3 font-sans text-sm text-foreground/80">
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Easter — its name, timing and symbols (eggs, rabbits) trace back to pagan spring fertility festivals rather than scripture.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Christmas — December 25th and many of its customs (trees, wreaths, yule logs) originate in pagan winter solstice celebrations, not the biblical account of Christ's birth.</li>
+            <li className="flex items-start gap-3"><span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent mt-2" />Halloween — descends from pagan harvest and death festivals (such as Samhain) later absorbed into the church calendar as "All Hallows' Eve."</li>
           </ul>
           <a
             href="https://youtube.com/playlist?list=PLNGhZnJavRf183iEUeQHer5aKnlV3LWKP&si=iaMUuwhLBzeGuHyn"
@@ -240,10 +266,18 @@ export default function AboutPage() {
         </AccordionSection>
       </div>
 
-      {/* Links */}
-      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-7 mb-8 shadow-lg shadow-black/[0.03]">
-        <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">Links & Contact</h2>
-        <ContactLinks />
+      {/* Links & Contact */}
+      <div className="relative overflow-hidden bg-card/70 backdrop-blur-xl border border-border/60 rounded-3xl p-7 mb-8 shadow-lg shadow-black/[0.03] animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '140ms', animationFillMode: 'both' }}>
+        <div className="absolute -left-10 -bottom-10 w-40 h-40 rounded-full bg-primary/5 blur-3xl" />
+        <h2 className="relative font-serif text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center text-accent">
+            <Link2 className="w-4 h-4" />
+          </span>
+          Links & Contact
+        </h2>
+        <div className="relative">
+          <ContactLinks />
+        </div>
       </div>
 
 

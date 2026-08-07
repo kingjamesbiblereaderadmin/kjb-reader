@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram, BookOpen } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
 import ScriptureBanner from '@/components/ScriptureBanner';
 
@@ -24,214 +24,236 @@ const LAST_UPDATED = 'July 16th, 2026';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
-      <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <Link to="/" className="inline-flex items-center justify-center w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-blue-500/30 mb-4 hover:scale-105 active:scale-95 transition-transform">
-            <img
-              src="https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/1d77e5114_icon-512.png"
-              alt="KJB Reader Logo"
-              className="w-full h-full object-cover"
-            />
-          </Link>
+    <div className="relative min-h-screen bg-gradient-to-br from-background via-accent/5 to-background overflow-hidden">
+      {/* Decorative ambient background — purposeful colour, no images */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute top-1/4 -right-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-violet-500/5 blur-3xl" />
+      </div>
+
+      <div className="relative w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
+        {/* Hero header */}
+        <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
+          <div className="relative inline-flex items-center justify-center mb-4">
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 to-violet-500/30 blur-xl" />
+            <Link to="/" className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden shadow-lg shadow-blue-500/30 ring-1 ring-white/20 hover:scale-105 active:scale-95 transition-transform">
+              <img
+                src="https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/1d77e5114_icon-512.png"
+                alt="KJB Reader Logo"
+                className="w-full h-full object-cover"
+              />
+            </Link>
+          </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Welcome to KJB Reader</h1>
           <p className="font-sans text-sm text-muted-foreground">Read the King James Bible — anytime, anywhere, even offline.</p>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
 
         {/* Scripture banner */}
-        <ScriptureBanner />
+        <div className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '60ms', animationFillMode: 'both' }}>
+          <ScriptureBanner />
+        </div>
 
-        {/* CTA */}
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03] text-center">
-          <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
-            KJB Reader is a free, installable Bible reading app featuring the King James Bible
-            (Pure Cambridge Edition). Enjoy daily verses, offline reading, search, bookmarks,
-            and customizable typography — all with privacy at the forefront.
-          </p>
-          <div className="flex flex-col items-center gap-3">
-            <div className="flex items-center justify-center gap-3 flex-wrap">
-              <Link
-                to="/"
-                onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                Open KJB Reader
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+        {/* CTA featured card */}
+        <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 backdrop-blur-xl p-6 sm:p-8 mb-6 shadow-lg shadow-black/[0.03] animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '100ms', animationFillMode: 'both' }}>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent" />
+          <div className="absolute -right-8 -bottom-10 opacity-[0.06] dark:opacity-[0.12] text-primary pointer-events-none">
+            <BookOpen className="w-36 h-36" />
+          </div>
+          <div className="relative flex flex-col sm:flex-row items-start gap-5">
+            <div className="w-14 h-14 flex items-center justify-center rounded-2xl text-white shadow-xl bg-gradient-to-br from-primary to-accent ring-1 ring-white/20 shrink-0">
+              <BookOpen className="w-7 h-7" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
+                KJB Reader is a free, installable Bible reading app featuring the King James Bible
+                (Pure Cambridge Edition). Enjoy daily verses, offline reading, search, bookmarks,
+                and customizable typography — all with privacy at the forefront.
+              </p>
+              <div className="flex items-center justify-start gap-3 flex-wrap">
+                <Link
+                  to="/"
+                  onClick={() => { try { localStorage.setItem('kjb-has-visited-app', 'true'); } catch {} }}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shadow-md"
+                >
+                  Open KJB Reader
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Promo cards — rows of two */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-          {/* Gospel */}
-          <Link
-            to="/salvation"
-            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-          >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-rose-500 to-pink-600">
-              <Heart className="w-5 h-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Are you saved?</p>
-              <p className="font-sans text-xs text-muted-foreground">Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
-          </Link>
+        {/* Promo — Gospel featured */}
+        <Link
+          to="/salvation"
+          className="group relative flex flex-col sm:flex-row items-start gap-4 p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-rose-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 mb-4 overflow-hidden animate-in fade-in slide-in-from-bottom-4"
+          style={{ animationDuration: '500ms', animationDelay: '140ms', animationFillMode: 'both' }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-rose-500/8 to-transparent" />
+          <div className="absolute -right-6 -bottom-6 opacity-[0.06] dark:opacity-[0.12] text-rose-500 pointer-events-none">
+            <Heart className="w-28 h-28" />
+          </div>
+          <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-rose-500 to-pink-600 ring-1 ring-white/15 shrink-0">
+            <Heart className="w-6 h-6" />
+          </div>
+          <div className="relative flex-1 min-w-0">
+            <p className="font-serif font-bold text-base text-foreground group-hover:text-accent transition-colors mb-1">Are you saved?</p>
+            <p className="font-sans text-xs text-muted-foreground leading-relaxed">Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
+          </div>
+          <ArrowRight className="relative w-4 h-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all shrink-0" />
+        </Link>
 
-          {/* KJBI */}
+        {/* Promo — KJBI + Extension */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <a
             href="https://kjbi.org"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-indigo-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4"
+            style={{ animationDuration: '500ms', animationDelay: '180ms', animationFillMode: 'both' }}
           >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-purple-600">
-              <GraduationCap className="w-5 h-5" />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/8 to-transparent" />
+            <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-purple-600 ring-1 ring-white/15 mb-3">
+              <GraduationCap className="w-6 h-6" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJBI.org — Free Online Bible College</p>
-              <p className="font-sans text-xs text-muted-foreground">King James Bible Institute by Robert Breaker &amp; Robert Potthoff — go deeper in God's Word, for free.</p>
+            <p className="relative font-serif font-bold text-base text-foreground group-hover:text-accent transition-colors mb-1">KJBI.org — Free Online Bible College</p>
+            <p className="relative font-sans text-xs text-muted-foreground leading-relaxed">King James Bible Institute by Robert Breaker &amp; Robert Potthoff — go deeper in God's Word, for free.</p>
+            <div className="relative mt-3 inline-flex items-center gap-1 text-xs font-sans font-medium text-accent">
+              Visit <ArrowRight className="w-3.5 h-3.5" />
             </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-          {/* KJB Reader Chrome Extension */}
           <Link
             to="/extension"
-            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-blue-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden animate-in fade-in slide-in-from-bottom-4"
+            style={{ animationDuration: '500ms', animationDelay: '220ms', animationFillMode: 'both' }}
           >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
-              <Globe className="w-5 h-5" />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/8 to-transparent" />
+            <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600 ring-1 ring-white/15 mb-3">
+              <Globe className="w-6 h-6" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Reader - SidePanel <span className="text-accent font-semibold">— Available Now!</span></p>
-              <p className="font-sans text-xs text-muted-foreground">Read, search, and look up Bible verses from any web page. Desktop browsers only.</p>
+            <p className="relative font-serif font-bold text-base text-foreground group-hover:text-accent transition-colors mb-1">KJB Reader - SidePanel <span className="text-accent font-semibold">— Available Now!</span></p>
+            <p className="relative font-sans text-xs text-muted-foreground leading-relaxed">Read, search, and look up Bible verses from any web page. Desktop browsers only.</p>
+            <div className="relative mt-3 inline-flex items-center gap-1 text-xs font-sans font-medium text-accent">
+              Learn more <ArrowRight className="w-3.5 h-3.5" />
             </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </Link>
+        </div>
 
-          {/* KJB Discord Bot */}
-          <div className="p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm flex flex-col">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
-                <DiscordIcon className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-sans font-medium text-sm text-foreground">KJB Discord Bot</p>
-                <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord.</p>
-              </div>
+        {/* Promo — Discord bot */}
+        <div className="relative p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-violet-400/50 transition-all duration-300 mb-5 overflow-hidden animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '260ms', animationFillMode: 'both' }}>
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/8 to-transparent" />
+          <div className="relative flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700 ring-1 ring-white/15 shrink-0">
+              <DiscordIcon className="w-6 h-6" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
-              <a
-                href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=applications.commands&integration_type=1"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center text-center justify-center gap-1 p-3 rounded-xl bg-background/40 border border-border/60 hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-              >
-                <p className="font-sans font-semibold text-xs text-foreground group-hover:text-accent transition-colors">📱 Personal Install</p>
-                <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">Slash commands for your account — DMs, group DMs, any server.</p>
-              </a>
-              <a
-                href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center text-center justify-center gap-1 p-3 rounded-xl bg-background/40 border border-border/60 hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-              >
-                <p className="font-sans font-semibold text-xs text-foreground group-hover:text-accent transition-colors">🏠 Server Install</p>
-                <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</p>
-              </a>
+            <div>
+              <p className="font-serif font-bold text-base text-foreground">KJB Discord Bot</p>
+              <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord.</p>
             </div>
+          </div>
+          <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a
+              href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=applications.commands&integration_type=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col items-center text-center justify-center gap-1 p-4 rounded-2xl bg-background/40 border border-border/60 hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+            >
+              <p className="font-sans font-semibold text-xs text-foreground group-hover:text-accent transition-colors">📱 Personal Install</p>
+              <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">Slash commands for your account — DMs, group DMs, any server.</p>
+            </a>
+            <a
+              href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col items-center text-center justify-center gap-1 p-4 rounded-2xl bg-background/40 border border-border/60 hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+            >
+              <p className="font-sans font-semibold text-xs text-foreground group-hover:text-accent transition-colors">🏠 Server Install</p>
+              <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</p>
+            </a>
           </div>
         </div>
 
         {/* Step-by-step setup wizard */}
-        <div className="mb-5">
+        <div className="mb-5 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '300ms', animationFillMode: 'both' }}>
           <LandingSetupWizard />
         </div>
 
         {/* Legal Links */}
-        <div className="grid sm:grid-cols-3 gap-4 mb-5">
+        <div className="grid sm:grid-cols-3 gap-4 mb-5 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '340ms', animationFillMode: 'both' }}>
           <Link
             to="/privacy"
-            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-lg hover:border-violet-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden"
           >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-600">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/8 to-transparent" />
+            <div className="relative w-10 h-10 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-600 ring-1 ring-white/15 mb-3">
               <Shield className="w-5 h-5" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Privacy Policy</p>
-              <p className="font-sans text-xs text-muted-foreground">How your data is handled</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+            <p className="relative font-serif font-bold text-sm text-foreground group-hover:text-accent transition-colors">Privacy Policy</p>
+            <p className="relative font-sans text-xs text-muted-foreground mt-0.5">How your data is handled</p>
           </Link>
 
           <Link
             to="/terms"
-            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-lg hover:border-emerald-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden"
           >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/8 to-transparent" />
+            <div className="relative w-10 h-10 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600 ring-1 ring-white/15 mb-3">
               <FileText className="w-5 h-5" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Terms of Service</p>
-              <p className="font-sans text-xs text-muted-foreground">Rules for using this app</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+            <p className="relative font-serif font-bold text-sm text-foreground group-hover:text-accent transition-colors">Terms of Service</p>
+            <p className="relative font-sans text-xs text-muted-foreground mt-0.5">Rules for using this app</p>
           </Link>
 
           <Link
             to="/legacy"
-            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            className="group relative flex flex-col p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-lg hover:border-slate-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 overflow-hidden"
           >
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-slate-500 to-slate-700">
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-500/8 to-transparent" />
+            <div className="relative w-10 h-10 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-slate-500 to-slate-700 ring-1 ring-white/15 mb-3">
               <MonitorSmartphone className="w-5 h-5" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Legacy Reader</p>
-              <p className="font-sans text-xs text-muted-foreground">For old browsers (IE 11)</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+            <p className="relative font-serif font-bold text-sm text-foreground group-hover:text-accent transition-colors">Legacy Reader</p>
+            <p className="relative font-sans text-xs text-muted-foreground mt-0.5">For old browsers (IE 11)</p>
           </Link>
         </div>
 
         {/* Contact */}
-        <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 shadow-lg shadow-black/[0.03]">
-          <h2 className="font-serif text-xl font-semibold text-foreground mb-3">Contact</h2>
-          <div className="space-y-3 font-sans text-sm text-foreground/85">
-            <a href="mailto:kingjamesbiblereader@outlook.sg" className="flex items-center gap-2 hover:text-primary transition-colors">
+        <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 backdrop-blur-xl p-6 sm:p-7 shadow-lg shadow-black/[0.03] animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '380ms', animationFillMode: 'both' }}>
+          <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-primary/5 blur-3xl" />
+          <h2 className="relative font-serif text-xl font-semibold text-foreground mb-4">Contact</h2>
+          <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-sans text-sm text-foreground/85">
+            <a href="mailto:kingjamesbiblereader@outlook.sg" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
               <Mail className="w-4 h-4 text-muted-foreground" />
               kingjamesbiblereader@outlook.sg
             </a>
-            <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="https://godisgracious1031ministriescom.odoo.com/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
               <Globe className="w-4 h-4 text-muted-foreground" />
               godisgracious1031ministries.com
             </a>
-            <a href="https://youtube.com/@shawnr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="https://youtube.com/@shawnr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
               <Youtube className="w-4 h-4 text-muted-foreground" />
               @shawnr325av
             </a>
-            <a href="https://www.tiktok.com/@svdbyfaithinr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="https://www.tiktok.com/@svdbyfaithinr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
               <TikTokIcon className="w-4 h-4 text-muted-foreground" />
               @svdbyfaithinr325av
             </a>
-            <a href="https://www.instagram.com/svdbyfaithinhisbloodr325av/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="https://www.instagram.com/svdbyfaithinhisbloodr325av/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
               <Instagram className="w-4 h-4 text-muted-foreground" />
               @svdbyfaithinhisbloodr325av
             </a>
-            <a href="https://rumble.com/user/Godisgracious1031" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="https://rumble.com/user/Godisgracious1031" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
               <PlayCircle className="w-4 h-4 text-muted-foreground" />
               Rumble · Godisgracious1031
             </a>
-            <a href="https://discord.com/users/shawn_faithinhisbloodr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="https://discord.com/users/shawn_faithinhisbloodr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
               <DiscordIcon className="w-4 h-4 text-muted-foreground" />
               shawn_faithinhisbloodr325av
             </a>
-            <a href="https://linktr.ee/shawnr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="https://linktr.ee/shawnr325av" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-accent/5 hover:text-primary transition-colors">
               <Link2 className="w-4 h-4 text-muted-foreground" />
               linktr.ee/shawnr325av
             </a>

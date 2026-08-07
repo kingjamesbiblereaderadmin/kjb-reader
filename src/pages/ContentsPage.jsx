@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { List, ChevronDown } from 'lucide-react';
+import { List, ChevronDown, BookOpen, Sparkles } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/lib/bibleData';
 import { fetchVerseCount, resolveColophon, resolveSubscript } from '@/lib/bibleApi';
 import BookSelector from '@/components/bible/BookSelector';
@@ -113,12 +113,21 @@ export default function ContentsPage() {
   }, [selectedBook, selectedChapter]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
-    <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
+    <div className="relative min-h-screen bg-gradient-to-br from-background via-accent/5 to-background overflow-hidden">
+      {/* Decorative ambient background */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-blue-500/5 blur-3xl" />
+      </div>
+    <div className="relative w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
       {/* Header */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-indigo-500/30 mb-4">
-          <List className="w-7 h-7 text-white" />
+      <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationFillMode: 'both' }}>
+        <div className="relative inline-flex items-center justify-center mb-4">
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 to-indigo-600/30 blur-xl" />
+          <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-indigo-500/30 ring-1 ring-white/20">
+            <List className="w-8 h-8 text-white" />
+          </div>
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Table of Contents</h1>
         <p className="font-sans text-sm text-muted-foreground">King James Bible — Pure Cambridge Edition</p>
@@ -126,17 +135,19 @@ export default function ContentsPage() {
       </div>
 
       {/* Selection Button */}
-      <div className="mb-8">
+      <div className="mb-8 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '80ms', animationFillMode: 'both' }}>
         <button
           onClick={() => setShowBookSelector(true)}
-          className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-sans font-semibold text-sm hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-between"
+          className="group relative w-full py-4 px-5 rounded-2xl bg-primary text-primary-foreground font-sans font-semibold text-sm hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-between shadow-lg shadow-primary/20 overflow-hidden"
         >
-          <span>
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="relative flex items-center gap-2.5">
+            <BookOpen className="w-4 h-4" />
             {selectedBook && selectedChapter 
               ? `${currentBook?.name} ${selectedChapter}${selectedVerses.length > 0 ? `:${formatVerses(selectedVerses)}` : ''}` 
               : 'Select a Book'}
           </span>
-          <ChevronDown className="w-4 h-4" />
+          <ChevronDown className="relative w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
         </button>
       </div>
 
@@ -223,9 +234,12 @@ export default function ContentsPage() {
         </div>
       )}
 
-      <p className="text-center font-sans text-xs text-muted-foreground">
-        Tap "Select a Book" to choose a book, chapter, and verse
-      </p>
+      <div className="mt-8 flex flex-col items-center gap-2 text-center animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '120ms', animationFillMode: 'both' }}>
+        <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/60 border border-border text-muted-foreground font-sans text-xs">
+          <Sparkles className="w-3.5 h-3.5 text-accent" />
+          Tap "Select a Book" to choose a book, chapter, and verse
+        </span>
+      </div>
     </div>
     </div>
   );
