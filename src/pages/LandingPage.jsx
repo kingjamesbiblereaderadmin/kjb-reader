@@ -54,12 +54,12 @@ export default function LandingPage() {
           <LandingSetupWizard />
         </div>
 
-        {/* Links & Contact — old rich-card format, outside the wizard */}
+        {/* Legal — Privacy / Terms / Legacy, in its own box */}
         <div className="mt-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '180ms', animationFillMode: 'both' }}>
           <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
-            <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Links & Contact</h3>
-            <p className="font-sans text-xs text-muted-foreground mb-4 text-center">Legal info and ways to reach us</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-sm mx-auto mb-4">
+            <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Legal & Legacy</h3>
+            <p className="font-sans text-xs text-muted-foreground mb-4 text-center">Privacy, terms, and the legacy reader for old browsers (e.g. IE11)</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-sm mx-auto">
               {[
                 { to: '/privacy', icon: Shield, title: 'Privacy', sub: 'Privacy Policy', bg: 'from-slate-500 to-slate-700' },
                 { to: '/terms', icon: FileText, title: 'Terms', sub: 'Terms of Service', bg: 'from-amber-500 to-orange-600' },
@@ -81,6 +81,14 @@ export default function LandingPage() {
                 </Link>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Contact — rich link cards, in its own box */}
+        <div className="mt-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '240ms', animationFillMode: 'both' }}>
+          <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
+            <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Links & Contact</h3>
+            <p className="font-sans text-xs text-muted-foreground mb-4 text-center">Ways to reach us and follow the ministry</p>
             <ContactLinks />
           </div>
         </div>
