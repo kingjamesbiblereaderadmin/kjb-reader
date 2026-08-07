@@ -363,13 +363,22 @@ Deno.serve(async (req) => {
           const verses = bible[bookName][chapterNum];
           if (!verses || !verses.length) continue;
           for (const vo of verses) {
-            // Strip markers to get the searchable visible text
-            const visibleText = String(vo.text)
-              .replace(/^<<[^>]*>>\s*/, '')
-              .replace(/\[/g, '')
-              .replace(/\]/g, '')
-              .replace(/¶/g, '')
-              .replace(/\uFFFD/g, "'");
+            // Searchable text. Brackets and the pilcrow (¶) are normally stripped so
+            // ordinary word/phrase queries match what a reader sees and span
+            // italic-supplied words ("only [son]" → "only son"). But when the query
+            // itself contains a literal bracket or pilcrow, search the RAW text so
+            // "[son]" and "¶" match as literal characters. (escapeRegex already
+            // escapes [ ] * ? etc., and ?/* are only wildcards when wildcard=true.)
+            // normalizePilcrows converts the raw \uFFFD marker to ¶ (U+00B6) at
+            // verse starts / standalone positions and to an apostrophe after a
+            // letter — matching what the reader sees, so "¶" is searchable.
+            const rawText = normalizePilcrows(
+              String(vo.text).replace(/^<<[^>]*>>\s*/, '')
+            );
+            const queryHasBracketsOrPilcrow = /[\[\]¶]/.test(query);
+            const visibleText = queryHasBracketsOrPilcrow
+              ? rawText
+              : rawText.replace(/\[/g, '').replace(/\]/g, '').replace(/¶/g, '');
 
             if (!matcher.test(visibleText)) continue;
 
