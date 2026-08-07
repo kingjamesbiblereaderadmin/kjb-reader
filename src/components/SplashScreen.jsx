@@ -459,7 +459,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   // exactly so the handoff from static HTML to React is seamless (no jump).
   const verseColor = isDarkSplash ? 'rgba(255,255,255,0.95)' : 'rgba(90,100,114,0.85)';
   const refColor = isDarkSplash ? 'rgba(255,255,255,0.65)' : 'rgba(90,100,114,0.55)';
-  const gospelColor = verseColor;
+  const gospelColor = isDarkSplash ? 'rgba(255,255,255,0.85)' : 'rgba(90,100,114,0.7)';
 
   return (
     <div
@@ -476,7 +476,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
 
       {/* Two-side composition: brand on one side, scripture on the other.
           Stacks vertically on mobile, side-by-side on desktop. */}
-      <div className="relative flex flex-col sm:flex-row items-center justify-center gap-12 sm:gap-24 w-full max-w-5xl px-8 sm:px-16 pb-16 sm:pb-24">
+      <div className="relative flex flex-col sm:flex-row items-center justify-center gap-12 sm:gap-24 w-full max-w-5xl px-8 sm:px-16">
         {/* Left side — brand */}
         <div className="flex flex-col items-center gap-12 sm:gap-16">
           <div className="relative">

@@ -76,32 +76,32 @@
 
   .dark {
     /* Vibrant indigo/purple theme — dark mode */
-    --background: 250 25% 11%;
+    --background: 250 30% 8%;
     --foreground: 0 0% 100%;
-    --card: 250 24% 15%;
+    --card: 250 28% 12%;
     --card-foreground: 0 0% 100%;
-    --popover: 250 24% 15%;
+    --popover: 250 28% 12%;
     --popover-foreground: 0 0% 100%;
     --primary: 255 80% 68%;
     --primary-foreground: 250 30% 8%;
-    --secondary: 250 20% 20%;
+    --secondary: 250 22% 18%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 250 20% 20%;
+    --muted: 250 22% 18%;
     --muted-foreground: 0 0% 85%;
     --accent: 270 75% 68%;
     --accent-foreground: 250 30% 8%;
     --destructive: 0 62.8% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 250 14% 52%;
-    --input: 250 14% 52%;
+    --border: 250 18% 42%;
+    --input: 250 18% 42%;
     --ring: 255 80% 68%;
-    --sidebar-background: 250 25% 12%;
+    --sidebar-background: 250 30% 9%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 255 80% 68%;
     --sidebar-primary-foreground: 250 30% 8%;
-    --sidebar-accent: 250 20% 20%;
+    --sidebar-accent: 250 22% 18%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 250 14% 52%;
+    --sidebar-border: 250 18% 42%;
     --sidebar-ring: 255 80% 68%;
   }
 }
