@@ -88,14 +88,14 @@ export default function LandingPage() {
         {/* Promo — Gospel featured */}
         <Link
           to="/salvation"
-          className="group relative flex flex-col sm:flex-row items-start gap-4 p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-rose-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 mb-4 overflow-hidden animate-in fade-in slide-in-from-bottom-4"
+          className="group relative flex flex-col sm:flex-row items-start gap-4 p-5 rounded-3xl bg-card/70 backdrop-blur-xl border-2 border-border shadow-sm hover:shadow-xl hover:border-amber-400/50 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 mb-4 overflow-hidden animate-in fade-in slide-in-from-bottom-4"
           style={{ animationDuration: '500ms', animationDelay: '140ms', animationFillMode: 'both' }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-rose-500/8 to-transparent" />
-          <div className="absolute -right-6 -bottom-6 opacity-[0.06] dark:opacity-[0.12] text-rose-500 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/8 to-transparent" />
+          <div className="absolute -right-6 -bottom-6 opacity-[0.06] dark:opacity-[0.12] text-amber-500 pointer-events-none">
             <Heart className="w-28 h-28" />
           </div>
-          <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-rose-500 to-pink-600 ring-1 ring-white/15 shrink-0">
+          <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-md bg-gradient-to-br from-amber-500 to-orange-600 ring-1 ring-white/15 shrink-0">
             <Heart className="w-6 h-6" />
           </div>
           <div className="relative flex-1 min-w-0">

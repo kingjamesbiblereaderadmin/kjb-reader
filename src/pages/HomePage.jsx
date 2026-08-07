@@ -19,7 +19,7 @@ const QUICK_LINKS = [
   { path: null, icon: Shuffle, label: '__RANDOM__', desc: 'Jump to a random chapter', iconGradient: 'from-violet-500 to-purple-600' },
   { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', iconGradient: 'from-fuchsia-500 to-pink-600' },
   { path: '/advanced-search', icon: FlaskConical, label: 'Advanced Search', desc: 'Research verses by properties', iconGradient: 'from-indigo-500 to-purple-600' },
-  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', iconGradient: 'from-rose-500 to-red-600' },
+  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', iconGradient: 'from-amber-500 to-orange-600' },
   { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', iconGradient: 'from-teal-500 to-emerald-600' },
   { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', iconGradient: 'from-sky-500 to-blue-600' },
   { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', iconGradient: 'from-slate-500 to-slate-700' },
@@ -512,25 +512,25 @@ export default function HomePage() {
       </div>
 
       {/* Gospel call */}
-      <div className="print:hidden relative overflow-hidden rounded-3xl border border-red-200/70 dark:border-red-900/30 shadow-lg mb-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '200ms', animationFillMode: 'both' }}>
-        <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-red-50 dark:from-red-950/20 dark:to-rose-950/20" />
-        <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-rose-500/10 blur-3xl" />
-        <div className="absolute -left-10 -bottom-10 w-40 h-40 rounded-full bg-red-500/10 blur-3xl" />
-        <div className="absolute -right-4 -bottom-4 opacity-[0.06] dark:opacity-[0.12] text-red-600 dark:text-red-400 pointer-events-none">
+      <div className="print:hidden relative overflow-hidden rounded-3xl border border-amber-200/70 dark:border-amber-900/30 shadow-lg mb-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '200ms', animationFillMode: 'both' }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20" />
+        <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="absolute -left-10 -bottom-10 w-40 h-40 rounded-full bg-orange-500/10 blur-3xl" />
+        <div className="absolute -right-4 -bottom-4 opacity-[0.06] dark:opacity-[0.12] text-amber-600 dark:text-amber-400 pointer-events-none">
           <Heart className="w-32 h-32" />
         </div>
         <div className="relative p-6 sm:p-8 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-lg mb-3">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg mb-3">
             <Heart className="w-6 h-6" />
           </div>
-          <p className="font-serif text-2xl font-bold text-red-700 dark:text-red-400 mb-2">Are you saved?</p>
+          <p className="font-serif text-2xl font-bold text-amber-700 dark:text-amber-400 mb-2">Are you saved?</p>
           <div className="font-sans text-sm text-foreground/80 mb-5 space-y-1.5 max-w-xl mx-auto">
             <p>Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins.</p>
             <p className="font-medium">Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
           </div>
           <Link
             to="/gospel"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-sans text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:scale-[1.03] active:scale-[0.97] shadow-md"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-sans text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:scale-[1.03] active:scale-[0.97] shadow-md"
           >
             <Heart className="w-4 h-4" />
             Learn How to be Saved
