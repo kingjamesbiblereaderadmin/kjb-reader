@@ -284,7 +284,7 @@ export default function LandingSetupWizard() {
               <button
                 type="button"
                 onClick={() => setStep(i)}
-                className={`flex flex-col items-center gap-0.5 transition-all ${active ? 'scale-110' : 'opacity-60 hover:opacity-100'}`}
+                className={`flex flex-col items-center gap-0.5 transition-opacity ${active ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
               >
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
                   done ? 'bg-primary border-primary text-primary-foreground'
