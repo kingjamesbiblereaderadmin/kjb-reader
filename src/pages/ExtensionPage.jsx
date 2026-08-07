@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Puzzle, ArrowLeft, CheckCircle, Search, BookOpen, Sparkles, Bell } from 'lucide-react';
+import { Puzzle, ArrowLeft, CheckCircle, Search, BookOpen, Sparkles, Bell, MousePointer2, Filter, Printer, Copy, Heart } from 'lucide-react';
 
 const LAST_UPDATED = 'August 7th, 2026';
 
@@ -11,19 +11,34 @@ const FEATURES = [
     desc: 'Look up any Bible reference from any web page — no need to open a new tab.',
   },
   {
-    icon: BookOpen,
-    title: 'Read the KJB',
-    desc: 'Full King James Bible (Pure Cambridge Edition) text in a handy sidebar.',
+    icon: MousePointer2,
+    title: 'Right-Click Context Menu Search',
+    desc: 'Highlight any text on a page, right-click, and search the King James Bible instantly.',
   },
   {
     icon: Sparkles,
-    title: 'Quick Search',
-    desc: 'Search verses by keyword, phrase, or wildcard across the whole Bible.',
+    title: 'Advanced Search',
+    desc: 'Search with wildcards (* ?) and whole-word matching across the whole Bible.',
+  },
+  {
+    icon: Filter,
+    title: 'Testament Filtering',
+    desc: 'Narrow your search results to the Old or New Testament in a single click.',
+  },
+  {
+    icon: BookOpen,
+    title: 'Read Mode',
+    desc: 'Read the full King James Bible (Pure Cambridge Edition) with built-in print and copy options.',
+  },
+  {
+    icon: Heart,
+    title: 'Gospel & Resources Tabs',
+    desc: 'Quick access to the Gospel message and curated KJB defence resources.',
   },
   {
     icon: Bell,
-    title: 'Verse of the Day',
-    desc: 'A daily verse delivered right to your sidebar for encouragement.',
+    title: 'Daily Verse',
+    desc: 'A fresh verse of the day delivered right to your sidebar for encouragement.',
   },
 ];
 
@@ -47,11 +62,11 @@ export default function ExtensionPage() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/30 mb-4">
             <Puzzle className="w-7 h-7 text-white" />
           </div>
-          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader Chrome Extension</h1>
+          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB SidePanel</h1>
           <p className="font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
-          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/30">
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span className="font-sans text-xs font-semibold text-accent">Coming Soon!</span>
+          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30">
+            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+            <span className="font-sans text-xs font-semibold text-green-600 dark:text-green-400">Available Now</span>
           </div>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
@@ -59,20 +74,31 @@ export default function ExtensionPage() {
         {/* Description card */}
         <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 sm:p-7 mb-5 shadow-lg shadow-black/[0.03] text-center">
           <p className="font-sans text-sm text-foreground/85 leading-relaxed mb-4">
-            The KJB Reader Chrome Extension brings the King James Bible directly into your browser.
-            Look up any verse reference you encounter online, search the scriptures, and read the
-            full Bible — all from a convenient sidebar, without leaving the page you're on.
+            KJB SidePanel is a free Chrome extension for reading and searching the King James Bible.
+            It brings the full scriptures directly into your browser — look up any verse reference
+            you encounter online, search the scriptures, and read the whole Bible from a convenient
+            sidebar, without leaving the page you're on.
           </p>
           <a
-            href="#"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] opacity-60 cursor-not-allowed"
-            aria-disabled="true"
+            href="https://chromewebstore.google.com/detail/kjb-sidepanel/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-sans text-sm font-semibold hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-primary/30"
           >
             <Puzzle className="w-4 h-4" />
-            Get the KJB Reader Chrome Extension
+            Add to Chrome
           </a>
           <p className="font-sans text-xs text-muted-foreground mt-3">
-            Available on the Chrome Web Store once published.
+            Free · Available on the Chrome Web Store
+          </p>
+        </div>
+
+        {/* KJB SidePanel section header */}
+        <div className="text-center mb-5">
+          <h2 className="font-serif text-2xl font-bold text-foreground mb-2">KJB SidePanel</h2>
+          <p className="font-sans text-sm text-muted-foreground max-w-xl mx-auto">
+            A free Chrome extension for reading and searching the King James Bible — built with all
+            the features you love from KJB Reader, right in your browser sidebar.
           </p>
         </div>
 
@@ -102,11 +128,11 @@ export default function ExtensionPage() {
           <div className="flex items-start gap-3">
             <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
             <div>
-              <h2 className="font-serif text-lg font-semibold text-foreground mb-1">In Development</h2>
+              <h2 className="font-serif text-lg font-semibold text-foreground mb-1">Now Available</h2>
               <p className="font-sans text-sm text-foreground/85 leading-relaxed">
-                The KJB Reader Chrome Extension is currently in development. Once published to the
-                Chrome Web Store, you'll be able to install it with one click. Check back soon —
-                this page will be updated with the install link.
+                KJB SidePanel is now live on the Chrome Web Store. Install it with one click to start
+                reading and searching the King James Bible from any web page. The listing ID will be
+                updated here once the store listing is fully approved.
               </p>
             </div>
           </div>
