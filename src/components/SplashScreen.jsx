@@ -454,12 +454,12 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   const splashBg = isDarkSplash ? '#0f1117' : '#fef9f3';
   const logoSrc = getSplashLogo();
   const trackBg = isDarkSplash ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
-  const textColor = isDarkSplash ? '#c8cdd8' : '#5a6472';
+  const textColor = isDarkSplash ? '#ffffff' : '#5a6472';
   // Scripture + Gospel accent colours — mirror the boot splash in index.html
   // exactly so the handoff from static HTML to React is seamless (no jump).
-  const verseColor = isDarkSplash ? 'rgba(200,205,216,0.7)' : 'rgba(90,100,114,0.85)';
-  const refColor = isDarkSplash ? 'rgba(200,205,216,0.5)' : 'rgba(90,100,114,0.55)';
-  const gospelColor = isDarkSplash ? 'rgba(200,205,216,0.6)' : 'rgba(90,100,114,0.7)';
+  const verseColor = isDarkSplash ? 'rgba(255,255,255,0.95)' : 'rgba(90,100,114,0.85)';
+  const refColor = isDarkSplash ? 'rgba(255,255,255,0.65)' : 'rgba(90,100,114,0.55)';
+  const gospelColor = isDarkSplash ? 'rgba(255,255,255,0.85)' : 'rgba(90,100,114,0.7)';
 
   return (
     <div

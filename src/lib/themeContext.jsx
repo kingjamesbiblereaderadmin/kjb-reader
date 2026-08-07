@@ -79,21 +79,21 @@ function hueOf(hsl) {
 function applySurfaceTint(root, hue, isDark) {
   if (isDark) {
     root.style.setProperty('--background', `${hue} 30% 8%`);
-    root.style.setProperty('--foreground', `${hue} 25% 92%`);
+    root.style.setProperty('--foreground', `0 0% 100%`);
     root.style.setProperty('--card', `${hue} 28% 12%`);
-    root.style.setProperty('--card-foreground', `${hue} 25% 92%`);
+    root.style.setProperty('--card-foreground', `0 0% 100%`);
     root.style.setProperty('--popover', `${hue} 28% 12%`);
-    root.style.setProperty('--popover-foreground', `${hue} 25% 92%`);
+    root.style.setProperty('--popover-foreground', `0 0% 100%`);
     root.style.setProperty('--secondary', `${hue} 22% 18%`);
-    root.style.setProperty('--secondary-foreground', `${hue} 25% 88%`);
+    root.style.setProperty('--secondary-foreground', `0 0% 100%`);
     root.style.setProperty('--muted', `${hue} 22% 18%`);
-    root.style.setProperty('--muted-foreground', `${hue} 15% 60%`);
+    root.style.setProperty('--muted-foreground', `0 0% 85%`);
     root.style.setProperty('--border', `${hue} 20% 22%`);
     root.style.setProperty('--input', `${hue} 20% 22%`);
     root.style.setProperty('--sidebar-background', `${hue} 30% 9%`);
-    root.style.setProperty('--sidebar-foreground', `${hue} 25% 88%`);
+    root.style.setProperty('--sidebar-foreground', `0 0% 100%`);
     root.style.setProperty('--sidebar-accent', `${hue} 22% 18%`);
-    root.style.setProperty('--sidebar-accent-foreground', `${hue} 25% 88%`);
+    root.style.setProperty('--sidebar-accent-foreground', `0 0% 100%`);
     root.style.setProperty('--sidebar-border', `${hue} 20% 22%`);
   } else {
     root.style.setProperty('--background', `${hue} 30% 99%`);
