@@ -437,16 +437,22 @@ Deno.serve(async (req) => {
       if (verse == null && endVerse == null) {
         const out = verses.map(vo => {
           const p = processVerse(vo, { book: fullName, chapter: chapterNum });
-          return { text: p.text, chapter: chapterNum, verse: vo.verse };
+          const item: any = { text: p.text, chapter: chapterNum, verse: vo.verse };
+          if (p.heading) item.heading = p.heading;
+          if (p.superscription) item.superscription = p.superscription;
+          return item;
         });
-        return json({
+        const resp: any = {
           text: out.map(v => v.text).join(' '),
           book: fullName,
           chapter: chapterNum,
           verse: null,
           ref: `${fullName} ${chapterNum}`,
           verses: out,
-        });
+        };
+        const rawColophon = bible.__colophons?.[`${fullName}:${chapterNum}`];
+        if (rawColophon) resp.colophon = normalizePilcrows(rawColophon);
+        return json(resp);
       }
 
       const start = verse != null ? parseInt(String(verse)) : null;
@@ -459,19 +465,25 @@ Deno.serve(async (req) => {
           const vo = verses.find(x => x.verse === v);
           if (!vo) continue;
           const p = processVerse(vo, { book: fullName, chapter: chapterNum });
-          out.push({ text: p.text, chapter: chapterNum, verse: v });
+          const item: any = { text: p.text, chapter: chapterNum, verse: v };
+          if (p.heading) item.heading = p.heading;
+          if (p.superscription) item.superscription = p.superscription;
+          out.push(item);
         }
         if (!out.length) {
           return json({ error: `No verses found for ${fullName} ${chapterNum}:${start}-${end}` }, { status: 404 });
         }
-        return json({
+        const rangeResp: any = {
           text: out.map(v => v.text).join(' '),
           book: fullName,
           chapter: chapterNum,
           verse: start,
           ref: `${fullName} ${chapterNum}:${start}-${end}`,
           verses: out,
-        });
+        };
+        const rawColophon = bible.__colophons?.[`${fullName}:${chapterNum}`];
+        if (rawColophon) rangeResp.colophon = normalizePilcrows(rawColophon);
+        return json(rangeResp);
       }
 
       // Single verse.
@@ -481,13 +493,18 @@ Deno.serve(async (req) => {
           return json({ error: `Verse ${fullName} ${chapterNum}:${start} not found` }, { status: 404 });
         }
         const p = processVerse(vo, { book: fullName, chapter: chapterNum });
-        return json({
+        const singleResp: any = {
           text: p.text,
           book: fullName,
           chapter: chapterNum,
           verse: start,
           ref: `${fullName} ${chapterNum}:${start}`,
-        });
+        };
+        if (p.heading) singleResp.heading = p.heading;
+        if (p.superscription) singleResp.superscription = p.superscription;
+        const rawColophon = bible.__colophons?.[`${fullName}:${chapterNum}`];
+        if (rawColophon) singleResp.colophon = normalizePilcrows(rawColophon);
+        return json(singleResp);
       }
 
       return json({ error: 'Invalid verse request' }, { status: 400 });
