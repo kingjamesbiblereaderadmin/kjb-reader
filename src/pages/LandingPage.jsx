@@ -64,88 +64,89 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Gospel — summary pill linking to dedicated page */}
-        <Link
-          to="/salvation"
-          className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
-        >
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-rose-500 to-pink-600">
-            <Heart className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Are you saved?</p>
-            <p className="font-sans text-xs text-muted-foreground">Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
-          </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground" />
-        </Link>
-
-        {/* KJBI — Free Online Bible College */}
-        <a
-          href="https://kjbi.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
-        >
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-purple-600">
-            <GraduationCap className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJBI.org — Free Online Bible College</p>
-            <p className="font-sans text-xs text-muted-foreground">King James Bible Institute by Robert Breaker &amp; Robert Potthoff — go deeper in God's Word, for free.</p>
-          </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground" />
-        </a>
-
-        {/* KJB Reader Chrome Extension */}
-        <Link
-          to="/extension"
-          className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group mb-5"
-        >
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
-            <Puzzle className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Reader Chrome Extension <span className="text-accent font-semibold">— Coming Soon!</span></p>
-            <p className="font-sans text-xs text-muted-foreground">Read, search, and look up Bible verses from any web page with the KJB Reader sidebar extension.</p>
-          </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground" />
-        </Link>
-
-        {/* KJB Discord Bot — two install options */}
-        <div className="mb-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
-              <DiscordIcon className="w-5 h-5" />
+        {/* Promo cards — rows of two */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          {/* Gospel */}
+          <Link
+            to="/salvation"
+            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-rose-500 to-pink-600">
+              <Heart className="w-5 h-5" />
             </div>
-            <div>
-              <p className="font-sans font-medium text-sm text-foreground">KJB Discord Bot</p>
-              <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord.</p>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">Are you saved?</p>
+              <p className="font-sans text-xs text-muted-foreground">Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.</p>
             </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <a
-              href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=applications.commands&integration_type=1"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-            >
-              <p className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">📱 Personal Install</p>
-              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Adds slash commands to your Discord account — works in DMs, group DMs, and any server.</p>
-            </a>
-            <a
-              href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-            >
-              <p className="font-sans font-semibold text-sm text-foreground group-hover:text-accent transition-colors">🏠 Server Install</p>
-              <p className="font-sans text-xs text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</p>
-            </a>
-          </div>
-          <a href="mailto:Kingjamesbiblereader@outlook.sg" className="mt-3 inline-flex items-center gap-1.5 font-sans text-xs text-muted-foreground hover:text-accent transition-colors">
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
-            Kingjamesbiblereader@outlook.sg
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+          </Link>
+
+          {/* KJBI */}
+          <a
+            href="https://kjbi.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-indigo-500 to-purple-600">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJBI.org — Free Online Bible College</p>
+              <p className="font-sans text-xs text-muted-foreground">King James Bible Institute by Robert Breaker &amp; Robert Potthoff — go deeper in God's Word, for free.</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+          {/* KJB Reader Chrome Extension */}
+          <Link
+            to="/extension"
+            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
+              <Puzzle className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Reader Chrome Extension <span className="text-accent font-semibold">— Coming Soon!</span></p>
+              <p className="font-sans text-xs text-muted-foreground">Read, search, and look up Bible verses from any web page with the KJB Reader sidebar extension.</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground" />
+          </Link>
+
+          {/* KJB Discord Bot */}
+          <div className="p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
+                <DiscordIcon className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-sans font-medium text-sm text-foreground">KJB Discord Bot</p>
+                <p className="font-sans text-xs text-muted-foreground">Add the KJB Reader bot to your Discord.</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
+              <a
+                href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=applications.commands&integration_type=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center text-center justify-center gap-1 p-3 rounded-xl bg-background/40 border border-border/60 hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+              >
+                <p className="font-sans font-semibold text-xs text-foreground group-hover:text-accent transition-colors">📱 Personal Install</p>
+                <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">Slash commands for your account — DMs, group DMs, any server.</p>
+              </a>
+              <a
+                href="https://discord.com/oauth2/authorize?client_id=1529303667348606996&scope=bot+applications.commands&permissions=378494381072"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center text-center justify-center gap-1 p-3 rounded-xl bg-background/40 border border-border/60 hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+              >
+                <p className="font-sans font-semibold text-xs text-foreground group-hover:text-accent transition-colors">🏠 Server Install</p>
+                <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">Bot joins a server for daily verse delivery and /setup.</p>
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Step-by-step setup wizard */}
