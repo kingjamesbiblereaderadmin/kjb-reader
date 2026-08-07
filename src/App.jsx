@@ -41,6 +41,7 @@ const loaders = {
   ForgotPassword: () => import('@/pages/ForgotPassword.jsx').catch((err) => { console.error('Failed to load ForgotPassword:', err); throw err; }),
   ResetPassword: () => import('@/pages/ResetPassword.jsx').catch((err) => { console.error('Failed to load ResetPassword:', err); throw err; }),
   Browser: () => import('@/pages/BrowserPage').catch((err) => { console.error('Failed to load BrowserPage:', err); throw err; }),
+  Contact: () => import('@/pages/ContactPage').catch((err) => { console.error('Failed to load ContactPage:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -69,6 +70,7 @@ const LoginPage = lazy(loaders.Login);
 const ForgotPasswordPage = lazy(loaders.ForgotPassword);
 const ResetPasswordPage = lazy(loaders.ResetPassword);
 const BrowserPage = lazy(loaders.Browser);
+const ContactPage = lazy(loaders.Contact);
 
 
 const getLoaderForPath = (pathname) => {
@@ -251,6 +253,7 @@ const AuthenticatedApp = () => {
             <Route path="/landing" element={<Suspense fallback={<RouteLoader />}><LandingPage /></Suspense>} />
             <Route path="/terms" element={<Suspense fallback={<RouteLoader />}><TermsOfServicePage /></Suspense>} />
             <Route path="/privacy" element={<Suspense fallback={<RouteLoader />}><PrivacyPolicyPage /></Suspense>} />
+            <Route path="/contact" element={<Suspense fallback={<RouteLoader />}><ContactPage /></Suspense>} />
             <Route path="/salvation" element={<Suspense fallback={<RouteLoader />}><SalvationPage /></Suspense>} />
             <Route path="/discord" element={<Suspense fallback={<RouteLoader />}><DiscordInvitePage /></Suspense>} />
             <Route path="/login" element={<Suspense fallback={<RouteLoader />}><LoginPage /></Suspense>} />

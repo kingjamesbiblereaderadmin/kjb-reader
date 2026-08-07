@@ -498,6 +498,13 @@ function DesktopFooter({ navigate, setMenuOpen }) {
               Base44
             </a>
           </p>
+          <p className="text-center font-sans text-xs text-muted-foreground mt-1">
+            <Link to="/privacy" className="hover:text-foreground hover:underline transition-colors">Privacy</Link>
+            {' · '}
+            <Link to="/terms" className="hover:text-foreground hover:underline transition-colors">Terms</Link>
+            {' · '}
+            <Link to="/contact" className="hover:text-foreground hover:underline transition-colors">Contact</Link>
+          </p>
           </>
           )}
         </div>

@@ -118,6 +118,15 @@ export default function PrivacyPolicyPage() {
         </p>
       </Section>
 
+      <Section title="Cookies & Analytics">
+        <p>
+          The App does not use cookies to track you. We do not use advertising or third-party
+          tracking cookies. Anonymous, aggregated usage statistics (such as the number of times
+          a page is viewed) may be collected solely to help us improve the site. These statistics
+          are not linked to you or your device and cannot be used to identify anyone personally.
+        </p>
+      </Section>
+
       <Section title="Children's Privacy">
         <p>
           KJB Reader does not knowingly collect any personal information from anyone, including children.
