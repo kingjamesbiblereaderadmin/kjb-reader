@@ -474,66 +474,77 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-1/3 rounded-full" style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%)' }} />
       </div>
 
-      <div className="relative flex flex-col items-center -mt-16" style={{ gap: '48px' }}>
-        <div className="relative">
-          <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%)' }} />
-          <img
-            src={logoSrc}
-            alt="KJB Reader Logo"
-            className="relative w-44 h-44 object-contain rounded-3xl p-3 ring-1 ring-black/5"
-            style={{ background: splashBg }}
-          />
-        </div>
-        <div className="flex flex-col items-center gap-5 w-64">
-          {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
-          <div
-            className="w-full h-1.5 rounded-full overflow-hidden relative"
-            style={{ background: trackBg }}
-          >
-            {progress === null ? (
-              <div
-                className="absolute top-0 h-full rounded-full"
-                style={{ width: '40%', background: 'linear-gradient(90deg, #4f6aff, #a855f7)', animation: 'kjb-splash-indeterminate 1.2s ease-in-out infinite' }}
-              />
-            ) : (
-              <div
-                className="h-full rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #4f6aff, #a855f7)' }}
-              />
-            )}
+      {/* Two-side composition: brand on one side, scripture on the other.
+          Stacks vertically on mobile, side-by-side on desktop. */}
+      <div className="relative flex flex-col sm:flex-row items-center justify-center gap-10 w-full max-w-4xl px-6 sm:px-10">
+        {/* Left side — brand */}
+        <div className="flex flex-col items-center gap-10">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: 'radial-gradient(circle, rgba(79,106,255,0.35), transparent 70%)' }} />
+            <img
+              src={logoSrc}
+              alt="KJB Reader Logo"
+              className="relative w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-3xl p-3 ring-1 ring-black/5"
+              style={{ background: splashBg }}
+            />
           </div>
-          <span
-            className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300 text-center"
-            style={{ color: textColor }}
-          >
-            {currentMessage}
-          </span>
+          <div className="flex flex-col items-center gap-5 w-56 sm:w-64">
+            {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
+            <div
+              className="w-full h-1.5 rounded-full overflow-hidden relative"
+              style={{ background: trackBg }}
+            >
+              {progress === null ? (
+                <div
+                  className="absolute top-0 h-full rounded-full"
+                  style={{ width: '40%', background: 'linear-gradient(90deg, #4f6aff, #a855f7)', animation: 'kjb-splash-indeterminate 1.2s ease-in-out infinite' }}
+                />
+              ) : (
+                <div
+                  className="h-full rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #4f6aff, #a855f7)' }}
+                />
+              )}
+            </div>
+            <span
+              className="font-sans text-sm font-light tracking-[0.25em] uppercase transition-all duration-300 text-center"
+              style={{ color: textColor }}
+            >
+              {currentMessage}
+            </span>
+          </div>
         </div>
-        <style>{`
-          @keyframes kjb-splash-indeterminate {
-            0% { left: -40%; }
-            100% { left: 100%; }
-          }
-          @keyframes kjb-splash-fade {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-        `}</style>
+
+        {/* Divider — vertical on desktop, horizontal on mobile */}
+        <div className="hidden sm:block w-px self-stretch max-h-72" style={{ background: 'linear-gradient(transparent, rgba(79,106,255,0.25), transparent)' }} />
+        <div className="sm:hidden w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
+
+        {/* Right side — scripture */}
+        <div
+          className="flex flex-col items-center sm:items-start gap-2 max-w-md text-center sm:text-left"
+          style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
+        >
+          <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '0.82rem', fontStyle: 'italic', color: verseColor, lineHeight: 1.6, margin: 0 }}>
+            "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
+          </p>
+          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
+            — 2 Timothy 2:15 —
+          </p>
+          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.72rem', color: gospelColor, lineHeight: 1.5, margin: '0.25rem 0 0 0' }}>
+            Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.
+          </p>
+        </div>
       </div>
-      {/* Scripture (2 Timothy 2:15) + Gospel — raised off the bottom edge with
-          a subtle divider so it reads as intentional, not floating. */}
-      <div className="absolute bottom-11 inset-x-0 flex flex-col items-center gap-2 max-w-md mx-auto px-6 text-center" style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}>
-        <div style={{ width: '2.5rem', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
-        <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '0.78rem', fontStyle: 'italic', color: verseColor, lineHeight: 1.6, margin: 0 }}>
-          "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
-        </p>
-        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
-          — 2 Timothy 2:15 —
-        </p>
-        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.72rem', color: gospelColor, lineHeight: 1.5, margin: '0.25rem 0 0 0' }}>
-          Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.
-        </p>
-      </div>
+      <style>{`
+        @keyframes kjb-splash-indeterminate {
+          0% { left: -40%; }
+          100% { left: 100%; }
+        }
+        @keyframes kjb-splash-fade {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
