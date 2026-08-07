@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260808_0041
+// KJB Reader Service Worker v20260808_0042
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260808_0041';
+const CACHE_NAME = 'kjb-reader-v20260808_0042';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
@@ -31,6 +31,13 @@ const PRECACHE_ASSETS = [
 
 // Install event - cache app shell
 self.addEventListener('install', (event) => {
+  // Activate this worker immediately once installed. Without this, a freshly
+  // fetched worker sits in "waiting" until the app posts SKIP_WAITING — which
+  // mobile (throttled SW updates + splash-flow timing) can fail to do, leaving
+  // the device stuck on the old worker. Auto-activating here, combined with the
+  // app's reg.update() on home load (bypasses Chrome's ~24h throttle) and
+  // AutoUpdateHandler's controllerchange→reload, is the reliable update path.
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching app shell');
