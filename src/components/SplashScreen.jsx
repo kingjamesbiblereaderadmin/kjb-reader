@@ -528,9 +528,13 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
             <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: 'clamp(0.88rem, 3.5vw, 1.02rem)', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
               "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
             </p>
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.62rem, 2.5vw, 0.72rem)', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
-              — 2 Timothy 2:15 —
-            </p>
+            <div className="w-full text-center">
+              <span className="inline-block rounded-md border border-foreground/20 px-3 py-1">
+                <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.55rem, 2vw, 0.62rem)', letterSpacing: '0.18em', textTransform: 'uppercase', color: refColor, margin: 0, textAlign: 'center' }}>
+                  — 2 Timothy 2:15 —
+                </p>
+              </span>
+            </div>
           </div>
           <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(120,120,130,0.45), transparent)' }} />
           <div className="flex flex-col gap-3">
