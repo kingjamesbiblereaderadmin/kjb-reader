@@ -91,8 +91,8 @@ export function ResourcesStep({ onDone }) {
           <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-accent ml-auto shrink-0" />
         </Link>
       </div>
-      <div className="mt-4 max-w-sm mx-auto text-left">
-        <p className="font-sans text-xs font-medium text-foreground mb-2 flex items-center gap-1.5">
+      <div className="mt-4 max-w-sm mx-auto text-center">
+        <p className="font-sans text-xs font-medium text-foreground mb-2 flex items-center justify-center gap-1.5">
           <DiscordIcon className="w-3.5 h-3.5" /> Discord Bot
         </p>
         <div className="grid grid-cols-2 gap-2">
