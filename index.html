@@ -307,27 +307,32 @@
              status sit below the card. Matches the React SplashScreen so the
              boot→React handoff has no jump. -->
         <div id="kjb-boot-grid">
-          <div id="kjb-boot-card">
+          <div id="kjb-boot-row">
             <img
               id="kjb-boot-logo"
               alt="KJB Reader Logo"
               style="position:relative;flex-shrink:0;object-fit:contain;border-radius:0.75rem;padding:0.5rem;background:#0f1117;box-shadow:0 0 0 1px rgba(0,0,0,0.05);"
             />
-            <div id="kjb-boot-card-text">
-              <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:clamp(0.82rem,3.2vw,0.95rem);font-style:normal;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
-                "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
-              </p>
-              <span id="kjb-boot-ref-box" style="display:inline-block;align-self:flex-start;border:1px solid rgba(255,255,255,0.2);border-radius:0.375rem;padding:0.25rem 0.75rem;background:rgba(255,255,255,0.05);">
-                <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.5rem,1.8vw,0.58rem);letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin:0;text-align:center;">
-                  — 2 Timothy 2:15 —
+            <div id="kjb-boot-divider"></div>
+            <div id="kjb-boot-text">
+              <div id="kjb-boot-verse-wrap">
+                <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:clamp(0.82rem,3.2vw,0.95rem);font-style:normal;color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+                  "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
                 </p>
-              </span>
-              <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.72rem,2.8vw,0.82rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
-                Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
-              </p>
-              <p id="kjb-boot-gospel-trust" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.72rem,2.8vw,0.82rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
-                Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
-              </p>
+                <span id="kjb-boot-ref-box" style="display:inline-block;border:1px solid rgba(255,255,255,0.2);border-radius:0.375rem;padding:0.25rem 0.75rem;background:rgba(255,255,255,0.05);">
+                  <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.5rem,1.8vw,0.58rem);letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin:0;text-align:center;">
+                    — 2 Timothy 2:15 —
+                  </p>
+                </span>
+              </div>
+              <div id="kjb-boot-gospel-wrap">
+                <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.72rem,2.8vw,0.82rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+                  Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
+                </p>
+                <p id="kjb-boot-gospel-trust" style="font-family:Inter,system-ui,sans-serif;font-size:clamp(0.72rem,2.8vw,0.82rem);color:rgba(255,255,255,0.95);line-height:1.6;margin:0;">
+                  Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
+                </p>
+              </div>
             </div>
           </div>
           <div id="kjb-boot-progress-wrap" style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;width:14rem;">
@@ -356,10 +361,10 @@
               document.getElementById('kjb-boot-ref').style.color = 'rgba(90,100,114,0.55)';
               document.getElementById('kjb-boot-gospel').style.color = 'rgba(90,100,114,0.85)';
               document.getElementById('kjb-boot-gospel-trust').style.color = 'rgba(90,100,114,0.85)';
-              var cardEl = document.getElementById('kjb-boot-card');
-              if (cardEl) { cardEl.style.borderColor = 'rgba(0,0,0,0.15)'; cardEl.style.background = 'rgba(0,0,0,0.04)'; }
               var refBoxEl = document.getElementById('kjb-boot-ref-box');
               if (refBoxEl) { refBoxEl.style.borderColor = 'rgba(0,0,0,0.2)'; refBoxEl.style.background = 'rgba(0,0,0,0.04)'; }
+              var dividerEl = document.getElementById('kjb-boot-divider');
+              if (dividerEl) { dividerEl.style.background = 'rgba(0,0,0,0.15)'; }
             }
           } catch (e) {}
         })();
@@ -384,50 +389,81 @@
           justify-content: center;
           gap: 2rem;
           width: 100%;
-          max-width: 28rem;
+          max-width: 42rem;
           padding: 0 1.5rem;
           box-sizing: border-box;
         }
-        #kjb-boot-card {
+        #kjb-boot-row {
           display: flex;
-          align-items: flex-start;
-          gap: 1rem;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1.25rem;
           width: 100%;
-          border-radius: 1rem;
-          border: 1px solid rgba(255,255,255,0.15);
-          background: rgba(255,255,255,0.04);
-          padding: 1rem;
           box-sizing: border-box;
         }
-        #kjb-boot-card-text {
+        #kjb-boot-divider {
+          display: none;
+        }
+        #kjb-boot-text {
           flex: 1;
           min-width: 0;
           display: flex;
           flex-direction: column;
-          align-items: flex-start;
-          text-align: left;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          gap: 1rem;
+        }
+        #kjb-boot-verse-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
           gap: 0.75rem;
         }
+        #kjb-boot-gospel-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+        }
         #kjb-boot-logo {
-          width: 4rem;
-          height: 4rem;
+          width: 5rem;
+          height: 5rem;
         }
         #kjb-boot-progress-wrap {
           width: 14rem;
         }
         @media (min-width: 1024px) {
           #kjb-boot-grid {
-            max-width: 28rem;
+            max-width: 42rem;
             gap: 2.5rem;
             padding: 0 2rem;
           }
-          #kjb-boot-card {
-            gap: 1.25rem;
-            padding: 1.25rem;
+          #kjb-boot-row {
+            flex-direction: row;
+            align-items: stretch;
+            gap: 2rem;
+          }
+          #kjb-boot-divider {
+            display: block;
+            width: 1px;
+            align-self: stretch;
+            background: rgba(255,255,255,0.15);
+          }
+          #kjb-boot-text {
+            align-items: flex-start;
+            text-align: left;
+            justify-content: space-between;
+            gap: 2rem;
+          }
+          #kjb-boot-verse-wrap,
+          #kjb-boot-gospel-wrap {
+            align-items: flex-start;
           }
           #kjb-boot-logo {
-            width: 5rem;
-            height: 5rem;
+            width: 6rem;
+            height: 6rem;
           }
           #kjb-boot-progress-wrap {
             width: 16rem;

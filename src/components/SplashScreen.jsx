@@ -474,31 +474,40 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120%] h-1/3 rounded-full" style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.10), transparent 60%)' }} />
       </div>
 
-      {/* Card: logo beside the verse, reference and gospel — replaces the old
-          two-side composition. Progress bar + status sit below the card. */}
-      <div className="relative flex flex-col items-center justify-center gap-8 lg:gap-10 w-full max-w-md px-6 lg:px-8">
-        <div className="relative w-full rounded-2xl border border-foreground/15 bg-foreground/[0.04] p-4 lg:p-5 flex items-start gap-4 lg:gap-5">
+      {/* Two-column composition: logo on the left, a divider, then the 2 Timothy
+          verse (top) and gospel (bottom) on the right. On mobile it stacks
+          vertically (logo, verse, gospel) with no divider — the original layout. */}
+      <div className="relative flex flex-col items-center justify-center gap-8 lg:gap-10 w-full max-w-2xl px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row items-center lg:items-stretch gap-5 lg:gap-8 w-full justify-center">
           <img
             src={logoSrc}
             alt="KJB Reader Logo"
-            className="relative shrink-0 w-16 h-16 lg:w-20 lg:h-20 object-contain rounded-xl p-2 ring-1 ring-black/5"
+            className="relative shrink-0 w-20 h-20 lg:w-24 lg:h-24 object-contain rounded-xl p-2 ring-1 ring-black/5"
             style={{ background: splashBg }}
           />
-          <div className="flex-1 min-w-0 flex flex-col items-start text-left gap-3">
-            <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: 'clamp(0.82rem, 3.2vw, 0.95rem)', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
-              "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
-            </p>
-            <span className="inline-block self-start rounded-md border border-foreground/20 bg-foreground/5 px-3 py-1">
-              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.5rem, 1.8vw, 0.58rem)', letterSpacing: '0.18em', textTransform: 'uppercase', color: refColor, margin: 0, textAlign: 'center' }}>
-                — 2 Timothy 2:15 —
+          {/* Vertical divider — desktop only */}
+          <div className="hidden lg:block w-px self-stretch bg-foreground/15" />
+          <div className="flex-1 min-w-0 flex flex-col justify-center lg:justify-between gap-4 lg:gap-8 items-center lg:items-start text-center lg:text-left">
+            {/* 2 Timothy verse + reference — top */}
+            <div className="flex flex-col gap-3 items-center lg:items-start">
+              <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: 'clamp(0.82rem, 3.2vw, 0.95rem)', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
+                "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
               </p>
-            </span>
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.72rem, 2.8vw, 0.82rem)', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
-              Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
-            </p>
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.72rem, 2.8vw, 0.82rem)', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
-              Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
-            </p>
+              <span className="inline-block rounded-md border border-foreground/20 bg-foreground/5 px-3 py-1">
+                <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.5rem, 1.8vw, 0.58rem)', letterSpacing: '0.18em', textTransform: 'uppercase', color: refColor, margin: 0, textAlign: 'center' }}>
+                  — 2 Timothy 2:15 —
+                </p>
+              </span>
+            </div>
+            {/* Gospel — bottom */}
+            <div className="flex flex-col gap-2 items-center lg:items-start">
+              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.72rem, 2.8vw, 0.82rem)', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
+                Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins according to the scriptures.
+              </p>
+              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.72rem, 2.8vw, 0.82rem)', color: gospelColor, lineHeight: 1.6, margin: 0 }}>
+                Trust Christ's blood, death, burial and resurrection on the third day according to the scriptures for your sins, and be eternally saved.
+              </p>
+            </div>
           </div>
         </div>
         {/* Progress bar — determinate (download %) or indeterminate (other steps) */}
