@@ -478,11 +478,11 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
           verse (top) and gospel (bottom) on the right. On mobile it stacks
           vertically (logo, verse, gospel) with no divider — the original layout. */}
       <div className="relative flex flex-col items-center justify-center gap-8 lg:gap-10 w-full max-w-2xl px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center lg:items-stretch gap-5 lg:gap-8 w-full justify-center">
+        <div className="flex flex-col lg:flex-row items-center gap-5 lg:gap-8 w-full justify-center">
           <img
             src={logoSrc}
             alt="KJB Reader Logo"
-            className="relative shrink-0 w-28 h-28 lg:w-32 lg:h-32 object-contain rounded-xl p-2 ring-1 ring-black/5"
+            className="relative shrink-0 w-32 h-32 lg:w-40 lg:h-40 object-contain rounded-xl p-2 ring-1 ring-black/5"
             style={{ background: splashBg }}
           />
           {/* Vertical divider — desktop only */}
@@ -493,11 +493,9 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
               <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: 'clamp(0.82rem, 3.2vw, 0.95rem)', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
                 "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
               </p>
-              <span className="inline-block rounded-md border border-foreground/20 bg-foreground/5 px-3 py-1">
-                <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.5rem, 1.8vw, 0.58rem)', letterSpacing: '0.18em', textTransform: 'uppercase', color: refColor, margin: 0, textAlign: 'center' }}>
-                  — 2 Timothy 2:15 —
-                </p>
-              </span>
+              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(0.5rem, 1.8vw, 0.58rem)', letterSpacing: '0.18em', textTransform: 'uppercase', color: refColor, margin: 0, textAlign: 'center' }}>
+                — 2 Timothy 2:15 —
+              </p>
             </div>
             {/* Gospel — bottom */}
             <div className="flex flex-col gap-2 items-center lg:items-start">
