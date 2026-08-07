@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram, Puzzle } from 'lucide-react';
+import { Shield, FileText, Mail, Globe, Youtube, ArrowRight, Heart, MonitorSmartphone, PlayCircle, Link2, GraduationCap, Instagram } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
 import ScriptureBanner from '@/components/ScriptureBanner';
 
@@ -106,7 +106,7 @@ export default function LandingPage() {
             className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
-              <Puzzle className="w-5 h-5" />
+              <Globe className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">KJB Reader Chrome Extension <span className="text-accent font-semibold">— Coming Soon!</span></p>

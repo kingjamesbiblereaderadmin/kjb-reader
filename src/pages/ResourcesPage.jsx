@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy, Printer, Mail, PlayCircle, Link2, Puzzle } from 'lucide-react';
+import { ExternalLink, FileText, BookOpen, ShieldAlert, Globe, CheckCircle, Users, ChevronDown, Youtube, Facebook, Instagram, Link as LinkIcon, Copy, Printer, Mail, PlayCircle, Link2 } from 'lucide-react';
 import { printHtml } from '@/lib/printHelpers';
 import ScriptureBanner from '@/components/ScriptureBanner';
 
@@ -391,7 +391,7 @@ export default function ResourcesPage() {
       <div className="bg-card border border-border rounded-2xl mb-6 p-5">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-cyan-600">
-            <Puzzle className="w-5 h-5" />
+            <Globe className="w-5 h-5" />
           </div>
           <div>
             <h2 className="font-serif text-lg font-bold text-foreground mb-1">KJB SidePanel</h2>
