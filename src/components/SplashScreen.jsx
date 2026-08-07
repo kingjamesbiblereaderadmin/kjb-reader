@@ -459,7 +459,7 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
   // exactly so the handoff from static HTML to React is seamless (no jump).
   const verseColor = isDarkSplash ? 'rgba(255,255,255,0.95)' : 'rgba(90,100,114,0.85)';
   const refColor = isDarkSplash ? 'rgba(255,255,255,0.65)' : 'rgba(90,100,114,0.55)';
-  const gospelColor = isDarkSplash ? 'rgba(255,255,255,0.85)' : 'rgba(90,100,114,0.7)';
+  const gospelColor = verseColor;
 
   return (
     <div
