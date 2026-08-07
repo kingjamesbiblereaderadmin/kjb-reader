@@ -113,7 +113,7 @@ export default function VerseActionButtons({
             {/* Dropdown menu */}
             {showMenu && (
               <div
-                className="absolute right-0 top-8 z-30 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden w-48 py-0"
+                className="absolute right-0 top-8 z-30 bg-popover/95 backdrop-blur-xl rounded-xl shadow-xl border border-border/60 overflow-hidden w-48 py-1"
                 onClick={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
                 onTouchStart={(e) => e.stopPropagation()}
@@ -124,7 +124,7 @@ export default function VerseActionButtons({
                     e.stopPropagation();
                     setShowMenu(false);
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-accent/15 transition-colors touch-manipulation"
                 >
                   <Copy className="w-4 h-4 pointer-events-none" />
                   Copy Verse
@@ -136,7 +136,7 @@ export default function VerseActionButtons({
                       onTogglePanel();
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-accent/15 transition-colors touch-manipulation"
                   >
                     <Eye className="w-4 h-4 pointer-events-none" />
                     {showVersePanel ? 'Hide Panel' : 'Show Panel'}
@@ -149,7 +149,7 @@ export default function VerseActionButtons({
                       onShowStyleEditor();
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-accent/15 transition-colors touch-manipulation"
                   >
                     <Palette className="w-4 h-4 pointer-events-none" />
                     Text Style
@@ -174,7 +174,7 @@ export default function VerseActionButtons({
                       setShowMenu(false);
                       onCropClick();
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-accent/15 transition-colors touch-manipulation"
                   >
                     <Crop className="w-4 h-4 pointer-events-none" />
                     Crop Background
@@ -187,7 +187,7 @@ export default function VerseActionButtons({
                       onRemoveBackground();
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors touch-manipulation"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10 transition-colors touch-manipulation"
                   >
                     <Trash2 className="w-4 h-4 pointer-events-none" />
                     Remove Custom Background
@@ -199,7 +199,7 @@ export default function VerseActionButtons({
                     onHideButtons();
                     setShowMenu(false);
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 transition-colors touch-manipulation"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-accent/15 transition-colors touch-manipulation"
                 >
                   <ChevronsDown className="w-4 h-4 rotate-180 pointer-events-none" />
                   Hide All Buttons

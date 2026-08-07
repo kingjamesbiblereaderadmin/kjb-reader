@@ -20,7 +20,7 @@ export default function ExportMenu({ onExport, count, label = 'Export', warning 
       <DropdownMenuTrigger asChild>
         <button
           title={`${label}${count != null ? ` (${count})` : ''}`}
-          className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-secondary hover:bg-accent/20 text-foreground font-sans text-xs font-medium transition-colors"
+          className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg bg-card/50 backdrop-blur-md border border-border/50 hover:bg-accent/15 hover:border-accent/30 text-foreground font-sans text-xs font-medium transition-all"
         >
           <Download className="w-3.5 h-3.5 flex-shrink-0" /> <span className="hidden xs:inline">{label}{count != null ? ` (${count})` : ''}</span>
           <ChevronDown className="w-3 h-3 flex-shrink-0" />
