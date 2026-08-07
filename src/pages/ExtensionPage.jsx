@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, ArrowLeft, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download, Monitor } from 'lucide-react';
+import { Globe, ArrowLeft, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download, AlertTriangle } from 'lucide-react';
 
 const FEATURES = [
   {
@@ -57,21 +57,18 @@ export default function ExtensionPage() {
           </div>
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader - SidePanel</h1>
           <p className="font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
+          <div className="mt-4 max-w-xl mx-auto bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 flex items-start gap-3 text-left">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+            <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+              <strong className="font-semibold">⚠️ Desktop Only</strong> — This extension is
+              designed for desktop browsers only (Chrome, Edge, Brave on Windows, macOS, and
+              Linux). It is not available on mobile browsers.
+            </p>
+          </div>
           <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#DBEAFE' }}>
             <span className="font-sans text-xs font-semibold" style={{ color: '#1E40AF' }}>Coming to Chrome Web Store</span>
           </div>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
-        </div>
-
-        {/* Desktop-only notice */}
-        <div className="bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 mb-5 flex items-start gap-3">
-          <Monitor className="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-          <p className="font-sans text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-            <strong className="font-semibold">Desktop Only</strong> — The KJB Reader SidePanel
-            extension is designed for desktop browsers (Chrome, Edge, Brave, and other
-            Chromium-based browsers on Windows, macOS, and Linux). It is not available on mobile
-            browsers, as Chrome's side panel API is not supported on mobile devices.
-          </p>
         </div>
 
         {/* Description card */}
