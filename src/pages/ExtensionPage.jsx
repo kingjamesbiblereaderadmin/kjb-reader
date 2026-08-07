@@ -55,12 +55,12 @@ export default function ExtensionPage() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/30 mb-4">
             <Globe className="w-7 h-7 text-white" />
           </div>
-          <h1 className="font-serif text-4xl font-bold text-foreground mb-2">KJB Reader - SidePanel</h1>
-          <p className="mt-2 max-w-xl mx-auto rounded-xl bg-amber-100 dark:bg-amber-900/20 px-4 py-2 font-sans text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+          <h1 className="font-serif text-4xl font-bold text-foreground mb-3">KJB Reader - SidePanel</h1>
+          <p className="mt-1 max-w-xl mx-auto rounded-xl bg-amber-100 dark:bg-amber-900/20 px-4 py-2 font-sans text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
             Desktop Only — This extension is designed for desktop browsers only (Chrome, Edge, Brave on Windows, macOS, and Linux). It is not available on mobile browsers.
           </p>
-          <p className="font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
-          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#DBEAFE' }}>
+          <p className="mt-3 mb-3 font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#DBEAFE' }}>
             <span className="font-sans text-xs font-semibold" style={{ color: '#1E40AF' }}>Coming to Chrome Web Store</span>
           </div>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
