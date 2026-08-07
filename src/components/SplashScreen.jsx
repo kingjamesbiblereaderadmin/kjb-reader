@@ -516,21 +516,23 @@ export default function SplashScreen({ isFadingOut, onDone, mode = 'first_load',
         </div>
 
         {/* Divider — vertical on desktop, horizontal on mobile */}
-        <div className="hidden sm:block w-px self-stretch max-h-80" style={{ background: 'linear-gradient(transparent, rgba(79,106,255,0.25), transparent)' }} />
+        <div className="hidden sm:block w-px self-stretch max-h-80" style={{ background: 'linear-gradient(transparent, rgba(120,120,130,0.35), transparent)' }} />
         <div className="sm:hidden w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
 
         {/* Right side — scripture */}
         <div
-          className="flex flex-col items-center sm:items-start gap-3 max-w-md text-center sm:text-left"
+          className="flex flex-col items-center sm:items-start justify-between self-stretch gap-6 sm:gap-8 max-w-md text-center sm:text-left py-2"
           style={{ animation: 'kjb-splash-fade 600ms ease-out 200ms both' }}
         >
-          <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '0.82rem', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
-            "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
-          </p>
-          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
-            — 2 Timothy 2:15 —
-          </p>
-          <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(79,106,255,0.45), transparent)' }} />
+          <div className="flex flex-col items-center sm:items-start gap-2">
+            <p style={{ fontFamily: 'Merriweather, Georgia, serif', fontSize: '0.82rem', fontStyle: 'normal', color: verseColor, lineHeight: 1.6, margin: 0 }}>
+              "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
+            </p>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: refColor, margin: 0 }}>
+              — 2 Timothy 2:15 —
+            </p>
+          </div>
+          <div className="w-10 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(120,120,130,0.45), transparent)' }} />
           <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.72rem', color: gospelColor, lineHeight: 1.5, margin: 0 }}>
             Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.
           </p>

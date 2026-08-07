@@ -297,13 +297,15 @@
           <div id="kjb-boot-divider"></div>
           <!-- Right side — scripture -->
           <div id="kjb-boot-scripture" style="animation:kjb-splash-fade 600ms ease-out 200ms both;">
-            <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:0.82rem;font-style:normal;color:rgba(200,205,216,0.7);line-height:1.6;margin:0;">
-              "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
-            </p>
-            <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(200,205,216,0.5);margin:0;">
-              — 2 Timothy 2:15 —
-            </p>
-            <div id="kjb-boot-scripture-divider" style="width:2.5rem;height:1px;background:linear-gradient(90deg,transparent,rgba(79,106,255,0.45),transparent);"></div>
+            <div id="kjb-boot-scripture-quote" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+              <p id="kjb-boot-verse" style="font-family:Merriweather,Georgia,serif;font-size:0.82rem;font-style:normal;color:rgba(200,205,216,0.7);line-height:1.6;margin:0;">
+                "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."
+              </p>
+              <p id="kjb-boot-ref" style="font-family:Inter,system-ui,sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(200,205,216,0.5);margin:0;">
+                — 2 Timothy 2:15 —
+              </p>
+            </div>
+            <div id="kjb-boot-scripture-divider" style="width:2.5rem;height:1px;background:linear-gradient(90deg,transparent,rgba(120,120,130,0.45),transparent);"></div>
             <p id="kjb-boot-gospel" style="font-family:Inter,system-ui,sans-serif;font-size:0.72rem;color:rgba(200,205,216,0.6);line-height:1.5;margin:0;">
               Jesus Christ died, shed his blood, was buried, and rose again on the third day for our sins. Trust Christ's blood, death, burial and resurrection for your sins, and be eternally saved.
             </p>
@@ -367,6 +369,7 @@
           display: flex;
           flex-direction: column;
           align-items: center;
+          justify-content: space-between;
           gap: 0.75rem;
           max-width: 28rem;
           text-align: center;
@@ -390,12 +393,14 @@
           #kjb-boot-divider {
             width: 1px;
             height: 20rem;
-            background: linear-gradient(transparent, rgba(79,106,255,0.25), transparent);
+            background: linear-gradient(transparent, rgba(120,120,130,0.35), transparent);
           }
           #kjb-boot-scripture {
             align-items: flex-start;
             text-align: left;
             max-width: 24rem;
+            align-self: stretch;
+            gap: 1rem;
           }
           #kjb-boot-logo {
             width: 10rem;
