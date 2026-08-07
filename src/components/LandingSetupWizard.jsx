@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 import {
   Bell, Share, MonitorSmartphone, Download, Accessibility, Palette,
   Type, Moon, Sun, Monitor, ChevronLeft, ChevronRight, Check, Star,
-  Image as ImageIcon, Upload, Trash2, Crop, Heart, Globe, Mail,
+  Image as ImageIcon, Upload, Trash2, Crop, Heart, Globe,
 } from 'lucide-react';
-import { GospelStep, ResourcesStep, LegalContactStep } from '@/components/LandingContentSteps';
+import { GospelStep, ResourcesStep } from '@/components/LandingContentSteps';
 import { toast } from 'sonner';
 import { getAccessibilityFont, setAccessibilityFont } from '@/lib/accessibilityFont';
 import { useTheme } from '@/lib/themeContext';
@@ -108,7 +108,6 @@ export default function LandingSetupWizard() {
     notif: false,
     gospel: false,
     resources: false,
-    links: false,
   });
 
   const markDone = (id) => setCompleted(prev => prev[id] ? prev : { ...prev, [id]: true });
@@ -258,7 +257,6 @@ export default function LandingSetupWizard() {
     { id: 'notif', label: 'Notif', icon: Bell },
     { id: 'gospel', label: 'Gospel', icon: Heart },
     { id: 'resources', label: 'More', icon: Globe },
-    { id: 'links', label: 'Links', icon: Mail },
   ];
 
   const isFirst = step === 0;
@@ -600,9 +598,6 @@ export default function LandingSetupWizard() {
 
         {/* Step 6: Resources */}
         {step === 6 && <ResourcesStep onDone={() => markDone('resources')} />}
-
-        {/* Step 7: Legal & Contact */}
-        {step === 7 && <LegalContactStep onDone={() => markDone('links')} />}
       </div>
 
       {/* Navigation buttons */}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
+import { LegalContactStep } from '@/components/LandingContentSteps';
 import ScriptureBanner from '@/components/ScriptureBanner';
 
 const LAST_UPDATED = 'July 16th, 2026';
@@ -48,9 +49,16 @@ export default function LandingPage() {
           <ScriptureBanner />
         </div>
 
-        {/* Setup wizard — now includes Gospel, Resources, and Links steps */}
+        {/* Setup wizard — Install, Theme, Fonts, Background, Notif, Gospel, Resources */}
         <div className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '120ms', animationFillMode: 'both' }}>
           <LandingSetupWizard />
+        </div>
+
+        {/* Links & Contact — outside the wizard, always visible below */}
+        <div className="mt-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '180ms', animationFillMode: 'both' }}>
+          <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
+            <LegalContactStep />
+          </div>
         </div>
 
         <p className="text-center font-sans text-xs text-muted-foreground mt-8">
