@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, FileText, MonitorSmartphone } from 'lucide-react';
+import { ArrowRight, Shield, FileText, MonitorSmartphone, ChevronDown } from 'lucide-react';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import LandingSetupWizard from '@/components/LandingSetupWizard';
 import ContactLinks from '@/components/ContactLinks';
 import ScriptureBanner from '@/components/ScriptureBanner';
@@ -54,43 +55,63 @@ export default function LandingPage() {
           <LandingSetupWizard />
         </div>
 
-        {/* Legal — Privacy / Terms / Legacy, in its own box */}
+        {/* Legal — Privacy / Terms / Legacy, collapsed by default */}
         <div className="mt-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '180ms', animationFillMode: 'both' }}>
-          <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
-            <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Legal & Legacy</h3>
-            <p className="font-sans text-xs text-muted-foreground mb-4 text-center">Privacy, terms, and the legacy reader for old browsers (e.g. IE11)</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-sm mx-auto">
-              {[
-                { to: '/privacy', icon: Shield, title: 'Privacy', sub: 'Privacy Policy', bg: 'from-slate-500 to-slate-700' },
-                { to: '/terms', icon: FileText, title: 'Terms', sub: 'Terms of Service', bg: 'from-amber-500 to-orange-600' },
-                { to: '/legacy', icon: MonitorSmartphone, title: 'Legacy', sub: 'Old-browser reader', bg: 'from-sky-500 to-blue-600' },
-              ].map(({ to, icon: Icon, title, sub, bg }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  className="group flex items-center gap-2.5 p-3 rounded-xl border border-border bg-card hover:border-accent/50 transition-all"
-                >
-                  <div className={`w-9 h-9 flex items-center justify-center rounded-xl text-white bg-gradient-to-br ${bg} shrink-0`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-sans font-semibold text-xs text-foreground truncate">{title}</p>
-                    <p className="font-sans text-[11px] text-muted-foreground truncate">{sub}</p>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent ml-auto shrink-0" />
-                </Link>
-              ))}
+          <Collapsible defaultOpen={false}>
+            <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
+              <CollapsibleTrigger className="w-full flex items-center justify-center gap-2 text-center group">
+                <div>
+                  <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Legal & Legacy</h3>
+                  <p className="font-sans text-xs text-muted-foreground text-center">Privacy, terms, and the legacy reader for old browsers (e.g. IE11)</p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180 group-data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-sm mx-auto mt-4">
+                  {[
+                    { to: '/privacy', icon: Shield, title: 'Privacy', sub: 'Privacy Policy', bg: 'from-slate-500 to-slate-700' },
+                    { to: '/terms', icon: FileText, title: 'Terms', sub: 'Terms of Service', bg: 'from-amber-500 to-orange-600' },
+                    { to: '/legacy', icon: MonitorSmartphone, title: 'Legacy', sub: 'Old-browser reader', bg: 'from-sky-500 to-blue-600' },
+                  ].map(({ to, icon: Icon, title, sub, bg }) => (
+                    <Link
+                      key={to}
+                      to={to}
+                      className="group flex items-center gap-2.5 p-3 rounded-xl border border-border bg-card hover:border-accent/50 transition-all"
+                    >
+                      <div className={`w-9 h-9 flex items-center justify-center rounded-xl text-white bg-gradient-to-br ${bg} shrink-0`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-sans font-semibold text-xs text-foreground truncate">{title}</p>
+                        <p className="font-sans text-[11px] text-muted-foreground truncate">{sub}</p>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent ml-auto shrink-0" />
+                    </Link>
+                  ))}
+                </div>
+              </CollapsibleContent>
             </div>
-          </div>
+          </Collapsible>
         </div>
 
-        {/* Contact — rich link cards, in its own box */}
+        {/* Contact — rich link cards, collapsed by default */}
         <div className="mt-6 animate-in fade-in slide-in-from-bottom-4" style={{ animationDuration: '500ms', animationDelay: '240ms', animationFillMode: 'both' }}>
-          <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
-            <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Links & Contact</h3>
-            <p className="font-sans text-xs text-muted-foreground mb-4 text-center">Ways to reach us and follow the ministry</p>
-            <ContactLinks />
-          </div>
+          <Collapsible defaultOpen={false}>
+            <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
+              <CollapsibleTrigger className="w-full flex items-center justify-center gap-2 text-center group">
+                <div>
+                  <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Links & Contact</h3>
+                  <p className="font-sans text-xs text-muted-foreground text-center">Ways to reach us and follow the ministry</p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="mt-4">
+                  <ContactLinks />
+                </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
         </div>
 
         <p className="text-center font-sans text-xs text-muted-foreground mt-8">
