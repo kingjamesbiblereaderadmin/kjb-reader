@@ -59,16 +59,27 @@ export default function LandingPage() {
           <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl p-6 shadow-lg shadow-black/[0.03]">
             <h3 className="font-serif text-lg font-bold text-foreground mb-1 text-center">Links & Contact</h3>
             <p className="font-sans text-xs text-muted-foreground mb-4 text-center">Legal info and ways to reach us</p>
-            <div className="flex flex-wrap justify-center gap-2 mb-4">
-              <Link to="/privacy" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-sans text-foreground hover:border-accent/50 transition-all">
-                <Shield className="w-3.5 h-3.5" /> Privacy
-              </Link>
-              <Link to="/terms" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-sans text-foreground hover:border-accent/50 transition-all">
-                <FileText className="w-3.5 h-3.5" /> Terms
-              </Link>
-              <Link to="/legacy" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-sans text-foreground hover:border-accent/50 transition-all">
-                <MonitorSmartphone className="w-3.5 h-3.5" /> Legacy
-              </Link>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-sm mx-auto mb-4">
+              {[
+                { to: '/privacy', icon: Shield, title: 'Privacy', sub: 'Privacy Policy', bg: 'from-slate-500 to-slate-700' },
+                { to: '/terms', icon: FileText, title: 'Terms', sub: 'Terms of Service', bg: 'from-amber-500 to-orange-600' },
+                { to: '/legacy', icon: MonitorSmartphone, title: 'Legacy', sub: 'Old-browser reader', bg: 'from-sky-500 to-blue-600' },
+              ].map(({ to, icon: Icon, title, sub, bg }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className="group flex items-center gap-2.5 p-3 rounded-xl border border-border bg-card hover:border-accent/50 transition-all"
+                >
+                  <div className={`w-9 h-9 flex items-center justify-center rounded-xl text-white bg-gradient-to-br ${bg} shrink-0`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-sans font-semibold text-xs text-foreground truncate">{title}</p>
+                    <p className="font-sans text-[11px] text-muted-foreground truncate">{sub}</p>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-accent ml-auto shrink-0" />
+                </Link>
+              ))}
             </div>
             <ContactLinks />
           </div>
