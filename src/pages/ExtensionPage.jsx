@@ -75,7 +75,7 @@ export default function ExtensionPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/d36df0044_kjb-reader-v040-chrome.zip"
+              href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/b88565e1f_kjb-reader-v040-chrome.zip"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md w-full sm:w-auto justify-center"
@@ -85,7 +85,7 @@ export default function ExtensionPage() {
               Download for Chrome / Edge
             </a>
             <a
-              href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/0c7bdc9b0_kjb-reader-v040-firefox.zip"
+              href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/cdc8dffbf_kjb-reader-v040-firefox.zip"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md w-full sm:w-auto justify-center"
