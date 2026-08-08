@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, ArrowLeft, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download } from 'lucide-react';
+import { Globe, ArrowLeft, Search, BookOpen, Sparkles, Bell, MousePointer2, Heart, Download, Chrome } from 'lucide-react';
 
 const FEATURES = [
   {
@@ -73,18 +73,30 @@ export default function ExtensionPage() {
             verse reference you encounter online, search the scriptures, and read the full Bible —
             all from a convenient sidebar.
           </p>
-          <a
-            href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/23620054b_KJB-Reader-SidePanel-v030.zip"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md"
-            style={{ backgroundColor: '#16A34A' }}
-          >
-            <Download className="w-4 h-4" />
-            Download KJB Reader - SidePanel (.zip)
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/d36df0044_kjb-reader-v040-chrome.zip"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md w-full sm:w-auto justify-center"
+              style={{ backgroundColor: '#16A34A' }}
+            >
+              <Chrome className="w-4 h-4" />
+              Download for Chrome / Edge
+            </a>
+            <a
+              href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/0c7bdc9b0_kjb-reader-v040-firefox.zip"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md w-full sm:w-auto justify-center"
+              style={{ backgroundColor: '#EA580C' }}
+            >
+              <Globe className="w-4 h-4" />
+              Download for Firefox
+            </a>
+          </div>
           <p className="font-sans text-xs text-muted-foreground mt-3">
-            Coming soon to the Chrome Web Store. Download the .zip to install manually in developer mode.
+            Safari support coming soon — requires macOS with Safari 16+.
           </p>
           <p className="font-sans text-xs text-muted-foreground mt-2">
             <Link to="/extension-privacy" className="text-primary hover:underline font-medium">
