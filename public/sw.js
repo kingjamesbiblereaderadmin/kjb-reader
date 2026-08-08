@@ -1,7 +1,7 @@
-// KJB Reader Service Worker v20260808_0049
+// KJB Reader Service Worker v20260808_0050
 // Cache-first loading for offline support
 
-const CACHE_NAME = 'kjb-reader-v20260808_0049';
+const CACHE_NAME = 'kjb-reader-v20260808_0050';
 const LEGACY_CACHE_NAME = 'kjb-legacy-v9';
 
 // Core app shell resources to cache immediately
