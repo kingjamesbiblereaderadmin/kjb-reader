@@ -7,7 +7,7 @@ import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 // serve a stale sw.js for hours after a deploy, which prevented the update
 // prompt from ever firing). This endpoint is always served no-store, so the
 // version string here is the reliable source of truth for "what's deployed".
-const SW_VERSION = 'v20260808_0046';
+const SW_VERSION = 'v20260808_0047';
 
 const DEFAULT_ICONS = [
   {
