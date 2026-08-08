@@ -84,16 +84,6 @@ export default function ExtensionPage() {
               <Chrome className="w-4 h-4" />
               Download for Chrome / Edge
             </a>
-            <a
-              href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/f4dc1ffc2_kjb-reader-v040-firefox.zip"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md w-full sm:w-auto justify-center"
-              style={{ backgroundColor: '#EA580C' }}
-            >
-              <Globe className="w-4 h-4" />
-              Download for Firefox
-            </a>
           </div>
           <p className="font-sans text-xs text-muted-foreground mt-3">
             Safari support coming soon — requires macOS with Safari 16+.
