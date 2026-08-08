@@ -199,6 +199,14 @@ const AuthenticatedApp = () => {
     return () => clearTimeout(t);
   }, [location.pathname]);
 
+  // Standalone routes (outside AppLayout — /extension, /privacy, /terms, etc.)
+  // scroll the window itself, not the #kjb-scroll container that AppLayout
+  // resets. Without this, navigating to such a page opens it at the previous
+  // page's scroll position instead of the top.
+  useEffect(() => {
+    if (typeof window !== 'undefined') window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   // Preload route chunks in background
   useEffect(() => { preloadAllRoutes(); }, []);
 
