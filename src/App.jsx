@@ -43,6 +43,8 @@ const loaders = {
   ForgotPassword: () => import('@/pages/ForgotPassword.jsx').catch((err) => { console.error('Failed to load ForgotPassword:', err); throw err; }),
   ResetPassword: () => import('@/pages/ResetPassword.jsx').catch((err) => { console.error('Failed to load ResetPassword:', err); throw err; }),
   Contact: () => import('@/pages/ContactPage').catch((err) => { console.error('Failed to load ContactPage:', err); throw err; }),
+  Register: () => import('@/pages/Register.jsx').catch((err) => { console.error('Failed to load Register:', err); throw err; }),
+  OAuthConsent: () => import('@/pages/OAuthConsent.jsx').catch((err) => { console.error('Failed to load OAuthConsent:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -73,6 +75,8 @@ const LoginPage = lazy(loaders.Login);
 const ForgotPasswordPage = lazy(loaders.ForgotPassword);
 const ResetPasswordPage = lazy(loaders.ResetPassword);
 const ContactPage = lazy(loaders.Contact);
+const RegisterPage = lazy(loaders.Register);
+const OAuthConsentPage = lazy(loaders.OAuthConsent);
 
 
 const getLoaderForPath = (pathname) => {
@@ -271,6 +275,8 @@ const AuthenticatedApp = () => {
             <Route path="/login" element={<Suspense fallback={<RouteLoader />}><LoginPage /></Suspense>} />
             <Route path="/forgot-password" element={<Suspense fallback={<RouteLoader />}><ForgotPasswordPage /></Suspense>} />
             <Route path="/reset-password" element={<Suspense fallback={<RouteLoader />}><ResetPasswordPage /></Suspense>} />
+            <Route path="/register" element={<Suspense fallback={<RouteLoader />}><RegisterPage /></Suspense>} />
+            <Route path="/oauth/consent" element={<Suspense fallback={<RouteLoader />}><OAuthConsentPage /></Suspense>} />
             <Route element={<AppLayout />}>
               <Route path="/" element={<Suspense fallback={<RouteLoader />}><FadeIn><HomePage /></FadeIn></Suspense>} />
               <Route path="/read" element={<Suspense fallback={<RouteLoader />}><FadeIn><BibleReader /></FadeIn></Suspense>} />
