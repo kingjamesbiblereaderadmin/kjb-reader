@@ -85,9 +85,6 @@ export default function ExtensionPage() {
               Download for Chrome / Edge
             </a>
           </div>
-          <p className="font-sans text-xs text-muted-foreground mt-3">
-            Safari support coming soon — requires macOS with Safari 16+.
-          </p>
           <p className="font-sans text-xs text-muted-foreground mt-2">
             <Link to="/extension-privacy" className="text-primary hover:underline font-medium">
               Extension Privacy Policy
