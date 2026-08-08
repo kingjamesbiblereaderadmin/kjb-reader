@@ -61,7 +61,7 @@ export default function ExtensionPage() {
           </p>
           <p className="mt-3 mb-3 font-sans text-sm text-muted-foreground">Read, search, and look up Bible verses from any web page.</p>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ backgroundColor: '#DBEAFE' }}>
-            <span className="font-sans text-xs font-semibold" style={{ color: '#1E40AF' }}>v0.4.28 · Coming to Chrome Web Store</span>
+            <span className="font-sans text-xs font-semibold" style={{ color: '#1E40AF' }}>v0.4.29 · Coming to Chrome Web Store</span>
           </div>
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
@@ -75,7 +75,7 @@ export default function ExtensionPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/3f0a33c60_kjb-reader-v0428-chrome.zip"
+              href="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/ecaa8c11f_kjb-reader-v0429-chrome.zip"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-sans text-sm font-semibold text-white hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md w-full sm:w-auto justify-center"
