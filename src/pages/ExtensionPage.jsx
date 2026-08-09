@@ -8,19 +8,19 @@ const VERSION = 'v0.4.36';
 const MOCKUPS = [
   {
     src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/046dd1962_mockup-results.png',
-    label: 'Results — Verse lookup & search',
+    label: 'Results',
   },
   {
     src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/fdd31a61d_mockup-read.png',
-    label: 'Read — Full chapter reader',
+    label: 'Read',
   },
   {
     src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/92ea5497f_mockup-gospel.png',
-    label: 'Gospel — Salvation resources',
+    label: 'Gospel',
   },
   {
     src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/324aa09ca_mockup-resources.png',
-    label: 'Resources — Ministry links',
+    label: 'Resources',
   },
 ];
 
