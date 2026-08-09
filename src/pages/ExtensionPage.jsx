@@ -7,19 +7,23 @@ const VERSION = 'v0.4.36';
 
 const MOCKUPS = [
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/cf3d094bf_mockup-results.png',
+    light: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/de194f2c0_image.png',
+    dark: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2cd1a9033_image.png',
     label: 'Results',
   },
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/156787c55_mockup-read.png',
+    light: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/b530eb08a_image.png',
+    dark: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/e1356f9fe_image.png',
     label: 'Read',
   },
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/cc2940696_mockup-gospel.png',
+    light: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/043f4e33f_image.png',
+    dark: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/56bb30b6a_image.png',
     label: 'Gospel',
   },
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/262cee1cd_mockup-resources.png',
+    light: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/75bcdffe1_image.png',
+    dark: 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/4f7783201_image.png',
     label: 'Resources',
   },
 ];
@@ -130,11 +134,19 @@ export default function ExtensionPage() {
           <h2 className="font-serif text-2xl font-bold text-white mb-6 text-center">See It In Action</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {MOCKUPS.map((m) => (
-              <div key={m.src} className="flex flex-col items-center">
+              <div key={m.label} className="flex flex-col items-center">
                 <img
-                  src={m.src}
+                  src={m.light}
                   alt={m.label}
-                  className="w-full rounded-xl border shadow-lg transition-transform duration-200 hover:scale-[1.02]"
+                  loading="lazy"
+                  className="kjb-mockup-light w-full rounded-xl border shadow-lg transition-transform duration-200 hover:scale-[1.02]"
+                  style={{ borderColor: '#3f3f4a', backgroundColor: '#1c1c24' }}
+                />
+                <img
+                  src={m.dark}
+                  alt={m.label}
+                  loading="lazy"
+                  className="kjb-mockup-dark w-full rounded-xl border shadow-lg transition-transform duration-200 hover:scale-[1.02]"
                   style={{ borderColor: '#3f3f4a', backgroundColor: '#1c1c24' }}
                 />
                 <p className="font-sans text-xs text-center mt-3 leading-relaxed" style={{ color: '#a1a1aa' }}>

@@ -182,6 +182,17 @@
     padding-top: 0 !important;
   }
 
+  /* Extension page mockups: show the screenshot matching the browser's color
+     scheme. The /extension page itself is always dark-themed, but the
+     screenshots depict the extension UI which adapts to the browser — so we
+     swap based on the OS/browser preference, not the app theme. */
+  .kjb-mockup-dark { display: none; }
+  .kjb-mockup-light { display: block; }
+  @media (prefers-color-scheme: dark) {
+    .kjb-mockup-dark { display: block; }
+    .kjb-mockup-light { display: none; }
+  }
+
   /* Hide scrollbar for horizontal scrolling nav */
   .scrollbar-hide {
     -ms-overflow-style: none;
