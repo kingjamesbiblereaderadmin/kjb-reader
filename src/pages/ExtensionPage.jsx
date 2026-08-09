@@ -128,7 +128,7 @@ export default function ExtensionPage() {
           </p>
 
           {/* Download buttons */}
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-center gap-3 w-full sm:w-auto">
             <a
               href={DOWNLOAD_URLS.chrome}
               target="_blank"
