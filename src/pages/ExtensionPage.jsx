@@ -130,35 +130,33 @@ export default function ExtensionPage() {
 
           {/* Download buttons */}
           <div className="flex flex-col items-center gap-3">
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <a
-                href={DOWNLOAD_URLS.chrome}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
-              >
-                <Download className="w-5 h-5" />
-                Download for Chrome / Edge
-              </a>
-              <a
-                href={DOWNLOAD_URLS.firefox}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-orange-500 hover:bg-orange-600"
-              >
-                <Download className="w-5 h-5" />
-                Download for Firefox
-              </a>
-              <a
-                href={DOWNLOAD_URLS.opera}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-red-500 hover:bg-red-600"
-              >
-                <Download className="w-5 h-5" />
-                Download for Opera
-              </a>
-            </div>
+            <a
+              href={DOWNLOAD_URLS.chrome}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
+            >
+              <Download className="w-5 h-5" />
+              Download for Chrome / Edge
+            </a>
+            <a
+              href={DOWNLOAD_URLS.firefox}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
+            >
+              <Download className="w-5 h-5" />
+              Download for Firefox
+            </a>
+            <a
+              href={DOWNLOAD_URLS.opera}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
+            >
+              <Download className="w-5 h-5" />
+              Download for Opera
+            </a>
             <p className="font-sans text-xs text-muted-foreground">
               <Link to="/extension-privacy" className="hover:underline font-medium text-primary">
                 Extension Privacy Policy
