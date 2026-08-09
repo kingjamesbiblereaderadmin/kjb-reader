@@ -7,19 +7,19 @@ const VERSION = 'v0.4.36';
 
 const MOCKUPS = [
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/ffd769ff2_mockup-results.png',
-    label: 'Results — Verse lookup & search results',
+    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/046dd1962_mockup-results.png',
+    label: 'Results — Verse lookup & search',
   },
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/a915a2120_mockup-read.png',
-    label: 'Read — Full chapter with verse navigation',
+    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/fdd31a61d_mockup-read.png',
+    label: 'Read — Full chapter reader',
   },
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/35d9bae91_mockup-gospel.png',
+    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/92ea5497f_mockup-gospel.png',
     label: 'Gospel — Salvation resources',
   },
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/d56e10c5d_mockup-resources.png',
+    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/324aa09ca_mockup-resources.png',
     label: 'Resources — Ministry links',
   },
 ];
@@ -28,32 +28,32 @@ const FEATURES = [
   {
     icon: Search,
     title: 'Instant Verse Lookup',
-    desc: 'Look up any Bible reference from any web page — no need to open a new tab. Verses are auto-detected and become clickable links.',
+    desc: 'Auto-detect Bible references on any web page. Verses become clickable links that open in the sidebar.',
   },
   {
     icon: BookOpen,
     title: 'Read the KJB',
-    desc: 'Full King James Bible (Pure Cambridge Edition) text in a handy sidebar with chapter navigation.',
+    desc: 'Full King James Bible (Pure Cambridge Edition) with chapter navigation, verse numbers, and pilcrows.',
   },
   {
     icon: MousePointer2,
     title: 'Right-Click Search',
-    desc: 'Select any text and right-click to look it up in the KJB sidebar instantly.',
+    desc: 'Select any text on a page, right-click, and look it up in the KJB sidebar instantly.',
   },
   {
     icon: Sparkles,
     title: 'Advanced Search',
-    desc: 'Search with wildcards (? and *), whole-word match, case sensitivity, and Old/New Testament filtering.',
+    desc: 'Wildcards (? and *), whole-word match, case sensitivity, and Old/New Testament filtering.',
   },
   {
     icon: Heart,
     title: 'Gospel Tab',
-    desc: "Built-in salvation resources with key Bible verses and the sinner's prayer.",
+    desc: 'Built-in salvation guide with 1 Corinthians 15:1-4, Romans 3:25, and verified KJB preachers.',
   },
   {
     icon: Link2,
     title: 'Resources Tab',
-    desc: 'Quick links to ministry websites, community Discord, and Bible study tools.',
+    desc: 'Quick links to KJBI.org, Discord bot, KJB defence materials, and ministry websites.',
   },
 ];
 
