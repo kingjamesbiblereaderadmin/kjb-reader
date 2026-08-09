@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2 } from 'lucide-react';
 
 const DOWNLOAD_URLS = {
-  chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/57ee0c58c_kjb-reader-v0459-chrome.zip',
-  firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/13e548b5a_kjb-reader-v0459-firefox.zip',
-  opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/008c4fe8e_kjb-reader-v0459-opera.zip',
+  chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/49883289b_kjb-reader-v0478-chrome.zip',
+  firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/d81bb0f73_kjb-reader-v0478-firefox.zip',
+  opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/c708a164d_kjb-reader-v0478-opera.zip',
 };
-const VERSION = 'v0.4.60';
+const VERSION = 'v0.4.78';
 
 const EXAMPLES = [
   {
@@ -101,12 +101,11 @@ export default function ExtensionPage() {
 
         {/* Hero */}
         <div className="text-center mb-12">
-          <div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-lg mb-5"
-            style={{ background: 'linear-gradient(135deg, #2563eb, #06b6d4)' }}
-          >
-            <Globe className="w-8 h-8 text-white" />
-          </div>
+          <img
+            src="https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/679d87279_icon128.png"
+            alt="KJB Reader SidePanel"
+            className="w-16 h-16 rounded-2xl shadow-lg mb-5"
+          />
           <h1 className="font-serif text-4xl sm:text-5xl font-bold text-foreground mb-4">
             KJB Reader - SidePanel
           </h1>
