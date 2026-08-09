@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2, Shield, Puzzle } from 'lucide-react';
 
-const DOWNLOAD_URLS = {
+// Built-in defaults — overridden by the admin-editable ExtensionConfig entity
+// (Dev Tools → Extension Links). Each field falls back here when blank.
+const DEFAULT_URLS = {
   chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/3b6ce1f93_kjb-reader-v0479-chrome.zip',
   firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/3a6a2129b_kjb-reader-v0479-firefox.zip',
   opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/0edd8ab92_kjb-reader-v0479-opera.zip',
   edge: 'https://microsoftedge.microsoft.com/addons/detail/kjb-reader-sidepanel/bphmmbiepbhfnfijaapbmpimkkjdceee',
 };
-const VERSION = 'v0.4.79';
+const DEFAULT_VERSION = 'v0.4.79';
 
 const EXAMPLES = [
   {
@@ -86,6 +89,28 @@ const FEATURES = [
 ];
 
 export default function ExtensionPage() {
+  const [urls, setUrls] = useState(DEFAULT_URLS);
+  const [version, setVersion] = useState(DEFAULT_VERSION);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const rows = await base44.entities.ExtensionConfig.list('-updated_date', 1);
+        const cfg = rows && rows[0];
+        if (cancelled || !cfg) return;
+        setUrls({
+          chrome: cfg.chrome || DEFAULT_URLS.chrome,
+          edge: cfg.edge || DEFAULT_URLS.edge,
+          firefox: cfg.firefox || DEFAULT_URLS.firefox,
+          opera: cfg.opera || DEFAULT_URLS.opera,
+        });
+        if (cfg.version) setVersion(cfg.version);
+      } catch {}
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
@@ -113,7 +138,7 @@ export default function ExtensionPage() {
 
           {/* Version badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 bg-primary/15 border border-primary/40">
-            <span className="font-sans text-xs font-semibold text-primary">{VERSION}</span>
+            <span className="font-sans text-xs font-semibold text-primary">{version}</span>
           </div>
 
           {/* Desktop-only warning box */}
@@ -131,16 +156,16 @@ export default function ExtensionPage() {
           {/* Download buttons */}
           <div className="flex flex-col sm:flex-row sm:items-stretch sm:justify-center gap-3 w-full sm:w-auto">
             <a
-              href={DOWNLOAD_URLS.chrome}
+              href={urls.chrome}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
             >
-              <Download className="w-5 h-5" />
-              Download for Chrome
+              <Puzzle className="w-5 h-5" />
+              Get for Chrome
             </a>
             <a
-              href={DOWNLOAD_URLS.edge}
+              href={urls.edge}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
@@ -149,22 +174,22 @@ export default function ExtensionPage() {
               Get for Microsoft Edge
             </a>
             <a
-              href={DOWNLOAD_URLS.firefox}
+              href={urls.firefox}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
             >
-              <Download className="w-5 h-5" />
-              Download for Firefox
+              <Puzzle className="w-5 h-5" />
+              Get for Firefox
             </a>
             <a
-              href={DOWNLOAD_URLS.opera}
+              href={urls.opera}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
             >
-              <Download className="w-5 h-5" />
-              Download for Opera
+              <Puzzle className="w-5 h-5" />
+              Get for Opera
             </a>
           </div>
         </div>

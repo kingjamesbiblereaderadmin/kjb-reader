@@ -1,0 +1,45 @@
+{
+  "name": "ExtensionConfig",
+  "type": "object",
+  "properties": {
+    "chrome": {
+      "type": "string",
+      "description": "Chrome download (.zip) URL shown on /extension"
+    },
+    "edge": {
+      "type": "string",
+      "description": "Microsoft Edge Add-ons store URL shown on /extension"
+    },
+    "firefox": {
+      "type": "string",
+      "description": "Firefox download (.zip) URL shown on /extension"
+    },
+    "opera": {
+      "type": "string",
+      "description": "Opera download (.zip) URL shown on /extension"
+    },
+    "version": {
+      "type": "string",
+      "description": "Extension version label, e.g. 'v0.4.79'"
+    }
+  },
+  "required": [],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
