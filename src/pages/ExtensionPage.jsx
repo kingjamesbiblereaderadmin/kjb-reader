@@ -2,8 +2,27 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2 } from 'lucide-react';
 
-const DOWNLOAD_URL = 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/74b7a98cf_kjb-reader-v0436-chrome.zip';
-const VERSION = 'v0.4.36';
+const DOWNLOAD_URL = 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/cf192cb7b_kjb-reader-v0437-chrome.zip';
+const VERSION = 'v0.4.37';
+
+const EXAMPLES = [
+  {
+    heading: 'Single Verses',
+    items: ['Ephesians 1:13', 'Romans 3:25', 'Acts 16:31', '1 John 5:13'],
+  },
+  {
+    heading: 'Verse Ranges',
+    items: ['1 Corinthians 15:1-4', 'Romans 3:23-26', 'Ephesians 2:8-9', 'Isaiah 53:3-6'],
+  },
+  {
+    heading: 'Whole Chapters',
+    items: ['Psalm 23', 'Isaiah 53', 'John 1', 'Matthew 5'],
+  },
+  {
+    heading: 'Chapter Ranges',
+    items: ['John 1-3', 'Romans 8', 'Genesis 1-2', 'Revelation 21-22'],
+  },
+];
 
 const MOCKUPS = [
   {
@@ -152,6 +171,36 @@ export default function ExtensionPage() {
                 <p className="font-sans text-xs text-center mt-3 leading-relaxed" style={{ color: '#a1a1aa' }}>
                   {m.label}
                 </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Try These Examples */}
+        <div className="mb-12">
+          <h2 className="font-serif text-2xl font-bold text-white mb-2 text-center">Try These Examples</h2>
+          <p className="font-sans text-sm text-center mb-6" style={{ color: '#a1a1aa' }}>
+            Install the extension, then click any reference below to look it up instantly in the side panel.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {EXAMPLES.map((col) => (
+              <div
+                key={col.heading}
+                className="p-5 rounded-2xl border shadow-sm"
+                style={{ backgroundColor: '#1c1c24', borderColor: '#3f3f4a' }}
+              >
+                <p className="font-sans font-semibold text-sm text-white mb-4">{col.heading}</p>
+                <div className="flex flex-col gap-3">
+                  {col.items.map((ref) => (
+                    <p
+                      key={ref}
+                      className="font-sans text-white"
+                      style={{ fontSize: '18px', lineHeight: '1.4' }}
+                    >
+                      {ref}
+                    </p>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
