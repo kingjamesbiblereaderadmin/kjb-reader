@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { Switch } from '@/components/ui/switch';
 import { Loader2, Save, RotateCcw, CheckCircle2, AlertCircle, ExternalLink } from 'lucide-react';
 
 // Built-in defaults mirror the hardcoded values in ExtensionPage.jsx so an
@@ -10,6 +11,7 @@ const DEFAULTS = {
   firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/3a6a2129b_kjb-reader-v0479-firefox.zip',
   opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/0edd8ab92_kjb-reader-v0479-opera.zip',
   version: 'v0.4.79',
+  show_instructions: true,
 };
 
 const FIELDS = [
@@ -39,6 +41,7 @@ export default function ExtensionLinksEditor() {
         firefox: row?.firefox || DEFAULTS.firefox,
         opera: row?.opera || DEFAULTS.opera,
         version: row?.version || DEFAULTS.version,
+        show_instructions: row?.show_instructions !== false,
       });
     } catch (err) {
       setMsg('Load failed: ' + (err.message || 'unknown'));
@@ -103,6 +106,18 @@ export default function ExtensionLinksEditor() {
               />
             </div>
           ))}
+        </div>
+
+        <div className="flex items-center justify-between gap-4 pt-1">
+          <div>
+            <p className="font-sans text-sm font-medium text-foreground">Show installation instructions</p>
+            <p className="font-sans text-xs text-muted-foreground">Display the step-by-step install guide on /extension</p>
+          </div>
+          <Switch
+            checked={values.show_instructions}
+            onCheckedChange={(checked) => setValues((v) => ({ ...v, show_instructions: checked }))}
+            className="shrink-0"
+          />
         </div>
 
         <div className="flex flex-wrap gap-2">

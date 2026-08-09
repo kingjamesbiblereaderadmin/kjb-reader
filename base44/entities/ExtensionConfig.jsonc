@@ -21,6 +21,11 @@
     "version": {
       "type": "string",
       "description": "Extension version label, e.g. 'v0.4.79'"
+    },
+    "show_instructions": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to show the Installation Instructions section on /extension"
     }
   },
   "required": [],

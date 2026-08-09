@@ -91,6 +91,7 @@ const FEATURES = [
 export default function ExtensionPage() {
   const [urls, setUrls] = useState(DEFAULT_URLS);
   const [version, setVersion] = useState(DEFAULT_VERSION);
+  const [showInstructions, setShowInstructions] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -106,6 +107,7 @@ export default function ExtensionPage() {
           opera: cfg.opera || DEFAULT_URLS.opera,
         });
         if (cfg.version) setVersion(cfg.version);
+        setShowInstructions(cfg.show_instructions !== false);
       } catch {}
     })();
     return () => { cancelled = true; };
@@ -277,6 +279,7 @@ export default function ExtensionPage() {
         </div>
 
         {/* Installation Instructions */}
+        {showInstructions && (
         <div className="rounded-2xl p-6 sm:p-7 mb-8 shadow-lg bg-card border border-border">
           <h2 className="font-serif text-xl font-semibold text-foreground mb-5">Installation Instructions</h2>
           <ol className="space-y-3 font-sans text-sm leading-relaxed text-foreground/90">
@@ -306,6 +309,7 @@ export default function ExtensionPage() {
             </li>
           </ol>
         </div>
+        )}
 
         {/* Privacy Policy card */}
         <Link
