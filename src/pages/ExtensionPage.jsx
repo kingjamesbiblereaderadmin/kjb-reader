@@ -2,25 +2,25 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2 } from 'lucide-react';
 
-const DOWNLOAD_URL = 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/d0c8e4226_kjb-reader-v0436-chrome.zip';
+const DOWNLOAD_URL = 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/285330c31_kjb-reader-v0436-chrome.zip';
 const VERSION = 'v0.4.36';
 
 const MOCKUPS = [
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/046dd1962_mockup-results.png',
-    label: 'Results',
+    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/cec34540b_mockup-results.png',
+    label: 'Results — Verse lookup & search',
   },
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/fdd31a61d_mockup-read.png',
-    label: 'Read',
+    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/bf074c9a4_mockup-read.png',
+    label: 'Read — Full chapter reader',
   },
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/92ea5497f_mockup-gospel.png',
-    label: 'Gospel',
+    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/ca7ea6d55_mockup-gospel.png',
+    label: 'Gospel — Salvation resources',
   },
   {
-    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/324aa09ca_mockup-resources.png',
-    label: 'Resources',
+    src: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/7316ee0ef_mockup-resources.png',
+    label: 'Resources — Ministry links',
   },
 ];
 
