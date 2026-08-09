@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2, Shield } from 'lucide-react';
+import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2, Shield, Puzzle } from 'lucide-react';
 
 const DOWNLOAD_URLS = {
   chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/3b6ce1f93_kjb-reader-v0479-chrome.zip',
   firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/3a6a2129b_kjb-reader-v0479-firefox.zip',
   opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/0edd8ab92_kjb-reader-v0479-opera.zip',
+  edge: 'https://microsoftedge.microsoft.com/addons/detail/kjb-reader-sidepanel/bphmmbiepbhfnfijaapbmpimkkjdceee',
 };
 const VERSION = 'v0.4.79';
 
@@ -136,7 +137,16 @@ export default function ExtensionPage() {
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
             >
               <Download className="w-5 h-5" />
-              Download for Chrome / Edge
+              Download for Chrome
+            </a>
+            <a
+              href={DOWNLOAD_URLS.edge}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
+            >
+              <Puzzle className="w-5 h-5" />
+              Get for Microsoft Edge
             </a>
             <a
               href={DOWNLOAD_URLS.firefox}
