@@ -15,14 +15,14 @@ import { toast } from 'sonner';
 import { detectIncognito } from '@/lib/incognito';
 
 const QUICK_LINKS = [
-  { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', iconGradient: 'from-indigo-500 to-violet-600', fullSpan: true },
-  { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', iconGradient: 'from-blue-500 to-indigo-600' },
+  { path: '/read', icon: BookOpen, label: 'Read the Bible', desc: 'KJB Pure Cambridge Edition', iconGradient: 'from-emerald-500 to-teal-600', fullSpan: true },
+  { path: '/contents', icon: List, label: 'Table of Contents', desc: 'Browse all 66 books', iconGradient: 'from-amber-500 to-orange-600' },
   { path: null, icon: Shuffle, label: '__RANDOM__', desc: 'Jump to a random chapter', iconGradient: 'from-violet-500 to-purple-600' },
   { path: '/saved', icon: Bookmark, label: 'Saved Verses', desc: 'Your bookmarked verses', iconGradient: 'from-fuchsia-500 to-pink-600' },
   { path: '/advanced-search', icon: FlaskConical, label: 'Advanced Search', desc: 'Research verses by properties', iconGradient: 'from-indigo-500 to-purple-600' },
-  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', iconGradient: 'from-rose-500 to-red-600' },
-  { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', iconGradient: 'from-teal-500 to-emerald-600' },
-  { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', iconGradient: 'from-sky-500 to-blue-600' },
+  { path: '/gospel', icon: Heart, label: 'Gospel', desc: 'Learn how to be saved', iconGradient: 'from-rose-500 to-pink-600' },
+  { path: '/resources', icon: Library, label: 'Resources', desc: 'KJB defence & study', iconGradient: 'from-violet-500 to-purple-600' },
+  { path: '/about', icon: Info, label: 'About', desc: 'Ministry & links', iconGradient: 'from-sky-500 to-cyan-600' },
   { path: '/settings', icon: Settings, label: 'Settings', desc: 'Offline downloads & info', iconGradient: 'from-slate-500 to-slate-700' },
 ];
 
