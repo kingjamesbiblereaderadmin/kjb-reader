@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2 } from 'lucide-react';
 
 const DOWNLOAD_URL = 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/0899fdea4_kjb-reader-v0458-chrome.zip';
-const VERSION = 'v0.4.58';
+const VERSION = 'v0.4.59';
 
 const EXAMPLES = [
   {
@@ -136,7 +136,7 @@ export default function ExtensionPage() {
               Download for Chrome / Edge
             </a>
             <p className="font-sans text-xs text-muted-foreground">
-              <Link to="/extension/privacy" className="hover:underline font-medium text-primary">
+              <Link to="/extension-privacy" className="hover:underline font-medium text-primary">
                 Extension Privacy Policy
               </Link>
             </p>

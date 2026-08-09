@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, ArrowLeft, Globe } from 'lucide-react';
+import { ArrowLeft, Globe } from 'lucide-react';
 
 const LAST_UPDATED = 'August 9th, 2026';
 
@@ -45,7 +45,7 @@ export default function ExtensionPrivacyPage() {
           <div className="mt-4 w-16 h-px bg-accent mx-auto" />
         </div>
 
-        {/* Back button */}
+        {/* Back to Extension link */}
         <div className="text-center mb-6">
           <Link
             to="/extension"
@@ -62,9 +62,8 @@ export default function ExtensionPrivacyPage() {
           <p>
             The KJB Reader browser extension ("KJB Reader - SidePanel") is a companion tool that
             detects King James Bible verse references on web pages and displays them in a browser
-            side panel. Your privacy matters to us. The extension does not collect any personal
-            information, does not require an account, and does not transmit your data to any
-            server.
+            side panel. The extension does not collect any personal information, does not require
+            an account, and does not transmit your data to any server.
           </p>
         </Section>
 
@@ -72,80 +71,63 @@ export default function ExtensionPrivacyPage() {
           <ul className="space-y-2.5 list-disc pl-5">
             <li>
               <strong>activeTab</strong>: Accesses the text content of the currently active tab only
-              when you click the extension icon or use the right-click context menu. This allows the
-              extension to scan the page for Bible verse references. No page content is stored or
-              transmitted.
+              when you click the extension icon or use the right-click context menu. No page content
+              is stored or transmitted.
             </li>
             <li>
               <strong>contextMenus</strong>: Adds a "Look up verse in KJB Reader" option to the
-              right-click menu so you can select text and look up Bible references instantly.
+              right-click menu.
             </li>
             <li>
               <strong>sidePanel</strong>: Displays the Bible reader interface in the browser's side
-              panel so you can read and search verses alongside the web page you are viewing.
+              panel.
             </li>
             <li>
-              <strong>storage</strong>: Stores your preferences locally on your device (such as
-              theme, font size, and sidebar settings). No personal data is stored.
+              <strong>storage</strong>: Stores your preferences locally on your device. No personal
+              data is stored.
             </li>
             <li>
-              <strong>tabs</strong>: Used to open the sidebar panel and to navigate to
-              kingjamesbiblereader.com for extension updates. The extension does not monitor or
-              collect browsing history.
+              <strong>tabs</strong>: Used to open the sidebar panel and navigate to
+              kingjamesbiblereader.com for updates. Does not monitor browsing history.
             </li>
           </ul>
         </Section>
 
         <Section title="Data We Collect">
           <p>
-            We do not collect any personal information. The extension does not collect, store, or
-            transmit your name, email, browsing history, page content, or any tracking
-            identifiers. No analytics or tracking scripts are included in the extension.
+            We do not collect any personal information. No analytics or tracking scripts are
+            included.
           </p>
         </Section>
 
         <Section title="Data Stored On Your Device">
           <p>
-            The following preferences are stored locally on your device using Chrome's storage API:
-          </p>
-          <ul className="space-y-1.5 list-disc pl-5">
-            <li>Theme and display settings</li>
-            <li>Sidebar panel state</li>
-          </ul>
-          <p>
-            No data is synced to the cloud. You can clear this data at any time by removing the
-            extension or clearing your browser data.
+            Theme and display settings, sidebar panel state — stored locally via Chrome storage
+            API. No cloud sync. Clear by removing the extension.
           </p>
         </Section>
 
         <Section title="Internet Access">
           <p>
-            The extension fetches Bible verse text and search results as JSON from the KJB Reader
-            API hosted on base44.app. These requests deliver Bible content to your sidebar and are
-            not used to track or profile you. No user data is sent to the server.
+            Fetches Bible verse text as JSON from the KJB Reader API on base44.app. No user data is
+            sent to the server.
           </p>
         </Section>
 
         <Section title="Content Script">
           <p>
-            The extension injects a content script into web pages to detect Bible verse references.
-            This script reads the page's text to find references like "John 3:16" and converts them
-            to clickable links. The page content is processed entirely on your device and is never
-            sent to any server. The extension excludes kingjamesbiblereader.com from content script
-            execution.
+            Scans page text to detect Bible verse references and converts them to clickable links.
+            Page content is processed entirely on your device and never sent to any server.
+            Excludes kingjamesbiblereader.com.
           </p>
         </Section>
 
         <Section title="Children's Privacy">
-          <p>
-            The extension does not knowingly collect any personal information from anyone,
-            including children. It is safe for all ages.
-          </p>
+          <p>Safe for all ages. No personal information collected.</p>
         </Section>
 
         <Section title="Contact">
           <p>
-            If you have questions about this privacy policy, contact us at{' '}
             <a
               href="mailto:kingjamesbiblereader@outlook.sg"
               className="text-primary hover:underline font-medium"
