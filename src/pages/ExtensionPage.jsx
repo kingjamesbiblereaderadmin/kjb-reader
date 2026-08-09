@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2 } from 'lucide-react';
+import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2, Shield } from 'lucide-react';
 
 const DOWNLOAD_URLS = {
   chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/3b6ce1f93_kjb-reader-v0479-chrome.zip',
@@ -156,11 +156,23 @@ export default function ExtensionPage() {
               <Download className="w-5 h-5" />
               Download for Opera
             </a>
-            <p className="font-sans text-xs text-muted-foreground">
-              <Link to="/extension-privacy" className="hover:underline font-medium text-primary">
-                Extension Privacy Policy
-              </Link>
-            </p>
+            <Link
+              to="/extension-privacy"
+              className="mt-2 inline-flex items-center gap-3 w-full sm:w-auto px-5 py-3 rounded-2xl border border-border bg-card/70 backdrop-blur-xl shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            >
+              <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-600">
+                <Shield className="w-4.5 h-4.5" />
+              </div>
+              <div className="text-left flex-1 min-w-0">
+                <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">
+                  Extension Privacy Policy
+                </p>
+                <p className="font-sans text-xs text-muted-foreground">
+                  How the extension handles your data
+                </p>
+              </div>
+              <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-accent transition-colors" />
+            </Link>
           </div>
         </div>
 
