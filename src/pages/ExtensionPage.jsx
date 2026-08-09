@@ -136,7 +136,7 @@ export default function ExtensionPage() {
               Download for Chrome / Edge
             </a>
             <p className="font-sans text-xs text-muted-foreground">
-              <Link to="/extension-privacy" className="hover:underline font-medium text-primary">
+              <Link to="/extension/privacy" className="hover:underline font-medium text-primary">
                 Extension Privacy Policy
               </Link>
             </p>

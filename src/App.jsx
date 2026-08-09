@@ -272,6 +272,7 @@ const AuthenticatedApp = () => {
             <Route path="/discord" element={<Suspense fallback={<RouteLoader />}><DiscordInvitePage /></Suspense>} />
             <Route path="/extension" element={<Suspense fallback={<RouteLoader />}><ExtensionPage /></Suspense>} />
             <Route path="/extension-privacy" element={<Suspense fallback={<RouteLoader />}><ExtensionPrivacyPage /></Suspense>} />
+            <Route path="/extension/privacy" element={<Suspense fallback={<RouteLoader />}><ExtensionPrivacyPage /></Suspense>} />
             <Route path="/login" element={<Suspense fallback={<RouteLoader />}><LoginPage /></Suspense>} />
             <Route path="/forgot-password" element={<Suspense fallback={<RouteLoader />}><ForgotPasswordPage /></Suspense>} />
             <Route path="/reset-password" element={<Suspense fallback={<RouteLoader />}><ResetPasswordPage /></Suspense>} />
