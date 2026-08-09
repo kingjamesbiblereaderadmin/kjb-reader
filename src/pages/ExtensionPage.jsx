@@ -8,19 +8,19 @@ const VERSION = 'v0.4.37';
 const EXAMPLES = [
   {
     heading: 'Single Verses',
-    items: ['Ephesians 1:13', 'Romans 3:25', 'Acts 16:31', '1 John 5:13'],
+    items: ['Ephesians 1:13', 'Romans 3:25', 'Hebrews 9:12'],
   },
   {
     heading: 'Verse Ranges',
-    items: ['1 Corinthians 15:1-4', 'Romans 3:23-26', 'Ephesians 2:8-9', 'Isaiah 53:3-6'],
+    items: ['1 Corinthians 15:1-4', 'Romans 3:23-25', 'Ephesians 2:8-9'],
   },
   {
     heading: 'Whole Chapters',
-    items: ['Psalm 23', 'Isaiah 53', 'John 1', 'Matthew 5'],
+    items: ['Psalm 23', 'Isaiah 53', 'Psalm 119', 'Hebrews 13'],
   },
   {
     heading: 'Chapter Ranges',
-    items: ['John 1-3', 'Romans 8', 'Genesis 1-2', 'Revelation 21-22'],
+    items: ['Romans 1-3', 'Ephesians 1-2'],
   },
 ];
 
