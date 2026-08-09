@@ -35,11 +35,8 @@ export default function ExtensionPrivacyPage() {
       <div className="w-full max-w-3xl mx-auto px-5 sm:px-8 lg:px-12 py-10 pb-24">
         {/* Header */}
         <div className="text-center mb-8">
-          <div
-            className="inline-flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg mb-4"
-            style={{ background: 'linear-gradient(135deg, #2563eb, #06b6d4)' }}
-          >
-            <Globe className="w-7 h-7 text-white" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30 mb-4">
+            <Globe className="w-7 h-7 text-primary-foreground" />
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-foreground mb-2">
             KJB Reader Extension — Privacy Policy
