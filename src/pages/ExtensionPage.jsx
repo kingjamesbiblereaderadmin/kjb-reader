@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2 } from 'lucide-react';
 
-const DOWNLOAD_URL = 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/25e8d44ad_kjb-reader-v0451-chrome.zip';
-const VERSION = 'v0.4.51';
+const DOWNLOAD_URL = 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/bed22ebc1_kjb-reader-v0457-chrome.zip';
+const VERSION = 'v0.4.57';
 
 const EXAMPLES = [
   {
