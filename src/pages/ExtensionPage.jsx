@@ -2,7 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2 } from 'lucide-react';
 
-const DOWNLOAD_URL = 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/0899fdea4_kjb-reader-v0458-chrome.zip';
+const DOWNLOAD_URLS = {
+  chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/0899fdea4_kjb-reader-v0458-chrome.zip',
+  firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/b36cac31f_kjb-reader-v0458-firefox.zip',
+  opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/686c76a25_kjb-reader-v0458-opera.zip',
+};
 const VERSION = 'v0.4.59';
 
 const EXAMPLES = [
@@ -124,17 +128,37 @@ export default function ExtensionPage() {
             Read, search, and look up Bible verses from any web page.
           </p>
 
-          {/* Download button */}
+          {/* Download buttons */}
           <div className="flex flex-col items-center gap-3">
-            <a
-              href={DOWNLOAD_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
-            >
-              <Download className="w-5 h-5" />
-              Download for Chrome / Edge
-            </a>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href={DOWNLOAD_URLS.chrome}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
+              >
+                <Download className="w-5 h-5" />
+                Download for Chrome / Edge
+              </a>
+              <a
+                href={DOWNLOAD_URLS.firefox}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-orange-500 hover:bg-orange-600"
+              >
+                <Download className="w-5 h-5" />
+                Download for Firefox
+              </a>
+              <a
+                href={DOWNLOAD_URLS.opera}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-red-500 hover:bg-red-600"
+              >
+                <Download className="w-5 h-5" />
+                Download for Opera
+              </a>
+            </div>
             <p className="font-sans text-xs text-muted-foreground">
               <Link to="/extension-privacy" className="hover:underline font-medium text-primary">
                 Extension Privacy Policy
