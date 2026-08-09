@@ -7,7 +7,7 @@ const DOWNLOAD_URLS = {
   firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/b36cac31f_kjb-reader-v0458-firefox.zip',
   opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/686c76a25_kjb-reader-v0458-opera.zip',
 };
-const VERSION = 'v0.4.59';
+const VERSION = 'v0.4.60';
 
 const EXAMPLES = [
   {
