@@ -711,14 +711,25 @@ export default function BibleReader() {
       
       if (isFromSearch) {
         let { term, index, results } = getSearchNav();
-        const urlTerm = urlParams.get('q') || term;
-        if (urlTerm && results.length === 0) {
+        // Only a real keyword search carries a `q` param. A plain reference/passage
+        // jump from the search bar or ContentsPage also routes through from=search
+        // (to reuse the single-result highlight path) but has no `q` — it must NOT
+        // be tagged as an ongoing search context, or useToolbarState's focus-listener
+        // restore replays it (snapping the reader back to that single-verse filtered
+        // view) after the app is backgrounded and reopened.
+        const qParam = urlParams.get('q');
+        if (qParam && results.length === 0) {
           results = [{ abbr: urlBookObj.abbr, chapter: chapterNum, verse: verseNum, verseEnd: verseEnd || null }];
-          index = 0; setSearchNav(results, index, urlTerm);
+          index = 0; setSearchNav(results, index, qParam);
         }
-        if (urlTerm) {
-          searchClearedRef.current = false; setSearchTerm(urlTerm);
+        if (qParam) {
+          searchClearedRef.current = false; setSearchTerm(qParam);
           setSearchResultIndex(index); setSearchTotalResults(results.length);
+        } else {
+          searchClearedRef.current = true;
+          setSearchTerm('');
+          setSearchResultIndex(0);
+          setSearchTotalResults(0);
         }
         if (results[index]) { stepToResult(results[index]); return; }
       } else if (!isFromDaily && !isFromRandom) {
