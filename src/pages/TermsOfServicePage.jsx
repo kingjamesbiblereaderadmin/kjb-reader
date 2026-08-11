@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, ArrowLeft } from 'lucide-react';
 
-const LAST_UPDATED = 'August 7th, 2026';
+const LAST_UPDATED = 'August 11th, 2026';
 
 function AIDisclaimer() {
   return (
@@ -69,7 +69,7 @@ export default function TermsOfServicePage() {
             KJB Reader is a free, non-commercial application that provides access to the King James
             Bible (Pure Cambridge Edition) for personal reading, study, and reflection. The App
             works offline, offers daily verses, search, bookmarks, and customizable reading
-            settings. A Chrome browser extension is also available, providing the same Bible
+            settings. A browser extension is also available, providing the same Bible
             reading and search functionality as a sidebar panel.
           </p>
         </Section>
@@ -103,7 +103,7 @@ export default function TermsOfServicePage() {
             and no remote data storage. All your data — saved verses, reading progress, and
             settings — exists only on the device you are using. You are responsible for managing
             your own data on your device. (The optional Discord bot integration, described below,
-            is a separate feature that stores minimal server configuration on our servers.)
+            is a separate feature that stores minimal server configuration on my servers.)
           </p>
         </Section>
 
@@ -113,7 +113,7 @@ export default function TermsOfServicePage() {
             their own Discord servers, providing slash-command Bible lookups and scheduled daily
             verse delivery. Unlike the core reading app, this feature requires storing minimal
             server configuration (server ID/name, channel, delivery time/timezone, and an optional
-            role for pings) on our servers so scheduled deliveries can run — see the Privacy Policy
+            role for pings) on my servers so scheduled deliveries can run — see the Privacy Policy
             for details on exactly what is stored.
           </p>
           <p>
@@ -125,22 +125,23 @@ export default function TermsOfServicePage() {
           </p>
         </Section>
 
-        <Section title="Chrome Browser Extension">
+        <Section title="Browser Extension">
           <p>
-            The KJB Reader Chrome Extension (KJB Reader - SidePanel) is provided as a free
-            companion to the KJB Reader website, available on the Chrome Web Store. It uses the
-            same King James Bible text (Pure Cambridge Edition). The extension does not require an
-            account and does not collect personal data. You may uninstall it at any time through
-            your browser extension management page.
+            The KJB Reader Extension (KJB Reader - SidePanel) is provided as a free
+            companion to the KJB Reader website, available on browser extension stores (Chrome
+            Web Store, Firefox Add-ons, Opera Add-ons). It uses the same King James Bible text
+            (Pure Cambridge Edition). The extension does not require an account and does not
+            collect personal data. You may uninstall it at any time through your browser
+            extension management page.
           </p>
         </Section>
 
         <Section title="Intellectual Property">
           <p>
             The App's software, design, and original content (excluding the Bible text, which is
-            public domain) are provided by KJB Reader and its contributors. The App was built with
-            the assistance of artificial intelligence (AI) and the Base44 platform. Fonts used in
-            the App are open source under the SIL Open Font License.
+            public domain) are provided by me. The App was built with the assistance of artificial
+            intelligence (AI) and the Base44 platform. Fonts used in the App are open source under
+            the SIL Open Font License.
           </p>
         </Section>
 
@@ -149,14 +150,14 @@ export default function TermsOfServicePage() {
             This App was built with the assistance of artificial intelligence (AI). While great
             care has been taken to ensure accuracy, AI-generated code and content may contain
             errors. The King James Bible text itself is sourced from the Pure Cambridge Edition and
-            is not AI-generated. If you notice any issue, please contact us so we can correct it.
+            is not AI-generated. If you notice any issue, please contact me so I can correct it.
           </p>
         </Section>
 
         <Section title="Disclaimer of Warranties">
           <p>
             The App is provided "as is" and "as available" without warranties of any kind, whether
-            express or implied. While every effort is made to ensure the Bible text is accurate, we
+            express or implied. While every effort is made to ensure the Bible text is accurate, I
             do not guarantee that the App will be error-free, uninterrupted, or free from
             inaccuracies. You use the App at your own risk.
           </p>
@@ -172,15 +173,15 @@ export default function TermsOfServicePage() {
 
         <Section title="Changes to These Terms">
           <p>
-            We may update these Terms of Service from time to time. Any changes will appear on this
+            I may update these Terms of Service from time to time. Any changes will appear on this
             page with a revised "Last updated" date. Continued use of the App after changes
             constitutes acceptance of the updated terms.
           </p>
         </Section>
 
-        <Section title="Contact Us">
+        <Section title="Contact">
           <p>
-            If you have any questions about these Terms of Service, please contact us at{' '}
+            If you have any questions about these Terms of Service, please contact me at{' '}
             <a href="mailto:kingjamesbiblereader@outlook.sg" className="text-primary hover:underline">
               kingjamesbiblereader@outlook.sg
             </a>.

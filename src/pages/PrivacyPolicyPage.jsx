@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, ArrowLeft } from 'lucide-react';
 
-const LAST_UPDATED = 'August 7th, 2026';
+const LAST_UPDATED = 'August 11th, 2026';
 
 function AIDisclaimer() {
   return (
@@ -60,16 +60,16 @@ export default function PrivacyPolicyPage() {
         <Section title="Overview">
         <p>
           KJB Reader is a free, public-domain King James Bible reading app. Your privacy
-          matters to us. The App works entirely on your own device — no account is
+          matters to me. The App works entirely on your own device — no account is
           required, and no personal information is collected. All your data stays only on
-          your device. We do not sell or share your personal information with third parties.
+          your device. I do not sell or share your personal information with third parties.
         </p>
       </Section>
 
-      <Section title="Information We Collect">
+      <Section title="Information I Collect">
         <p>
-          We do not collect any personal information. No account is needed to use the App,
-          and we do not ask for your name, email address, location, contacts, device files,
+          I do not collect any personal information. No account is needed to use the App,
+          and I do not ask for your name, email address, location, contacts, device files,
           or any tracking identifiers. The App is fully functional without signing in.
         </p>
       </Section>
@@ -99,7 +99,7 @@ export default function PrivacyPolicyPage() {
           accounts, no sign-in, and no cloud storage. Everything you do in the App — your
           saved verses, reading progress, settings, and preferences — exists only on the
           device you are using. (The optional Discord bot integration, described below, is
-          a separate feature that stores minimal server configuration on our servers.)
+          a separate feature that stores minimal server configuration on my servers.)
         </p>
       </Section>
 
@@ -110,11 +110,11 @@ export default function PrivacyPolicyPage() {
           This is a separate, opt-in feature from the core reading app described above.
         </p>
         <p>
-          When a server administrator installs and configures the bot, we store the following
-          minimal server configuration on our servers: the Discord server (guild) ID and name,
+          When a server administrator installs and configures the bot, I store the following
+          minimal server configuration on my servers: the Discord server (guild) ID and name,
           the configured channel name, a Discord webhook URL (used only to post messages to that
           channel), an optional role ID (used only for the daily verse ping), the chosen delivery
-          time and timezone, and whether delivery is active. We do not store who configured the
+          time and timezone, and whether delivery is active. I do not store who configured the
           bot beyond a generic internal label — no personal identifiers of the person running setup
           are stored.
         </p>
@@ -134,7 +134,7 @@ export default function PrivacyPolicyPage() {
           deletes the stored configuration for that server.
         </p>
         <p>
-          To request removal of a specific server's stored configuration, contact us at{' '}
+          To request removal of a specific server's stored configuration, contact me at{' '}
           <a href="mailto:kingjamesbiblereader@outlook.sg" className="text-primary hover:underline">
             kingjamesbiblereader@outlook.sg
           </a>{' '}
@@ -145,7 +145,7 @@ export default function PrivacyPolicyPage() {
       <Section title="Notifications">
         <p>
           If you enable daily verse reminders, your browser or device handles these notifications
-          locally. We do not operate a push server and do not receive any information about you
+          locally. I do not operate a push server and do not receive any information about you
           when a notification is shown.
         </p>
       </Section>
@@ -155,23 +155,23 @@ export default function PrivacyPolicyPage() {
           The app connects to the internet to download the Bible text and to automatically apply
           updates, typo corrections, and improvements. These requests deliver content to your
           device and are not used to track or profile you. Standard, non-identifying technical
-          information (such as your IP address) may be processed by our hosting provider purely
+          information (such as your IP address) may be processed by my hosting provider purely
           to deliver the app, as is normal for any website.
         </p>
       </Section>
 
       <Section title="Cookies & Analytics">
         <p>
-          The App does not use cookies to track you. We do not use advertising or third-party
+          The App does not use cookies to track you. I do not use advertising or third-party
           tracking cookies. Anonymous, aggregated usage statistics (such as the number of times
-          a page is viewed) may be collected solely to help us improve the site. These statistics
+          a page is viewed) may be collected solely to help me improve the site. These statistics
           are not linked to you or your device and cannot be used to identify anyone personally.
         </p>
       </Section>
 
-      <Section title="Chrome Browser Extension">
+      <Section title="Browser Extension">
         <p>
-          The KJB Reader Chrome Extension (KJB Reader - SidePanel) is a companion browser
+          The KJB Reader Extension (KJB Reader - SidePanel) is a companion browser
           extension available on the Chrome Web Store that provides Bible search, reading, and
           verse lookup from a sidebar panel in your browser. The extension uses these permissions:
           activeTab (detects Bible verse references on web pages), contextMenus (right-click verse
@@ -192,7 +192,7 @@ export default function PrivacyPolicyPage() {
 
       <Section title="Changes to This Policy">
         <p>
-          We may update this Privacy Policy from time to time. Any changes will appear on this page
+          I may update this Privacy Policy from time to time. Any changes will appear on this page
           with a revised "Last updated" date.
         </p>
       </Section>
@@ -202,13 +202,13 @@ export default function PrivacyPolicyPage() {
           This app was built with the assistance of artificial intelligence (AI). While great
           care has been taken to ensure accuracy, AI-generated code and content may contain
           errors. The King James Bible text itself is sourced from the Pure Cambridge Edition
-          and is not AI-generated. If you notice any issue, please contact us so we can correct it.
+          and is not AI-generated. If you notice any issue, please contact me so I can correct it.
         </p>
       </Section>
 
-      <Section title="Contact Us">
+      <Section title="Contact">
         <p>
-          If you have any questions about this Privacy Policy, please contact us at{' '}
+          If you have any questions about this Privacy Policy, please contact me at{' '}
           <a href="mailto:kingjamesbiblereader@outlook.sg" className="text-primary hover:underline">
             kingjamesbiblereader@outlook.sg
           </a>.
