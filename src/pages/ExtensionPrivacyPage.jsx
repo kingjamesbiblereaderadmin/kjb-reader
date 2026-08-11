@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Globe } from 'lucide-react';
 
-const LAST_UPDATED = 'August 9th, 2026';
+const LAST_UPDATED = 'August 11th, 2026';
 
 function AIDisclaimer() {
   return (
@@ -93,17 +93,17 @@ export default function ExtensionPrivacyPage() {
           </ul>
         </Section>
 
-        <Section title="Data We Collect">
+        <Section title="Data I Collect">
           <p>
-            We do not collect any personal information. No analytics or tracking scripts are
+            I do not collect any personal information. No analytics or tracking scripts are
             included.
           </p>
         </Section>
 
         <Section title="Data Stored On Your Device">
           <p>
-            Theme and display settings, sidebar panel state — stored locally via Chrome storage
-            API. No cloud sync. Clear by removing the extension.
+            Theme and display settings, sidebar panel state — stored locally via the browser's
+            storage API. No cloud sync. Clear by removing the extension.
           </p>
         </Section>
 
