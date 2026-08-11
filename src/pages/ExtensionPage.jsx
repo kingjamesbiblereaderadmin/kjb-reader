@@ -164,7 +164,7 @@ export default function ExtensionPage() {
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-sans text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-green-500 hover:bg-green-600"
             >
               <Puzzle className="w-5 h-5" />
-              Get for Chrome
+              Get for Chrome/Brave
             </a>
             <a
               href={urls.edge}
