@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2, Shield, Puzzle } from 'lucide-react';
+import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Download, Chrome, Link2, Shield, Puzzle, FileText } from 'lucide-react';
 
 // Built-in defaults — overridden by the admin-editable ExtensionConfig entity
 // (Dev Tools → Extension Links). Each field falls back here when blank.
@@ -311,24 +311,43 @@ export default function ExtensionPage() {
         </div>
         )}
 
-        {/* Privacy Policy card */}
-        <Link
-          to="/extension-privacy"
-          className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-border bg-card/70 backdrop-blur-xl shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-        >
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-600">
-            <Shield className="w-5 h-5" />
-          </div>
-          <div className="text-left flex-1 min-w-0">
-            <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">
-              Extension Privacy Policy
-            </p>
-            <p className="font-sans text-xs text-muted-foreground">
-              How the extension handles your data
-            </p>
-          </div>
-          <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-accent transition-colors" />
-        </Link>
+        {/* Legal documents — Privacy Policy + Terms of Service */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Link
+            to="/extension-privacy"
+            className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-border bg-card/70 backdrop-blur-xl shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-600">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div className="text-left flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">
+                Extension Privacy Policy
+              </p>
+              <p className="font-sans text-xs text-muted-foreground">
+                How the extension handles your data
+              </p>
+            </div>
+            <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-accent transition-colors" />
+          </Link>
+          <Link
+            to="/extension-terms"
+            className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-border bg-card/70 backdrop-blur-xl shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+          >
+            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-emerald-500 to-teal-600">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div className="text-left flex-1 min-w-0">
+              <p className="font-sans font-medium text-sm text-foreground group-hover:text-accent transition-colors">
+                Extension Terms of Service
+              </p>
+              <p className="font-sans text-xs text-muted-foreground">
+                Terms for using the extension
+              </p>
+            </div>
+            <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-accent transition-colors" />
+          </Link>
+        </div>
 
         {/* Footer */}
         <p className="font-sans text-xs text-center text-muted-foreground mt-8">
