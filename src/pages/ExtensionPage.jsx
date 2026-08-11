@@ -348,11 +348,6 @@ export default function ExtensionPage() {
             <ArrowLeft className="w-4 h-4 text-muted-foreground rotate-180 group-hover:text-accent transition-colors" />
           </Link>
         </div>
-
-        {/* Footer */}
-        <p className="font-sans text-xs text-center text-muted-foreground mt-8">
-          Printed from KJB Reader Web Extension — kingjamesbiblereader.com/extension
-        </p>
       </div>
     </div>
   );
