@@ -1258,9 +1258,14 @@ export default function BibleReader() {
   useEffect(() => {
     const refreshContext = () => {
       try {
+        // Once the reader has been marked as not-in-search (searchClearedRef),
+        // don't let a stale label from getSearchNav() (e.g. left behind by a
+        // plain reference jump, which also populates the search-nav for its
+        // one-time highlight) get resurrected on window focus — that's what
+        // caused the reader to snap back to an old search/filter view after
+        // switching apps and returning.
+        if (searchClearedRef.current) return;
         const { term, index, results } = getSearchNav();
-        if (searchClearedRef.current && !term) return;
-        if (term) searchClearedRef.current = false;
         setSearchTerm(term || null); setSearchResultIndex(index); setSearchTotalResults(results.length);
         if (lastReadingClearedRef.current) { setLastReadingPos(null); return; }
         const lastReading = localStorage.getItem('kjb-last-reading');
