@@ -64,7 +64,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Promo cards — rows of two */}
+        {/* Promo cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           {/* Gospel */}
           <Link
@@ -97,9 +97,7 @@ export default function LandingPage() {
             </div>
             <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </a>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           {/* KJB Reader Chrome Extension */}
           <Link
             to="/extension"
@@ -153,7 +151,7 @@ export default function LandingPage() {
             href="https://discord.gg/HK9Kqmg7Jh"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            className="sm:col-span-2 flex items-center gap-3 p-5 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br from-violet-500 to-purple-700">
               <DiscordIcon className="w-5 h-5" />
