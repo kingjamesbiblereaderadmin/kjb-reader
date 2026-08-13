@@ -6,18 +6,18 @@ import { Loader2, Save, RotateCcw, CheckCircle2, AlertCircle, ExternalLink } fro
 // Built-in defaults mirror the hardcoded values in ExtensionPage.jsx so an
 // admin can see what's currently live and easily reset to them.
 const DEFAULTS = {
-  chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/3b6ce1f93_kjb-reader-v0479-chrome.zip',
-  edge: 'https://microsoftedge.microsoft.com/addons/detail/kjb-reader-sidepanel/bphmmbiepbhfnfijaapbmpimkkjdceee',
-  firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/3a6a2129b_kjb-reader-v0479-firefox.zip',
-  opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/0edd8ab92_kjb-reader-v0479-opera.zip',
-  version: 'v0.4.79',
+  chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/81eda621c_kjb-reader-v04112-chrome.zip',
+  edge: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/81eda621c_kjb-reader-v04112-chrome.zip',
+  firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/714337d17_kjb-reader-v04112-firefox.zip',
+  opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/bf44e05a3_kjb-reader-v04112-opera.zip',
+  version: 'v0.4.112',
   show_instructions: true,
 };
 
 const FIELDS = [
-  { key: 'version', label: 'Version label', placeholder: 'v0.4.79' },
+  { key: 'version', label: 'Version label', placeholder: 'v0.4.112' },
   { key: 'chrome', label: 'Chrome download URL', placeholder: DEFAULTS.chrome },
-  { key: 'edge', label: 'Edge Add-ons store URL', placeholder: DEFAULTS.edge },
+  { key: 'edge', label: 'Edge download URL', placeholder: DEFAULTS.edge },
   { key: 'firefox', label: 'Firefox download URL', placeholder: DEFAULTS.firefox },
   { key: 'opera', label: 'Opera download URL', placeholder: DEFAULTS.opera },
 ];
