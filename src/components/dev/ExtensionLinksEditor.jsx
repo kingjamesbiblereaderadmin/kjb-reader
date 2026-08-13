@@ -6,16 +6,16 @@ import { Loader2, Save, RotateCcw, CheckCircle2, AlertCircle, ExternalLink } fro
 // Built-in defaults mirror the hardcoded values in ExtensionPage.jsx so an
 // admin can see what's currently live and easily reset to them.
 const DEFAULTS = {
-  chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/063abb898_kjb-reader-v04115-chrome.zip',
-  edge: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/063abb898_kjb-reader-v04115-chrome.zip',
-  firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/f5936073d_kjb-reader-v04115-firefox.zip',
-  opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/bc2e387a5_kjb-reader-v04115-opera.zip',
-  version: 'v0.4.115',
+  chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/ab74cb10b_kjb-reader-v04116-chrome.zip',
+  edge: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/ab74cb10b_kjb-reader-v04116-chrome.zip',
+  firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/5c6faf11e_kjb-reader-v04116-firefox.zip',
+  opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/da4e862ad_kjb-reader-v04116-opera.zip',
+  version: 'v0.4.116',
   show_instructions: true,
 };
 
 const FIELDS = [
-  { key: 'version', label: 'Version label', placeholder: 'v0.4.115' },
+  { key: 'version', label: 'Version label', placeholder: 'v0.4.116' },
   { key: 'chrome', label: 'Chrome download URL', placeholder: DEFAULTS.chrome },
   { key: 'edge', label: 'Edge download URL', placeholder: DEFAULTS.edge },
   { key: 'firefox', label: 'Firefox download URL', placeholder: DEFAULTS.firefox },
