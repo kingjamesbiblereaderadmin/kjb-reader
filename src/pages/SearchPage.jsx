@@ -1052,7 +1052,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="kjb-search-page min-h-screen bg-background print:bg-none">
+    <div className="min-h-screen bg-background print:bg-none">
     <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6 print:p-0 print:pt-4">
       {/* Title + search box + filters + results count/toolbar/keyboard hint
           all live inside this ONE sticky container, so they stay reachable

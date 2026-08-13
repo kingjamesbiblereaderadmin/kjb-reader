@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, List, Maximize2, Minimize2 } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Maximize2, Minimize2 } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -11,9 +11,9 @@ import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import ProgressBar from '@/components/ProgressBar';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { initPeriodicCacheRefresh } from '@/lib/bibleCache';
+import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
+import { toast } from 'sonner';
 import { useSoftReload } from '@/lib/SoftReloadContext';
 import { getAccessibilityFont, applyAccessibilityFont } from '@/lib/accessibilityFont';
 
@@ -22,14 +22,6 @@ const scrollMainToTop = () => {
   if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
   else window.scrollTo({ top: 0, behavior: 'smooth' });
 };
-
-// Primary shell tabs for the four main destinations
-const TAB_DESTINATIONS = [
-  { value: '/', label: 'Home', icon: Home, path: '/' },
-  { value: '/read', label: 'Read', icon: BookOpen, path: '/read' },
-  { value: '/gospel', label: 'Gospel', icon: Heart, path: '/gospel' },
-  { value: '/resources', label: 'Resources', icon: Library, path: '/resources' },
-];
 
 // Per-route colours so icons are colourful everywhere (menu, bottom nav, footer).
 // `gradient` = icon-chip background; `text` = inactive icon colour.
@@ -79,14 +71,6 @@ export default function AppLayout() {
   
   // Hide all layout chrome for legacy reader - it renders its own complete UI
   const isLegacy = pathname === '/legacy';
-  // Active tab derived from current route
-  const activeTabValue = (() => {
-    if (pathname === '/') return '/';
-    if (pathname === '/read' || pathname.startsWith('/read/')) return '/read';
-    if (pathname === '/gospel' || pathname.startsWith('/gospel/')) return '/gospel';
-    if (pathname === '/resources' || pathname.startsWith('/resources/')) return '/resources';
-    return '';
-  })();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -312,9 +296,9 @@ export default function AppLayout() {
 
   return (
     <AutoUpdateHandler>
-    <div className="kjb-sidepanel-ui h-screen bg-background flex flex-col overflow-hidden">
-      <header data-kjb-app-header className={`kjb-sidepanel-header print:hidden z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
-        <div className="kjb-sidepanel-header-row w-full max-w-5xl mx-auto flex items-center justify-between">
+    <div className="h-screen bg-gradient-to-br from-background via-accent/5 to-background flex flex-col overflow-hidden">
+      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+        <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
           {/* Logo / Back Button */}
           {pathname === '/' ? (
             <Link
@@ -323,11 +307,10 @@ export default function AppLayout() {
                 setMenuOpen(false);
                 scrollMainToTop();
               }}
-              className="kjb-sidepanel-brand flex items-center gap-2 flex-shrink-0 pointer-events-auto"
+              className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
             >
               <div className="flex items-center gap-1.5">
-                <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2279e016e_8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="kjb-sidepanel-logo h-8 w-auto" />
-                <span className="kjb-sidepanel-title">KJB Reader</span>
+                <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2279e016e_8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
               </div>
             </Link>
           ) : (
@@ -360,18 +343,16 @@ export default function AppLayout() {
               >
                 <Home className="w-5 h-5 pointer-events-none text-muted-foreground hover:text-foreground transition-colors" />
               </Link>
-              <img
-                src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2279e016e_8e738d108_cfb4bf781_Untitled.png"
-                alt=""
-                aria-hidden="true"
-                className="kjb-sidepanel-logo ml-1 h-7 w-7 rounded-md object-contain"
-              />
-              <span className="kjb-sidepanel-title ml-1.5">KJB Reader</span>
             </div>
           )}
 
+          {/* Search - expands to fill all available space so icons sit flush right */}
+          <div className="flex-1 min-w-0 pointer-events-auto">
+            <BibleSearchBar onClose={() => setMenuOpen(false)} />
+          </div>
+
           {/* Actions - responsive button sizes with visible square touch targets */}
-          <div className="kjb-sidepanel-actions flex items-center shrink-0">
+          <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={toggleFullscreen}
@@ -397,52 +378,7 @@ export default function AppLayout() {
             </button>
           </div>
         </div>
-
-        <div className="kjb-sidepanel-search-section">
-          <div className="w-full max-w-5xl mx-auto">
-            <BibleSearchBar onClose={() => setMenuOpen(false)} />
-          </div>
-        </div>
         
-        {/* Extension-Style Primary Equal-Width Tab Bar */}
-        <div className="kjb-sidepanel-tabs">
-          <Tabs
-            value={activeTabValue}
-            onValueChange={(val) => {
-              if (val) {
-                setMenuOpen(false);
-                scrollMainToTop();
-                navigate(val);
-              }
-            }}
-            className="w-full"
-          >
-            <TabsList
-              aria-label="KJB Reader primary sections"
-              className="kjb-sidepanel-tabs-list mx-auto flex h-auto w-full max-w-5xl items-stretch justify-start overflow-x-auto rounded-none bg-transparent p-0 text-muted-foreground [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              {TAB_DESTINATIONS.map(({ value, label, icon: Icon, path }) => (
-                <TabsTrigger
-                  key={value}
-                  value={value}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setMenuOpen(false);
-                    scrollMainToTop();
-                    if (pathname !== path) {
-                      navigate(path);
-                    }
-                  }}
-                  className="kjb-sidepanel-tab min-w-[5.5rem] flex-1 gap-1.5 rounded-none border-x-0 border-t-0 border-b-2 border-transparent bg-transparent px-3 py-2.5 text-xs font-semibold tracking-[0.025em] shadow-none transition-colors hover:text-foreground focus-visible:z-10 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none cursor-pointer"
-                >
-                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span>{label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-
         {menuOpen && (
           <>
             <div
