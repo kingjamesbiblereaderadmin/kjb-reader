@@ -17,6 +17,7 @@ import RunningHead from '@/components/bible/RunningHead';
 import CurrentlyReadingIndicator from '@/components/bible/CurrentlyReadingIndicator';
 import MinimizedHeaderBar from '@/components/bible/MinimizedHeaderBar';
 import ReadingRangeBar from '@/components/bible/ReadingRangeBar';
+import ChapterAudioPlayer from '@/components/bible/ChapterAudioPlayer';
 import SelectActionBar from '@/components/bible/SelectActionBar';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -1934,6 +1935,10 @@ export default function BibleReader() {
             </p>
           )}
         </div>
+      )}
+
+      {!loading && !error && !isViewingTitlePage && (
+        <ChapterAudioPlayer book={book} chapter={pos.chapter} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} />
       )}
 
       <div 
