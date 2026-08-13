@@ -478,7 +478,7 @@
 .kjb-read-toolbar-bar>button svg,.kjb-read-toolbar-bar>div.relative>button svg{width:13px!important;height:13px!important}
 .kjb-read-toolbar-bar .kjb-read-action-label{display:inline!important;font-size:11px;line-height:1}
 .kjb-read-toolbar-bar>div.relative{flex:0 0 auto!important;width:auto!important}
-.kjb-reader-primary-actions{display:flex;align-items:center;justify-content:center;gap:4px;flex:1 0 100%;width:100%;padding:0 12px 8px}
+.kjb-reader-primary-actions{display:flex;align-items:center;justify-content:flex-start;gap:4px;flex:1 0 100%;width:100%;padding:0 12px 8px}
 .kjb-sidepanel-read-action{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:3px 8px;border:1px solid var(--panel-border);border-radius:4px;color:var(--panel-primary);background:var(--panel-muted);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:11px;font-weight:600;line-height:1.35;cursor:pointer;white-space:nowrap;box-shadow:none;transition:background-color .15s,color .15s,border-color .15s}
 .kjb-sidepanel-read-action:hover{color:var(--panel-primary);background:var(--panel-hover);text-decoration:none}
 .kjb-sidepanel-read-action.is-active{color:#fff;background:var(--panel-primary);border-color:var(--panel-primary)}
