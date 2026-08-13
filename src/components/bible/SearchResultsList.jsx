@@ -208,7 +208,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, hig
   let firstNTSeen = false;
 
   return (
-    <div className="space-y-2">
+    <div className="kjb-search-results space-y-2">
       {groups.map((group, gi) => {
         const isNT = group.isNT;
         const showOTHeader = gi === 0 && !isNT;
@@ -307,7 +307,7 @@ function SearchResultsList({ results, highlightTerm, highlightCaseSensitive, hig
 
             {/* Per-book dropdown header + its verses (hidden if testament collapsed) */}
             {!sectionCollapsed && (
-              <div className="rounded-xl overflow-hidden print:border-none print:rounded-none print:overflow-visible print:mt-2">
+              <div className="kjb-search-book-group rounded-xl overflow-hidden print:border-none print:rounded-none print:overflow-visible print:mt-2">
                 <button
                   ref={(el) => setHeaderRef(group.book, el)}
                   onClick={() => toggleBook(group.book)}
