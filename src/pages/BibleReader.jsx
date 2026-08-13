@@ -1812,7 +1812,7 @@ export default function BibleReader() {
                       <span>Tools</span>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" className="kjb-reader-tools-panel w-64 p-2">
+                  <DropdownMenuContent align="start" className="kjb-reader-tools-panel w-64 p-2">
                     <div className="kjb-reader-tools-section" onClick={(e) => e.stopPropagation()}>
                       <div className="kjb-reader-tools-label"><span>Text size</span><strong>{zoomLevel}%</strong></div>
                       <div className="kjb-reader-tools-stepper">
