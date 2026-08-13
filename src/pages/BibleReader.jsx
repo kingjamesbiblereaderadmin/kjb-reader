@@ -1472,6 +1472,45 @@ export default function BibleReader() {
     <div onClick={(e) => { if (!e.target.closest('.kjb-verse-container, h1, h2, h3, .kjb-subscript, .kjb-colophon, #kjb-colophon-anchor, #kjb-subscript-anchor, button, a')) { setHighlightVerse(null); setHighlightSection(null); if (!selectMode) setHighlightedVerses(new Set()); } }} className={`kjb-reader-page w-full max-w-[120rem] mx-auto px-5 sm:px-8 lg:px-12 py-3 ${hideHeader ? 'pt-16' : ''}`}>
       {!hideHeader && (
         <div ref={topRef} className="kjb-reader-controls print:hidden sticky top-0 z-[100] border-b border-border pb-4 pt-3 mb-8 relative shadow-sm -mx-5 sm:-mx-8 lg:-mx-12 px-5 sm:px-8 lg:px-12 bg-background before:content-[''] before:absolute before:bottom-full before:left-0 before:right-0 before:h-12 before:bg-background">
+          <div className="kjb-read-controls-compact" aria-label="Chapter navigation">
+            <div className="kjb-read-book-title-bar">
+              {isViewingTitlePage ? `${book.name} — Title Page` : `${book.name} — Chapter ${pos.chapter}`}
+            </div>
+            <div className="kjb-read-nav-bar">
+              <button type="button" onClick={goPrev} disabled={isFirstChapterFirstBook} className="kjb-read-nav-button" aria-label="Previous chapter">◀ Prev</button>
+              <select
+                value={pos.abbr}
+                onChange={(e) => { clearSpecialModes(); navigate(e.target.value, 1, null); }}
+                className="kjb-read-dropdown kjb-read-book-dropdown"
+                aria-label="Select book"
+                title="Select book"
+              >
+                <optgroup label="Old Testament">
+                  {BIBLE_BOOKS.filter((item) => item.testament === 'old').map((item) => (
+                    <option key={item.abbr} value={item.abbr}>{item.shortName}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="New Testament">
+                  {BIBLE_BOOKS.filter((item) => item.testament === 'new').map((item) => (
+                    <option key={item.abbr} value={item.abbr}>{item.shortName}</option>
+                  ))}
+                </optgroup>
+              </select>
+              <select
+                value={Math.max(1, pos.chapter)}
+                onChange={(e) => { clearSpecialModes(); navigate(pos.abbr, Number(e.target.value), null); }}
+                className="kjb-read-dropdown kjb-read-chapter-dropdown"
+                aria-label="Select chapter"
+                title="Select chapter"
+              >
+                {Array.from({ length: book.chapters }, (_, index) => index + 1).map((chapter) => (
+                  <option key={chapter} value={chapter}>{chapter}</option>
+                ))}
+              </select>
+              <button type="button" onClick={() => goNext()} disabled={isLastChapterLastBook} className="kjb-read-nav-button" aria-label="Next chapter">Next ▶</button>
+            </div>
+          </div>
+
           <div
             onClickCapture={(e) => {
               // Tapping empty space inside the toolbar (the gaps/padding between

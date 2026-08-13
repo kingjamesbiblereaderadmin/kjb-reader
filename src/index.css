@@ -460,6 +460,16 @@
 
 /* Reader: compact controls, plain read canvas, individual verse rows. */
 .kjb-reader-page{max-width:64rem!important;padding-top:0}
+.kjb-read-controls-compact{width:100%;max-width:64rem;margin:0 auto 8px;background:var(--panel-card);border-bottom:1px solid var(--panel-border)}
+.kjb-read-book-title-bar{display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;padding:10px 16px 6px;color:var(--panel-text);text-align:center;font-size:17px;font-weight:700;line-height:1.35;letter-spacing:.025em}
+.kjb-read-nav-bar{display:flex;align-items:center;justify-content:center;gap:4px;padding:0 12px 8px}
+.kjb-read-nav-button{flex:0 0 auto;min-height:28px!important;height:28px!important;padding:3px 8px!important;border:1px solid var(--panel-border)!important;border-radius:4px!important;color:var(--panel-text)!important;background:var(--panel-bg)!important;font-size:11px!important;font-weight:600;line-height:1;white-space:nowrap;cursor:pointer}
+.kjb-read-nav-button:hover:not(:disabled){color:var(--panel-primary)!important;background:var(--panel-hover)!important}
+.kjb-read-nav-button:disabled{opacity:.35;cursor:not-allowed}
+.kjb-read-dropdown{min-width:0;height:28px!important;padding:3px 24px 3px 7px!important;border:1px solid var(--panel-border)!important;border-radius:4px!important;color:var(--panel-text)!important;background-color:var(--panel-card)!important;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:12px!important;font-weight:600;line-height:1;cursor:pointer}
+.kjb-read-book-dropdown{flex:1 1 190px;max-width:300px}
+.kjb-read-chapter-dropdown{flex:0 0 58px;width:58px}
+.kjb-read-dropdown:focus{border-color:var(--panel-primary)!important;outline:2px solid color-mix(in srgb,var(--panel-primary) 22%,transparent);outline-offset:1px}
 .kjb-reader-page .kjb-reader-controls{padding-top:8px;padding-bottom:8px;margin-bottom:0;color:var(--panel-text);background:var(--panel-card);border-color:var(--panel-border);box-shadow:none}
 .kjb-reader-page .kjb-reader-toolbar{max-width:64rem;gap:6px}
 .kjb-reader-page .kjb-reader-toolbar button{height:36px!important;min-height:36px!important;padding-inline:8px!important;border:1px solid var(--panel-border)!important;border-radius:4px!important;background:var(--panel-card)!important;color:var(--panel-text)!important;font-size:12px!important;font-weight:600;box-shadow:none!important}
@@ -497,6 +507,11 @@
 
 @media(max-width:639px){
  .kjb-sidepanel-header-row,.kjb-sidepanel-search-section{padding-inline:12px}
+ .kjb-read-book-title-bar{padding:8px 8px 5px;font-size:14px}
+ .kjb-read-nav-bar{padding:0 4px 7px;gap:3px}
+ .kjb-read-nav-button{padding-inline:6px!important;font-size:10px!important}
+ .kjb-read-book-dropdown{flex-basis:115px;max-width:none}
+ .kjb-read-chapter-dropdown{flex-basis:48px;width:48px;padding-left:5px!important}
  .kjb-reader-page{padding-inline:0}
  .kjb-reader-page .kjb-reader-controls{margin-inline:0;padding-inline:12px}
  .kjb-reader-page .kjb-reader-content{padding:12px}
