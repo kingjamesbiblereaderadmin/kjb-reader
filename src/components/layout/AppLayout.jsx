@@ -360,7 +360,13 @@ export default function AppLayout() {
               >
                 <Home className="w-5 h-5 pointer-events-none text-muted-foreground hover:text-foreground transition-colors" />
               </Link>
-              <span className="kjb-sidepanel-title ml-1">KJB Reader</span>
+              <img
+                src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2279e016e_8e738d108_cfb4bf781_Untitled.png"
+                alt=""
+                aria-hidden="true"
+                className="kjb-sidepanel-logo ml-1 h-7 w-7 rounded-md object-contain"
+              />
+              <span className="kjb-sidepanel-title ml-1.5">KJB Reader</span>
             </div>
           )}
 
