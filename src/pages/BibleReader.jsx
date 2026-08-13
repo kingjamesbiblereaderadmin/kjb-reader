@@ -1598,7 +1598,7 @@ export default function BibleReader() {
                 </SelectorSheet>
               </div>
 
-              <div className="relative flex">
+              <div className="kjb-reader-legacy-control relative flex">
                 <button
                   onClick={() => { setShowVersePicker(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowZoomPopover(false); setShowFontPopover(false); }}
                   className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-sm font-medium transition-all duration-200 touch-manipulation h-11 w-full ${

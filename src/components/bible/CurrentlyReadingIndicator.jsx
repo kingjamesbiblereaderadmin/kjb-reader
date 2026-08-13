@@ -116,7 +116,7 @@ export default function CurrentlyReadingIndicator({
   const showNavigation = !isDaily && !isRandom && (effectiveSearchTerm || gospelMode) && totalResults > 1 && onPrevResult && onNextResult;
 
   return (
-    <div className="flex items-stretch gap-2 px-3 py-2 rounded-lg bg-yellow-500 text-black font-sans text-xs font-medium min-w-0 flex-shrink-0">
+    <div className="kjb-reader-status-toolbar">
       <div className="flex flex-col leading-snug gap-0.5 min-w-0 justify-center">
         {typeLabel ? (
           <>
@@ -131,7 +131,7 @@ export default function CurrentlyReadingIndicator({
         )}
       </div>
       {(showNavigation || onClear) && (
-        <div className="flex items-center gap-1 flex-shrink-0 border-l border-black/20 pl-2">
+        <div className="flex items-center gap-1 flex-shrink-0 border-l border-border pl-2">
           {showNavigation && (
             <>
               <span className="text-[10px] font-semibold opacity-70">{currentResultIndex + 1}/{totalResults}</span>
@@ -139,7 +139,7 @@ export default function CurrentlyReadingIndicator({
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
                 onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onPrevResult(); }}
                 title="Previous result (wraps to last)"
-                className="p-1 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+                className="kjb-sidepanel-icon-button"
               >
                 <ChevronUp className="w-4 h-4" />
               </button>
@@ -147,7 +147,7 @@ export default function CurrentlyReadingIndicator({
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
                 onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onNextResult(); }}
                 title="Next result (wraps to first)"
-                className="p-1 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+                className="kjb-sidepanel-icon-button"
               >
                 <ChevronDown className="w-4 h-4" />
               </button>
@@ -162,7 +162,7 @@ export default function CurrentlyReadingIndicator({
                 onClear();
               }}
               title={clearLabel}
-              className="p-1 rounded hover:bg-black/20 transition-all duration-200 hover:scale-110 active:scale-95 flex-shrink-0"
+              className="kjb-sidepanel-icon-button"
             >
               <X className="w-4 h-4" />
             </button>
