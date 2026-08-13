@@ -311,8 +311,8 @@ export default function ExtensionPage() {
         </div>
         )}
 
-        {/* Legal documents — Privacy Policy + Terms of Service */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Legal documents — Privacy Policy, Terms of Service, License */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Link
             to="/extension-privacy"
             className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-border bg-card/70 backdrop-blur-xl shadow-sm hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
