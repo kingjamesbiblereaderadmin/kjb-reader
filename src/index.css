@@ -470,13 +470,14 @@
 .kjb-read-book-dropdown{flex:1 1 190px;max-width:300px}
 .kjb-read-chapter-dropdown{flex:0 0 58px;width:58px}
 .kjb-read-dropdown:focus{border-color:var(--panel-primary)!important;outline:2px solid color-mix(in srgb,var(--panel-primary) 22%,transparent);outline-offset:1px}
-.kjb-reader-page .kjb-reader-controls{padding-top:8px;padding-bottom:8px;margin-bottom:0;color:var(--panel-text);background:var(--panel-card);border-color:var(--panel-border);box-shadow:none}
-.kjb-reader-page .kjb-reader-toolbar{max-width:64rem;gap:6px}
-.kjb-reader-page .kjb-reader-toolbar button{height:36px!important;min-height:36px!important;padding-inline:8px!important;border:1px solid var(--panel-border)!important;border-radius:4px!important;background:var(--panel-card)!important;color:var(--panel-text)!important;font-size:12px!important;font-weight:600;box-shadow:none!important}
-.kjb-reader-page .kjb-reader-toolbar button:first-child{color:#fff!important;background:var(--panel-primary)!important;border-color:var(--panel-primary)!important}
-.dark .kjb-reader-page .kjb-reader-toolbar button:first-child{color:#111827!important}
-.kjb-reader-page .kjb-reader-toolbar button:hover{color:var(--panel-primary)!important;background:var(--panel-hover)!important}
-.kjb-reader-page .kjb-reader-toolbar button:first-child:hover{color:#fff!important;background:var(--panel-primary-hover)!important}
+.kjb-reader-legacy-control{display:none!important}
+.kjb-read-toolbar-bar{display:flex;align-items:center;justify-content:center;gap:4px!important;flex-wrap:wrap;padding:0 12px 8px}
+.kjb-read-toolbar-bar>button,.kjb-read-toolbar-bar>div.relative>button,.kjb-read-toolbar-bar>[data-radix-collection-item]{flex:0 0 auto!important;width:auto!important;min-width:0!important;height:28px!important;min-height:28px!important;padding:3px 8px!important;border:1px solid var(--panel-border)!important;border-radius:4px!important;color:var(--panel-text)!important;background:var(--panel-bg)!important;font-size:11px!important;font-weight:600;line-height:1;box-shadow:none!important;white-space:nowrap}
+.kjb-read-toolbar-bar>button:hover,.kjb-read-toolbar-bar>div.relative>button:hover{color:var(--panel-primary)!important;background:var(--panel-hover)!important}
+.kjb-read-toolbar-bar>button svg,.kjb-read-toolbar-bar>div.relative>button svg{width:13px!important;height:13px!important}
+.kjb-read-toolbar-bar .kjb-read-action-label{display:inline!important;font-size:11px;line-height:1}
+.kjb-read-toolbar-bar>div.relative{flex:0 0 auto!important;width:auto!important}
+.kjb-reader-page .kjb-reader-controls{padding-top:8px;padding-bottom:0;margin-bottom:0;color:var(--panel-text);background:var(--panel-card);border-color:var(--panel-border);box-shadow:none}
 .kjb-reader-page .kjb-reader-heading{max-width:64rem;margin:0 auto;padding:14px 12px 12px;color:var(--panel-text);background:var(--panel-read-bg);border-bottom:2px solid var(--panel-border)}
 .kjb-reader-page .kjb-reader-heading h1{margin:0;color:var(--panel-text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif!important;font-size:17px!important;font-weight:700!important;line-height:1.35;letter-spacing:.025em}
 .kjb-reader-page .kjb-reader-heading>p:first-of-type{margin-top:8px;color:var(--panel-muted);font-size:13px!important;line-height:1;letter-spacing:.04em}
