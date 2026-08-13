@@ -39,6 +39,7 @@ const loaders = {
   Extension: () => import('@/pages/ExtensionPage.jsx').catch((err) => { console.error('Failed to load ExtensionPage:', err); throw err; }),
   ExtensionPrivacy: () => import('@/pages/ExtensionPrivacyPage.jsx').catch((err) => { console.error('Failed to load ExtensionPrivacyPage:', err); throw err; }),
   ExtensionTerms: () => import('@/pages/ExtensionTermsPage.jsx').catch((err) => { console.error('Failed to load ExtensionTermsPage:', err); throw err; }),
+  ExtensionLicense: () => import('@/pages/ExtensionLicensePage.jsx').catch((err) => { console.error('Failed to load ExtensionLicensePage:', err); throw err; }),
   KjbDefence: () => import('@/pages/KjbDefencePage.jsx').catch((err) => { console.error('Failed to load KjbDefencePage:', err); throw err; }),
   Login: () => import('@/pages/Login.jsx').catch((err) => { console.error('Failed to load Login:', err); throw err; }),
   ForgotPassword: () => import('@/pages/ForgotPassword.jsx').catch((err) => { console.error('Failed to load ForgotPassword:', err); throw err; }),
@@ -72,6 +73,7 @@ const DiscordInvitePage = lazy(loaders.DiscordInvite);
 const ExtensionPage = lazy(loaders.Extension);
 const ExtensionPrivacyPage = lazy(loaders.ExtensionPrivacy);
 const ExtensionTermsPage = lazy(loaders.ExtensionTerms);
+const ExtensionLicensePage = lazy(loaders.ExtensionLicense);
 const KjbDefencePage = lazy(loaders.KjbDefence);
 const LoginPage = lazy(loaders.Login);
 const ForgotPasswordPage = lazy(loaders.ForgotPassword);
@@ -276,6 +278,7 @@ const AuthenticatedApp = () => {
             <Route path="/extension-privacy" element={<Suspense fallback={<RouteLoader />}><ExtensionPrivacyPage /></Suspense>} />
             <Route path="/extension/privacy" element={<Suspense fallback={<RouteLoader />}><ExtensionPrivacyPage /></Suspense>} />
             <Route path="/extension-terms" element={<Suspense fallback={<RouteLoader />}><ExtensionTermsPage /></Suspense>} />
+            <Route path="/extension-license" element={<Suspense fallback={<RouteLoader />}><ExtensionLicensePage /></Suspense>} />
             <Route path="/login" element={<Suspense fallback={<RouteLoader />}><LoginPage /></Suspense>} />
             <Route path="/forgot-password" element={<Suspense fallback={<RouteLoader />}><ForgotPasswordPage /></Suspense>} />
             <Route path="/reset-password" element={<Suspense fallback={<RouteLoader />}><ResetPasswordPage /></Suspense>} />
