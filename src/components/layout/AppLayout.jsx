@@ -313,8 +313,8 @@ export default function AppLayout() {
   return (
     <AutoUpdateHandler>
     <div className="kjb-sidepanel-ui h-screen bg-background flex flex-col overflow-hidden">
-      <header data-kjb-app-header className={`print:hidden border-b border-border/60 bg-card/70 backdrop-blur-xl z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
-        <div className="w-full max-w-[120rem] mx-auto px-3 xs:px-5 sm:px-8 lg:px-12 h-14 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
+      <header data-kjb-app-header className={`kjb-sidepanel-header print:hidden z-50 flex-shrink-0 ${hideHeader ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
+        <div className="kjb-sidepanel-header-row w-full max-w-5xl mx-auto flex items-center justify-between">
           {/* Logo / Back Button */}
           {pathname === '/' ? (
             <Link
@@ -323,10 +323,11 @@ export default function AppLayout() {
                 setMenuOpen(false);
                 scrollMainToTop();
               }}
-              className="flex items-center gap-2 flex-shrink-0 pointer-events-auto"
+              className="kjb-sidepanel-brand flex items-center gap-2 flex-shrink-0 pointer-events-auto"
             >
               <div className="flex items-center gap-1.5">
-                <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2279e016e_8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="h-8 w-auto" />
+                <img src="https://media.base44.com/images/public/6a05d76723afe58d80c589e8/2279e016e_8e738d108_cfb4bf781_Untitled.png" alt="KJB Reader" className="kjb-sidepanel-logo h-8 w-auto" />
+                <span className="kjb-sidepanel-title">KJB Reader</span>
               </div>
             </Link>
           ) : (
@@ -359,16 +360,12 @@ export default function AppLayout() {
               >
                 <Home className="w-5 h-5 pointer-events-none text-muted-foreground hover:text-foreground transition-colors" />
               </Link>
+              <span className="kjb-sidepanel-title ml-1">KJB Reader</span>
             </div>
           )}
 
-          {/* Search - expands to fill all available space so icons sit flush right */}
-          <div className="flex-1 min-w-0 pointer-events-auto">
-            <BibleSearchBar onClose={() => setMenuOpen(false)} />
-          </div>
-
           {/* Actions - responsive button sizes with visible square touch targets */}
-          <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
+          <div className="kjb-sidepanel-actions flex items-center shrink-0">
             <button
               type="button"
               onClick={toggleFullscreen}
@@ -394,9 +391,15 @@ export default function AppLayout() {
             </button>
           </div>
         </div>
+
+        <div className="kjb-sidepanel-search-section">
+          <div className="w-full max-w-5xl mx-auto">
+            <BibleSearchBar onClose={() => setMenuOpen(false)} />
+          </div>
+        </div>
         
         {/* Extension-Style Primary Equal-Width Tab Bar */}
-        <div className="border-t border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/85">
+        <div className="kjb-sidepanel-tabs">
           <Tabs
             value={activeTabValue}
             onValueChange={(val) => {
@@ -410,7 +413,7 @@ export default function AppLayout() {
           >
             <TabsList
               aria-label="KJB Reader primary sections"
-              className="mx-auto flex h-auto w-full max-w-3xl items-stretch justify-start overflow-x-auto rounded-none bg-transparent p-0 text-muted-foreground [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="kjb-sidepanel-tabs-list mx-auto flex h-auto w-full max-w-5xl items-stretch justify-start overflow-x-auto rounded-none bg-transparent p-0 text-muted-foreground [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {TAB_DESTINATIONS.map(({ value, label, icon: Icon, path }) => (
                 <TabsTrigger
@@ -424,7 +427,7 @@ export default function AppLayout() {
                       navigate(path);
                     }
                   }}
-                  className="min-w-[5.5rem] flex-1 gap-1.5 rounded-none border-x-0 border-t-0 border-b-2 border-transparent bg-transparent px-3 py-2.5 text-xs font-semibold tracking-[0.025em] shadow-none transition-colors hover:text-foreground focus-visible:z-10 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none sm:py-3 sm:text-sm cursor-pointer"
+                  className="kjb-sidepanel-tab min-w-[5.5rem] flex-1 gap-1.5 rounded-none border-x-0 border-t-0 border-b-2 border-transparent bg-transparent px-3 py-2.5 text-xs font-semibold tracking-[0.025em] shadow-none transition-colors hover:text-foreground focus-visible:z-10 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none cursor-pointer"
                 >
                   <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                   <span>{label}</span>
