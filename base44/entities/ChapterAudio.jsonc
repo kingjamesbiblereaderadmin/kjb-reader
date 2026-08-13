@@ -21,6 +21,11 @@
       "format": "uri",
       "description": "URL to the mp3 narration file for this chapter"
     },
+    "timing_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to a JSON file of per-word timing data for karaoke-style word highlighting during playback. Shape: { \"words\": [ { \"verse\": number, \"word_index\": number, \"start_ms\": number, \"end_ms\": number }, ... ] } where word_index is the 0-based position of the word within that verse's own text (verse.split(' ')[word_index])."
+    },
     "voice": {
       "type": "string",
       "description": "TTS voice identifier, e.g. 'en-GB-ThomasNeural'"

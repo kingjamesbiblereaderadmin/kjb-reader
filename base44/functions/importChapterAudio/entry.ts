@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 
 // Admin-only batch import endpoint for ChapterAudio narration records.
-// POST JSON: { "records": [ { book, book_order, chapter, audio_url, voice?, duration_seconds?, verse_count? }, ... ] }
+// POST JSON: { "records": [ { book, book_order, chapter, audio_url, timing_url?, voice?, duration_seconds?, verse_count? }, ... ] }
 // Upserts by book + chapter (updates an existing record if one already exists,
 // otherwise creates). Returns { created, updated } on success.
 
@@ -39,6 +39,7 @@ export default async function(req) {
         book_order: typeof r.book_order === 'number' ? r.book_order : undefined,
         chapter: r.chapter,
         audio_url: r.audio_url,
+        timing_url: typeof r.timing_url === 'string' && r.timing_url ? r.timing_url : undefined,
         voice: typeof r.voice === 'string' ? r.voice : undefined,
         duration_seconds: typeof r.duration_seconds === 'number' ? r.duration_seconds : undefined,
         verse_count: typeof r.verse_count === 'number' ? r.verse_count : undefined,

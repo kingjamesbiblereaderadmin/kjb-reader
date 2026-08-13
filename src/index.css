@@ -399,6 +399,16 @@
        highlight should cover the scripture text + drop-cap letter only. */
     background-color: transparent !important;
   }
+
+  /* Karaoke word highlighting — highlights the currently-narrated word in the
+     reading view during audio playback. Player-driven (DOM), so the reader
+     never re-renders per word. */
+  .kjb-karaoke-word { transition: background-color 0.1s ease; }
+  .kjb-karaoke-active {
+    background-color: hsl(var(--accent) / 0.35);
+    border-radius: 0.15em;
+    box-shadow: 0 0 0 1px hsl(var(--accent) / 0.25);
+  }
 }
 
 
