@@ -30,8 +30,8 @@ export default function RunningHead({ bookName, chapter, baseFontRem, isCursive 
 
   return (
     <div className={`mb-6 print:hidden ${isCursive ? 'cursive-em-style' : 'font-serif'}`}>
-      <div className="flex items-baseline gap-6">
-        <div className="flex-1 min-w-0 text-left">
+      <div className="text-left">
+        <div className="min-w-0">
           <span
             ref={leftRef}
             className="inline-block max-w-full whitespace-nowrap font-semibold tracking-wide text-foreground"
@@ -40,7 +40,7 @@ export default function RunningHead({ bookName, chapter, baseFontRem, isCursive 
             {bookName}
           </span>
         </div>
-        <div className="flex-1 min-w-0 text-right">
+        <div className="min-w-0 mt-1">
           <span
             ref={rightRef}
             className="inline-block max-w-full whitespace-nowrap font-semibold tracking-wide text-foreground"
@@ -50,9 +50,8 @@ export default function RunningHead({ bookName, chapter, baseFontRem, isCursive 
           </span>
         </div>
       </div>
-      <div className="pt-1.5 flex gap-6">
-        <div className="flex-1 border-b border-border" />
-        <div className="flex-1 border-b border-border" />
+      <div className="pt-1.5">
+        <div className="border-b border-border" />
       </div>
     </div>
   );
