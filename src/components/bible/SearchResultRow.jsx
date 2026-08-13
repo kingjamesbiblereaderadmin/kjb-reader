@@ -90,7 +90,7 @@ function SearchResultRow({ r, i, thisIndex, isFocused, isSelected, selectMode, h
           onGoToVerse(r.abbr, r.chapter, r.verse, r.verseEnd || null, i);
         }
       }}
-      className={`kjb-search-result-row w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 print:p-0 print:border-none print:rounded-none print:bg-transparent print:mb-3 print:break-inside-avoid ${
+      className={`w-full text-left p-4 rounded-xl border transition-colors cursor-pointer flex items-start gap-3 print:p-0 print:border-none print:rounded-none print:bg-transparent print:mb-3 print:break-inside-avoid ${
         isFocused
           ? 'bg-accent/10 border-accent/60 ring-1 ring-accent/40'
           : isSelected

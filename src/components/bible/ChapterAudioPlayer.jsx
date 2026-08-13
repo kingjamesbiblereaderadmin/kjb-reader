@@ -318,7 +318,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter })
 
   if (loading) {
     return (
-      <div className="kjb-audio-toolbar kjb-audio-toolbar-state">
+      <div className="flex items-center gap-2 px-4 py-3 mb-5 rounded-xl border border-border bg-card/60">
         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
         <span className="font-sans text-xs text-muted-foreground">Loading audio…</span>
       </div>
@@ -327,7 +327,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter })
 
   if (!hasAudio) {
     return (
-      <div className="kjb-audio-toolbar kjb-audio-toolbar-state">
+      <div className="flex items-center gap-2 px-4 py-3 mb-5 rounded-xl border border-dashed border-border bg-card/40">
         <Volume2 className="w-4 h-4 text-muted-foreground/70" />
         <span className="font-sans text-xs text-muted-foreground">Audio narration coming soon for this chapter</span>
       </div>
@@ -337,10 +337,10 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter })
   const seekVal = isFinite(currentTime) ? currentTime : 0;
   const maxVal = isFinite(duration) && duration > 0 ? duration : (record?.duration_seconds || 0);
 
-  const ctrlBtn = "kjb-sidepanel-tool-button";
+  const ctrlBtn = "flex items-center justify-center gap-1 h-9 px-2.5 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-colors touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed";
 
   return (
-    <div className="kjb-audio-toolbar">
+    <div className="px-4 py-3 mb-5 rounded-xl border border-border bg-card/70 backdrop-blur-sm shadow-sm">
       <audio
         ref={audioRef}
         src={record?.audio_url}
@@ -357,7 +357,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter })
           <ChevronLeft className="w-4 h-4" />
           <span className="hidden sm:inline text-xs">Prev</span>
         </button>
-        <button onClick={togglePlay} title={isPlaying ? 'Pause' : 'Play'} className="kjb-sidepanel-audio-play">
+        <button onClick={togglePlay} title={isPlaying ? 'Pause' : 'Play'} className="flex items-center justify-center w-11 h-11 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity touch-manipulation flex-shrink-0">
           {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
         </button>
         <button onClick={goNextChapter} disabled={isLastChapterLastBook} title="Next chapter" className={ctrlBtn}>
