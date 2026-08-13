@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, ChevronRight, RotateCw, BookMarked, List, Maximize2, Minimize2 } from 'lucide-react';
+import { Home, BookOpen, Heart, Library, Info, Moon, Sun, SunMoon, Settings, Menu, X, Bookmark, ChevronLeft, ChevronDown, List, Maximize2, Minimize2 } from 'lucide-react';
 import { useTheme } from '@/lib/themeContext';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
@@ -11,9 +11,9 @@ import ShortcutsModal from '@/components/ShortcutsModal';
 import ScrollToTop from '@/components/ScrollToTop';
 import AutoUpdateHandler from '@/components/AutoUpdateHandler';
 import ProgressBar from '@/components/ProgressBar';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { getBibleData, isBibleCached, initPeriodicCacheRefresh, downloadBibleForOffline, refreshCacheIfDue, CACHE_VERSION } from '@/lib/bibleCache';
-import { toast } from 'sonner';
+import { initPeriodicCacheRefresh } from '@/lib/bibleCache';
 import { useSoftReload } from '@/lib/SoftReloadContext';
 import { getAccessibilityFont, applyAccessibilityFont } from '@/lib/accessibilityFont';
 
@@ -22,6 +22,14 @@ const scrollMainToTop = () => {
   if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
   else window.scrollTo({ top: 0, behavior: 'smooth' });
 };
+
+// Primary shell tabs for the four main destinations
+const TAB_DESTINATIONS = [
+  { value: '/', label: 'Home', icon: Home, path: '/' },
+  { value: '/read', label: 'Read', icon: BookOpen, path: '/read' },
+  { value: '/gospel', label: 'Gospel', icon: Heart, path: '/gospel' },
+  { value: '/resources', label: 'Resources', icon: Library, path: '/resources' },
+];
 
 // Per-route colours so icons are colourful everywhere (menu, bottom nav, footer).
 // `gradient` = icon-chip background; `text` = inactive icon colour.
@@ -71,6 +79,14 @@ export default function AppLayout() {
   
   // Hide all layout chrome for legacy reader - it renders its own complete UI
   const isLegacy = pathname === '/legacy';
+  // Active tab derived from current route
+  const activeTabValue = (() => {
+    if (pathname === '/') return '/';
+    if (pathname === '/read' || pathname.startsWith('/read/')) return '/read';
+    if (pathname === '/gospel' || pathname.startsWith('/gospel/')) return '/gospel';
+    if (pathname === '/resources' || pathname.startsWith('/resources/')) return '/resources';
+    return '';
+  })();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -379,6 +395,45 @@ export default function AppLayout() {
           </div>
         </div>
         
+        {/* Extension-Style Primary Equal-Width Tab Bar */}
+        <div className="border-t border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/85">
+          <Tabs
+            value={activeTabValue}
+            onValueChange={(val) => {
+              if (val) {
+                setMenuOpen(false);
+                scrollMainToTop();
+                navigate(val);
+              }
+            }}
+            className="w-full"
+          >
+            <TabsList
+              aria-label="KJB Reader primary sections"
+              className="mx-auto flex h-auto w-full max-w-3xl items-stretch justify-start overflow-x-auto rounded-none bg-transparent p-0 text-muted-foreground [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {TAB_DESTINATIONS.map(({ value, label, icon: Icon, path }) => (
+                <TabsTrigger
+                  key={value}
+                  value={value}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMenuOpen(false);
+                    scrollMainToTop();
+                    if (pathname !== path) {
+                      navigate(path);
+                    }
+                  }}
+                  className="min-w-[5.5rem] flex-1 gap-1.5 rounded-none border-x-0 border-t-0 border-b-2 border-transparent bg-transparent px-3 py-2.5 text-xs font-semibold tracking-[0.025em] shadow-none transition-colors hover:text-foreground focus-visible:z-10 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none sm:py-3 sm:text-sm cursor-pointer"
+                >
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>{label}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+
         {menuOpen && (
           <>
             <div
