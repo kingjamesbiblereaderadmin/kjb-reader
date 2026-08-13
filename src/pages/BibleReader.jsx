@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, Printer } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, Printer, Settings2 } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText, resolveSubscript, resolveEndMarker } from '@/lib/bibleApi';
@@ -1636,7 +1636,7 @@ export default function BibleReader() {
                 </SelectorSheet>
               </div>
 
-              <div className="relative flex">
+              <div className="kjb-reader-legacy-control relative flex">
               <button
                 onClick={() => { setShowZoomPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowFontPopover(false); }}
                 title={`Zoom: ${zoomLevel}%`}
@@ -1682,7 +1682,7 @@ export default function BibleReader() {
               </SelectorSheet>
               </div>
 
-              <div className="relative flex">
+              <div className="kjb-reader-legacy-control relative flex">
               <button
                 onClick={() => { setShowFontPopover(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); }}
                 title="Font family"
@@ -1745,13 +1745,13 @@ export default function BibleReader() {
               </SelectorSheet>
               </div>
 
-              <button onClick={toggleFlow} title={flowMode === 'line' ? 'Switch to paragraph' : 'Switch to line-by-line'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{flowMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="kjb-read-action-label">{flowMode === 'line' ? 'Lines' : 'Para'}</span></button>
-              <button onClick={toggleColumn} title={columnOn ? 'Switch to single column' : 'Switch to two-column'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{columnOn ? <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="kjb-read-action-label">{columnOn ? '2-Col' : '1-Col'}</span></button>
-              <button onClick={toggleSelectMode} title="Select verses" className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-xs font-medium transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}><CheckSquare className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="kjb-read-action-label">Select</span></button>
+              <button hidden onClick={toggleFlow} title={flowMode === 'line' ? 'Switch to paragraph' : 'Switch to line-by-line'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{flowMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="kjb-read-action-label">{flowMode === 'line' ? 'Lines' : 'Para'}</span></button>
+              <button hidden onClick={toggleColumn} title={columnOn ? 'Switch to single column' : 'Switch to two-column'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{columnOn ? <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="kjb-read-action-label">{columnOn ? '2-Col' : '1-Col'}</span></button>
+              <button hidden onClick={toggleSelectMode} title="Select verses" className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-xs font-medium transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}><CheckSquare className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="kjb-read-action-label">Select</span></button>
               
               <DropdownMenu onOpenChange={(open) => { if (open) closeAllMenus(); }}>
                 <DropdownMenuTrigger asChild>
-                  <button title={shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">
+                  <button hidden title={shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">
                     <Share2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
                     <span className="kjb-read-action-label">{shareFeedback || shareLinkFeedback ? 'Copied!' : 'Share'}</span>
                   </button>
@@ -1771,6 +1771,7 @@ export default function BibleReader() {
               <button
                 onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
                 title="Print"
+                hidden
                 className="kjb-fixed-btn flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground transition-all duration-200 touch-manipulation h-11 whitespace-nowrap"
               >
                 <Printer className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />
@@ -1781,8 +1782,73 @@ export default function BibleReader() {
                 <button onClick={goPrev} disabled={isFirstChapterFirstBook} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 touch-manipulation h-11 whitespace-nowrap"><ChevronLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="kjb-read-action-label">Prev</span></button>
                 <button onClick={() => goNext()} disabled={isLastChapterLastBook} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground disabled:opacity-30 transition-all duration-200 touch-manipulation h-11 whitespace-nowrap"><span className="kjb-read-action-label">Next</span><ChevronRight className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /></button>
               </div>
-              <button onClick={toggleFullscreen} title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'} className="kjb-fixed-btn flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground transition-all duration-200 touch-manipulation h-11 whitespace-nowrap">{fullscreen ? <Minimize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <Maximize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="kjb-read-action-label">{fullscreen ? 'Exit' : 'Full Screen'}</span></button>
-              <button onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }} title={hideHeader ? "Show header" : "Hide header"} className="kjb-fixed-btn flex items-center justify-center px-2.5 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap flex-shrink-0"><ChevronDown className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${hideHeader ? '' : 'rotate-180'}`} /></button>
+              <button hidden onClick={toggleFullscreen} title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'} className="kjb-fixed-btn flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground transition-all duration-200 touch-manipulation h-11 whitespace-nowrap">{fullscreen ? <Minimize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <Maximize2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="kjb-read-action-label">{fullscreen ? 'Exit' : 'Full Screen'}</span></button>
+              <button hidden onClick={(e) => { e.stopPropagation(); setHideHeader(!hideHeader); }} title={hideHeader ? "Show header" : "Hide header"} className="kjb-fixed-btn flex items-center justify-center px-2.5 rounded-lg bg-secondary border border-border hover:bg-accent/20 text-foreground transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap flex-shrink-0"><ChevronDown className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${hideHeader ? '' : 'rotate-180'}`} /></button>
+
+              <div className="kjb-reader-primary-actions" aria-label="Reader actions">
+                <button
+                  type="button"
+                  onClick={toggleSelectMode}
+                  title={selectMode ? 'Exit verse selection' : 'Select verses'}
+                  aria-pressed={selectMode}
+                  className={`kjb-sidepanel-read-action ${selectMode ? 'is-active' : ''}`}
+                >
+                  <CheckSquare aria-hidden="true" />
+                  <span>{selectMode ? 'Selecting' : 'Select'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => printChapterContents(verses, book, pos, filterMode, selectedVerses, colophon, columnMode, paragraphMode)}
+                  title="Print chapter"
+                  className="kjb-sidepanel-read-action"
+                >
+                  <Printer aria-hidden="true" />
+                  <span>Print</span>
+                </button>
+                <DropdownMenu onOpenChange={(open) => { if (open) closeAllMenus(); }}>
+                  <DropdownMenuTrigger asChild>
+                    <button type="button" title="Reader tools" className="kjb-sidepanel-read-action">
+                      <Settings2 aria-hidden="true" />
+                      <span>Tools</span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="kjb-reader-tools-panel w-64 p-2">
+                    <div className="kjb-reader-tools-section" onClick={(e) => e.stopPropagation()}>
+                      <div className="kjb-reader-tools-label"><span>Text size</span><strong>{zoomLevel}%</strong></div>
+                      <div className="kjb-reader-tools-stepper">
+                        <button type="button" onClick={() => adjustZoom(-5)} aria-label="Decrease text size"><Minus /></button>
+                        <input type="range" min="75" max="250" step="5" value={zoomLevel} onChange={handleZoomChange} aria-label="Text size" />
+                        <button type="button" onClick={() => adjustZoom(5)} aria-label="Increase text size"><Plus /></button>
+                      </div>
+                      <label className="kjb-reader-tools-label" htmlFor="kjb-reader-tools-font"><span>Font</span></label>
+                      <select
+                        id="kjb-reader-tools-font"
+                        value={a11yActive ? a11yFont : fontFamily}
+                        onChange={(e) => handleFontChange(e.target.value)}
+                        className="kjb-reader-tools-select"
+                      >
+                        <option value="serif">Serif</option>
+                        <option value="sans-serif">Sans</option>
+                        <option value="monospace">Mono</option>
+                        <option value="cursive">Cursive</option>
+                        <option value="comic-sans">Comic</option>
+                        <option value="times">Times</option>
+                        <option value="dyslexic">Dyslexic</option>
+                        <option value="hyperlegible">Legible</option>
+                      </select>
+                      <div className="kjb-reader-tools-layout">
+                        <button type="button" onClick={toggleFlow}>{flowMode === 'line' ? <List /> : <AlignJustify />}{flowMode === 'line' ? 'Lines' : 'Paragraph'}</button>
+                        <button type="button" onClick={toggleColumn}>{columnOn ? <Columns2 /> : <AlignLeft />}{columnOn ? '2 Columns' : '1 Column'}</button>
+                      </div>
+                    </div>
+                    <div className="kjb-reader-tools-divider" />
+                    <DropdownMenuItem onClick={handleShareChapter} className="cursor-pointer"><AlignLeft className="w-4 h-4 mr-2" />Share Text</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleShareLink} className="cursor-pointer"><Share2 className="w-4 h-4 mr-2" />Share Link</DropdownMenuItem>
+                    <DropdownMenuItem onClick={toggleFullscreen} className="cursor-pointer">{fullscreen ? <Minimize2 className="w-4 h-4 mr-2" /> : <Maximize2 className="w-4 h-4 mr-2" />}{fullscreen ? 'Exit Full Screen' : 'Full Screen'}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setHideHeader(!hideHeader)} className="cursor-pointer"><ChevronDown className="w-4 h-4 mr-2" />{hideHeader ? 'Show Header' : 'Hide Header'}</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
               {((filterMode && selectedVerses.size > 0) || lastReadingActive || searchTerm || gospelMode) && (
                 <CurrentlyReadingIndicator
