@@ -4,19 +4,37 @@ plugins {
 }
 android {
     namespace 'com.godisgracious1031m.kjbreader'
-    compileSdk 34
+    compileSdk 36
     defaultConfig {
         applicationId "com.godisgracious1031m.kjbreader"
         minSdk 24
-        targetSdk 34
-        versionCode 3
-        versionName "1.0.0"
+        targetSdk 36
+        versionCode 4
+        versionName "1.0.1"
+    }
+    signingConfigs {
+        release {
+            // Populated from env vars set by CI (see build-android.yml). A real,
+            // persistent keystore — NOT regenerated per build — is required so every
+            // release carries the same signing identity; Play Store rejects updates
+            // signed with a different key than the first upload.
+            def ksPath = System.getenv('ANDROID_KEYSTORE_PATH')
+            if (ksPath != null) {
+                storeFile file(ksPath)
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_KEY_ALIAS')
+                keyPassword System.getenv('ANDROID_KEY_PASSWORD')
+            }
+        }
     }
     buildTypes {
         release {
-            // Signing handled in CI by apksigner (zipalign + v1/v2/v3) after build.
+            // Signing handled here via signingConfigs.release, populated from CI
+            // secrets, so both `assembleRelease` (APK) and `bundleRelease` (AAB)
+            // come out already signed with the persistent release key.
+            signingConfig signingConfigs.release
             // Keep R8/minify OFF — no proguard rules are shipped, so shrinking would
-            // strip WebView classes and an unsigned/broken APK fails to install.
+            // strip WebView classes and an unsigned/broken build fails to install.
             minifyEnabled false
         }
     }
