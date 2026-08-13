@@ -48,6 +48,7 @@ const loaders = {
   Register: () => import('@/pages/Register.jsx').catch((err) => { console.error('Failed to load Register:', err); throw err; }),
   OAuthConsent: () => import('@/pages/OAuthConsent.jsx').catch((err) => { console.error('Failed to load OAuthConsent:', err); throw err; }),
   TabbedUiTest: () => import('@/pages/TabbedUiTestPage.jsx').catch((err) => { console.error('Failed to load TabbedUiTestPage:', err); throw err; }),
+  Credits: () => import('@/pages/CreditsPage').catch((err) => { console.error('Failed to load CreditsPage:', err); throw err; }),
 
 };
 const HomePage = lazy(loaders.Home);
@@ -83,6 +84,7 @@ const ContactPage = lazy(loaders.Contact);
 const RegisterPage = lazy(loaders.Register);
 const OAuthConsentPage = lazy(loaders.OAuthConsent);
 const TabbedUiTestPage = lazy(loaders.TabbedUiTest);
+const CreditsPage = lazy(loaders.Credits);
 
 
 const getLoaderForPath = (pathname) => {
@@ -275,6 +277,7 @@ const AuthenticatedApp = () => {
             <Route path="/terms" element={<Suspense fallback={<RouteLoader />}><TermsOfServicePage /></Suspense>} />
             <Route path="/privacy" element={<Suspense fallback={<RouteLoader />}><PrivacyPolicyPage /></Suspense>} />
             <Route path="/contact" element={<Suspense fallback={<RouteLoader />}><ContactPage /></Suspense>} />
+            <Route path="/credits" element={<Suspense fallback={<RouteLoader />}><CreditsPage /></Suspense>} />
             <Route path="/salvation" element={<Suspense fallback={<RouteLoader />}><SalvationPage /></Suspense>} />
             <Route path="/discord" element={<Suspense fallback={<RouteLoader />}><DiscordInvitePage /></Suspense>} />
             <Route path="/extension" element={<Suspense fallback={<RouteLoader />}><ExtensionPage /></Suspense>} />

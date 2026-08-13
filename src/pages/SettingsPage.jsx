@@ -1448,37 +1448,19 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Credits */}
-      <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
-        <button
-          onClick={() => toggleSection('credits')}
-          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-accent/5 transition-colors text-left"
-        >
+      {/* Credits — link to dedicated page */}
+      <Link
+        to="/credits"
+        className="block bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03] hover:border-accent/40 hover:-translate-y-0.5 transition-all duration-200"
+      >
+        <div className="w-full flex items-center justify-between px-5 py-3.5">
           <div className="flex flex-col gap-1">
-            <h2 className="font-serif text-lg font-semibold text-foreground">Credits</h2>
-            <p className="font-sans text-xs text-muted-foreground">Attributions and licenses</p>
+            <h2 className="font-serif text-lg font-semibold text-foreground">About &amp; Credits</h2>
+            <p className="font-sans text-xs text-muted-foreground">Attributions, licenses and acknowledgements</p>
           </div>
-          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.credits ? 'rotate-180' : ''}`} />
-        </button>
-        {expandedSections.credits && (
-        <div className="px-5 pb-6 pt-2 space-y-2">
-          <div className="space-y-2 font-sans text-xs text-muted-foreground">
-        <p>• <strong className="text-foreground">App Platform:</strong> Built with <a href="https://base44.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Base44</a></p>
-        <p>• <strong className="text-foreground">Special Thanks:</strong> Elvish Ishaan for fixing bugs and issues</p>
-        <p>• <strong className="text-foreground">Bible Text:</strong> King James Bible: Pure Cambridge Edition: Wharton Text Format</p>
-        <p>• <strong className="text-foreground">Cormorant Garamond:</strong> Google Fonts (SIL Open Font License)</p>
-        <p>• <strong className="text-foreground">Inter:</strong> Google Fonts (SIL Open Font License)</p>
-        <p>• <strong className="text-foreground">Merriweather:</strong> Google Fonts (SIL Open Font License)</p>
-        <p>• <strong className="text-foreground">Dancing Script:</strong> Google Fonts (SIL Open Font License)</p>
-        <p>• <strong className="text-foreground">Times New Roman & Comic Sans MS:</strong> System fonts bundled with Windows/macOS; no attribution required.</p>
-        <p className="pt-2 text-[10px] opacity-75">All fonts are open source and freely available under the SIL Open Font License.</p>
-        <p>• <strong className="text-foreground">King James Bible Text:</strong> Public domain worldwide. In the United Kingdom, the KJB is protected by a perpetual Crown Copyright administered by the King's Printer. This app is for personal, non-commercial use only. For commercial use within the UK, a licence from Cambridge University Press or the King's Printer may be required. See <a href="https://www.cambridge.org/bibles/about/rights-and-permissions" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">cambridge.org/bibles/about/rights-and-permissions</a> for details.</p>
-        <p className="pt-2 text-[11px] text-foreground/80">This app is public domain and freely shareable.</p>
-        <p className="pt-1 text-[11px] text-foreground/80">• <strong className="text-foreground">AI Disclaimer:</strong> This app was built with the assistance of artificial intelligence (AI). AI-generated code and content may contain errors. The King James Bible text itself is not AI-generated. Please report any issues so we can correct them.</p>
-      </div>
+          <ChevronDown className="w-5 h-5 text-muted-foreground -rotate-90" />
         </div>
-        )}
-      </div>
+      </Link>
 
       {/* Advanced */}
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
