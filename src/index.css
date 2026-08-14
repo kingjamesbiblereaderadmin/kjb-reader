@@ -406,9 +406,9 @@
      never re-renders per word. */
   .kjb-karaoke-word { transition: background-color 0.1s ease; }
   .kjb-karaoke-active {
-    background-color: hsl(var(--accent) / 0.35);
+    background-color: rgba(250, 204, 21, 0.55);
     border-radius: 0.15em;
-    box-shadow: 0 0 0 1px hsl(var(--accent) / 0.25);
+    box-shadow: 0 0 0 1px rgba(202, 138, 4, 0.4);
   }
 }
 

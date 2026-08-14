@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { getNextBook, getPrevBook, getBookAudioKey } from '@/lib/bibleData';
 import { Play, Pause, Rewind, FastForward, ChevronLeft, ChevronRight, Loader2, Volume2, Square } from 'lucide-react';
@@ -14,59 +14,27 @@ const fmt = (s) => {
   return `${m}:${sec.toString().padStart(2, '0')}`;
 };
 
-// Build estimated per-word timing from the chapter's verse texts + the audio
-// duration, distributing time across all words proportional to character
-// length. This keeps the word-by-word highlight tracking the narration for
-// TTS audio spoken at a roughly constant rate (the getAudioUrls files do not
-// ship per-word timing data).
-function buildEstimatedTiming(verses, totalSeconds) {
-  if (!verses?.length || !totalSeconds || !isFinite(totalSeconds) || totalSeconds <= 0) return null;
-  const totalMs = totalSeconds * 1000;
-  const cleaned = verses.map((v) => {
+// Build an ordered list of every word in the chapter (in reading order) so we
+// can map a global word index — computed from audio progress — to the
+// (verse, wordIndex) pair used by the karaoke highlighter. The cleaning mirrors
+// what the reader actually renders (stripping the Psalm superscription marker,
+// pilcrows and [italics] brackets) so the index lines up with the DOM words.
+function buildWordList(verses) {
+  const list = [];
+  if (!verses?.length) return list;
+  for (const v of verses) {
     const raw = String(v.text || '')
+      .replace(/^<<[^>]*>>\s*/, '')
       .replace(/[\u00B6\uFFFD]/g, ' ')
       .replace(/\[|\]/g, '')
       .replace(/[\u2019\u2018\u2032]/g, "'")
       .replace(/[\u201C\u201D]/g, '"')
       .trim();
     const words = raw.split(/\s+/).filter(Boolean);
-    return { verse: Number(v.verse), words };
-  });
-  let totalChars = 0;
-  for (const c of cleaned) for (const w of c.words) totalChars += w.length + 1;
-  if (!totalChars) return null;
-  const flat = [];
-  let cumChars = 0;
-  for (const c of cleaned) {
-    for (let i = 0; i < c.words.length; i++) {
-      const startFrac = cumChars / totalChars;
-      cumChars += c.words[i].length + 1;
-      const endFrac = cumChars / totalChars;
-      flat.push({
-        verse: c.verse,
-        word_index: i,
-        start_ms: Math.round(startFrac * totalMs),
-        end_ms: Math.round(endFrac * totalMs),
-      });
-    }
+    const verse = Number(v.verse);
+    words.forEach((_, i) => list.push({ verse, wordIndex: i }));
   }
-  return { flat };
-}
-
-// Find the active word entry for a given media time (ms). Returns
-// { verse, wordIndex } or null (gap / before start).
-function findActiveWord(flat, tMs) {
-  if (!flat || !flat.length) return null;
-  let lo = 0, hi = flat.length - 1, ans = -1;
-  while (lo <= hi) {
-    const mid = (lo + hi) >> 1;
-    if (flat[mid].start_ms <= tMs) { ans = mid; lo = mid + 1; }
-    else hi = mid - 1;
-  }
-  if (ans < 0) return null;
-  const e = flat[ans];
-  if (tMs > e.end_ms) return null;
-  return { verse: e.verse, wordIndex: e.word_index };
+  return list;
 }
 
 export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, verses, open = true }) {
@@ -78,12 +46,12 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [rate, setRate] = useState(1);
+  const [currentVerse, setCurrentVerse] = useState(null);
   const autoPlayNextRef = useRef(false);
   const lastSaveRef = useRef(0);
-  const timingRef = useRef(null);
-  const lastAwRef = useRef(null);
-  const rafRef = useRef(0);
-  const [currentVerse, setCurrentVerse] = useState(null);
+
+  // Ordered word list used for progress-based word highlighting.
+  const wordList = useMemo(() => buildWordList(verses), [verses]);
 
   const isLastChapterLastBook = book.abbr === 'REV' && chapter === 22;
   const isFirstChapterFirstBook = book.abbr === 'GEN' && chapter === 1;
@@ -98,8 +66,6 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     setDuration(0);
     setIsPlaying(false);
     setCurrentVerse(null);
-    timingRef.current = null;
-    lastAwRef.current = null;
     clearKaraoke();
     (async () => {
       try {
@@ -124,49 +90,10 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     return () => { cancelled = true; };
   }, [book.abbr, book.apiName, chapter]);
 
-  // Karaoke animation loop: while playing, compute the currently-spoken word
-  // from the audio's currentTime and highlight it in the reading view.
-  useEffect(() => {
-    if (!isPlaying || !hasAudio) {
-      cancelAnimationFrame(rafRef.current);
-      return;
-    }
-    const tick = () => {
-      const a = audioRef.current;
-      if (a && timingRef.current) {
-        const tMs = a.currentTime * 1000;
-        const aw = findActiveWord(timingRef.current.flat, tMs);
-        const prev = lastAwRef.current;
-        const changed = !aw || !prev || aw.verse !== prev.verse || aw.wordIndex !== prev.wordIndex;
-        if (changed) {
-          lastAwRef.current = aw;
-          if (aw) {
-            highlightWord(aw.verse, aw.wordIndex);
-            setCurrentVerse((cv) => (cv !== aw.verse ? aw.verse : cv));
-          } else {
-            clearKaraoke();
-          }
-        }
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [isPlaying, hasAudio]);
-
   // Apply playback rate whenever it changes.
   useEffect(() => {
     if (audioRef.current) audioRef.current.playbackRate = rate;
   }, [rate, hasAudio]);
-
-  // Build estimated word timing once verses + a duration are available.
-  useEffect(() => {
-    if (!hasAudio || !verses?.length) return;
-    const total = (isFinite(duration) && duration > 0) ? duration : 0;
-    if (!total) return;
-    const est = buildEstimatedTiming(verses, total);
-    if (est) timingRef.current = est;
-  }, [verses, hasAudio, duration]);
 
   // Persist the last known position when the player unmounts / chapter changes.
   useEffect(() => {
@@ -201,10 +128,26 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     }
   };
 
+  // Highlighting is driven ONLY by the audio timeupdate event (no setInterval /
+  // requestAnimationFrame). The currently-narrated word is derived from audio
+  // progress: wordIndex = floor((currentTime / duration) * totalWords). This
+  // naturally pauses when audio pauses (no timeupdate), and jumps to the right
+  // word when the user seeks (timeupdate fires with the new currentTime).
   const onTimeUpdate = () => {
     const a = audioRef.current;
     if (!a) return;
     setCurrentTime(a.currentTime);
+    if (isPlaying && wordList.length && isFinite(a.duration) && a.duration > 0) {
+      const idx = Math.min(
+        wordList.length - 1,
+        Math.max(0, Math.floor((a.currentTime / a.duration) * wordList.length))
+      );
+      const entry = wordList[idx];
+      if (entry) {
+        highlightWord(entry.verse, entry.wordIndex);
+        setCurrentVerse((cv) => (cv !== entry.verse ? entry.verse : cv));
+      }
+    }
     const now = Date.now();
     if (now - lastSaveRef.current > 2000) {
       lastSaveRef.current = now;
@@ -216,7 +159,6 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     try { localStorage.removeItem(POS_KEY(book.apiName, chapter)); } catch {}
     setCurrentTime(0);
     setIsPlaying(false);
-    lastAwRef.current = null;
     setCurrentVerse(null);
     clearKaraoke();
     if (!isLastChapterLastBook) {
@@ -244,7 +186,6 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     a.currentTime = 0;
     setCurrentTime(0);
     setIsPlaying(false);
-    lastAwRef.current = null;
     setCurrentVerse(null);
     try { localStorage.removeItem(POS_KEY(book.apiName, chapter)); } catch {}
     clearKaraoke();
@@ -318,7 +259,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
         onTimeUpdate={onTimeUpdate}
         onEnded={onEnded}
         onPlay={() => setIsPlaying(true)}
-        onPause={() => { setIsPlaying(false); lastAwRef.current = null; setCurrentVerse(null); clearKaraoke(); }}
+        onPause={() => { setIsPlaying(false); setCurrentVerse(null); clearKaraoke(); }}
         onDurationChange={(e) => { if (isFinite(e.target.duration) && e.target.duration > 0) setDuration(e.target.duration); }}
       />
       {open && (
@@ -367,10 +308,10 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
       </div>
       {currentVerse != null && (() => {
         const vv = verses.find((x) => parseInt(x.verse, 10) === parseInt(currentVerse, 10));
-        const text = vv ? String(vv.text || '').replace(/[\u00B6\uFFFD]/g, ' ').replace(/\[|\]/g, '').trim() : '';
+        const text = vv ? String(vv.text || '').replace(/[\u00B6\uFFFD]/g, ' ').replace(/\[|\]/g, '').replace(/^<<[^>]*>>\s*/, '').trim() : '';
         return (
           <div className="mt-2 px-2 py-1.5 rounded-lg bg-accent/10 border border-accent/20">
-            <span className="font-sans text-[11px] font-semibold text-accent mr-1.5">{book.shortName} {chapter}:{currentVerse}</span>
+            <span className="font-sans text-[11px] font-semibold text-accent mr-1.5 break-words">{book.name} {chapter}:{currentVerse}</span>
             <span className="font-serif text-[11px] text-foreground/90 leading-snug line-clamp-2">{text}</span>
           </div>
         );
