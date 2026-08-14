@@ -9,7 +9,7 @@ export default function RunningHead({ bookName, chapter, baseFontRem, isCursive 
   const rightRef = useRef(null);
   const [scale, setScale] = useState(1);
 
-  const chapterText = `Chapter ${chapter}`;
+  const chapterText = `${chapter}`;
 
   // Reset to full size when inputs change so we re-measure cleanly.
   useLayoutEffect(() => { setScale(1); }, [bookName, chapter, baseFontRem]);
