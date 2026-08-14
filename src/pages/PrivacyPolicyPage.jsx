@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, ArrowLeft } from 'lucide-react';
 
-const LAST_UPDATED = 'August 11th, 2026';
+const LAST_UPDATED = 'August 14th, 2026';
 
 function AIDisclaimer() {
   return (
@@ -71,6 +71,13 @@ export default function PrivacyPolicyPage() {
           I do not collect any personal information. No account is needed to use the App,
           and I do not ask for your name, email address, location, contacts, device files,
           or any tracking identifiers. The App is fully functional without signing in.
+        </p>
+        <p>
+          The only data stored on my servers is for optional features you choose to enable. If you
+          turn on web push daily verse notifications, I store your browser's push subscription
+          details and your device's local timezone so the daily verse can be delivered at your
+          8am local time (see the Notifications section). No Bible content or reading data is stored
+          on my servers.
         </p>
       </Section>
 
@@ -144,9 +151,21 @@ export default function PrivacyPolicyPage() {
 
       <Section title="Notifications">
         <p>
-          If you enable daily verse reminders, your browser or device handles these notifications
-          locally. I do not operate a push server and do not receive any information about you
-          when a notification is shown.
+          If you enable daily verse push notifications, I operate a web push server so the daily
+          verse can be delivered to your device even when the App is closed. When you enable push,
+          your browser creates a web push subscription and I store the following on my servers,
+          linked to your account: the push subscription endpoint URL, the public encryption keys
+          needed to encrypt the message for your device, an optional expiration time, your
+          device's local timezone (captured from your browser's clock settings, so the daily verse
+          arrives at your 8am local time), and the date the last push was sent (to avoid sending
+          twice in one day).
+        </p>
+        <p>
+          No Bible content, message text, or reading data is stored on the server beyond what is
+          needed to deliver the notification. The push subscription is tied to your logged-in
+          account. You can disable notifications at any time in Settings, which removes your push
+          subscription from my servers. Standard local notifications shown by your browser while
+          the App is open do not involve my server at all.
         </p>
       </Section>
 
