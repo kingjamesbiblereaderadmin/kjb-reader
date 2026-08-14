@@ -50,6 +50,52 @@ function buildWordList(verses) {
   return { entries, cumulative, total };
 }
 
+// Detect when the narration intro (the spoken book name / "Chapter N" heading)
+// ends by locating the first sustained silence after speech begins. Returns
+// the time (seconds) at which verse 1 starts, or 0 if no intro gap is found.
+// Used to delay word highlighting until the book-name intro has finished so the
+// highlight doesn't run ahead of the audio during the heading.
+async function detectIntroEnd(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return 0;
+    const buf = await res.arrayBuffer();
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return 0;
+    const ctx = new Ctx();
+    let audioBuf;
+    try { audioBuf = await ctx.decodeAudioData(buf); } finally { ctx.close(); }
+    const ch = audioBuf.getChannelData(0);
+    const sampleRate = audioBuf.sampleRate;
+    const limit = Math.min(ch.length, Math.floor(sampleRate * 12));
+    const hop = Math.max(1, Math.floor(sampleRate * 0.03)); // 30ms windows
+    const hopSec = hop / sampleRate;
+    let peak = 0;
+    const rms = [];
+    for (let i = 0; i < limit; i += hop) {
+      let sum = 0;
+      const end = Math.min(i + hop, limit);
+      for (let j = i; j < end; j++) { const s = ch[j]; sum += s * s; }
+      const r = Math.sqrt(sum / (end - i));
+      rms.push(r);
+      if (r > peak) peak = r;
+    }
+    if (peak <= 0) return 0;
+    const threshold = peak * 0.12;
+    const minSilenceHops = Math.max(1, Math.round(0.2 / hopSec)); // ~200ms gap
+    let speechStarted = false;
+    let silenceStart = -1;
+    for (let k = 0; k < rms.length; k++) {
+      if (rms[k] > threshold) { speechStarted = true; silenceStart = -1; }
+      else if (speechStarted) {
+        if (silenceStart < 0) silenceStart = k;
+        if (k - silenceStart + 1 >= minSilenceHops) return k * hopSec;
+      }
+    }
+    return 0;
+  } catch { return 0; }
+}
+
 export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, verses, open = true }) {
   const audioRef = useRef(null);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -60,6 +106,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
   const [duration, setDuration] = useState(0);
   const [rate, setRate] = useState(1);
   const [currentVerse, setCurrentVerse] = useState(null);
+  const [introEnd, setIntroEnd] = useState(0);
   const autoPlayNextRef = useRef(false);
   const lastSaveRef = useRef(0);
 
@@ -79,6 +126,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     setDuration(0);
     setIsPlaying(false);
     setCurrentVerse(null);
+    setIntroEnd(0);
     clearKaraoke();
     (async () => {
       try {
@@ -91,6 +139,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
         if (data.found && data.url) {
           setAudioUrl(data.url);
           setHasAudio(true);
+          detectIntroEnd(data.url).then((t) => { if (!cancelled && t > 0) setIntroEnd(t); });
         } else {
           autoPlayNextRef.current = false;
         }
@@ -151,18 +200,25 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     if (!a) return;
     setCurrentTime(a.currentTime);
     if (isPlaying && wordList.entries.length && isFinite(a.duration) && a.duration > 0) {
-      // Map audio progress onto the character-weighted cumulative word table so
-      // the highlighted word tracks the narration pace rather than a flat
-      // per-word average. Binary-search the first word whose cumulative weight
-      // reaches the progress target.
-      const target = Math.min(1, Math.max(0, a.currentTime / a.duration)) * wordList.total;
-      let lo = 0, hi = wordList.cumulative.length - 1;
-      while (lo < hi) { const mid = (lo + hi) >> 1; if (wordList.cumulative[mid] < target) lo = mid + 1; else hi = mid; }
-      const idx = Math.min(lo, wordList.entries.length - 1);
-      const entry = wordList.entries[idx];
-      if (entry) {
-        highlightWord(entry.verse, entry.wordIndex);
-        setCurrentVerse((cv) => (cv !== entry.verse ? entry.verse : cv));
+      if (introEnd > 0 && a.currentTime < introEnd) {
+        // Still in the spoken book-name intro — don't highlight yet.
+        clearKaraoke();
+      } else {
+        // Map audio progress (skipping the intro) onto the character-weighted
+        // cumulative word table so the highlight tracks the narration pace.
+        const span = a.duration - introEnd;
+        const progress = span > 0
+          ? Math.min(1, Math.max(0, (a.currentTime - introEnd) / span))
+          : Math.min(1, Math.max(0, a.currentTime / a.duration));
+        const target = progress * wordList.total;
+        let lo = 0, hi = wordList.cumulative.length - 1;
+        while (lo < hi) { const mid = (lo + hi) >> 1; if (wordList.cumulative[mid] < target) lo = mid + 1; else hi = mid; }
+        const idx = Math.min(lo, wordList.entries.length - 1);
+        const entry = wordList.entries[idx];
+        if (entry) {
+          highlightWord(entry.verse, entry.wordIndex);
+          setCurrentVerse((cv) => (cv !== entry.verse ? entry.verse : cv));
+        }
       }
     }
     const now = Date.now();
