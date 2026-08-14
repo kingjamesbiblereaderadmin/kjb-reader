@@ -306,11 +306,6 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
           <span className="font-sans text-xs font-medium">{rate}x</span>
         </button>
       </div>
-      {currentVerse != null && (
-        <div className="mt-2 px-2 py-1.5 rounded-lg bg-accent/10 border border-accent/20">
-          <span className="font-sans text-[11px] font-semibold text-accent break-words">{book.name} {chapter}:{currentVerse}</span>
-        </div>
-      )}
       </div>
       )}
     </>
