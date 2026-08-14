@@ -48,7 +48,7 @@ const DEFAULT_SCREENSHOTS = [
   {
     src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/31cc1311c_screenshot-WhatsAppImage2026-05-31at182822.jpeg",
     sizes: "1024x1707",
-    type: "image/jpeg",
+    type: "image/png",
     form_factor: "narrow",
     label: "Screenshot 3"
   },
@@ -69,7 +69,7 @@ const DEFAULT_SCREENSHOTS = [
   {
     src: "https://base44.app/api/apps/6a05d76723afe58d80c589e8/files/mp/public/6a05d76723afe58d80c589e8/534e626f0_screenshot-WhatsAppImage2026-05-31at182822.jpeg",
     sizes: "1920x1080",
-    type: "image/jpeg",
+    type: "image/png",
     form_factor: "wide",
     label: "Screenshot 6"
   }
@@ -104,9 +104,12 @@ Deno.serve(async (req) => {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    display_override: ["standalone", "minimal-ui", "window-controls-overlay"],
+    display_override: ["standalone", "minimal-ui", "window-controls-overlay", "tabbed"],
     launch_handler: { client_mode: "navigate-existing" },
     orientation: "any",
+    lang: "en",
+    dir: "ltr",
+    categories: ["books", "education", "lifestyle"],
     background_color: "#0f1117",
     theme_color: "#0f1117",
     prefer_related_applications: false,
@@ -133,6 +136,33 @@ Deno.serve(async (req) => {
         name: "KJB Reader"
       }
     ],
+    shortcuts: [
+      {
+        name: "Read the Bible",
+        short_name: "Read",
+        url: "/read",
+        icons: [{ src: "/functions/pwaIcon?size=192", sizes: "192x192", type: "image/png" }]
+      },
+      {
+        name: "Search the Bible",
+        short_name: "Search",
+        url: "/search",
+        icons: [{ src: "/functions/pwaIcon?size=192", sizes: "192x192", type: "image/png" }]
+      },
+      {
+        name: "Saved Verses",
+        short_name: "Saved",
+        url: "/saved",
+        icons: [{ src: "/functions/pwaIcon?size=192", sizes: "192x192", type: "image/png" }]
+      },
+      {
+        name: "The Gospel",
+        short_name: "Gospel",
+        url: "/gospel",
+        icons: [{ src: "/functions/pwaIcon?size=192", sizes: "192x192", type: "image/png" }]
+      }
+    ],
+    edge_side_panel: { preferred_width: 400 },
     icons,
     screenshots
   };
