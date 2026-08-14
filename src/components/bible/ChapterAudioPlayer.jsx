@@ -100,12 +100,54 @@ function findActiveWord(flat, tMs) {
   return { verse: e.verse, wordIndex: e.word_index };
 }
 
-export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter }) {
+// Build estimated per-word timing from the chapter's verse texts when no real
+// timing file (timing_url) exists, so word-by-word highlighting still works for
+// chapters whose audio only has an audio_url. Distributes the audio duration
+// across all words proportional to character length — a rough but useful
+// approximation that keeps the highlight tracking the narration for TTS audio
+// spoken at a roughly constant rate.
+function buildEstimatedTiming(verses, totalSeconds) {
+  if (!verses?.length || !totalSeconds || !isFinite(totalSeconds) || totalSeconds <= 0) return null;
+  const totalMs = totalSeconds * 1000;
+  const cleaned = verses.map((v) => {
+    const raw = String(v.text || '')
+      .replace(/[\u00B6\uFFFD\u00B6]/g, ' ')
+      .replace(/\[|\]/g, '')
+      .replace(/made\s+in\s+australia\.?/gi, '')
+      .replace(/[\u2019\u2018\u2032]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .trim();
+    const words = raw.split(/\s+/).filter(Boolean);
+    return { verse: Number(v.verse), words };
+  });
+  let totalChars = 0;
+  for (const c of cleaned) for (const w of c.words) totalChars += w.length + 1;
+  if (!totalChars) return null;
+  const flat = [];
+  let cumChars = 0;
+  for (const c of cleaned) {
+    for (let i = 0; i < c.words.length; i++) {
+      const startFrac = cumChars / totalChars;
+      cumChars += c.words[i].length + 1;
+      const endFrac = cumChars / totalChars;
+      flat.push({
+        verse: c.verse,
+        word_index: i,
+        start_ms: Math.round(startFrac * totalMs),
+        end_ms: Math.round(endFrac * totalMs),
+      });
+    }
+  }
+  return { flat };
+}
+
+export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, verses }) {
   const audioRef = useRef(null);
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hasAudio, setHasAudio] = useState(false);
   const [hasTiming, setHasTiming] = useState(false);
+  const [timingSource, setTimingSource] = useState(null); // 'file' | 'estimated' | null
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -125,6 +167,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter })
     setLoading(true);
     setHasAudio(false);
     setHasTiming(false);
+    setTimingSource(null);
     setRecord(null);
     setCurrentTime(0);
     setDuration(0);
@@ -159,7 +202,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter })
                   .filter((w) => isFinite(w.verse) && isFinite(w.word_index) && isFinite(w.start_ms) && isFinite(w.end_ms))
                   .sort((a, b) => a.start_ms - b.start_ms);
                 timingRef.current = { flat };
-                if (!cancelled) setHasTiming(true);
+                if (!cancelled) { setHasTiming(true); setTimingSource('file'); }
               }
             } catch (err) {
               console.warn('[ChapterAudio] timing load failed (word highlighting disabled):', err);
@@ -209,6 +252,21 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter })
   useEffect(() => {
     if (audioRef.current) audioRef.current.playbackRate = rate;
   }, [rate, hasAudio]);
+
+  // Fallback: when no real timing file loaded, build estimated word timing
+  // from the chapter's verse texts + audio duration so word-by-word
+  // highlighting still works. Rebuilds once verses and a duration are available.
+  useEffect(() => {
+    if (hasTiming) return; // real timing already loaded — skip
+    if (!hasAudio || !record) return;
+    const total = (isFinite(duration) && duration > 0) ? duration : (record.duration_seconds || 0);
+    const est = buildEstimatedTiming(verses, total);
+    if (est) {
+      timingRef.current = est;
+      setHasTiming(true);
+      setTimingSource('estimated');
+    }
+  }, [verses, hasAudio, hasTiming, record, duration]);
 
   // Persist the last known position when the player unmounts / chapter changes.
   useEffect(() => {
@@ -393,7 +451,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter })
       </div>
       <div className="flex items-center gap-1.5 mt-2">
         <Sparkles className="w-3 h-3 text-muted-foreground/70" />
-        <span className="font-sans text-[10px] text-muted-foreground/80">{hasTiming ? 'AI narration · word sync' : 'AI narration'}</span>
+        <span className="font-sans text-[10px] text-muted-foreground/80">{hasTiming ? (timingSource === 'file' ? 'AI narration · word sync' : 'AI narration · est. word sync') : 'AI narration'}</span>
       </div>
     </div>
   );

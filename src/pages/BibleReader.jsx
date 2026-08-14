@@ -1939,7 +1939,7 @@ export default function BibleReader() {
       )}
 
       {!loading && !error && !isViewingTitlePage && (
-        <ChapterAudioPlayer book={book} chapter={pos.chapter} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} />
+        <ChapterAudioPlayer book={book} chapter={pos.chapter} verses={verses} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} />
       )}
 
       <div 
