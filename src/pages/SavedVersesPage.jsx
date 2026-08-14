@@ -380,7 +380,7 @@ export default function SavedVersesPage() {
             .map((entry, i) => (
             <div
               key={i}
-              className={`bg-card/70 backdrop-blur-xl border rounded-2xl p-5 flex items-start gap-4 shadow-lg shadow-black/[0.03] transition-shadow hover:shadow-xl ${
+              className={`bg-card/70 backdrop-blur-xl border rounded-2xl p-5 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 shadow-lg shadow-black/[0.03] transition-shadow hover:shadow-xl ${
                 selected.has(verseKey(entry)) ? 'border-primary ring-1 ring-primary/30' : 'border-border/60'
               }`}
             >
@@ -397,19 +397,19 @@ export default function SavedVersesPage() {
               )}
               <button
                 onClick={() => selectMode ? toggleSelect(verseKey(entry)) : handleNavigate(entry)}
-                className="flex-1 text-left"
+                className="flex-1 min-w-0 text-left"
                 disabled={selectMode}
               >
-                <p className="font-sans text-xs font-semibold text-accent tracking-wide uppercase mb-2">
+                <p className="font-sans text-xs font-semibold text-accent tracking-wide uppercase mb-2 break-words min-w-0">
                   {entry.ref} {activeFolder === 'All' && <span className="ml-2 px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground text-[10px] lowercase tracking-normal">{entry.folder || 'Favorites'}</span>}
                 </p>
-                <blockquote className="font-serif text-lg text-foreground leading-relaxed">
+                <blockquote className="font-serif text-lg text-foreground leading-relaxed break-words min-w-0" style={{ overflowWrap: 'anywhere' }}>
                   "{entry.text}"
                 </blockquote>
               </button>
               
               {!selectMode && (
-              <div className="flex flex-col gap-1 flex-shrink-0 mt-0.5">
+              <div className="flex flex-row sm:flex-col gap-1.5 sm:gap-1 flex-shrink-0 sm:mt-0.5 justify-end sm:justify-start pt-1.5 sm:pt-0 border-t border-border/40 sm:border-t-0">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
