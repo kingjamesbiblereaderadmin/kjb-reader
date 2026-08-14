@@ -1,0 +1,13 @@
+{
+  "name": "kjb-daily-verse-cron",
+  "version": "1.0.0",
+  "description": "Hourly trigger for the KJB Reader daily-verse web push (hosted on Discloud).",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
