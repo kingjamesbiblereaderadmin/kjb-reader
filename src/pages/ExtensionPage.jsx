@@ -143,10 +143,10 @@ export default function ExtensionPage() {
             <span className="font-sans text-xs font-semibold text-primary">{version}</span>
           </div>
 
-          {/* Desktop-only warning box */}
-          <div className="max-w-2xl mx-auto rounded-xl px-4 py-3 mb-5 bg-amber-500/10 border border-amber-500/35">
-            <p className="font-sans text-xs leading-relaxed text-amber-600 dark:text-amber-400">
-              <strong>Desktop Only</strong> — This extension is designed for desktop browsers only (Chrome, Edge, Brave on Windows, macOS, and Linux). It is not available on mobile browsers.
+          {/* Browser compatibility notice */}
+          <div className="max-w-2xl mx-auto rounded-xl px-4 py-3 mb-5 bg-primary/10 border border-primary/35">
+            <p className="font-sans text-xs leading-relaxed text-primary">
+              <strong>Desktop &amp; Edge Mobile</strong> — Available for Chrome, Edge, Brave, Firefox, and Opera on desktop. Also tested on Microsoft Edge mobile. Other mobile browsers may not support browser extensions.
             </p>
           </div>
 
