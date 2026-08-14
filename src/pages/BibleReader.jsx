@@ -18,6 +18,7 @@ import CurrentlyReadingIndicator from '@/components/bible/CurrentlyReadingIndica
 import MinimizedHeaderBar from '@/components/bible/MinimizedHeaderBar';
 import ReadingRangeBar from '@/components/bible/ReadingRangeBar';
 import ChapterAudioPlayer from '@/components/bible/ChapterAudioPlayer';
+import WebSpeechTtsPlayer from '@/components/bible/WebSpeechTtsPlayer';
 import SelectActionBar from '@/components/bible/SelectActionBar';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -1941,6 +1942,9 @@ export default function BibleReader() {
       {!loading && !error && !isViewingTitlePage && (
         <ChapterAudioPlayer book={book} chapter={pos.chapter} verses={verses} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} />
       )}
+      {!loading && !error && !isViewingTitlePage && verses.length > 0 && (
+        <WebSpeechTtsPlayer book={book} chapter={pos.chapter} verses={verses} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} />
+      )}
 
       <div 
         ref={readerContentRef}
@@ -2003,7 +2007,19 @@ export default function BibleReader() {
       </div>
 
       {!loading && !error && ((pos.abbr === 'MAL' && pos.chapter === 4) || (pos.abbr === 'REV' && pos.chapter === 22)) && (
-        <div className="text-center mt-12 mb-10"><p className={`text-sm text-muted-foreground tracking-widest uppercase ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontSize: `${zoomLevel / 100}rem`, fontStyle: 'normal' }}>{resolveEndMarker(book.apiName, pos.chapter) || (pos.abbr === 'MAL' ? 'The End of the Prophets' : 'The End')}</p></div>
+        <div className="text-center mt-14 mb-12 select-none">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <span className="block h-px w-16 sm:w-24 bg-border" />
+            <span className="block w-1.5 h-1.5 rotate-45 bg-muted-foreground/50" />
+            <span className="block h-px w-16 sm:w-24 bg-border" />
+          </div>
+          <p className={`text-foreground tracking-[0.35em] uppercase font-semibold ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'}`} style={{ fontSize: `${zoomLevel / 100 * 1.15}rem`, fontStyle: 'normal' }}>{resolveEndMarker(book.apiName, pos.chapter) || (pos.abbr === 'MAL' ? 'The End of the Prophets' : 'The End')}</p>
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <span className="block h-px w-16 sm:w-24 bg-border" />
+            <span className="block w-1.5 h-1.5 rotate-45 bg-muted-foreground/50" />
+            <span className="block h-px w-16 sm:w-24 bg-border" />
+          </div>
+        </div>
       )}
 
       {!loading && !error && (

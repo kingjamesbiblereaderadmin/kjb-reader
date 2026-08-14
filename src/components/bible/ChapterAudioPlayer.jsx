@@ -2,16 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { getNextBook, getPrevBook } from '@/lib/bibleData';
 import { Play, Pause, Rewind, FastForward, ChevronLeft, ChevronRight, Loader2, Sparkles, Volume2 } from 'lucide-react';
+import { wrapVerseWords, clearKaraoke, highlightWord } from '@/lib/karaoke';
 
 const RATES = [0.75, 1, 1.25, 1.5];
 const POS_KEY = (bookApi, ch) => `kjb-audio-pos-${bookApi}-${ch}`;
-
-// Verse elements whose text must NOT be counted as scripture words when
-// wrapping for karaoke: the verse-number <sup>, the drop-cap number/letter,
-// the pilcrow ¶, and the Psalm-119 stanza heading (text-center). Skipping
-// these keeps the word_index aligned with `verse.split(' ')` of the clean
-// verse text.
-const KARAOKE_EXCLUDE = 'sup, .kjb-dropcap-num, .kjb-dropcap-letter, .pilcrow, .text-center';
 
 const fmt = (s) => {
   if (!s || !isFinite(s)) return '0:00';
@@ -19,70 +13,6 @@ const fmt = (s) => {
   const sec = Math.floor(s % 60);
   return `${m}:${sec.toString().padStart(2, '0')}`;
 };
-
-// ── Karaoke word wrapping (DOM, player-driven to avoid reader re-renders) ──
-// Wrap each whitespace-separated word in the verse's text content in a span
-// tagged with its 0-based word_index, so we can highlight the word currently
-// being narrated. Idempotent: skips verses already wrapped.
-function wrapVerseWords(el) {
-  if (el.querySelector('.kjb-karaoke-word')) return;
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
-    acceptNode(node) {
-      if (!node.nodeValue || !/\S/.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
-      let p = node.parentElement;
-      while (p && p !== el) {
-        if (p.matches && p.matches(KARAOKE_EXCLUDE)) return NodeFilter.FILTER_REJECT;
-        p = p.parentElement;
-      }
-      return NodeFilter.FILTER_ACCEPT;
-    }
-  });
-  const nodes = [];
-  let n;
-  while ((n = walker.nextNode())) nodes.push(n);
-  let wi = 0;
-  for (const node of nodes) {
-    const parts = node.nodeValue.split(/(\s+)/);
-    const frag = document.createDocumentFragment();
-    for (const part of parts) {
-      if (part === '') continue;
-      if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); continue; }
-      const span = document.createElement('span');
-      span.className = 'kjb-karaoke-word';
-      span.dataset.wi = String(wi);
-      span.textContent = part;
-      frag.appendChild(span);
-      wi++;
-    }
-    node.parentNode.replaceChild(frag, node);
-  }
-}
-
-function clearKaraoke() {
-  document.querySelectorAll('.kjb-karaoke-active').forEach((s) => s.classList.remove('kjb-karaoke-active'));
-}
-
-// Highlight the currently-narrated word and auto-scroll the reading view so
-// the verse stays in view. Scrolls only #kjb-scroll (the reader's scroll
-// container), never the window.
-function highlightWord(verse, wordIndex) {
-  clearKaraoke();
-  const verseEl = document.getElementById('v' + verse);
-  if (!verseEl) return;
-  wrapVerseWords(verseEl);
-  const target = verseEl.querySelector(`.kjb-karaoke-word[data-wi="${wordIndex}"]`);
-  if (target) target.classList.add('kjb-karaoke-active');
-  const scroller = document.getElementById('kjb-scroll');
-  if (scroller) {
-    const sRect = scroller.getBoundingClientRect();
-    const vRect = verseEl.getBoundingClientRect();
-    const margin = 140;
-    if (vRect.top < sRect.top + margin || vRect.bottom > sRect.bottom - margin) {
-      const delta = (vRect.top + vRect.height / 2) - (sRect.top + sRect.height / 2);
-      scroller.scrollTop += delta;
-    }
-  }
-}
 
 // Find the active word entry for a given media time (ms). `flat` is sorted by
 // start_ms. Returns { verse, wordIndex } or null (null = in a gap / before start).
