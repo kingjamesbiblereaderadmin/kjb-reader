@@ -67,7 +67,10 @@ async function detectIntroEnd(url) {
     try { audioBuf = await ctx.decodeAudioData(buf); } finally { ctx.close(); }
     const ch = audioBuf.getChannelData(0);
     const sampleRate = audioBuf.sampleRate;
-    const limit = Math.min(ch.length, Math.floor(sampleRate * 12));
+    // Analyse the first 18s — enough for the longest canonical book titles
+    // (e.g. "The First Book of Samuel, Otherwise called, The First Book Of
+    // The Kings") plus the spoken "Chapter N".
+    const limit = Math.min(ch.length, Math.floor(sampleRate * 18));
     const hop = Math.max(1, Math.floor(sampleRate * 0.03)); // 30ms windows
     const hopSec = hop / sampleRate;
     let peak = 0;
@@ -82,17 +85,29 @@ async function detectIntroEnd(url) {
     }
     if (peak <= 0) return 0;
     const threshold = peak * 0.12;
-    const minSilenceHops = Math.max(1, Math.round(0.2 / hopSec)); // ~200ms gap
+    const minSilenceHops = Math.max(1, Math.round(0.12 / hopSec)); // ~120ms min gap
+    // Collect every silence run (after speech has begun) and pick the LONGEST
+    // one. The title→verse break is the most prominent pause, so choosing the
+    // longest gap avoids mistaking a shorter comma pause inside a long book
+    // title (e.g. "The First Book of Moses, called Genesis") for the end of
+    // the intro. introEnd = the time speech resumes after that longest gap.
     let speechStarted = false;
-    let silenceStart = -1;
+    let runStart = -1;
+    let best = { duration: 0, end: 0 };
     for (let k = 0; k < rms.length; k++) {
-      if (rms[k] > threshold) { speechStarted = true; silenceStart = -1; }
-      else if (speechStarted) {
-        if (silenceStart < 0) silenceStart = k;
-        if (k - silenceStart + 1 >= minSilenceHops) return k * hopSec;
+      const silent = rms[k] <= threshold;
+      if (silent) {
+        if (runStart < 0) runStart = k;
+      } else {
+        if (runStart >= 0 && speechStarted) {
+          const len = k - runStart;
+          if (len >= minSilenceHops && len > best.duration) best = { duration: len, end: k };
+        }
+        speechStarted = true;
+        runStart = -1;
       }
     }
-    return 0;
+    return best.end * hopSec;
   } catch { return 0; }
 }
 
