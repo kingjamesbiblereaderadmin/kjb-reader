@@ -446,6 +446,26 @@ export default function SettingsPage() {
     navigate('/refresh-cache');
   };
 
+  // Permanently delete the signed-in user's account and all their data
+  // (saved verses, settings, reading progress), then sign out and return
+  // to the home page. The backend function runs as the calling user.
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await base44.functions.invoke('deleteUserAccount', {});
+      toast.success('Account deleted. You have been signed out.');
+      setShowDeleteConfirm(false);
+      // Clear any locally-cached user-scoped state so nothing lingers after
+      // the auth provider re-initializes on the home page.
+      try { localStorage.removeItem('kjb-has-visited-app'); } catch {}
+      await base44.auth.logout('/');
+    } catch (err) {
+      console.error('[Settings] Delete account failed:', err);
+      toast.error(err?.message || 'Failed to delete account. Please try again.');
+      setDeleting(false);
+    }
+  };
+
   const allExpanded = Object.values(expandedSections).every(v => v);
   
   const toggleAll = () => {
@@ -1590,6 +1610,81 @@ localStorage.removeItem('kjb-daily-verse-cache-v17');
           </div>
         )}
       </div>
+
+      {/* Delete Account — Danger Zone (only for signed-in users) */}
+      {user && (
+      <div className="bg-card/70 backdrop-blur-xl border border-destructive/40 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
+        <button
+          onClick={() => toggleSection('danger')}
+          className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-destructive/5 transition-colors text-left"
+        >
+          <div className="flex flex-col gap-1">
+            <h2 className="font-serif text-lg font-semibold text-foreground">Delete Account</h2>
+            <p className="font-sans text-xs text-muted-foreground">Permanently remove your account and data</p>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expandedSections.danger ? 'rotate-180' : ''}`} />
+        </button>
+        {expandedSections.danger && (
+          <div className="px-5 pb-6 pt-2 space-y-3">
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+              Deleting your account is <span className="text-destructive font-medium">permanent and cannot be undone</span>.
+              This will permanently wipe all of your saved verses, settings, and reading progress.
+            </p>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleting}
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive border border-destructive text-destructive-foreground font-sans text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
+            >
+              <Trash2 className="w-4 h-4" />
+              {deleting ? 'Deleting…' : 'Delete My Account'}
+            </button>
+          </div>
+        )}
+      </div>
+      )}
+
+      {/* Delete Account confirmation dialog — portaled to document.body */}
+      {showDeleteConfirm && createPortal(
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={() => { if (!deleting) setShowDeleteConfirm(false); }}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-card border border-destructive/40 shadow-2xl p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-destructive/15 text-destructive">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <h3 className="font-serif text-xl font-bold text-foreground">Delete Account?</h3>
+            </div>
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+              This is <span className="text-destructive font-medium">permanent and cannot be undone</span>.
+              All of your saved verses, settings, and reading progress will be permanently wiped.
+              You will be signed out and returned to the home page.
+            </p>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => { if (!deleting) setShowDeleteConfirm(false); }}
+                disabled={deleting}
+                className="flex-1 px-4 py-3 rounded-xl bg-transparent border border-border text-foreground font-sans text-sm font-medium hover:border-accent transition-all duration-200 disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-destructive border border-destructive text-destructive-foreground font-sans text-sm font-medium hover:opacity-90 transition-all duration-200 disabled:opacity-60"
+              >
+                {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                {deleting ? 'Deleting…' : 'Delete Permanently'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* Contact & Feedback */}
       <div className="bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl mb-5 overflow-hidden shadow-lg shadow-black/[0.03]">
