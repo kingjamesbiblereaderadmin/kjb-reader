@@ -376,8 +376,9 @@
        verse 2. Letting it clear naturally removes that gap. */
   }
   .kjb-dropcap-letter {
-    /* Sized to span two text lines. Height of the glyph follows the line box. */
-    font-size: 2lh;
+    /* Sized to span two text lines (≈2 × body line-height). Use em instead of
+       the poorly-supported `lh` unit so the cap renders at full size everywhere. */
+    font-size: 3.2em;
     line-height: 1;
     font-weight: 700;
     color: inherit;
