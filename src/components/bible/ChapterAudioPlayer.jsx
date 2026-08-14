@@ -69,7 +69,7 @@ function findActiveWord(flat, tMs) {
   return { verse: e.verse, wordIndex: e.word_index };
 }
 
-export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, verses }) {
+export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, verses, open = true }) {
   const audioRef = useRef(null);
   const [audioUrl, setAudioUrl] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -282,8 +282,9 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
   }
 
   if (loading) {
+    if (!open) return null;
     return (
-      <div className="flex items-center gap-2 px-4 py-3 mb-5 rounded-xl border border-border bg-card/60">
+      <div className="flex items-center gap-2 px-4 py-2 mt-3 rounded-xl border border-border bg-card/60">
         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
         <span className="font-sans text-xs text-muted-foreground">Loading audio…</span>
       </div>
@@ -291,8 +292,9 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
   }
 
   if (!hasAudio) {
+    if (!open) return null;
     return (
-      <div className="flex items-center gap-2 px-4 py-3 mb-5 rounded-xl border border-dashed border-border bg-card/40">
+      <div className="flex items-center gap-2 px-4 py-2 mt-3 rounded-xl border border-dashed border-border bg-card/40">
         <Volume2 className="w-4 h-4 text-muted-foreground/70" />
         <span className="font-sans text-xs text-muted-foreground">Audio for this chapter is being generated, please check back later</span>
       </div>
@@ -305,7 +307,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
   const ctrlBtn = "flex items-center justify-center gap-1 h-9 px-2.5 rounded-lg bg-secondary border border-border text-secondary-foreground hover:bg-accent/20 transition-colors touch-manipulation disabled:opacity-30 disabled:cursor-not-allowed";
 
   return (
-    <div className="px-4 py-3 mb-5 rounded-xl border border-border bg-card/70 backdrop-blur-sm shadow-sm">
+    <>
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -317,6 +319,8 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
         onPause={() => { setIsPlaying(false); lastAwRef.current = null; setCurrentVerse(null); clearKaraoke(); }}
         onDurationChange={(e) => { if (isFinite(e.target.duration) && e.target.duration > 0) setDuration(e.target.duration); }}
       />
+      {open && (
+      <div className="px-4 py-3 mt-3 rounded-xl border border-border bg-card/70 backdrop-blur-sm shadow-sm">
       <div className="flex items-center gap-2 flex-wrap">
         <button onClick={goPrevChapter} disabled={isFirstChapterFirstBook} title="Previous chapter" className={ctrlBtn}>
           <ChevronLeft className="w-4 h-4" />
@@ -369,6 +373,8 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
           </div>
         );
       })()}
-    </div>
+      </div>
+      )}
+    </>
   );
 }

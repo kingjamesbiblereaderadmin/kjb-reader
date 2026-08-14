@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, Printer } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlignJustify, AlignLeft, List, Columns2, Maximize2, Minimize2, ChevronDown, CheckSquare, Square, Copy, X, BookMarked, ZoomIn, Minus, Plus, Type, Share2, Printer, Headphones } from 'lucide-react';
 import { buildVerseUrl, formatVerseShare, cleanVerseText } from '@/lib/formatDailyVerse';
 import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText, resolveSubscript, resolveEndMarker } from '@/lib/bibleApi';
@@ -132,6 +132,7 @@ export default function BibleReader() {
   const [showZoomPopover, setShowZoomPopover] = useState(false);
   const [showFontPopover, setShowFontPopover] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState(new Set());
   const [selectedSections, setSelectedSections] = useState(new Set());
   const [filterMode, setFilterMode] = useState(false);
@@ -1709,6 +1710,7 @@ export default function BibleReader() {
               <button onClick={toggleFlow} title={flowMode === 'line' ? 'Switch to paragraph' : 'Switch to line-by-line'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{flowMode === 'line' ? <List className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignJustify className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="hidden lg:inline">{flowMode === 'line' ? 'Lines' : 'Para'}</span></button>
               <button onClick={toggleColumn} title={columnOn ? 'Switch to single column' : 'Switch to two-column'} className="flex items-center justify-center gap-1.5 px-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-xs font-medium hover:bg-accent/20 transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap">{columnOn ? <Columns2 className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /> : <AlignLeft className="w-5 h-5 transition-transform duration-200 flex-shrink-0" />}<span className="hidden lg:inline">{columnOn ? '2-Col' : '1-Col'}</span></button>
               <button onClick={toggleSelectMode} title="Select verses" className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-xs font-medium transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${selectMode ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}><CheckSquare className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Select</span></button>
+              <button onClick={() => { setShowAudioPlayer(p => !p); setShowBookPicker(false); setShowChapterPicker(false); setShowVersePicker(false); setShowZoomPopover(false); setShowFontPopover(false); }} title="Audio" className={`flex items-center justify-center gap-1.5 px-3 rounded-lg border border-border font-sans text-xs font-medium transition-all duration-200 touch-manipulation h-11 min-w-[44px] whitespace-nowrap ${showAudioPlayer ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-accent/20'}`}><Headphones className="w-5 h-5 transition-transform duration-200 flex-shrink-0" /><span className="hidden lg:inline">Audio</span></button>
               
               <DropdownMenu onOpenChange={(open) => { if (open) closeAllMenus(); }}>
                 <DropdownMenuTrigger asChild>
@@ -1905,6 +1907,10 @@ export default function BibleReader() {
               }}
             />
           )}
+
+          {!loading && !error && !isViewingTitlePage && verses.length > 0 && (
+            <ChapterAudioPlayer book={book} chapter={pos.chapter} verses={verses} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} open={showAudioPlayer} />
+          )}
         </div>
       )}
 
@@ -1936,10 +1942,6 @@ export default function BibleReader() {
             </p>
           )}
         </div>
-      )}
-
-      {!loading && !error && !isViewingTitlePage && verses.length > 0 && (
-        <ChapterAudioPlayer book={book} chapter={pos.chapter} verses={verses} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} />
       )}
 
       <div 
