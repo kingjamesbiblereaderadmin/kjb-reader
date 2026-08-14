@@ -1,4 +1,21 @@
 {
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 * * * *",
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
   "definition": {
     "document": {
       "dsl": "1.0.0",
@@ -16,29 +33,12 @@
           "then": "end",
           "x-base44": {
             "title": "Send daily verse push",
-            "description": "Push today's verse to all subscribers"
+            "description": "Push to subscribers at local 8am"
           }
         }
       }
     ]
   },
   "name": "Daily Verse Push",
-  "trigger": {
-    "condition": null,
-    "config": {
-      "trigger_type": "scheduled",
-      "events": [],
-      "schedule_mode": "recurring",
-      "cron_expression": "0 8 * * *",
-      "one_time_date": null,
-      "timezone": "Asia/Singapore",
-      "interval_value": null,
-      "interval_unit": null,
-      "interval_anchor": null,
-      "ends_type": "never",
-      "ends_on_date": null,
-      "ends_after_count": null
-    }
-  },
-  "description": "Sends the daily KJB verse as a web push notification to all subscribed devices every day at 8am Singapore time."
+  "description": "Fires hourly; sendDailyVersePush delivers the daily KJB verse to each subscriber at their own local 8am (once per local day)."
 }

@@ -34,6 +34,9 @@ export async function subscribePush(reg) {
       p256dh,
       auth,
       expiration_time: sub.expirationTime ?? null,
+      // Capture the subscriber's local timezone so the daily push is
+      // delivered at their local 8am.
+      timezone: (Intl.DateTimeFormat().resolvedOptions().timeZone) || 'Asia/Singapore',
     };
     // Avoid duplicates for this user/device.
     const existing = await base44.entities.PushSubscription.filter({ endpoint: sub.endpoint });
