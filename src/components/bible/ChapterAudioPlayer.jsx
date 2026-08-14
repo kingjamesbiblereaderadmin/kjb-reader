@@ -306,16 +306,11 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
           <span className="font-sans text-xs font-medium">{rate}x</span>
         </button>
       </div>
-      {currentVerse != null && (() => {
-        const vv = verses.find((x) => parseInt(x.verse, 10) === parseInt(currentVerse, 10));
-        const text = vv ? String(vv.text || '').replace(/[\u00B6\uFFFD]/g, ' ').replace(/\[|\]/g, '').replace(/^<<[^>]*>>\s*/, '').trim() : '';
-        return (
-          <div className="mt-2 px-2 py-1.5 rounded-lg bg-accent/10 border border-accent/20">
-            <span className="font-sans text-[11px] font-semibold text-accent mr-1.5 break-words">{book.name} {chapter}:{currentVerse}</span>
-            <span className="font-serif text-[11px] text-foreground/90 leading-snug line-clamp-2">{text}</span>
-          </div>
-        );
-      })()}
+      {currentVerse != null && (
+        <div className="mt-2 px-2 py-1.5 rounded-lg bg-accent/10 border border-accent/20">
+          <span className="font-sans text-[11px] font-semibold text-accent break-words">{book.name} {chapter}:{currentVerse}</span>
+        </div>
+      )}
       </div>
       )}
     </>

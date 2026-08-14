@@ -62,16 +62,6 @@ export function highlightWord(verse, wordIndex) {
   wrapVerseWords(verseEl);
   const target = verseEl.querySelector(`.kjb-karaoke-word[data-wi="${wordIndex}"]`);
   if (target) target.classList.add('kjb-karaoke-active');
-  const scroller = document.getElementById('kjb-scroll');
-  if (scroller) {
-    const sRect = scroller.getBoundingClientRect();
-    const vRect = verseEl.getBoundingClientRect();
-    const margin = 140;
-    if (vRect.top < sRect.top + margin || vRect.bottom > sRect.bottom - margin) {
-      const delta = (vRect.top + vRect.height / 2) - (sRect.top + sRect.height / 2);
-      scroller.scrollTop += delta;
-    }
-  }
 }
 
 // Map a SpeechSynthesis boundary charIndex to a 0-based word index, given the
