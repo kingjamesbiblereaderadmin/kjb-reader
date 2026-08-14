@@ -99,3 +99,11 @@ export function getPrevBook(abbr) {
   const idx = getBookIndex(abbr);
   return idx > 0 ? BIBLE_BOOKS[idx - 1] : null;
 }
+
+// Build the audio-key form expected by the getAudioUrls backend function:
+// "01_Genesis", "02_Exodus", ... (zero-padded canonical order + apiName).
+export function getBookAudioKey(book) {
+  const idx = BIBLE_BOOKS.findIndex(b => b.abbr === book.abbr);
+  if (idx < 0) return null;
+  return `${String(idx + 1).padStart(2, '0')}_${book.apiName}`;
+}
