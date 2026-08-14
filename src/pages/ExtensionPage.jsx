@@ -6,12 +6,12 @@ import { Globe, ArrowLeft, Search, BookOpen, Sparkles, MousePointer2, Heart, Dow
 // Built-in defaults — overridden by the admin-editable ExtensionConfig entity
 // (Dev Tools → Extension Links). Each field falls back here when blank.
 const DEFAULT_URLS = {
-  chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/432259d20_kjb-reader-v04124-chrome.zip',
-  firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/79c0c5979_kjb-reader-v04124-firefox.zip',
-  opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/16d128b36_kjb-reader-v04124-opera.zip',
-  edge: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/432259d20_kjb-reader-v04124-chrome.zip',
+  chrome: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/94cf69156_kjb-reader-v04125-chrome.zip',
+  firefox: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/eb2bff2db_kjb-reader-v04125-firefox.zip',
+  opera: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/fee6107c8_kjb-reader-v04125-opera.zip',
+  edge: 'https://base44.app/api/apps/6a713d810d97fdb5921ed14e/files/mp/public/6a713d810d97fdb5921ed14e/94cf69156_kjb-reader-v04125-chrome.zip',
 };
-const DEFAULT_VERSION = 'v0.4.124';
+const DEFAULT_VERSION = 'v0.4.125';
 
 const EXAMPLES = [
   {
