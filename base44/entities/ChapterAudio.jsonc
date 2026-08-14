@@ -4,7 +4,7 @@
   "properties": {
     "book": {
       "type": "string",
-      "description": "Full book name matching the apiName convention used across the app (e.g. 'Genesis', '1 Samuel', 'Psalms', 'Revelation')"
+      "description": "Full canonical book title matching the `name` field of the book in bibleData.js (e.g. 'The First Book of Moses, called Genesis', 'The Book of Amos', 'The Revelation of Saint John the Divine')"
     },
     "book_order": {
       "type": "number",

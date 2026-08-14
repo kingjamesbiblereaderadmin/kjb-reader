@@ -1,10 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 
 // Returns the narration MP3 URL for a given book + chapter.
-// Input  body: { book: "01_Genesis", chapter: 1 }
-//   - `book` is the canonical audio key: zero-padded order + "_" + apiName
-//     (e.g. "01_Genesis", "02_Exodus", "46_1 Corinthians"). We strip the
-//     numeric prefix to get the apiName stored on ChapterAudio records.
+// Input  body: { book: "01_The First Book of Moses, called Genesis", chapter: 1 }
+//   - `book` is the canonical audio key: zero-padded order + "_" + the book's
+//     full canonical title (e.g. "01_The First Book of Moses, called Genesis").
+//     We strip the numeric prefix to get the full title stored on ChapterAudio
+//     records' `book` field.
 //   - `chapter` is a plain integer.
 // Output: { found: true, url, duration } | { found: false }
 export default async function(req) {
