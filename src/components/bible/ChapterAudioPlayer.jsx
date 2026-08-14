@@ -14,14 +14,23 @@ const fmt = (s) => {
   return `${m}:${sec.toString().padStart(2, '0')}`;
 };
 
-// Build an ordered list of every word in the chapter (in reading order) so we
-// can map a global word index — computed from audio progress — to the
-// (verse, wordIndex) pair used by the karaoke highlighter. The cleaning mirrors
-// what the reader actually renders (stripping the Psalm superscription marker,
-// pilcrows and [italics] brackets) so the index lines up with the DOM words.
+// Build an ordered, character-weighted map of every word in the chapter (in
+// reading order) so we can map audio progress to the (verse, wordIndex) pair
+// used by the karaoke highlighter. The cleaning mirrors what the reader renders
+// (stripping the Psalm superscription marker, pilcrows and [italics] brackets)
+// so the index lines up with the DOM words.
+//
+// Each word is weighted by its character length (+1 for the trailing
+// space/pause). Narration does NOT spend equal time per word — longer words
+// and longer verses take proportionally more time, with pauses at verse
+// breaks. A flat "word index = progress × totalWords" map drifts badly off the
+// spoken word; weighting by character count keeps the highlight much closer to
+// what's actually being said (best achievable without per-word timing data).
 function buildWordList(verses) {
-  const list = [];
-  if (!verses?.length) return list;
+  const entries = [];
+  const cumulative = [];
+  let total = 0;
+  if (!verses?.length) return { entries, cumulative, total };
   for (const v of verses) {
     const raw = String(v.text || '')
       .replace(/^<<[^>]*>>\s*/, '')
@@ -32,9 +41,13 @@ function buildWordList(verses) {
       .trim();
     const words = raw.split(/\s+/).filter(Boolean);
     const verse = Number(v.verse);
-    words.forEach((_, i) => list.push({ verse, wordIndex: i }));
+    for (let i = 0; i < words.length; i++) {
+      total += words[i].length + 1;
+      entries.push({ verse, wordIndex: i });
+      cumulative.push(total);
+    }
   }
-  return list;
+  return { entries, cumulative, total };
 }
 
 export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, verses, open = true }) {
@@ -50,7 +63,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
   const autoPlayNextRef = useRef(false);
   const lastSaveRef = useRef(0);
 
-  // Ordered word list used for progress-based word highlighting.
+  // Ordered, char-weighted word list used for progress-based word highlighting.
   const wordList = useMemo(() => buildWordList(verses), [verses]);
 
   const isLastChapterLastBook = book.abbr === 'REV' && chapter === 22;
@@ -137,12 +150,16 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     const a = audioRef.current;
     if (!a) return;
     setCurrentTime(a.currentTime);
-    if (isPlaying && wordList.length && isFinite(a.duration) && a.duration > 0) {
-      const idx = Math.min(
-        wordList.length - 1,
-        Math.max(0, Math.floor((a.currentTime / a.duration) * wordList.length))
-      );
-      const entry = wordList[idx];
+    if (isPlaying && wordList.entries.length && isFinite(a.duration) && a.duration > 0) {
+      // Map audio progress onto the character-weighted cumulative word table so
+      // the highlighted word tracks the narration pace rather than a flat
+      // per-word average. Binary-search the first word whose cumulative weight
+      // reaches the progress target.
+      const target = Math.min(1, Math.max(0, a.currentTime / a.duration)) * wordList.total;
+      let lo = 0, hi = wordList.cumulative.length - 1;
+      while (lo < hi) { const mid = (lo + hi) >> 1; if (wordList.cumulative[mid] < target) lo = mid + 1; else hi = mid; }
+      const idx = Math.min(lo, wordList.entries.length - 1);
+      const entry = wordList.entries[idx];
       if (entry) {
         highlightWord(entry.verse, entry.wordIndex);
         setCurrentVerse((cv) => (cv !== entry.verse ? entry.verse : cv));
