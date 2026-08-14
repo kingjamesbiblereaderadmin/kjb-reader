@@ -268,3 +268,31 @@ export const COLOPHONS = {
   'Philemon:1':         'Written from Rome to Philemon, by Onesimus a servant.',
   'Hebrews:13':         'Written to the Hebrews from Italy by Timothy.',
 };
+
+// Psalm 119 — Hebrew acrostic section headings. Each 8-verse stanza begins
+// with a Hebrew letter name (traditional KJB spelling). Keyed by the first
+// verse number of the stanza; rendered as a small heading above that verse.
+export const PSALM_119_SECTIONS = {
+  1:   'ALEPH',
+  9:   'BETH',
+  17:  'GIMEL',
+  25:  'DALETH',
+  33:  'HE',
+  41:  'VAU',
+  49:  'ZAIN',
+  57:  'CHETH',
+  65:  'TETH',
+  73:  'JOD',
+  81:  'CAPH',
+  89:  'LAMED',
+  97:  'MEM',
+  105: 'NUN',
+  113: 'SAMECH',
+  121: 'AIN',
+  129: 'PE',
+  137: 'TZADDI',
+  145: 'KOPH',
+  153: 'RESH',
+  161: 'SCHIN',
+  169: 'TAU',
+};

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function TitlePage({ type }) {
+export default function TitlePage({ type, book }) {
   if (type === 'testament-old') {
     return (
       <div className="flex flex-col items-center px-4 pt-8 pb-12">
@@ -119,6 +119,31 @@ export default function TitlePage({ type }) {
             <p className="font-serif text-base md:text-lg font-normal text-foreground tracking-[0.1em]">
               AUTHORISED KING JAMES BIBLE
             </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'book' && book) {
+    const testamentLabel = book.testament === 'new' ? 'New Testament' : 'Old Testament';
+    const chapterWord = book.chapters === 1 ? 'Chapter' : 'Chapters';
+    return (
+      <div className="flex flex-col items-center justify-center px-4 pt-16 pb-16">
+        <div className="max-w-2xl text-center space-y-6">
+          <p className="font-serif text-sm tracking-[0.3em] uppercase text-muted-foreground">
+            {testamentLabel}
+          </p>
+          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-snug">
+            {book.name}
+          </h1>
+          {book.chapters > 0 && (
+            <p className="font-serif text-base md:text-lg text-muted-foreground">
+              {book.chapters} {chapterWord}
+            </p>
+          )}
+          <div className="pt-6">
+            <div className="w-16 h-px bg-accent mx-auto" />
           </div>
         </div>
       </div>

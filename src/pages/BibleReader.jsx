@@ -6,7 +6,7 @@ import { BIBLE_BOOKS, getNextBook, getPrevBook } from '@/lib/bibleData';
 import { fetchChapter, fetchVerseCount, renderVerseText, renderColophonText, renderSubscriptText, resolveSubscript, resolveEndMarker } from '@/lib/bibleApi';
 import SubscriptContent from '@/components/bible/SubscriptContent';
 import { getBibleData } from '@/lib/bibleCache';
-import { SUBSCRIPTS, COLOPHONS } from '@/lib/bibleSubscripts';
+import { SUBSCRIPTS, COLOPHONS, PSALM_119_SECTIONS } from '@/lib/bibleSubscripts';
 import BookSelector from '@/components/bible/BookSelector';
 import ChapterSelector from '@/components/bible/ChapterSelector';
 import VerseGrid from '@/components/bible/VerseGrid';
@@ -520,9 +520,10 @@ export default function BibleReader() {
   // Subscript for the current chapter, honouring any admin override. Recomputed
   // when verses reload (loadOverrides populates the cache by then).
   const chapterSubscript = resolveSubscript(book.apiName, pos.chapter);
+  const isPsalm119 = book.abbr === 'PSA' && pos.chapter === 119;
 
   useReaderUrlSync(pos, loading, a11yFont, routerNavigate, searchTerm, gospelMode);
-  const isViewingTitlePage = pos.chapter === 0 && (pos.abbr === 'GEN' || pos.abbr === 'MAT');
+  const isViewingTitlePage = pos.chapter === 0;
 
   const loadChapter = useCallback(async (bookAbbr, chapter, jumpVerse) => {
     setLoading(true); setError(null); setVerses([]); setColophon(null);
@@ -1433,7 +1434,7 @@ export default function BibleReader() {
 
   const goPrev = () => {
     if (pos.chapter > 1) { navigate(pos.abbr, pos.chapter - 1); }
-    else if (pos.chapter === 1 && (pos.abbr === 'GEN' || pos.abbr === 'MAT')) { navigate(pos.abbr, 0); }
+    else if (pos.chapter === 1) { navigate(pos.abbr, 0); }
     else { const prev = getPrevBook(pos.abbr); if (prev) navigate(prev.abbr, prev.chapters); }
   };
 
@@ -1949,7 +1950,7 @@ export default function BibleReader() {
         {loading && <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-accent" /></div>}
         {error && <div className="text-center py-16 text-destructive font-sans">{error}</div>}
         {!loading && !error && isViewingTitlePage && (
-          <div style={{ fontFamily: "'Merriweather', 'Cormorant Garamond', Georgia, serif" }} className="[&_*]:!font-serif"><TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : 'testament-new'} /></div>
+          <div style={{ fontFamily: "'Merriweather', 'Cormorant Garamond', Georgia, serif" }} className="[&_*]:!font-serif"><TitlePage type={pos.abbr === 'GEN' ? 'testament-old' : pos.abbr === 'MAT' ? 'testament-new' : 'book'} book={book} /></div>
         )}
         {!loading && !error && verses.length > 0 && columnMode && !isViewingTitlePage && pos.chapter !== 1 && (
           <RunningHead bookName={book.name} chapter={pos.chapter} baseFontRem={zoomLevel / 100 * 0.7} isCursive={fontFamily === 'cursive'} />
@@ -1970,17 +1971,27 @@ export default function BibleReader() {
             {columnMode && !isViewingTitlePage && chapterSubscript && (
               <p onClick={() => handleSectionClick('subscript')} id="kjb-subscript-anchor" className={`kjb-subscript text-center text-muted-foreground mb-4 leading-relaxed transition-colors duration-500 rounded-lg cursor-pointer ${fontFamily === 'cursive' ? 'cursive-em-style' : 'font-serif'} ${sectionActive('subscript') ? 'bg-accent/20 ring-1 ring-accent/40 px-3 py-2' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, breakInside: 'avoid' }}><SubscriptContent text={chapterSubscript} searchTerm={sectionActive('subscript') ? searchTerm : null} /></p>
             )}
-            {verses.filter(v => !activeFilter || verseInSelection(v)).map((v, idx) => (
-              <VerseText
-                key={`${pos.abbr}-${pos.chapter}-${v.verse}`} verse={v} highlight={parseInt(highlightVerse, 10) === parseInt(v.verse, 10) || highlightedVerses.has(parseInt(v.verse, 10))}
-                id={`v${v.verse}`} bookName={book.name} abbr={pos.abbr} chapter={pos.chapter} isFirstVerse={idx === 0} paragraphMode={paragraphMode} selectMode={selectMode}
-                isSelected={selectedVerses.has(parseInt(v.verse, 10)) || selectedVerses.has(String(v.verse))} onSelect={toggleVerseSelect} onActivateSelect={activateSelectFromVerse} totalVerses={verseCount}
-                colophon={verses.length > 0 && String(v.verse) === String(verses[verses.length - 1].verse) ? colophon : null}
-                subscript={parseInt(v.verse, 10) === 1 ? (chapterSubscript || null) : null}
-                isCursive={fontFamily === 'cursive'} fontFamilyValue={getFontFamilyValue(fontFamily)} zoomLevel={zoomLevel} columnMode={useColumns} dropCap={idx === 0 && parseInt(v.verse, 10) === 1}
-                searchTerm={searchTerm && parseInt(highlightVerse, 10) === parseInt(v.verse, 10) ? searchTerm : null}
-              />
-            ))}
+            {verses.filter(v => !activeFilter || verseInSelection(v)).map((v, idx) => {
+              const sectionLetter = isPsalm119 ? PSALM_119_SECTIONS[parseInt(v.verse, 10)] : null;
+              return (
+              <React.Fragment key={`${pos.abbr}-${pos.chapter}-${v.verse}`}>
+                {sectionLetter && (
+                  <div className="kjb-psalm119-heading text-center my-3" style={{ breakInside: 'avoid' }}>
+                    <span className={`font-serif uppercase text-muted-foreground ${fontFamily === 'cursive' ? 'cursive-em-style' : ''}`} style={{ fontStyle: 'normal', fontSize: `${zoomLevel / 100}rem`, letterSpacing: '0.25em' }}>{sectionLetter}</span>
+                  </div>
+                )}
+                <VerseText
+                  verse={v} highlight={parseInt(highlightVerse, 10) === parseInt(v.verse, 10) || highlightedVerses.has(parseInt(v.verse, 10))}
+                  id={`v${v.verse}`} bookName={book.name} abbr={pos.abbr} chapter={pos.chapter} isFirstVerse={idx === 0} paragraphMode={paragraphMode} selectMode={selectMode}
+                  isSelected={selectedVerses.has(parseInt(v.verse, 10)) || selectedVerses.has(String(v.verse))} onSelect={toggleVerseSelect} onActivateSelect={activateSelectFromVerse} totalVerses={verseCount}
+                  colophon={verses.length > 0 && String(v.verse) === String(verses[verses.length - 1].verse) ? colophon : null}
+                  subscript={parseInt(v.verse, 10) === 1 ? (chapterSubscript || null) : null}
+                  isCursive={fontFamily === 'cursive'} fontFamilyValue={getFontFamilyValue(fontFamily)} zoomLevel={zoomLevel} columnMode={useColumns} dropCap={idx === 0 && parseInt(v.verse, 10) === 1}
+                  searchTerm={searchTerm && parseInt(highlightVerse, 10) === parseInt(v.verse, 10) ? searchTerm : null}
+                />
+              </React.Fragment>
+              );
+            })}
           </div>
           );
         })()}
@@ -2004,7 +2015,7 @@ export default function BibleReader() {
           {!isFirstChapterFirstBook ? (
           <button onClick={goPrev} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-secondary border border-border text-secondary-foreground font-sans text-sm font-medium hover:bg-accent/20 transition-colors min-h-[48px] touch-manipulation min-w-0">
             <ChevronLeft className="w-4 h-4 flex-shrink-0" />
-            <span className="hidden sm:inline truncate">{isGenesisChapterOne ? 'Title Page' : isViewingTitlePage ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}` : pos.chapter > 1 ? `Chapter ${pos.chapter - 1}` : (pos.abbr === 'GEN' || pos.abbr === 'MAT') ? `${book.shortName} Title Page` : `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}`}</span>
+            <span className="hidden sm:inline truncate">{isViewingTitlePage ? `${getPrevBook(pos.abbr)?.shortName} ${getPrevBook(pos.abbr)?.chapters}` : pos.chapter > 1 ? `Chapter ${pos.chapter - 1}` : `${book.shortName} Title Page`}</span>
           </button>
           ) : <div className="flex-1" />}
           {!isLastChapterLastBook ? (
