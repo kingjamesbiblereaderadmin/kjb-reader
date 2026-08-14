@@ -30,7 +30,10 @@ function buildWordList(verses) {
   const entries = [];
   const cumulative = [];
   let total = 0;
-  if (!verses?.length) return { entries, cumulative, total };
+  // Per-verse word tables used for per-verse (not whole-chapter) highlighting.
+  const byVerse = {};
+  const verseNumbers = [];
+  if (!verses?.length) return { entries, cumulative, total, byVerse, verseNumbers };
   for (const v of verses) {
     const raw = String(v.text || '')
       .replace(/^<<[^>]*>>\s*/, '')
@@ -41,59 +44,70 @@ function buildWordList(verses) {
       .trim();
     const words = raw.split(/\s+/).filter(Boolean);
     const verse = Number(v.verse);
+    if (!(verse in byVerse)) { byVerse[verse] = { entries: [], cumulative: [], total: 0 }; verseNumbers.push(verse); }
+    const vd = byVerse[verse];
     for (let i = 0; i < words.length; i++) {
-      total += words[i].length + 1;
+      const w = words[i].length + 1;
+      total += w;
       entries.push({ verse, wordIndex: i });
       cumulative.push(total);
+      vd.total += w;
+      vd.entries.push({ verse, wordIndex: i });
+      vd.cumulative.push(vd.total);
     }
   }
-  return { entries, cumulative, total };
+  return { entries, cumulative, total, byVerse, verseNumbers };
 }
 
-// Detect when the narration intro (the spoken book name / "Chapter N" heading)
-// ends by locating the first sustained silence after speech begins. Returns
-// the time (seconds) at which verse 1 starts, or 0 if no intro gap is found.
-// Used to delay word highlighting until the book-name intro has finished so the
-// highlight doesn't run ahead of the audio during the heading.
-async function detectIntroEnd(url) {
+// Cache audio analyses by URL so re-mounting the player (e.g. navigating
+// back to a chapter) doesn't re-decode the same file.
+const audioAnalysisCache = new Map();
+
+// Analyse a narration MP3 to derive timing landmarks that keep the karaoke
+// highlight aligned with the spoken words:
+//   - introEnd:   time verse 1 starts (after the spoken book-name / "Chapter N"
+//                 heading), so highlighting waits for the intro to finish.
+//   - outroEnd:   time the last speech ends, so words aren't stretched over
+//                 trailing silence/credits (the main cause of the highlight
+//                 running ahead of the audio).
+//   - verseStarts: per-verse start times (introEnd first, outroEnd last) so
+//                 words are mapped per verse and drift resets at every verse
+//                 break. null when too few verse-break pauses were detected
+//                 (falls back to whole-chapter mapping over [introEnd, outroEnd]).
+async function analyzeAudio(url, verseCount) {
+  if (audioAnalysisCache.has(url)) return audioAnalysisCache.get(url);
+  const fallback = { introEnd: 0, outroEnd: 0, verseStarts: null };
   try {
     const res = await fetch(url);
-    if (!res.ok) return 0;
+    if (!res.ok) { audioAnalysisCache.set(url, fallback); return fallback; }
     const buf = await res.arrayBuffer();
     const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return 0;
+    if (!Ctx) { audioAnalysisCache.set(url, fallback); return fallback; }
     const ctx = new Ctx();
     let audioBuf;
     try { audioBuf = await ctx.decodeAudioData(buf); } finally { ctx.close(); }
     const ch = audioBuf.getChannelData(0);
     const sampleRate = audioBuf.sampleRate;
-    // Analyse the first 18s — enough for the longest canonical book titles
-    // (e.g. "The First Book of Samuel, Otherwise called, The First Book Of
-    // The Kings") plus the spoken "Chapter N".
-    const limit = Math.min(ch.length, Math.floor(sampleRate * 18));
     const hop = Math.max(1, Math.floor(sampleRate * 0.03)); // 30ms windows
     const hopSec = hop / sampleRate;
     let peak = 0;
     const rms = [];
-    for (let i = 0; i < limit; i += hop) {
+    for (let i = 0; i < ch.length; i += hop) {
       let sum = 0;
-      const end = Math.min(i + hop, limit);
+      const end = Math.min(i + hop, ch.length);
       for (let j = i; j < end; j++) { const s = ch[j]; sum += s * s; }
       const r = Math.sqrt(sum / (end - i));
       rms.push(r);
       if (r > peak) peak = r;
     }
-    if (peak <= 0) return 0;
+    if (peak <= 0 || !rms.length) { audioAnalysisCache.set(url, fallback); return fallback; }
     const threshold = peak * 0.12;
     const minSilenceHops = Math.max(1, Math.round(0.12 / hopSec)); // ~120ms min gap
-    // Collect every silence run (after speech has begun) and pick the LONGEST
-    // one. The title→verse break is the most prominent pause, so choosing the
-    // longest gap avoids mistaking a shorter comma pause inside a long book
-    // title (e.g. "The First Book of Moses, called Genesis") for the end of
-    // the intro. introEnd = the time speech resumes after that longest gap.
+
+    // Collect every silence run (after speech begins), in time order.
+    const gaps = [];
     let speechStarted = false;
     let runStart = -1;
-    let best = { duration: 0, end: 0 };
     for (let k = 0; k < rms.length; k++) {
       const silent = rms[k] <= threshold;
       if (silent) {
@@ -101,14 +115,59 @@ async function detectIntroEnd(url) {
       } else {
         if (runStart >= 0 && speechStarted) {
           const len = k - runStart;
-          if (len >= minSilenceHops && len > best.duration) best = { duration: len, end: k };
+          if (len >= minSilenceHops) gaps.push({ start: runStart * hopSec, end: k * hopSec, duration: len });
         }
         speechStarted = true;
         runStart = -1;
       }
     }
-    return best.end * hopSec;
-  } catch { return 0; }
+
+    // outroEnd = end of the last speech sample (trims trailing silence/credits).
+    let lastSpeechHop = -1;
+    for (let k = rms.length - 1; k >= 0; k--) { if (rms[k] > threshold) { lastSpeechHop = k; break; } }
+    const totalSec = rms.length * hopSec;
+    const outroEnd = lastSpeechHop >= 0 ? Math.min(totalSec, (lastSpeechHop + 1) * hopSec) : totalSec;
+
+    if (!gaps.length) {
+      const r = { introEnd: 0, outroEnd, verseStarts: null };
+      audioAnalysisCache.set(url, r);
+      return r;
+    }
+
+    // introEnd = the gap (within the first 12s) whose FOLLOWING speech run is the
+    // longest — that run is verse 1, so this gap is the title→verse break. This
+    // avoids mistaking a shorter comma pause inside a long book title (e.g.
+    // "The First Book of Moses, called Genesis") for the end of the intro.
+    const introCandidates = gaps.filter(g => g.end <= 12);
+    let introEnd = 0;
+    if (introCandidates.length) {
+      let best = null;
+      for (const g of introCandidates) {
+        let nextStart = 30;
+        for (const g2 of gaps) { if (g2.start > g.end + 0.05) { nextStart = g2.start; break; } }
+        const run = nextStart - g.end;
+        if (!best || run > best.run) best = { end: g.end, run };
+      }
+      introEnd = best ? best.end : 0;
+    }
+
+    // Per-verse boundaries: the (verseCount-1) longest pauses after the intro,
+    // in time order. Verse breaks are the most prominent pauses, so taking the
+    // longest ones rejects shorter sentence-internal pauses.
+    const needed = Math.max(0, (verseCount || 0) - 1);
+    const after = gaps.filter(g => g.end > introEnd + 0.2).sort((a, b) => b.duration - a.duration);
+    let verseStarts = null;
+    if (needed > 0 && after.length >= needed) {
+      const chosen = after.slice(0, needed).sort((a, b) => a.end - b.end).map(g => g.end);
+      verseStarts = [introEnd, ...chosen, outroEnd];
+    }
+    const r = { introEnd, outroEnd, verseStarts };
+    audioAnalysisCache.set(url, r);
+    return r;
+  } catch {
+    audioAnalysisCache.set(url, fallback);
+    return fallback;
+  }
 }
 
 export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, verses, open = true }) {
@@ -121,7 +180,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
   const [duration, setDuration] = useState(0);
   const [rate, setRate] = useState(1);
   const [currentVerse, setCurrentVerse] = useState(null);
-  const [introEnd, setIntroEnd] = useState(0);
+  const [analysis, setAnalysis] = useState(null);
   const autoPlayNextRef = useRef(false);
   const lastSaveRef = useRef(0);
 
@@ -141,7 +200,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     setDuration(0);
     setIsPlaying(false);
     setCurrentVerse(null);
-    setIntroEnd(0);
+    setAnalysis(null);
     clearKaraoke();
     (async () => {
       try {
@@ -154,7 +213,6 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
         if (data.found && data.url) {
           setAudioUrl(data.url);
           setHasAudio(true);
-          detectIntroEnd(data.url).then((t) => { if (!cancelled && t > 0) setIntroEnd(t); });
         } else {
           autoPlayNextRef.current = false;
         }
@@ -166,6 +224,18 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     })();
     return () => { cancelled = true; };
   }, [book.abbr, book.apiName, chapter]);
+
+  // Analyse the audio to find the spoken-intro end, trailing-silence end, and
+  // per-verse boundary times, so word highlighting tracks the narration per
+  // verse instead of drifting across the whole chapter. Runs once the audio
+  // URL and the verse count are known; results are cached per URL.
+  useEffect(() => {
+    if (!audioUrl) return;
+    let cancelled = false;
+    const verseCount = wordList.verseNumbers.length;
+    analyzeAudio(audioUrl, verseCount).then((r) => { if (!cancelled) setAnalysis(r); });
+    return () => { cancelled = true; };
+  }, [audioUrl, wordList.verseNumbers.length]);
 
   // Apply playback rate whenever it changes.
   useEffect(() => {
@@ -206,22 +276,46 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
   };
 
   // Highlighting is driven ONLY by the audio timeupdate event (no setInterval /
-  // requestAnimationFrame). The currently-narrated word is derived from audio
-  // progress: wordIndex = floor((currentTime / duration) * totalWords). This
-  // naturally pauses when audio pauses (no timeupdate), and jumps to the right
-  // word when the user seeks (timeupdate fires with the new currentTime).
+  // requestAnimationFrame). The narrated word is derived from audio progress
+  // using per-verse timing landmarks from analyzeAudio (intro end, verse
+  // breaks, trailing-silence end) so the highlight tracks the spoken word and
+  // resets at each verse break instead of drifting across the whole chapter.
   const onTimeUpdate = () => {
     const a = audioRef.current;
     if (!a) return;
     setCurrentTime(a.currentTime);
     if (isPlaying && wordList.entries.length && isFinite(a.duration) && a.duration > 0) {
+      const introEnd = analysis?.introEnd || 0;
       if (introEnd > 0 && a.currentTime < introEnd) {
-        // Still in the spoken book-name intro — don't highlight yet.
+        // Spoken book-name intro — don't highlight yet.
         clearKaraoke();
+      } else if (analysis?.verseStarts && analysis.verseStarts.length > 1) {
+        // Per-verse mapping: find which verse segment the current time is in,
+        // then distribute that verse's words (char-weighted) over its segment.
+        const t = a.currentTime;
+        const vs = analysis.verseStarts;
+        let i = 0;
+        while (i < vs.length - 2 && t >= vs[i + 1]) i++;
+        const verseNumber = wordList.verseNumbers[i];
+        const vd = wordList.byVerse[verseNumber];
+        if (vd && vd.entries.length) {
+          const span = vs[i + 1] - vs[i];
+          const progress = span > 0 ? Math.min(1, Math.max(0, (t - vs[i]) / span)) : 0;
+          const target = progress * vd.total;
+          let lo = 0, hi = vd.cumulative.length - 1;
+          while (lo < hi) { const mid = (lo + hi) >> 1; if (vd.cumulative[mid] < target) lo = mid + 1; else hi = mid; }
+          const idx = Math.min(lo, vd.entries.length - 1);
+          const entry = vd.entries[idx];
+          if (entry) {
+            highlightWord(entry.verse, entry.wordIndex);
+            setCurrentVerse((cv) => (cv !== entry.verse ? entry.verse : cv));
+          }
+        }
       } else {
-        // Map audio progress (skipping the intro) onto the character-weighted
-        // cumulative word table so the highlight tracks the narration pace.
-        const span = a.duration - introEnd;
+        // Fallback: char-weight the whole chapter over [introEnd, outroEnd]
+        // (trailing silence trimmed) so the highlight doesn't run ahead.
+        const outroEnd = (analysis?.outroEnd && analysis.outroEnd > 0 && analysis.outroEnd < a.duration) ? analysis.outroEnd : a.duration;
+        const span = outroEnd - introEnd;
         const progress = span > 0
           ? Math.min(1, Math.max(0, (a.currentTime - introEnd) / span))
           : Math.min(1, Math.max(0, a.currentTime / a.duration));
