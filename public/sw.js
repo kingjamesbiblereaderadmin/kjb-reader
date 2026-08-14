@@ -81,10 +81,124 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// ── Background Sync ──────────────────────────────────────────────────────
+// Replay queued requests (stored in IndexedDB by the page via the
+// QUEUE_REQUEST message) when connectivity returns. The page registers the
+// 'kjb-sync' tag whenever it has pending offline work.
+const SYNC_DB = 'kjb-sync-queue';
+function openSyncDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(SYNC_DB, 1);
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore('requests', { keyPath: 'id', autoIncrement: true });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function replayQueuedRequests() {
+  let db;
+  try { db = await openSyncDB(); } catch (err) { console.warn('[SW] sync DB open failed:', err); return; }
+  const tx = db.transaction('requests', 'readwrite');
+  const store = tx.objectStore('requests');
+  const all = await new Promise((res) => {
+    const r = store.getAll();
+    r.onsuccess = () => res(r.result || []);
+    r.onerror = () => res([]);
+  });
+  for (const item of all) {
+    try {
+      const res = await fetch(item.url, item.options);
+      if (res.ok) { store.delete(item.id); }
+    } catch (err) {
+      console.warn('[SW] bg-sync replay failed, will retry next sync:', err);
+    }
+  }
+  await tx.done;
+  const clients = await self.clients.matchAll({ includeUncontrolled: true });
+  clients.forEach((c) => c.postMessage({ type: 'BG_SYNC_DONE' }));
+}
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'kjb-sync') {
+    event.waitUntil(replayQueuedRequests());
+  }
+});
+
+// ── Periodic Background Sync ─────────────────────────────────────────────
+// Refresh the app shell cache + prewarm key assets once per day so the
+// installed PWA stays fresh even if the user hasn't opened it. Registered from
+// the page with reg.periodicSync.register({ minInterval: 24h }).
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'kjb-refresh') {
+    event.waitUntil((async () => {
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        await Promise.all(APP_SHELL_FILES.map((u) =>
+          fetch(u, { cache: 'no-store' })
+            .then((r) => r.ok ? cache.put(u, r.clone()) : null)
+            .catch(() => null)
+        ));
+        await Promise.all(PRECACHE_ASSETS.map((u) =>
+          fetch(u, { mode: 'no-cors' })
+            .then((r) => (r.ok || r.type === 'opaque') ? cache.put(u, r.clone()) : null)
+            .catch(() => null)
+        ));
+        const clients = await self.clients.matchAll({ includeUncontrolled: true });
+        clients.forEach((c) => c.postMessage({ type: 'PERIODIC_REFRESH_DONE' }));
+      } catch (err) {
+        console.warn('[SW] periodic refresh failed:', err);
+      }
+    })());
+  }
+});
+
+// ── Push Notifications (web push) ─────────────────────────────────────────
+// Display incoming web-push messages. The page subscribes via PushManager
+// with the VAPID public key; a backend function sends the daily-verse push to
+// all stored subscriptions. Local (page-triggered) daily-verse notifications
+// use reg.showNotification directly and don't go through here.
+self.addEventListener('push', (event) => {
+  let payload;
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch (err) {
+    try { payload = { body: event.data ? event.data.text() : '' }; } catch { payload = {}; }
+  }
+  const title = payload.title || 'KJB Reader';
+  const options = {
+    body: payload.body || '',
+    icon: payload.icon || 'https://media.base44.com/images/public/6a05d76723afe58d80c589e8/8e738d108_cfb4bf781_Untitled.png',
+    badge: payload.badge || payload.icon,
+    tag: payload.tag || 'kjb-push',
+    data: { url: payload.url || '/' },
+    vibrate: [200, 100, 200],
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
 // Fetch event - cache-first strategy with dev mode bypass
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // share_target: receive shared text/links from the OS share sheet. The
+  // manifest declares a POST share_target at /share-target; the SW reads the
+  // form data and redirects the user to /search with the shared text so it's
+  // looked up in the Bible.
+  if (request.method === 'POST' && url.pathname === '/share-target') {
+    event.respondWith((async () => {
+      try {
+        const formData = await request.formData();
+        const shared = (formData.get('text') || formData.get('title') || formData.get('url') || '').toString();
+        const q = encodeURIComponent(shared.slice(0, 200));
+        return Response.redirect(`/search?q=${q}&from=share`, 303);
+      } catch (err) {
+        console.warn('[SW] share_target parse failed:', err);
+        return Response.redirect('/search', 303);
+      }
+    })());
+    return;
+  }
 
   // Skip non-GET requests
   if (request.method !== 'GET') return;

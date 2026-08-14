@@ -113,13 +113,16 @@ Deno.serve(async (req) => {
     background_color: "#0f1117",
     theme_color: "#0f1117",
     prefer_related_applications: false,
-    // NOTE: We intentionally do NOT declare `related_applications` here.
-    // A `related_applications` entry whose URL matches THIS origin makes
-    // Chromium browsers (Edge/Chrome/Samsung) treat the app as already
-    // installed and suppress the automatic `beforeinstallprompt` — which broke
-    // the "Add to Home Screen" install prompt on the published domain (preview
-    // runs on a different origin, so it was unaffected). Omitting it restores
-    // the native install prompt.
+    // Android TWA on Google Play. Points at the Play Store (cross-origin), so
+    // it does NOT suppress the web install prompt the way a same-origin entry
+    // would. prefer_related_applications=false keeps the web PWA installable.
+    related_applications: [
+      {
+        platform: "play",
+        url: "https://play.google.com/store/apps/details?id=com.godisgracious1031m.kjbreader",
+        id: "com.godisgracious1031m.kjbreader"
+      }
+    ],
     // Protocol handlers — register as handler for web+bible: and web+kjb: URIs.
     // Chrome's allowlist requires custom schemes to be web+-prefixed (bare
     // "bible"/"kjb" are rejected and the entries ignored). The reader strips
@@ -163,6 +166,40 @@ Deno.serve(async (req) => {
       }
     ],
     edge_side_panel: { preferred_width: 400 },
+    // share_target: let users share text/links into the app from the OS share
+    // sheet. The SW intercepts the POST to /share-target and redirects to
+    // /search with the shared text.
+    share_target: {
+      action: "/share-target",
+      method: "POST",
+      enctype: "multipart/form-data",
+      params: {
+        title: "title",
+        text: "text",
+        url: "url"
+      }
+    },
+    // file_handlers: let users open plain-text files (e.g. exported Bible
+    // text / notes) with the app.
+    file_handlers: [
+      {
+        action: "/read",
+        accept: { "text/plain": [".txt"], "text/html": [".html", ".htm"] },
+        icons: [{ src: "/functions/pwaIcon?size=192", sizes: "192x192", type: "image/png" }],
+        launch_type: "single-client"
+      }
+    ],
+    // widgets: Windows 11 widget — daily verse on the OS widgets board.
+    widgets: [
+      {
+        name: "KJB Daily Verse",
+        short_name: "KJB Verse",
+        description: "Daily verse from the King James Bible",
+        theme_color: "#0f1117",
+        icons: [{ src: "/functions/pwaIcon?size=192", sizes: "192x192", type: "image/png" }],
+        data: { type: "card", weight: 1 }
+      }
+    ],
     icons,
     screenshots
   };
