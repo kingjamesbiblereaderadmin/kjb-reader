@@ -107,8 +107,10 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
         if (!key) { if (!cancelled) setLoading(false); return; }
         const res = await base44.functions.invoke('getAudioUrls', { book: key, chapter });
         if (cancelled) return;
-        if (res && res.found && res.url) {
-          setAudioUrl(res.url);
+        // invoke() returns the raw axios response — the function's JSON is on .data
+        const data = res?.data || {};
+        if (data.found && data.url) {
+          setAudioUrl(data.url);
           setHasAudio(true);
         } else {
           autoPlayNextRef.current = false;
