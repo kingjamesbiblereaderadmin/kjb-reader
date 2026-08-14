@@ -1,0 +1,44 @@
+{
+  "name": "PushSubscription",
+  "type": "object",
+  "properties": {
+    "endpoint": {
+      "type": "string",
+      "description": "Push subscription endpoint URL from the browser PushSubscription"
+    },
+    "p256dh": {
+      "type": "string",
+      "description": "User's public key (base64url) for encrypting push payloads"
+    },
+    "auth": {
+      "type": "string",
+      "description": "Auth secret (base64url) for push payload encryption"
+    },
+    "expiration_time": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Subscription expiration time (ms epoch) or null"
+    }
+  },
+  "required": [
+    "endpoint",
+    "p256dh",
+    "auth"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

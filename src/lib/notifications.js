@@ -133,6 +133,18 @@ export async function requestNotificationPermission() {
     }
   }
   
+  // Subscribe to web push so the daily verse can be delivered even when the
+  // app is closed (best-effort; needs a logged-in user to store the subscription).
+  if (hasPermission && 'serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const { subscribePush } = await import('./pushSub');
+      await subscribePush(reg);
+    } catch (err) {
+      console.warn('[Notif] push subscribe failed:', err);
+    }
+  }
+
   console.log('[Notif] Final permission status:', hasPermission ? 'granted' : 'denied');
   console.log('[Notif] Notifications enabled in localStorage:', getNotificationsEnabled());
   
@@ -142,6 +154,8 @@ export async function requestNotificationPermission() {
 export function disableNotifications() {
   localStorage.setItem(NOTIF_KEY, 'false');
   localStorage.removeItem(NOTIF_NEXT_KEY);
+  // Also drop the web push subscription so no further server pushes arrive.
+  import('./pushSub').then(({ unsubscribePush }) => unsubscribePush()).catch(() => {});
 }
 
 
