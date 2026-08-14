@@ -18,7 +18,6 @@ import CurrentlyReadingIndicator from '@/components/bible/CurrentlyReadingIndica
 import MinimizedHeaderBar from '@/components/bible/MinimizedHeaderBar';
 import ReadingRangeBar from '@/components/bible/ReadingRangeBar';
 import ChapterAudioPlayer from '@/components/bible/ChapterAudioPlayer';
-import WebSpeechTtsPlayer from '@/components/bible/WebSpeechTtsPlayer';
 import SelectActionBar from '@/components/bible/SelectActionBar';
 import { useHeaderHide } from '@/lib/HeaderHideContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -1939,11 +1938,8 @@ export default function BibleReader() {
         </div>
       )}
 
-      {!loading && !error && !isViewingTitlePage && (
-        <ChapterAudioPlayer book={book} chapter={pos.chapter} verses={verses} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} />
-      )}
       {!loading && !error && !isViewingTitlePage && verses.length > 0 && (
-        <WebSpeechTtsPlayer book={book} chapter={pos.chapter} verses={verses} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} />
+        <ChapterAudioPlayer book={book} chapter={pos.chapter} verses={verses} onNavigateChapter={(abbr, ch) => navigate(abbr, ch)} />
       )}
 
       <div 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { getNextBook, getPrevBook } from '@/lib/bibleData';
-import { Play, Pause, Rewind, FastForward, ChevronLeft, ChevronRight, Loader2, Sparkles, Volume2 } from 'lucide-react';
+import { Play, Pause, Rewind, FastForward, ChevronLeft, ChevronRight, Loader2, Sparkles, Volume2, Square } from 'lucide-react';
 import { wrapVerseWords, clearKaraoke, highlightWord } from '@/lib/karaoke';
 
 const RATES = [0.75, 1, 1.25, 1.5];
@@ -87,6 +87,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
   const timingRef = useRef(null);      // { flat: [{verse,word_index,start_ms,end_ms}] }
   const lastAwRef = useRef(null);
   const rafRef = useRef(0);
+  const [currentVerse, setCurrentVerse] = useState(null); // verse number being narrated right now
 
   const isLastChapterLastBook = book.abbr === 'REV' && chapter === 22;
   const isFirstChapterFirstBook = book.abbr === 'GEN' && chapter === 1;
@@ -102,6 +103,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     setCurrentTime(0);
     setDuration(0);
     setIsPlaying(false);
+    setCurrentVerse(null);
     timingRef.current = null;
     lastAwRef.current = null;
     clearKaraoke();
@@ -168,8 +170,12 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
         const changed = !aw || !prev || aw.verse !== prev.verse || aw.wordIndex !== prev.wordIndex;
         if (changed) {
           lastAwRef.current = aw;
-          if (aw) highlightWord(aw.verse, aw.wordIndex);
-          else clearKaraoke();
+          if (aw) {
+            highlightWord(aw.verse, aw.wordIndex);
+            setCurrentVerse((cv) => (cv !== aw.verse ? aw.verse : cv));
+          } else {
+            clearKaraoke();
+          }
         }
       }
       rafRef.current = requestAnimationFrame(tick);
@@ -249,6 +255,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
     setCurrentTime(0);
     setIsPlaying(false);
     lastAwRef.current = null;
+    setCurrentVerse(null);
     clearKaraoke();
     if (!isLastChapterLastBook) {
       // Auto-advance to the next chapter and continue playback. If that next
@@ -269,6 +276,19 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
       a.pause();
       setIsPlaying(false);
     }
+  };
+
+  const stop = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.pause();
+    a.currentTime = 0;
+    setCurrentTime(0);
+    setIsPlaying(false);
+    lastAwRef.current = null;
+    setCurrentVerse(null);
+    try { localStorage.removeItem(POS_KEY(book.apiName, chapter)); } catch {}
+    clearKaraoke();
   };
 
   const skip = (delta) => {
@@ -337,7 +357,7 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
         onTimeUpdate={onTimeUpdate}
         onEnded={onEnded}
         onPlay={() => setIsPlaying(true)}
-        onPause={() => { setIsPlaying(false); lastAwRef.current = null; clearKaraoke(); }}
+        onPause={() => { setIsPlaying(false); lastAwRef.current = null; setCurrentVerse(null); clearKaraoke(); }}
         onDurationChange={(e) => { if (isFinite(e.target.duration) && e.target.duration > 0) setDuration(e.target.duration); }}
       />
       <div className="flex items-center gap-2 flex-wrap">
@@ -351,6 +371,9 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
         <button onClick={goNextChapter} disabled={isLastChapterLastBook} title="Next chapter" className={ctrlBtn}>
           <span className="hidden sm:inline text-xs">Next</span>
           <ChevronRight className="w-4 h-4" />
+        </button>
+        <button onClick={stop} title="Stop" className={ctrlBtn}>
+          <Square className="w-4 h-4" />
         </button>
 
         <div className="flex-1 min-w-[150px] flex items-center gap-2">
@@ -379,9 +402,19 @@ export default function ChapterAudioPlayer({ book, chapter, onNavigateChapter, v
           <span className="font-sans text-xs font-medium">{rate}x</span>
         </button>
       </div>
+      {currentVerse != null && (() => {
+        const vv = verses.find((x) => parseInt(x.verse, 10) === parseInt(currentVerse, 10));
+        const text = vv ? String(vv.text || '').replace(/[\u00B6\uFFFD]/g, ' ').replace(/\[|\]/g, '').trim() : '';
+        return (
+          <div className="mt-2 px-2 py-1.5 rounded-lg bg-accent/10 border border-accent/20">
+            <span className="font-sans text-[11px] font-semibold text-accent mr-1.5">{book.shortName} {chapter}:{currentVerse}</span>
+            <span className="font-serif text-[11px] text-foreground/90 leading-snug line-clamp-2">{text}</span>
+          </div>
+        );
+      })()}
       <div className="flex items-center gap-1.5 mt-2">
         <Sparkles className="w-3 h-3 text-muted-foreground/70" />
-        <span className="font-sans text-[10px] text-muted-foreground/80">{hasTiming ? (timingSource === 'file' ? 'AI narration · word sync' : 'AI narration · est. word sync') : 'AI narration'}</span>
+        <span className="font-sans text-[10px] text-muted-foreground/80">{hasTiming ? (timingSource === 'file' ? 'Piper TTS · word sync' : 'Piper TTS · est. word sync') : 'Piper TTS narration'}</span>
       </div>
     </div>
   );
