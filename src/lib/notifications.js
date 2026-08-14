@@ -65,6 +65,19 @@ export async function registerSW() {
     });
     // Force an update check to ensure users get the latest app shell features (e.g. WiFi icon)
     reg.update();
+
+    // Register Periodic Background Sync (refresh the app shell cache daily)
+    // and Background Sync (replay queued offline requests). Both are
+    // best-effort and no-op where the browser doesn't support them.
+    try {
+      if ('sync' in reg) { reg.sync.register('kjb-sync').catch(() => {}); }
+      if ('periodicSync' in reg) {
+        navigator.permissions.query({ name: 'periodic-background-sync' })
+          .then((s) => { if (s.state === 'granted') reg.periodicSync.register('kjb-refresh', { minInterval: 24 * 60 * 60 * 1000 }).catch(() => {}); })
+          .catch(() => {});
+      }
+    } catch {}
+
     return reg;
   } catch { return null; }
 }
