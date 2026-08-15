@@ -5,6 +5,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # contents: write lets the first build commit the generated keystore back to the
+    # repo so every future update is signed with that SAME key (Play requirement).
+    permissions:
+      contents: write
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -20,18 +27,85 @@ jobs:
         run: |
           if [ ! -f gradlew ]; then
             echo "No gradlew found — generating Gradle wrapper..."
-            gradle wrapper --gradle-version 8.7
+            gradle wrapper --gradle-version 8.11.1
           fi
           chmod +x gradlew || true
-      - name: Generate signing keystore
+      - name: Restore or create persistent signing keystore
         working-directory: android
         run: |
-          keytool -genkeypair -v \
-            -keystore release.keystore \
-            -alias appnative \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass appnative -keypass appnative \
-            -dname "CN=AppNative, OU=Mobile, O=AppNative, L=, S=, C=US"
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::ANDROID_KEYSTORE_PASSWORD secret is missing — cannot sign consistently."
+            exit 1
+          fi
+          if [ -f keystore/release.keystore ]; then
+            echo "Reusing the app's existing signing key (keystore/release.keystore)."
+            cp keystore/release.keystore release.keystore
+          else
+            echo "No signing key yet — creating the app's permanent key (used for ALL future updates)."
+            mkdir -p keystore
+            keytool -genkeypair -v \
+              -keystore keystore/release.keystore \
+              -alias appnative \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$KEYSTORE_PASSWORD" -keypass "$KEYSTORE_PASSWORD" \
+              -dname "CN=KJB READER, OU=Mobile, O=AppNative, L=, S=, C=US"
+            cp keystore/release.keystore release.keystore
+            echo "NEW_KEYSTORE=1" >> $GITHUB_ENV
+          fi
+          # Export the public upload certificate (.pem) — this is the file Google asks
+          # for during a Play Console "upload key reset". Kept next to the keystore so
+          # the platform can offer it for download.
+          if [ ! -f keystore/upload_certificate.pem ]; then
+            keytool -exportcert -rfc \
+              -keystore keystore/release.keystore \
+              -alias appnative \
+              -storepass "$KEYSTORE_PASSWORD" \
+              -file keystore/upload_certificate.pem
+            echo "NEW_CERT=1" >> $GITHUB_ENV
+          fi
+      - name: Save the signing key for future updates
+        if: env.NEW_KEYSTORE == '1' || env.NEW_CERT == '1'
+        working-directory: android
+        run: |
+          git config user.name "appnative-build"
+          git config user.email "build@appnative.io"
+          git add -f keystore/release.keystore keystore/upload_certificate.pem
+          git commit -m "[AppNative] Store permanent Android signing key + upload certificate"
+          git push
+      - name: Generate launcher icons
+        working-directory: android
+        run: |
+          SRC_FILE=app/src/main/res/mipmap-anydpi/icon_url.txt
+          ICON_URL=""
+          [ -f "$SRC_FILE" ] && ICON_URL=$(cat "$SRC_FILE")
+          # ubuntu-latest (24.04) runners no longer ship ImageMagick — install it if
+          # neither "convert" nor "magick" exists, or this step dies with exit 127.
+          if ! command -v convert >/dev/null 2>&1 && ! command -v magick >/dev/null 2>&1; then
+            echo "ImageMagick not on runner — installing..."
+            sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
+          fi
+          IM=convert
+          command -v convert >/dev/null 2>&1 || IM="magick"
+          if [ -n "$ICON_URL" ]; then
+            echo "Downloading launcher icon..."
+            curl -sL "$ICON_URL" -o source_icon.png
+          else
+            echo "No icon configured — generating a solid placeholder."
+            $IM -size 512x512 xc:"#3B82F6" source_icon.png
+          fi
+          # Flatten transparency onto the brand background (Play rejects odd alpha edges).
+          $IM source_icon.png -background "#0A0F1C" -alpha remove -alpha off flat_icon.png
+          for PAIR in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+            DPI=${PAIR%%:*}; PX=${PAIR##*:}
+            DIR="app/src/main/res/mipmap-$DPI"
+            mkdir -p "$DIR"
+            $IM flat_icon.png -resize ${PX}x${PX} "$DIR/ic_launcher.png"
+            # Launchers apply their own circular mask, so the round variant is the same art.
+            cp "$DIR/ic_launcher.png" "$DIR/ic_launcher_round.png"
+            echo "Generated $DPI icons (${PX}px)"
+          done
+          rm -f source_icon.png flat_icon.png "$SRC_FILE"
+          rmdir app/src/main/res/mipmap-anydpi 2>/dev/null || true
       - name: Build release APK (unsigned)
         working-directory: android
         run: ./gradlew assembleRelease
@@ -55,8 +129,8 @@ jobs:
           "$BUILD_TOOLS_DIR/apksigner" sign \
             --ks release.keystore \
             --ks-key-alias appnative \
-            --ks-pass pass:appnative \
-            --key-pass pass:appnative \
+            --ks-pass "pass:$KEYSTORE_PASSWORD" \
+            --key-pass "pass:${KEY_PASSWORD:-$KEYSTORE_PASSWORD}" \
             --v1-signing-enabled true \
             --v2-signing-enabled true \
             --v3-signing-enabled true \
@@ -65,8 +139,22 @@ jobs:
 
           # 3) Verify before shipping
           "$BUILD_TOOLS_DIR/apksigner" verify --verbose app-release-signed.apk
+      - name: Build & sign release AAB (Play Store)
+        working-directory: android
+        run: |
+          # Google Play requires an Android App Bundle (.aab) for store uploads.
+          ./gradlew bundleRelease
+          jarsigner -keystore release.keystore \
+            -storepass "$KEYSTORE_PASSWORD" -keypass "${KEY_PASSWORD:-$KEYSTORE_PASSWORD}" \
+            app/build/outputs/bundle/release/app-release.aab appnative
+          cp app/build/outputs/bundle/release/app-release.aab app-release.aab
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: android/app-release-signed.apk
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: android/app-release.aab

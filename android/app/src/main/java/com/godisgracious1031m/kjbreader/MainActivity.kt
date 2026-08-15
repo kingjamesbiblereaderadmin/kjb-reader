@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
+    private var pendingWebPermissionRequest: PermissionRequest? = null
 
     // OAuth providers (Google, Apple, etc.) MUST stay inside the WebView — opening them
     // in Chrome logs the user into Chrome, not the app. Allow these to load in-app.
@@ -20,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     private fun isAllowedHost(host: String): Boolean {
-        if (host == "kingjamesbiblereader.com" || host.endsWith(".kingjamesbiblereader.com")) return true
+        if (host.endsWith("kingjamesbiblereader.com")) return true
         return authHosts.any { host == it || host.endsWith(".$it") }
     }
 
@@ -62,6 +63,25 @@ class MainActivity : AppCompatActivity() {
                     resultMsg.sendToTarget()
                     return true
                 }
+
+                // Mic/camera are "dangerous" Android permissions: granting the WebView
+                // request is silently ignored unless the matching OS runtime permission
+                // was granted first. Ask the user, then grant the web request.
+                override fun onPermissionRequest(request: PermissionRequest?) {
+                    request ?: return
+                    runOnUiThread {
+                        val needed = mutableListOf<String>()
+                        if (request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) needed.add(android.Manifest.permission.RECORD_AUDIO)
+                        if (request.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) needed.add(android.Manifest.permission.CAMERA)
+                        val missing = needed.filter { this@MainActivity.checkSelfPermission(it) != android.content.pm.PackageManager.PERMISSION_GRANTED }
+                        if (missing.isEmpty()) {
+                            request.grant(request.resources)
+                        } else {
+                            pendingWebPermissionRequest = request
+                            this@MainActivity.requestPermissions(missing.toTypedArray(), 1002)
+                        }
+                    }
+                }
             }
             loadUrl("https://kingjamesbiblereader.com/")
         }
@@ -70,5 +90,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (webView.canGoBack()) webView.goBack() else super.onBackPressed()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1002) {
+            val request = pendingWebPermissionRequest ?: return
+            pendingWebPermissionRequest = null
+            if (grantResults.isNotEmpty() && grantResults.all { it == android.content.pm.PackageManager.PERMISSION_GRANTED }) {
+                request.grant(request.resources)
+            } else {
+                request.deny()
+            }
+        }
     }
 }
