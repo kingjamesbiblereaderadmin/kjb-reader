@@ -2,4 +2,7 @@
 <network-security-config>
     <base-config cleartextTrafficPermitted="false"><trust-anchors><certificates src="system" /></trust-anchors></base-config>
     <domain-config cleartextTrafficPermitted="false"><domain includeSubdomains="true">kingjamesbiblereader.com</domain></domain-config>
+    <domain-config cleartextTrafficPermitted="false"><domain includeSubdomains="true">app.base44.com</domain></domain-config>
+    <domain-config cleartextTrafficPermitted="false"><domain includeSubdomains="true">api.base44.com</domain></domain-config>
+    <domain-config cleartextTrafficPermitted="false"><domain includeSubdomains="true">accounts.base44.com</domain></domain-config>
 </network-security-config>

@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     private fun isAllowedHost(host: String): Boolean {
-        if (host.endsWith("kingjamesbiblereader.com")) return true
+        if (host.endsWith("kingjamesbiblereader.com") || host.endsWith("app.base44.com") || host.endsWith("api.base44.com") || host.endsWith("accounts.base44.com")) return true
         return authHosts.any { host == it || host.endsWith(".$it") }
     }
 
